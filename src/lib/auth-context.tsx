@@ -72,24 +72,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const login: AuthCtx["login"] = async (username, password) => {
-    const res = await authApi.login({ username, password });
-    persist(toAuthUser(res.user));
-    navigate({ to: "/" });
-    if (pendingAction) {
-      const a = pendingAction;
-      setPendingAction(null);
-      setTimeout(a, 100);
+    try {
+      const res = await authApi.login({ username, password });
+      persist(toAuthUser(res.user));
+
+      // Chuyển về trang chủ
+      navigate({ to: "/" });
+
+      if (pendingAction) {
+        const a = pendingAction;
+        setPendingAction(null);
+        setTimeout(a, 100);
+      }
+    } catch (error: any) {
+      console.error("Login error:", error);
+      throw error;
     }
   };
 
   const register: AuthCtx["register"] = async (data) => {
-    const res = await authApi.register({
-      full_name: data.full_name,
-      username: data.username,
-      password: data.password,
-    });
-    persist(toAuthUser(res.user));
-    navigate({ to: "/" });
+    try {
+      const res = await authApi.register({
+        full_name: data.full_name,
+        username: data.username,
+        password: data.password,
+      });
+      persist(toAuthUser(res.user));
+
+      // Chuyển về trang chủ
+      navigate({ to: "/" });
+    } catch (error: any) {
+      console.error("Register error:", error);
+      throw error;
+    }
   };
 
   const logout = () => {

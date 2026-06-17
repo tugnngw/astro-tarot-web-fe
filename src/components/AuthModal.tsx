@@ -56,7 +56,7 @@ function Field({ icon: Icon, ...props }: any) {
 }
 
 // ============================================================
-// LOGIN FORM - Chỉ nhập username
+// LOGIN FORM
 // ============================================================
 function LoginForm({ onSwitch, onClose, login }: any) {
   const [username, setUsername] = useState("");
@@ -171,7 +171,7 @@ function LoginForm({ onSwitch, onClose, login }: any) {
 }
 
 // ============================================================
-// REGISTER FORM - Nhập username + full_name + password
+// REGISTER FORM
 // ============================================================
 function RegisterForm({ onSwitch, onClose, register }: any) {
   const [f, setF] = useState({ username: "", full_name: "", pwd: "", pwd2: "" });
