@@ -23,9 +23,9 @@ export interface AuthUser {
 
 interface AuthCtx {
   user: AuthUser | null;
-  login: (username: string, password: string) => Promise<void>;  // Chỉ nhận username
-  register: (data: { username: string; full_name: string; password: string }) => Promise<void>;  // Thêm username
-  logout: () => void;
+  login: (emailOrUsername: string, password: string) => Promise<void>;
+  register: (data: { username: string; full_name: string; password: string }) => Promise<void>;
+  logout: () => Promise<void>;  // <-- Đổi thành Promise
   updateProfile: (patch: Partial<Omit<AuthUser, "id" | "role" | "joinedAt">>) => void;
   requestAuth: (cb: () => void) => void;
   authPrompt: { open: false } | { open: true; mode: "login" | "register" | "forgot" | "reader" };
@@ -67,49 +67,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const persist = (u: AuthUser | null) => {
     setUser(u);
-    if (u) localStorage.setItem(USER_KEY, JSON.stringify(u));
-    else localStorage.removeItem(USER_KEY);
+    if (u) {
+      localStorage.setItem(USER_KEY, JSON.stringify(u));
+    } else {
+      localStorage.removeItem(USER_KEY);
+    }
   };
 
-  const login: AuthCtx["login"] = async (username, password) => {
-    try {
-      const res = await authApi.login({ username, password });
-      persist(toAuthUser(res.user));
+  const login: AuthCtx["login"] = async (emailOrUsername, password) => {
+    const username = emailOrUsername.includes("@")
+        ? emailOrUsername.split("@")[0]
+        : emailOrUsername;
 
-      // Chuyển về trang chủ
-      navigate({ to: "/" });
-
-      if (pendingAction) {
-        const a = pendingAction;
-        setPendingAction(null);
-        setTimeout(a, 100);
-      }
-    } catch (error: any) {
-      console.error("Login error:", error);
-      throw error;
+    const res = await authApi.login({ username, password });
+    persist(toAuthUser(res.user));
+    navigate({ to: "/" });
+    if (pendingAction) {
+      const a = pendingAction;
+      setPendingAction(null);
+      setTimeout(a, 100);
     }
   };
 
   const register: AuthCtx["register"] = async (data) => {
-    try {
-      const res = await authApi.register({
-        full_name: data.full_name,
-        username: data.username,
-        password: data.password,
-      });
-      persist(toAuthUser(res.user));
-
-      // Chuyển về trang chủ
-      navigate({ to: "/" });
-    } catch (error: any) {
-      console.error("Register error:", error);
-      throw error;
-    }
+    const res = await authApi.register({
+      full_name: data.full_name,
+      username: data.username,
+      password: data.password,
+    });
+    persist(toAuthUser(res.user));
+    navigate({ to: "/" });
   };
 
-  const logout = () => {
-    void authApi.logout();
-    persist(null);
+  // ============================================================
+  // LOGOUT - Cập nhật: clear user, token, redirect về trang chủ
+  // ============================================================
+  const logout: AuthCtx["logout"] = async () => {
+    try {
+      await authApi.logout();
+    } catch {
+      // ignore
+    } finally {
+      // Clear user state
+      persist(null);
+      // Chuyển về trang chủ (sẽ hiển thị login button)
+      navigate({ to: "/" });
+    }
   };
 
   const updateProfile = (patch: Partial<Omit<AuthUser, "id" | "role" | "joinedAt">>) => {
