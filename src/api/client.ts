@@ -8,8 +8,9 @@
 
 import type { ApiEnvelope } from "./types";
 
-/** URL gốc backend — đọc từ .env (Vite expose qua import.meta.env) */
-export const API_BASE = (import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/$/, "");
+import { VITE_API_BASE_URL } from "../lib/base-url.ts";
+/** URL gốc backend */
+export const API_BASE = (VITE_API_BASE_URL ?? "").replace(/\/$/, "");
 /** Tiện ích: BE đã được cấu hình hay chưa */
 export const isLiveBackend = () => API_BASE.length > 0;
 
@@ -73,13 +74,12 @@ async function refreshAccessToken(): Promise<string | null> {
 
 /** Hàm fetch chính. Auto retry 1 lần nếu refresh thành công. */
 export async function apiFetch<T>(
-  path: string,
-  init: RequestInit = {},
-  { auth = true, retry = true }: { auth?: boolean; retry?: boolean } = {},
+    path: string,
+    init: RequestInit = {},
+    { auth = true, retry = true }: { auth?: boolean; retry?: boolean } = {},
 ): Promise<T> {
   if (!isLiveBackend()) throw new MockUnavailableError();
 
-  // Build headers
   const headers = new Headers(init.headers);
   if (init.body && !headers.has("Content-Type")) headers.set("Content-Type", "application/json");
   if (auth) {
@@ -96,9 +96,19 @@ export async function apiFetch<T>(
     tokenStore.clear();
   }
 
-  const envelope = (await res.json().catch(() => ({ data: null, error: { code: "PARSE", message: "Invalid JSON" } }))) as ApiEnvelope<T>;
+  const envelope = (await res.json().catch(() => ({
+    data: null,
+    error: { code: "PARSE", message: "Invalid JSON" }
+  }))) as ApiEnvelope<T>;
+
+  // BE trả về error trong object
   if (!res.ok || envelope.error) {
-    throw new ApiError(res.status, envelope.error?.code ?? "UNKNOWN", envelope.error?.message ?? res.statusText);
+    throw new ApiError(
+        res.status,
+        envelope.error?.code ?? "UNKNOWN",
+        envelope.error?.message ?? envelope.message ?? res.statusText
+    );
   }
+
   return envelope.data as T;
 }

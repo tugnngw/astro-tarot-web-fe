@@ -1,38 +1,56 @@
+// src/api/types.ts
 // ============================================================
-// TYPES — Khớp 1-1 với V1__init_schema.sql
-// Đặt tên field theo snake_case để map thẳng từ JSON BE trả về.
+// TYPES — Khớp 1-1 với BE (snake_case)
 // ============================================================
 
-/** Vai trò người dùng (xem CHECK constraint bảng users) */
+/** Vai trò người dùng */
 export type UserRole = "USER" | "READER" | "ADMIN";
 /** Trạng thái tài khoản */
 export type UserStatus = "ACTIVE" | "INACTIVE" | "BANNED";
 
-/** Bảng `users` — bỏ password_hash vì FE không bao giờ thấy */
+/** Bảng `users` — response từ BE */
 export interface User {
-  id: string;                 // UUID
-  email: string;
+  id: string;
+  username: string;
+  email: string | null;
   full_name: string;
   role: UserRole;
-  phone?: string | null;
-  avatar?: string | null;
+  phone: string | null;
+  avatar: string | null;
   status: UserStatus;
   email_verified: boolean;
-  last_login_at?: string | null;
+  last_login_at: string | null;
   created_at: string;
   updated_at: string;
+  deleted_at: string | null;
 }
 
-/** Bảng `user_astrological_data` — thông tin sinh trắc dùng cho tarot/chiêm tinh */
+// ============================================================
+// AUTH
+// ============================================================
+
+/** Auth response từ BE */
+export interface AuthResult {
+  user: User;
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: number;
+}
+
+// ============================================================
+// USER ASTROLOGICAL DATA
+// ============================================================
+
 export type AstroProfileType = "SELF" | "OTHER" | "COUPLE";
+
 export interface AstrologicalData {
   id: string;
   user_id: string;
   profile_type: AstroProfileType;
-  title: string;              // tên gợi nhớ, vd "Bản thân", "Người yêu"
+  title: string;
   target_name?: string | null;
-  birth_date: string;         // YYYY-MM-DD
-  birth_time?: string | null; // HH:MM:SS
+  birth_date: string;
+  birth_time?: string | null;
   birth_place?: string | null;
   latitude?: number | null;
   longitude?: number | null;
@@ -42,7 +60,10 @@ export interface AstrologicalData {
   updated_at: string;
 }
 
-/** Bảng `reader_profiles` */
+// ============================================================
+// READER PROFILES
+// ============================================================
+
 export interface ReaderProfile {
   id: string;
   user_id: string;
@@ -56,30 +77,30 @@ export interface ReaderProfile {
   total_reviews: number;
   is_available: boolean;
   verified_at?: string | null;
-  // join sẵn từ BE cho tiện hiển thị
   user?: Pick<User, "id" | "full_name" | "avatar">;
 }
 
-/** Bảng `reader_availability` — lịch theo thứ trong tuần */
 export interface ReaderAvailability {
   id: string;
   reader_id: string;
-  day_of_week: number;        // 0 = CN .. 6 = T7
-  start_time: string;         // HH:MM
+  day_of_week: number;
+  start_time: string;
   end_time: string;
   is_active: boolean;
 }
 
-/** Bảng `bookings` */
-export type BookingStatus =
-  | "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED";
-export type PaymentStatus =
-  | "UNPAID" | "PAID" | "REFUNDED" | "ESCROW";
+// ============================================================
+// BOOKINGS
+// ============================================================
+
+export type BookingStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED";
+export type PaymentStatus = "UNPAID" | "PAID" | "REFUNDED" | "ESCROW";
+
 export interface Booking {
   id: string;
   user_id: string;
   reader_profile_id: string;
-  start_time: string;         // ISO
+  start_time: string;
   end_time: string;
   total_amount: number;
   status: BookingStatus;
@@ -89,7 +110,10 @@ export interface Booking {
   updated_at: string;
 }
 
-/** Bảng `tarot_readings` + `reading_cards` */
+// ============================================================
+// TAROT
+// ============================================================
+
 export interface TarotReading {
   id: string;
   user_id: string;
@@ -101,6 +125,7 @@ export interface TarotReading {
   total_tokens_used: number;
   created_at: string;
 }
+
 export interface ReadingCard {
   id: string;
   reading_id: string;
@@ -110,7 +135,10 @@ export interface ReadingCard {
   interpretation?: string | null;
 }
 
-/** Chat */
+// ============================================================
+// CHAT
+// ============================================================
+
 export interface ChatSession {
   id: string;
   user_id: string;
@@ -121,6 +149,7 @@ export interface ChatSession {
   last_message_at?: string | null;
   created_at: string;
 }
+
 export interface ChatMessage {
   id: string;
   session_id: string;
@@ -132,8 +161,13 @@ export interface ChatMessage {
   created_at: string;
 }
 
+// ============================================================
+// API RESPONSE WRAPPER
+// ============================================================
+
 /** Hợp đồng response chuẩn của BE */
 export interface ApiEnvelope<T> {
   data: T | null;
-  error: { code: string; message: string } | null;
+  error?: { code: string; message: string } | null;
+  message?: string | null;
 }

@@ -1,27 +1,20 @@
-// ============================================================
-// AuthContext — quản lý phiên đăng nhập + role.
-// - Gọi src/api/auth.ts (auto MOCK nếu chưa cấu hình VITE_API_BASE_URL).
-// - Lưu user vào localStorage để giữ phiên khi reload.
-// - Role chuẩn hoá về chữ thường để code UI cũ vẫn chạy
-//   ("user" | "reader" | "admin").
-// ============================================================
+// src/lib/auth-context.tsx
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import * as authApi from "@/api/auth";
 import type { User } from "@/api/types";
 
-/** Role chữ thường, dùng thống nhất trong UI */
-export type Role = "guest" | "user" | "reader" | "admin" | "expert";
+export type Role = "guest" | "user" | "reader" | "admin";
 
-/** Map role từ DB (UPPERCASE) → UI (lowercase) */
 const toUiRole = (r: User["role"]): Role =>
-  r === "ADMIN" ? "admin" : r === "READER" ? "reader" : "user";
+    r === "ADMIN" ? "admin" : r === "READER" ? "reader" : "user";
 
-/** Mô hình user dùng trong UI (giữ tương thích cũ + thêm full_name) */
 export interface AuthUser {
   id: string;
-  name: string;          // alias của full_name (giữ tương thích UI cũ)
-  full_name: string;     // tên thật theo schema
-  email: string;
+  name: string;
+  full_name: string;
+  username: string;
+  email?: string;
   phone?: string;
   avatar?: string;
   role: Role;
@@ -30,13 +23,10 @@ export interface AuthUser {
 
 interface AuthCtx {
   user: AuthUser | null;
-  /** Đăng nhập bằng email + password (backend hoặc mock) */
-  login: (email: string, password: string) => Promise<void>;
-  /** Đăng ký — dùng đúng tên `full_name` theo schema */
-  register: (data: { full_name: string; email: string; phone: string; password: string }) => Promise<void>;
+  login: (username: string, password: string) => Promise<void>;  // Chỉ nhận username
+  register: (data: { username: string; full_name: string; password: string }) => Promise<void>;  // Thêm username
   logout: () => void;
-  updateProfile: (patch: Partial<AuthUser>) => void;
-  /** Mở modal login nếu chưa đăng nhập, ngược lại chạy callback ngay */
+  updateProfile: (patch: Partial<Omit<AuthUser, "id" | "role" | "joinedAt">>) => void;
   requestAuth: (cb: () => void) => void;
   authPrompt: { open: false } | { open: true; mode: "login" | "register" | "forgot" | "reader" };
   openAuth: (mode: "login" | "register" | "forgot" | "reader") => void;
@@ -46,13 +36,13 @@ interface AuthCtx {
 const Ctx = createContext<AuthCtx | null>(null);
 const USER_KEY = "astrotarot_user_v2";
 
-/** Chuẩn hoá user từ API → UI shape */
 function toAuthUser(u: User): AuthUser {
   return {
     id: u.id,
-    name: u.full_name,           // alias cũ
+    name: u.full_name,
     full_name: u.full_name,
-    email: u.email,
+    username: u.username,
+    email: u.email ?? undefined,
     phone: u.phone ?? undefined,
     avatar: u.avatar ?? undefined,
     role: toUiRole(u.role),
@@ -61,16 +51,18 @@ function toAuthUser(u: User): AuthUser {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const navigate = useNavigate();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [authPrompt, setAuthPrompt] = useState<AuthCtx["authPrompt"]>({ open: false });
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
 
-  // Khôi phục phiên từ localStorage khi mount
   useEffect(() => {
     try {
       const raw = localStorage.getItem(USER_KEY);
       if (raw) setUser(JSON.parse(raw));
-    } catch { /* ignore JSON lỗi */ }
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   const persist = (u: AuthUser | null) => {
@@ -79,41 +71,62 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     else localStorage.removeItem(USER_KEY);
   };
 
-  const login: AuthCtx["login"] = async (email, password) => {
-    const res = await authApi.login({ email, password });
+  const login: AuthCtx["login"] = async (username, password) => {
+    const res = await authApi.login({ username, password });
     persist(toAuthUser(res.user));
-    // Thực hiện action người dùng định làm trước khi bị chặn auth
+    navigate({ to: "/" });
     if (pendingAction) {
-      const a = pendingAction; setPendingAction(null);
+      const a = pendingAction;
+      setPendingAction(null);
       setTimeout(a, 100);
     }
   };
 
   const register: AuthCtx["register"] = async (data) => {
-    const res = await authApi.register(data);
+    const res = await authApi.register({
+      full_name: data.full_name,
+      username: data.username,
+      password: data.password,
+    });
     persist(toAuthUser(res.user));
+    navigate({ to: "/" });
   };
 
-  const logout = () => { void authApi.logout(); persist(null); };
+  const logout = () => {
+    void authApi.logout();
+    persist(null);
+  };
 
-  const updateProfile = (patch: Partial<AuthUser>) =>
-    persist(user ? { ...user, ...patch } : null);
+  const updateProfile = (patch: Partial<Omit<AuthUser, "id" | "role" | "joinedAt">>) => {
+    if (user) {
+      persist({ ...user, ...patch });
+    }
+  };
 
-  /** Nếu user đã login → chạy ngay. Ngược lại mở modal và nhớ lại action. */
   const requestAuth = (cb: () => void) => {
     if (user) cb();
-    else { setPendingAction(() => cb); setAuthPrompt({ open: true, mode: "login" }); }
+    else {
+      setPendingAction(() => cb);
+      setAuthPrompt({ open: true, mode: "login" });
+    }
   };
 
   return (
-    <Ctx.Provider value={{
-      user, login, register, logout, updateProfile, requestAuth,
-      authPrompt,
-      openAuth: (mode) => setAuthPrompt({ open: true, mode }),
-      closeAuth: () => setAuthPrompt({ open: false }),
-    }}>
-      {children}
-    </Ctx.Provider>
+      <Ctx.Provider
+          value={{
+            user,
+            login,
+            register,
+            logout,
+            updateProfile,
+            requestAuth,
+            authPrompt,
+            openAuth: (mode) => setAuthPrompt({ open: true, mode }),
+            closeAuth: () => setAuthPrompt({ open: false }),
+          }}
+      >
+        {children}
+      </Ctx.Provider>
   );
 }
 
