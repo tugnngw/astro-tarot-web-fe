@@ -11,6 +11,7 @@ import type { ApiEnvelope } from "./types";
 import { VITE_API_BASE_URL } from "../lib/base-url.ts";
 /** URL gốc backend */
 export const API_BASE = (VITE_API_BASE_URL ?? "").replace(/\/$/, "");
+console.log("API_BASE =", API_BASE);
 /** Tiện ích: BE đã được cấu hình hay chưa */
 export const isLiveBackend = () => API_BASE.length > 0;
 

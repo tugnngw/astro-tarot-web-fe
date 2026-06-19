@@ -1,1 +1,1 @@
-export const VITE_API_BASE_URL = "http://localhost:8080"; //IP của BE
+export const VITE_API_BASE_URL = "http://192.168.1.12:8080"; //IP của BE
