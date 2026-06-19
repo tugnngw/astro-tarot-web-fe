@@ -12,4 +12,11 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    server: {
+      host: '0.0.0.0',  // Cho phép truy cập từ LAN
+      port: 8081,       // Giữ nguyên port 8081
+      strictPort: true, // Không đổi port nếu 8081 bị chiếm
+    }
+  }
 });

@@ -17,6 +17,7 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ReadersIdRouteImport } from './routes/readers.$id'
+import { Route as ProfileAstrologyRouteImport } from './routes/profile/astrology'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 
 const TarotRoute = TarotRouteImport.update({
@@ -59,6 +60,11 @@ const ReadersIdRoute = ReadersIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => ReadersRoute,
 } as any)
+const ProfileAstrologyRoute = ProfileAstrologyRouteImport.update({
+  id: '/astrology',
+  path: '/astrology',
+  getParentRoute: () => ProfileRoute,
+} as any)
 const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/blog/$slug',
   path: '/blog/$slug',
@@ -68,35 +74,38 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
-  '/profile': typeof ProfileRoute
+  '/profile': typeof ProfileRouteWithChildren
   '/reader': typeof ReaderRoute
   '/reader-hub': typeof ReaderHubRoute
   '/readers': typeof ReadersRouteWithChildren
   '/tarot': typeof TarotRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/profile/astrology': typeof ProfileAstrologyRoute
   '/readers/$id': typeof ReadersIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
-  '/profile': typeof ProfileRoute
+  '/profile': typeof ProfileRouteWithChildren
   '/reader': typeof ReaderRoute
   '/reader-hub': typeof ReaderHubRoute
   '/readers': typeof ReadersRouteWithChildren
   '/tarot': typeof TarotRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/profile/astrology': typeof ProfileAstrologyRoute
   '/readers/$id': typeof ReadersIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
-  '/profile': typeof ProfileRoute
+  '/profile': typeof ProfileRouteWithChildren
   '/reader': typeof ReaderRoute
   '/reader-hub': typeof ReaderHubRoute
   '/readers': typeof ReadersRouteWithChildren
   '/tarot': typeof TarotRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/profile/astrology': typeof ProfileAstrologyRoute
   '/readers/$id': typeof ReadersIdRoute
 }
 export interface FileRouteTypes {
@@ -110,6 +119,7 @@ export interface FileRouteTypes {
     | '/readers'
     | '/tarot'
     | '/blog/$slug'
+    | '/profile/astrology'
     | '/readers/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -121,6 +131,7 @@ export interface FileRouteTypes {
     | '/readers'
     | '/tarot'
     | '/blog/$slug'
+    | '/profile/astrology'
     | '/readers/$id'
   id:
     | '__root__'
@@ -132,13 +143,14 @@ export interface FileRouteTypes {
     | '/readers'
     | '/tarot'
     | '/blog/$slug'
+    | '/profile/astrology'
     | '/readers/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
-  ProfileRoute: typeof ProfileRoute
+  ProfileRoute: typeof ProfileRouteWithChildren
   ReaderRoute: typeof ReaderRoute
   ReaderHubRoute: typeof ReaderHubRoute
   ReadersRoute: typeof ReadersRouteWithChildren
@@ -204,6 +216,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReadersIdRouteImport
       parentRoute: typeof ReadersRoute
     }
+    '/profile/astrology': {
+      id: '/profile/astrology'
+      path: '/astrology'
+      fullPath: '/profile/astrology'
+      preLoaderRoute: typeof ProfileAstrologyRouteImport
+      parentRoute: typeof ProfileRoute
+    }
     '/blog/$slug': {
       id: '/blog/$slug'
       path: '/blog/$slug'
@@ -213,6 +232,17 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface ProfileRouteChildren {
+  ProfileAstrologyRoute: typeof ProfileAstrologyRoute
+}
+
+const ProfileRouteChildren: ProfileRouteChildren = {
+  ProfileAstrologyRoute: ProfileAstrologyRoute,
+}
+
+const ProfileRouteWithChildren =
+  ProfileRoute._addFileChildren(ProfileRouteChildren)
 
 interface ReadersRouteChildren {
   ReadersIdRoute: typeof ReadersIdRoute
@@ -228,7 +258,7 @@ const ReadersRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
-  ProfileRoute: ProfileRoute,
+  ProfileRoute: ProfileRouteWithChildren,
   ReaderRoute: ReaderRoute,
   ReaderHubRoute: ReaderHubRoute,
   ReadersRoute: ReadersRouteWithChildren,

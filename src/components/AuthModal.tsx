@@ -56,7 +56,7 @@ function Field({ icon: Icon, ...props }: any) {
 }
 
 // ============================================================
-// LOGIN FORM
+// LOGIN FORM - Bỏ nút Google
 // ============================================================
 function LoginForm({ onSwitch, onClose, login }: any) {
   const [username, setUsername] = useState("");
@@ -149,12 +149,9 @@ function LoginForm({ onSwitch, onClose, login }: any) {
           >
             {loading ? "Đang xử lý..." : "Đăng nhập"}
           </button>
-          <button
-              type="button"
-              className="flex w-full items-center justify-center gap-2 rounded-full border border-gold/40 bg-background/40 py-3 text-sm transition hover:bg-gold/10"
-          >
-            <span className="text-base">G</span> Tiếp tục với Google
-          </button>
+
+          {/* ❌ ĐÃ XÓA NÚT GOOGLE LOGIN */}
+
           <p className="text-center text-sm text-muted-foreground">
             Chưa có tài khoản?{" "}
             <button
