@@ -11,6 +11,7 @@ import { TAROT_DECK, getCardMeaning } from "@/lib/mock-data";
 import { startAiTarotReading, type TarotReadingResult } from "@/api/tarot";
 import { createAstrologyProfile } from "@/api/astrology";
 import { convertToISODate, convertToISOTime, getUserTimezone } from "@/lib/utils";
+import { API_BASE } from "@/api/client";
 
 const DrawStage = lazy(() => import("@/components/TarotDraw").then((m) => ({ default: m.TarotDraw })));
 
@@ -18,7 +19,7 @@ export const Route = createFileRoute("/tarot")({
   head: () => ({
     meta: [
       { title: "Tarot AI Reader — ASTROTAROT" },
-      { name: "description", content: "Trò chuyện cùng AI Tarot cá nhân hoá dựa trên bản đồ sao của bạn." },
+      { name: "description", content: "Trò chuyện cùng AI Tarot cá nhân hoá theo bản đồ sao của bạn." },
     ],
   }),
   component: TarotPageWithErrorBoundary,
@@ -51,20 +52,19 @@ interface TimezoneInfo {
   offset: number;
 }
 
-const MOCK_REPLIES = [
-  "Vũ trụ đang gửi đến bạn những tín hiệu tích cực ✦ Hãy mở lòng đón nhận.",
-  "Mình cảm nhận được năng lượng ấm áp từ cậu 🌙 — hãy tiếp tục giữ vững niềm tin.",
-  "Đôi khi im lặng cũng là một câu trả lời. Hãy lắng nghe trái tim mình.",
-  "Mỗi ngày mới là một cơ hội để bắt đầu lại. Cậu có điều gì muốn bắt đầu không?",
-  "Hãy nhớ rằng, những điều tốt đẹp nhất thường đến khi ta ít ngờ tới nhất.",
-  "Cậu đang làm rất tốt, đừng quá khắt khe với bản thân nhé.",
-  "Nếu cậu muốn, mình có thể rút bài Tarot để xem thêm về tình hình của cậu.",
+// ============================================================
+// FALLBACK REPLIES - CHỈ DÙNG KHI API LỖI
+// ============================================================
+const FALLBACK_REPLIES = [
+  "Xin lỗi cậu, mình đang gặp vấn đề kết nối. Cậu có thể thử lại sau nhé! 💫",
+  "Mình chưa hiểu ý cậu lắm. Cậu có thể nói rõ hơn được không?",
+  "Có điều gì cậu muốn chia sẻ thêm không? Mình luôn sẵn sàng lắng nghe.",
 ];
 
 function storageKey(uid: string) { return `astrotarot_chat_${uid}`; }
 
 // ============================================================
-// CLEAN OLD SESSIONS - Xóa session cũ
+// CLEAN OLD SESSIONS
 // ============================================================
 function cleanOldSessions(currentUid: string) {
   try {
@@ -327,6 +327,162 @@ async function getTimezoneInfo(lat: number, lng: number): Promise<TimezoneInfo> 
   }
 }
 
+// ============================================================
+// 🔥 CALL GENERAL CHAT API - CHAT THƯỜNG (KHÔNG TAROT)
+// ============================================================
+async function callGeneralChat(message: string): Promise<string> {
+  try {
+    const token = localStorage.getItem('astrotarot_access_token');
+
+    if (!token) {
+      console.warn('⚠️ No access token found');
+      return "Xin lỗi, bạn cần đăng nhập để sử dụng tính năng này.";
+    }
+
+    console.log(`📤 Sending general chat: ${message}`);
+
+    const response = await fetch(`${API_BASE}/api/chat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        message,
+        readingId: null  // 🔥 QUAN TRỌNG: null = chat thường
+      }),
+    });
+
+    console.log(`📥 General chat response status: ${response.status}`);
+
+    if (!response.ok) {
+      let errorMessage = 'Không thể lấy phản hồi từ AI';
+      try {
+        const errorData = await response.json();
+        console.error('❌ General chat API error:', errorData);
+        errorMessage = errorData?.message || errorData?.data?.message || errorMessage;
+      } catch (e) {
+        console.error('❌ Failed to parse error response:', e);
+      }
+
+      if (response.status === 401) {
+        return "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.";
+      }
+      if (response.status === 503) {
+        return "🔮 Dịch vụ AI đang quá tải. Vui lòng thử lại sau vài phút.";
+      }
+
+      throw new Error(errorMessage);
+    }
+
+    const data = await response.json();
+    console.log('✅ General chat response data:', data);
+
+    // BE trả về ApiResponse<ChatResponse>
+    const reply = data?.data?.reply || data?.data?.response || data?.reply;
+
+    if (!reply) {
+      console.warn('⚠️ No reply in response:', data);
+      return "Xin lỗi, mình chưa hiểu ý cậu. Cậu có thể nói rõ hơn không?";
+    }
+
+    return reply;
+
+  } catch (error: any) {
+    console.error('❌ General chat error:', error);
+
+    if (error.message?.includes('503') || error.message?.includes('high demand')) {
+      return "🔮 Dịch vụ AI đang quá tải. Vui lòng thử lại sau vài phút.";
+    }
+
+    if (error.message?.includes('401') || error.message?.includes('Unauthorized')) {
+      return "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.";
+    }
+
+    return error.message || "Xin lỗi cậu, mình đang gặp vấn đề kết nối. Cậu có thể thử lại sau nhé! 💫";
+  }
+}
+
+// ============================================================
+// 🔥 CALL TAROT CHAT API - CHAT SAU KHI RÚT BÀI
+// ============================================================
+async function callTarotChat(readingId: string, message: string): Promise<string> {
+  try {
+    const token = localStorage.getItem('astrotarot_access_token');
+
+    if (!token) {
+      console.warn('⚠️ No access token found');
+      return "Xin lỗi, bạn cần đăng nhập để sử dụng tính năng này.";
+    }
+
+    console.log(`📤 Sending tarot chat to reading: ${readingId}`);
+    console.log(`📤 Message: ${message}`);
+
+    const response = await fetch(`${API_BASE}/api/chat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        message,
+        readingId: readingId  // 🔥 CÓ readingId = chat Tarot
+      }),
+    });
+
+    console.log(`📥 Tarot chat response status: ${response.status}`);
+
+    if (!response.ok) {
+      let errorMessage = 'Không thể lấy phản hồi từ AI';
+      try {
+        const errorData = await response.json();
+        console.error('❌ Tarot chat API error:', errorData);
+        errorMessage = errorData?.message || errorData?.data?.message || errorMessage;
+      } catch (e) {
+        console.error('❌ Failed to parse error response:', e);
+      }
+
+      if (response.status === 401) {
+        return "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.";
+      }
+      if (response.status === 404) {
+        return "⚠️ Không tìm thấy phiên chat. Vui lòng rút bài lại.";
+      }
+      if (response.status === 503) {
+        return "🔮 Dịch vụ AI đang quá tải. Vui lòng thử lại sau vài phút.";
+      }
+
+      throw new Error(errorMessage);
+    }
+
+    const data = await response.json();
+    console.log('✅ Tarot chat response data:', data);
+
+    // BE trả về ApiResponse<ChatResponse>
+    const reply = data?.data?.reply || data?.data?.response || data?.reply;
+
+    if (!reply) {
+      console.warn('⚠️ No reply in response:', data);
+      return "Xin lỗi, mình chưa hiểu ý cậu. Cậu có thể nói rõ hơn không?";
+    }
+
+    return reply;
+
+  } catch (error: any) {
+    console.error('❌ Tarot chat error:', error);
+
+    if (error.message?.includes('503') || error.message?.includes('high demand')) {
+      return "🔮 Dịch vụ AI đang quá tải. Vui lòng thử lại sau vài phút.";
+    }
+
+    if (error.message?.includes('401') || error.message?.includes('Unauthorized')) {
+      return "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.";
+    }
+
+    return error.message || "Xin lỗi cậu, mình đang gặp vấn đề kết nối. Cậu có thể thử lại sau nhé! 💫";
+  }
+}
+
 function TarotPage() {
   const { user, openAuth } = useAuth();
   const uid = user?.id || "guest";
@@ -354,6 +510,7 @@ function TarotPage() {
   const [cardsDrawn, setCardsDrawn] = useState(false);
   const [readingResult, setReadingResult] = useState<TarotReadingResult | null>(null);
   const [showCards, setShowCards] = useState(false);
+  const [readingId, setReadingId] = useState<string | null>(null);
   const lastMsgRef = useRef<HTMLDivElement>(null);
 
   const [dateErrors, setDateErrors] = useState<{ [key: string]: string }>({});
@@ -365,14 +522,14 @@ function TarotPage() {
   const [selectedPlace, setSelectedPlace] = useState<{ [key: string]: Suggestion | null }>({});
   const [gettingLocationDetails, setGettingLocationDetails] = useState<{ [key: string]: boolean }>({});
 
-  // ✅ Clean old sessions when user changes
+  // Clean old sessions when user changes
   useEffect(() => {
     if (user) {
       cleanOldSessions(user.id);
     }
   }, [user]);
 
-  // Load history - chỉ khi đã đăng nhập
+  // Load history
   useEffect(() => {
     if (!user) {
       setMessages([]);
@@ -380,6 +537,7 @@ function TarotPage() {
       setDrawnCards([]);
       setStage("info");
       setCardsDrawn(false);
+      setReadingId(null);
       return;
     }
 
@@ -393,13 +551,14 @@ function TarotPage() {
           if (data.drawnCards) setDrawnCards(data.drawnCards);
           if (data.readingResult) setReadingResult(data.readingResult);
           if (data.cardsDrawn) setCardsDrawn(data.cardsDrawn);
+          if (data.readingId) setReadingId(data.readingId);
           setStage("chat");
         }
       }
     } catch {}
   }, [uid, user]);
 
-  // Persist - chỉ khi đã đăng nhập và đang ở stage chat
+  // Persist
   useEffect(() => {
     if (stage === "chat" && user) {
       localStorage.setItem(storageKey(uid), JSON.stringify({
@@ -407,10 +566,11 @@ function TarotPage() {
         people,
         drawnCards,
         readingResult,
-        cardsDrawn
+        cardsDrawn,
+        readingId
       }));
     }
-  }, [messages, stage, uid, people, drawnCards, readingResult, user, cardsDrawn]);
+  }, [messages, stage, uid, people, drawnCards, readingResult, user, cardsDrawn, readingId]);
 
   // Scroll to last message
   useEffect(() => {
@@ -618,12 +778,11 @@ function TarotPage() {
   };
 
   // ============================================================
-  // CLEAR CHAT HISTORY - Xóa lịch sử chat
+  // CLEAR CHAT HISTORY
   // ============================================================
   const clearChatHistory = () => {
     if (user) {
       localStorage.removeItem(storageKey(uid));
-      // ✅ Xóa tất cả session cũ
       cleanOldSessions(user.id);
     }
     setStage("info");
@@ -631,6 +790,7 @@ function TarotPage() {
     setInput("");
     setDrawnCards([]);
     setReadingResult(null);
+    setReadingId(null);
     setPeople([{
       id: "p1",
       name: "",
@@ -712,7 +872,6 @@ function TarotPage() {
       await createAstrologyProfile(profileData);
       toast.success("📊 Đã lưu thông tin chiêm tinh!");
 
-      // ✅ Clean old sessions before starting new chat
       cleanOldSessions(user.id);
 
       setMessages([{
@@ -725,6 +884,7 @@ function TarotPage() {
       setCardsDrawn(false);
       setDrawnCards([]);
       setReadingResult(null);
+      setReadingId(null);
 
     } catch (error: any) {
       console.error("Error:", error);
@@ -736,7 +896,7 @@ function TarotPage() {
   };
 
   // ============================================================
-  // RÚT BÀI
+  // RÚT BÀI - LƯU READING ID
   // ============================================================
   const drawCards = async () => {
     if (cardsDrawn || drawing) return;
@@ -775,7 +935,11 @@ function TarotPage() {
         spreadName: "Past-Present-Future",
       });
 
+      console.log('✅ Reading result:', result);
+      console.log('✅ Reading ID:', result.readingId);
+
       setReadingResult(result);
+      setReadingId(result.readingId);
       const cardNames = result.drawnCards.map(c => c.cardName);
       setDrawnCards(cardNames);
       setCardsDrawn(true);
@@ -835,7 +999,7 @@ function TarotPage() {
   };
 
   // ============================================================
-  // GỬI TIN NHẮN
+  // 🔥 GỬI TIN NHẮN - GỌI 1 API DUY NHẤT
   // ============================================================
   const send = async (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -853,6 +1017,15 @@ function TarotPage() {
     setThinking(true);
 
     const lower = text.toLowerCase();
+
+    // ✅ 1. Kiểm tra rút bài
+    if (lower.includes("rút bài") || lower.includes("tarot") || lower.includes("bói")) {
+      setThinking(false);
+      await drawCards();
+      return;
+    }
+
+    // ✅ 2. Kiểm tra kết thúc
     if (lower.includes("cảm ơn") || lower.includes("tạm biệt") || lower.includes("ngủ ngon") || lower.includes("kết thúc")) {
       await new Promise(r => setTimeout(r, 600));
       setMessages((m) => [...m, {
@@ -865,31 +1038,46 @@ function TarotPage() {
       return;
     }
 
-    if (lower.includes("rút bài") || lower.includes("tarot") || lower.includes("bói")) {
-      setThinking(false);
-      await drawCards();
-      return;
+    // ✅ 3. GỌI 1 API DUY NHẤT - /api/chat
+    console.log('🔍 Gọi API chat với readingId:', readingId);
+    console.log('🔍 Tin nhắn:', text);
+
+    try {
+      let reply: string;
+
+      if (readingId) {
+        // ✅ Đã rút bài → Chat Tarot (Astrology + Tarot)
+        reply = await callTarotChat(readingId, text);
+      } else {
+        // ✅ Chưa rút bài → Chat thường (Chỉ Astrology)
+        reply = await callGeneralChat(text);
+      }
+
+      console.log('✅ Reply từ API:', reply);
+
+      setMessages((m) => [...m, {
+        id: generateUUID(),
+        role: "ai",
+        content: reply,
+        ts: Date.now()
+      }]);
+
+    } catch (error: any) {
+      console.error('❌ Chat error:', error);
+      const fallback = FALLBACK_REPLIES[Math.floor(Math.random() * FALLBACK_REPLIES.length)];
+      setMessages((m) => [...m, {
+        id: generateUUID(),
+        role: "ai",
+        content: fallback,
+        ts: Date.now()
+      }]);
     }
 
-    await new Promise(r => setTimeout(r, 600 + Math.random() * 400));
-
-    let reply = MOCK_REPLIES[Math.floor(Math.random() * MOCK_REPLIES.length)];
-
-    if (!cardsDrawn && Math.random() > 0.7) {
-      reply = "Cậu có muốn mình rút bài Tarot để xem thêm về tình hình của cậu không? Chỉ cần nói 'rút bài' là được nhé! 🃏";
-    }
-
-    setMessages((m) => [...m, {
-      id: generateUUID(),
-      role: "ai",
-      content: reply,
-      ts: Date.now()
-    }]);
     setThinking(false);
   };
 
   // ============================================================
-  // RESET - Chỉ reset UI, không xóa storage
+  // RESET
   // ============================================================
   const resetAll = () => {
     setStage("info");
@@ -897,6 +1085,7 @@ function TarotPage() {
     setInput("");
     setDrawnCards([]);
     setReadingResult(null);
+    setReadingId(null);
     setPeople([{
       id: "p1",
       name: "",
