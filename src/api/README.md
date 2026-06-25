@@ -31,15 +31,19 @@ src/api/
 ## Hợp đồng API (Contract)
 
 Tất cả endpoint trả JSON dạng:
+
 ```json
 { "data": <payload>, "error": null }
 ```
+
 hoặc lỗi:
+
 ```json
 { "data": null, "error": { "code": "INVALID_CREDENTIALS", "message": "..." } }
 ```
 
 Auth dùng **JWT access token + refresh token** (đúng theo bảng `user_sessions`).
+
 - Access token gửi qua header `Authorization: Bearer <token>`.
 - Refresh token lưu trong `localStorage` (hoặc httpOnly cookie nếu BE hỗ trợ).
 - `client.ts` tự động refresh khi gặp HTTP 401.

@@ -20,8 +20,10 @@ const REFRESH_KEY = "astrotarot_refresh_token";
 
 // ---------- Token helpers (lưu localStorage, không nhạy cảm với SSR) ----------
 export const tokenStore = {
-  getAccess: () => (typeof window === "undefined" ? null : localStorage.getItem(ACCESS_KEY)),
-  getRefresh: () => (typeof window === "undefined" ? null : localStorage.getItem(REFRESH_KEY)),
+  getAccess: () =>
+    typeof window === "undefined" ? null : localStorage.getItem(ACCESS_KEY),
+  getRefresh: () =>
+    typeof window === "undefined" ? null : localStorage.getItem(REFRESH_KEY),
   set: (access: string, refresh: string) => {
     if (typeof window === "undefined") return;
     localStorage.setItem(ACCESS_KEY, access);
@@ -36,7 +38,9 @@ export const tokenStore = {
 
 /** Lỗi báo cho caller biết nên fallback sang mock store */
 export class MockUnavailableError extends Error {
-  constructor() { super("VITE_API_BASE_URL is not configured"); }
+  constructor() {
+    super("VITE_API_BASE_URL is not configured");
+  }
 }
 
 /** Lỗi API có cấu trúc */
@@ -63,26 +67,32 @@ async function refreshAccessToken(): Promise<string | null> {
   })
     .then(async (r) => {
       if (!r.ok) return null;
-      const env = (await r.json()) as ApiEnvelope<{ access_token: string; refresh_token: string }>;
+      const env = (await r.json()) as ApiEnvelope<{
+        access_token: string;
+        refresh_token: string;
+      }>;
       if (!env.data) return null;
       tokenStore.set(env.data.access_token, env.data.refresh_token);
       return env.data.access_token;
     })
     .catch(() => null)
-    .finally(() => { refreshing = null; });
+    .finally(() => {
+      refreshing = null;
+    });
   return refreshing;
 }
 
 /** Hàm fetch chính. Auto retry 1 lần nếu refresh thành công. */
 export async function apiFetch<T>(
-    path: string,
-    init: RequestInit = {},
-    { auth = true, retry = true }: { auth?: boolean; retry?: boolean } = {},
+  path: string,
+  init: RequestInit = {},
+  { auth = true, retry = true }: { auth?: boolean; retry?: boolean } = {},
 ): Promise<T> {
   if (!isLiveBackend()) throw new MockUnavailableError();
 
   const headers = new Headers(init.headers);
-  if (init.body && !headers.has("Content-Type")) headers.set("Content-Type", "application/json");
+  if (init.body && !headers.has("Content-Type"))
+    headers.set("Content-Type", "application/json");
   if (auth) {
     const t = tokenStore.getAccess();
     if (t) headers.set("Authorization", `Bearer ${t}`);
@@ -99,15 +109,15 @@ export async function apiFetch<T>(
 
   const envelope = (await res.json().catch(() => ({
     data: null,
-    error: { code: "PARSE", message: "Invalid JSON" }
+    error: { code: "PARSE", message: "Invalid JSON" },
   }))) as ApiEnvelope<T>;
 
   // BE trả về error trong object
   if (!res.ok || envelope.error) {
     throw new ApiError(
-        res.status,
-        envelope.error?.code ?? "UNKNOWN",
-        envelope.error?.message ?? envelope.message ?? res.statusText
+      res.status,
+      envelope.error?.code ?? "UNKNOWN",
+      envelope.error?.message ?? envelope.message ?? res.statusText,
     );
   }
 

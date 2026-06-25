@@ -39,27 +39,52 @@ export const READERS: Reader[] = [
 ];
 
 export const TAROT_DECK = [
-  "The Fool", "The Magician", "The High Priestess", "The Empress",
-  "The Emperor", "The Hierophant", "The Lovers", "The Chariot",
-  "Strength", "The Hermit", "Wheel of Fortune", "Justice",
-  "The Hanged Man", "Death", "Temperance", "The Devil",
-  "The Tower", "The Star", "The Moon", "The Sun",
-  "Judgement", "The World",
+  "The Fool",
+  "The Magician",
+  "The High Priestess",
+  "The Empress",
+  "The Emperor",
+  "The Hierophant",
+  "The Lovers",
+  "The Chariot",
+  "Strength",
+  "The Hermit",
+  "Wheel of Fortune",
+  "Justice",
+  "The Hanged Man",
+  "Death",
+  "Temperance",
+  "The Devil",
+  "The Tower",
+  "The Star",
+  "The Moon",
+  "The Sun",
+  "Judgement",
+  "The World",
 ];
 
 export const TAROT_MEANINGS: Record<string, string> = {
-  "The Moon": "Trực giác mạnh mẽ, ẩn số chờ được khám phá. Hãy lắng nghe tiếng nói nội tâm.",
-  "The Sun": "Niềm vui rạng rỡ, thành công đang đến gần. Năng lượng tích cực bao quanh bạn.",
-  "The Star": "Hy vọng và sự chữa lành. Một giai đoạn mới đầy cảm hứng đang mở ra.",
+  "The Moon":
+    "Trực giác mạnh mẽ, ẩn số chờ được khám phá. Hãy lắng nghe tiếng nói nội tâm.",
+  "The Sun":
+    "Niềm vui rạng rỡ, thành công đang đến gần. Năng lượng tích cực bao quanh bạn.",
+  "The Star":
+    "Hy vọng và sự chữa lành. Một giai đoạn mới đầy cảm hứng đang mở ra.",
   "The Lovers": "Sự lựa chọn quan trọng về tình cảm hoặc giá trị bản thân.",
-  "The Tower": "Biến động lớn nhưng cần thiết - dọn đường cho điều tốt đẹp hơn.",
-  "Strength": "Sức mạnh nội tâm và lòng can đảm sẽ giúp bạn vượt qua thử thách.",
-  "The Empress": "Sự nuôi dưỡng, sáng tạo và phong phú đang nở rộ trong cuộc sống.",
-  "The Magician": "Bạn có đủ công cụ để biến ý định thành hiện thực. Hãy hành động.",
+  "The Tower":
+    "Biến động lớn nhưng cần thiết - dọn đường cho điều tốt đẹp hơn.",
+  Strength: "Sức mạnh nội tâm và lòng can đảm sẽ giúp bạn vượt qua thử thách.",
+  "The Empress":
+    "Sự nuôi dưỡng, sáng tạo và phong phú đang nở rộ trong cuộc sống.",
+  "The Magician":
+    "Bạn có đủ công cụ để biến ý định thành hiện thực. Hãy hành động.",
 };
 
 export function getCardMeaning(card: string): string {
-  return TAROT_MEANINGS[card] || "Lá bài mang thông điệp riêng dành cho bạn ở thời điểm này. Hãy thiền định để đón nhận.";
+  return (
+    TAROT_MEANINGS[card] ||
+    "Lá bài mang thông điệp riêng dành cho bạn ở thời điểm này. Hãy thiền định để đón nhận."
+  );
 }
 
 export function pickThreeCards(): string[] {

@@ -9,7 +9,13 @@ interface Props {
   onConfirm: (method: "vnpay" | "momo") => void;
 }
 
-export function PaymentModal({ open, reader, slot, onClose, onConfirm }: Props) {
+export function PaymentModal({
+  open,
+  reader,
+  slot,
+  onClose,
+  onConfirm,
+}: Props) {
   return (
     <AnimatePresence>
       {open && reader && (
@@ -27,18 +33,25 @@ export function PaymentModal({ open, reader, slot, onClose, onConfirm }: Props) 
             exit={{ scale: 0.92, y: 20 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="font-display text-2xl text-gradient-gold">Xác nhận đặt lịch</h3>
+            <h3 className="font-display text-2xl text-gradient-gold">
+              Xác nhận đặt lịch
+            </h3>
             <div className="mt-4 space-y-2 rounded-lg border border-border bg-card/50 p-4 text-sm">
               <Row label="Chuyên gia" value={reader.name} />
               <Row label="Thời lượng" value="15 phút" />
               <Row label="Khung giờ" value={slot ?? "—"} />
               <div className="my-2 h-px bg-border" />
-              <Row label="Tổng cộng" value={formatVND(reader.pricePer15m)} highlight />
+              <Row
+                label="Tổng cộng"
+                value={formatVND(reader.pricePer15m)}
+                highlight
+              />
             </div>
 
             <p className="mt-4 flex items-center gap-2 rounded-md border border-border bg-muted/40 p-3 text-xs text-muted-foreground">
               <span>🔒</span>
-              Tiền được giữ trong tài khoản ký quỹ cho đến khi buổi xem kết thúc.
+              Tiền được giữ trong tài khoản ký quỹ cho đến khi buổi xem kết
+              thúc.
             </p>
 
             <div className="mt-5 grid grid-cols-2 gap-3">
@@ -71,11 +84,25 @@ export function PaymentModal({ open, reader, slot, onClose, onConfirm }: Props) 
   );
 }
 
-function Row({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
+function Row({
+  label,
+  value,
+  highlight,
+}: {
+  label: string;
+  value: string;
+  highlight?: boolean;
+}) {
   return (
     <div className="flex justify-between">
       <span className="text-muted-foreground">{label}</span>
-      <span className={highlight ? "text-lg font-semibold text-gold" : "text-foreground"}>{value}</span>
+      <span
+        className={
+          highlight ? "text-lg font-semibold text-gold" : "text-foreground"
+        }
+      >
+        {value}
+      </span>
     </div>
   );
 }

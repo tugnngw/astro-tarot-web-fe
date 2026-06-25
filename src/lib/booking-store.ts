@@ -65,7 +65,12 @@ function seed() {
         day.setDate(today.getDate() + d);
         const ds = day.toISOString().slice(0, 10);
         ["10:00", "14:30", "20:00"].forEach((t, i) =>
-          slots.push({ id: `${rid}-${ds}-${i}`, readerId: rid, date: ds, time: t }),
+          slots.push({
+            id: `${rid}-${ds}-${i}`,
+            readerId: rid,
+            date: ds,
+            time: t,
+          }),
         );
       }
     }
@@ -86,7 +91,10 @@ export function addSlot(s: Omit<Slot, "id">) {
   write(SLOT_KEY, all);
 }
 export function removeSlot(id: string) {
-  write(SLOT_KEY, read<Slot[]>(SLOT_KEY, []).filter((s) => s.id !== id));
+  write(
+    SLOT_KEY,
+    read<Slot[]>(SLOT_KEY, []).filter((s) => s.id !== id),
+  );
 }
 
 // ---------- Bookings ----------
@@ -100,10 +108,14 @@ export function getUserBookings(userId: string): Booking[] {
   return getBookings().filter((b) => b.userId === userId);
 }
 export function isSlotBooked(slotId: string): Booking | undefined {
-  return getBookings().find((b) => b.slotId === slotId && b.status !== "cancelled");
+  return getBookings().find(
+    (b) => b.slotId === slotId && b.status !== "cancelled",
+  );
 }
 
-export function createBooking(b: Omit<Booking, "id" | "createdAt" | "status"> & { status?: BookingStatus }): Booking {
+export function createBooking(
+  b: Omit<Booking, "id" | "createdAt" | "status"> & { status?: BookingStatus },
+): Booking {
   const booking: Booking = {
     ...b,
     id: crypto.randomUUID(),
@@ -116,7 +128,11 @@ export function createBooking(b: Omit<Booking, "id" | "createdAt" | "status"> & 
   return booking;
 }
 
-export function updateBookingStatus(id: string, status: BookingStatus, method?: "vnpay" | "momo") {
+export function updateBookingStatus(
+  id: string,
+  status: BookingStatus,
+  method?: "vnpay" | "momo",
+) {
   const all = getBookings().map((b) =>
     b.id === id ? { ...b, status, ...(method ? { method } : {}) } : b,
   );

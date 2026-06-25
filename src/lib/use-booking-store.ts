@@ -1,5 +1,12 @@
 import { useSyncExternalStore } from "react";
-import { subscribe, getSlots, getBookings, isSlotBooked, type Slot, type Booking } from "./booking-store";
+import {
+  subscribe,
+  getSlots,
+  getBookings,
+  isSlotBooked,
+  type Slot,
+  type Booking,
+} from "./booking-store";
 
 // Cache snapshots so useSyncExternalStore returns stable references between events.
 let slotCache: Record<string, Slot[]> = {};
@@ -17,7 +24,9 @@ export function useSlots(readerId = "__all"): Slot[] {
     subscribe,
     () => {
       if (!slotCache[readerId]) {
-        slotCache[readerId] = getSlots(readerId === "__all" ? undefined : readerId);
+        slotCache[readerId] = getSlots(
+          readerId === "__all" ? undefined : readerId,
+        );
       }
       return slotCache[readerId];
     },
@@ -38,7 +47,8 @@ export function useSlotStatus(slotId: string) {
   return useSyncExternalStore(
     subscribe,
     () => {
-      if (!(slotId in slotStatusCache)) slotStatusCache[slotId] = isSlotBooked(slotId);
+      if (!(slotId in slotStatusCache))
+        slotStatusCache[slotId] = isSlotBooked(slotId);
       return slotStatusCache[slotId];
     },
     () => undefined,

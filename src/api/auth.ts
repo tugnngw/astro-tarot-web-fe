@@ -27,10 +27,14 @@ interface AuthResponseRaw {
 }
 
 export async function login(payload: LoginPayload): Promise<AuthResult> {
-  const data = await apiFetch<AuthResponseRaw>("/auth/login", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  }, { auth: false });
+  const data = await apiFetch<AuthResponseRaw>(
+    "/auth/login",
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    },
+    { auth: false },
+  );
 
   // Map từ BE response sang AuthResult
   const result: AuthResult = {
@@ -59,14 +63,18 @@ export async function login(payload: LoginPayload): Promise<AuthResult> {
 }
 
 export async function register(payload: RegisterPayload): Promise<AuthResult> {
-  const data = await apiFetch<AuthResponseRaw>("/auth/register", {
-    method: "POST",
-    body: JSON.stringify({
-      fullName: payload.full_name,
-      username: payload.username,
-      password: payload.password,
-    }),
-  }, { auth: false });
+  const data = await apiFetch<AuthResponseRaw>(
+    "/auth/register",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        fullName: payload.full_name,
+        username: payload.username,
+        password: payload.password,
+      }),
+    },
+    { auth: false },
+  );
 
   const result: AuthResult = {
     user: {
@@ -97,10 +105,14 @@ export async function logout(): Promise<void> {
   const refreshToken = tokenStore.getRefresh();
   try {
     if (refreshToken) {
-      await apiFetch<void>("/auth/logout", {
-        method: "POST",
-        body: JSON.stringify({ refreshToken }),
-      }, { auth: false });
+      await apiFetch<void>(
+        "/auth/logout",
+        {
+          method: "POST",
+          body: JSON.stringify({ refreshToken }),
+        },
+        { auth: false },
+      );
     }
   } catch {
     // ignore

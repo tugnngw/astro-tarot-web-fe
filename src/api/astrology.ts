@@ -8,17 +8,17 @@ import { apiFetch } from "./client";
 export type ProfileType = "SELF" | "OTHER" | "COUPLE";
 
 export interface AstrologyProfile {
-    id: string;
-    title: string;
-    targetName: string | null;
-    birthDate: string;        // YYYY-MM-DD
-    birthTime: string | null; // HH:mm:ss
-    birthPlace: string;
-    latitude: number | null;
-    longitude: number | null;
-    timezone: string | null;
-    profileType: ProfileType;
-    isPrimary: boolean;
+  id: string;
+  title: string;
+  targetName: string | null;
+  birthDate: string; // YYYY-MM-DD
+  birthTime: string | null; // HH:mm:ss
+  birthPlace: string;
+  latitude: number | null;
+  longitude: number | null;
+  timezone: string | null;
+  profileType: ProfileType;
+  isPrimary: boolean;
 }
 
 // ============================================================
@@ -26,29 +26,29 @@ export interface AstrologyProfile {
 // ============================================================
 
 export interface CreateAstrologyProfileRequest {
-    title: string;
-    targetName?: string;
-    birthDate: string;        // YYYY-MM-DD
-    birthTime?: string;       // HH:mm:ss
-    birthPlace: string;
-    latitude: number;
-    longitude: number;
-    timezone?: string;
-    profileType: ProfileType;
-    isPrimary?: boolean;
+  title: string;
+  targetName?: string;
+  birthDate: string; // YYYY-MM-DD
+  birthTime?: string; // HH:mm:ss
+  birthPlace: string;
+  latitude: number;
+  longitude: number;
+  timezone?: string;
+  profileType: ProfileType;
+  isPrimary?: boolean;
 }
 
 export interface UpdateAstrologyProfileRequest {
-    title?: string;
-    targetName?: string;
-    birthDate?: string;
-    birthTime?: string;
-    birthPlace?: string;
-    latitude?: number;
-    longitude?: number;
-    timezone?: string;
-    profileType?: ProfileType;
-    isPrimary?: boolean;
+  title?: string;
+  targetName?: string;
+  birthDate?: string;
+  birthTime?: string;
+  birthPlace?: string;
+  latitude?: number;
+  longitude?: number;
+  timezone?: string;
+  profileType?: ProfileType;
+  isPrimary?: boolean;
 }
 
 // ============================================================
@@ -60,12 +60,12 @@ export interface UpdateAstrologyProfileRequest {
  * POST /api/me/astrology/profiles
  */
 export async function createAstrologyProfile(
-    data: CreateAstrologyProfileRequest
+  data: CreateAstrologyProfileRequest,
 ): Promise<AstrologyProfile> {
-    return apiFetch<AstrologyProfile>("/api/me/astrology/profiles", {
-        method: "POST",
-        body: JSON.stringify(data),
-    });
+  return apiFetch<AstrologyProfile>("/api/me/astrology/profiles", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
 }
 
 /**
@@ -73,9 +73,9 @@ export async function createAstrologyProfile(
  * GET /api/me/astrology/profiles
  */
 export async function getAstrologyProfiles(): Promise<AstrologyProfile[]> {
-    return apiFetch<AstrologyProfile[]>("/api/me/astrology/profiles", {
-        method: "GET",
-    });
+  return apiFetch<AstrologyProfile[]>("/api/me/astrology/profiles", {
+    method: "GET",
+  });
 }
 
 /**
@@ -83,9 +83,9 @@ export async function getAstrologyProfiles(): Promise<AstrologyProfile[]> {
  * GET /api/me/astrology/profiles/primary
  */
 export async function getPrimaryAstrologyProfile(): Promise<AstrologyProfile> {
-    return apiFetch<AstrologyProfile>("/api/me/astrology/profiles/primary", {
-        method: "GET",
-    });
+  return apiFetch<AstrologyProfile>("/api/me/astrology/profiles/primary", {
+    method: "GET",
+  });
 }
 
 /**
@@ -93,13 +93,13 @@ export async function getPrimaryAstrologyProfile(): Promise<AstrologyProfile> {
  * PUT /api/me/astrology/profiles/{profileId}
  */
 export async function updateAstrologyProfile(
-    profileId: string,
-    data: UpdateAstrologyProfileRequest
+  profileId: string,
+  data: UpdateAstrologyProfileRequest,
 ): Promise<AstrologyProfile> {
-    return apiFetch<AstrologyProfile>(`/api/me/astrology/profiles/${profileId}`, {
-        method: "PUT",
-        body: JSON.stringify(data),
-    });
+  return apiFetch<AstrologyProfile>(`/api/me/astrology/profiles/${profileId}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
 }
 
 /**
@@ -107,7 +107,7 @@ export async function updateAstrologyProfile(
  * DELETE /api/me/astrology/profiles/{profileId}
  */
 export async function deleteAstrologyProfile(profileId: string): Promise<void> {
-    return apiFetch<void>(`/api/me/astrology/profiles/${profileId}`, {
-        method: "DELETE",
-    });
+  return apiFetch<void>(`/api/me/astrology/profiles/${profileId}`, {
+    method: "DELETE",
+  });
 }

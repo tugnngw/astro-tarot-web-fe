@@ -6,7 +6,10 @@ export function MysticEye({ size = 420 }: { size?: number }) {
     <div className="relative" style={{ width: size, height: size }}>
       <motion.div
         className="absolute inset-0 rounded-full blur-3xl"
-        style={{ background: "radial-gradient(circle, oklch(0.78 0.13 85 / 0.4), transparent 65%)" }}
+        style={{
+          background:
+            "radial-gradient(circle, oklch(0.78 0.13 85 / 0.4), transparent 65%)",
+        }}
         animate={{ opacity: [0.4, 0.75, 0.4], scale: [1, 1.08, 1] }}
         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
       />

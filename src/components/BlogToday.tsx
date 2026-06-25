@@ -47,20 +47,27 @@ export function BlogToday() {
                   background: `radial-gradient(circle at 30% 30%, ${featured.color}66, transparent 60%), linear-gradient(135deg, oklch(0.25 0.1 290), oklch(0.18 0.06 280))`,
                 }}
               />
-              <div className="absolute inset-0 flex items-center justify-center text-[12rem] opacity-30">{featured.emoji}</div>
+              <div className="absolute inset-0 flex items-center justify-center text-[12rem] opacity-30">
+                {featured.emoji}
+              </div>
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
             </div>
             <div className="p-6">
               <span
                 className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[10px] font-medium uppercase tracking-wider"
-                style={{ borderColor: `${featured.color}66`, color: featured.color }}
+                style={{
+                  borderColor: `${featured.color}66`,
+                  color: featured.color,
+                }}
               >
                 <Tag className="h-3 w-3" /> {featured.category}
               </span>
               <h4 className="mt-3 font-display text-2xl text-foreground transition group-hover:text-gold md:text-3xl">
                 {featured.title}
               </h4>
-              <p className="mt-2 text-xs text-muted-foreground">{featured.date} · {featured.author}</p>
+              <p className="mt-2 text-xs text-muted-foreground">
+                {featured.date} · {featured.author}
+              </p>
             </div>
           </Link>
         </motion.div>
@@ -87,14 +94,21 @@ export function BlogToday() {
                     background: `radial-gradient(circle at 30% 30%, ${b.color}55, transparent 70%), linear-gradient(135deg, oklch(0.25 0.08 290), oklch(0.18 0.05 280))`,
                   }}
                 >
-                  <div className="absolute inset-0 grid place-items-center text-4xl opacity-60">{b.emoji}</div>
+                  <div className="absolute inset-0 grid place-items-center text-4xl opacity-60">
+                    {b.emoji}
+                  </div>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h5 className="line-clamp-2 text-sm font-medium text-foreground transition group-hover:text-gold">{b.title}</h5>
+                  <h5 className="line-clamp-2 text-sm font-medium text-foreground transition group-hover:text-gold">
+                    {b.title}
+                  </h5>
                   <div className="mt-2 flex items-center gap-2 text-[10px]">
                     <span
                       className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 uppercase tracking-wider"
-                      style={{ borderColor: `${TAG_COLOR[b.category]}66`, color: TAG_COLOR[b.category] }}
+                      style={{
+                        borderColor: `${TAG_COLOR[b.category]}66`,
+                        color: TAG_COLOR[b.category],
+                      }}
                     >
                       <Tag className="h-2.5 w-2.5" /> {b.category}
                     </span>

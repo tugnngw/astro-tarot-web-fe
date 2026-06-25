@@ -8,7 +8,10 @@ export const Route = createFileRoute("/readers")({
   head: () => ({
     meta: [
       { title: "Tìm Reader — ASTROTAROT" },
-      { name: "description", content: "Đặt lịch với các Reader Tarot & Chiêm tinh chuyên nghiệp." },
+      {
+        name: "description",
+        content: "Đặt lịch với các Reader Tarot & Chiêm tinh chuyên nghiệp.",
+      },
     ],
   }),
   component: ReadersPage,
@@ -46,16 +49,22 @@ function ReaderCard({ reader }: { reader: Reader }) {
           {reader.avatar}
         </div>
         <div className="flex-1">
-          <h3 className="font-display text-2xl text-foreground">{reader.name}</h3>
+          <h3 className="font-display text-2xl text-foreground">
+            {reader.name}
+          </h3>
           <p className="text-sm text-muted-foreground">{reader.title}</p>
           <div className="mt-1 flex items-center gap-2 text-xs">
             <span className="text-gold">★ {reader.rating}</span>
-            <span className="text-muted-foreground">({reader.reviews} đánh giá)</span>
+            <span className="text-muted-foreground">
+              ({reader.reviews} đánh giá)
+            </span>
           </div>
         </div>
         <div className="text-right">
           <div className="text-xs text-muted-foreground">15 phút</div>
-          <div className="font-display text-xl text-gold">{formatVND(reader.pricePer15m)}</div>
+          <div className="font-display text-xl text-gold">
+            {formatVND(reader.pricePer15m)}
+          </div>
         </div>
       </div>
 
@@ -63,14 +72,20 @@ function ReaderCard({ reader }: { reader: Reader }) {
 
       <div className="mt-4 flex flex-wrap gap-2">
         {reader.specialties.map((s) => (
-          <span key={s} className="rounded-full border border-mystic/50 bg-mystic/10 px-3 py-1 text-xs text-foreground/80">
+          <span
+            key={s}
+            className="rounded-full border border-mystic/50 bg-mystic/10 px-3 py-1 text-xs text-foreground/80"
+          >
             {s}
           </span>
         ))}
       </div>
 
-      <Link to="/readers/$id" params={{ id: reader.id }}
-        className="mt-5 block w-full rounded-full bg-gold py-3 text-center text-sm font-medium text-primary-foreground glow-gold transition hover:scale-[1.02]">
+      <Link
+        to="/readers/$id"
+        params={{ id: reader.id }}
+        className="mt-5 block w-full rounded-full bg-gold py-3 text-center text-sm font-medium text-primary-foreground glow-gold transition hover:scale-[1.02]"
+      >
         Xem hồ sơ & Book lịch ✦
       </Link>
     </motion.div>

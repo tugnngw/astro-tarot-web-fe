@@ -10,7 +10,20 @@ interface Props {
   size?: number;
 }
 
-const ZODIAC = ["♈", "♉", "♊", "♋", "♌", "♍", "♎", "♏", "♐", "♑", "♒", "♓"];
+const ZODIAC = [
+  "♈",
+  "♉",
+  "♊",
+  "♋",
+  "♌",
+  "♍",
+  "♎",
+  "♏",
+  "♐",
+  "♑",
+  "♒",
+  "♓",
+];
 
 const DEFAULT_PLANETS: Planet[] = [
   { name: "Sun", symbol: "☉", angle: 45 },
@@ -21,7 +34,10 @@ const DEFAULT_PLANETS: Planet[] = [
   { name: "Jupiter", symbol: "♃", angle: 330 },
 ];
 
-export function AstroChart({ planetPositions = DEFAULT_PLANETS, size = 320 }: Props) {
+export function AstroChart({
+  planetPositions = DEFAULT_PLANETS,
+  size = 320,
+}: Props) {
   const cx = size / 2;
   const cy = size / 2;
   const rOuter = size / 2 - 8;
@@ -39,17 +55,40 @@ export function AstroChart({ planetPositions = DEFAULT_PLANETS, size = 320 }: Pr
       <defs>
         <radialGradient id="core" cx="50%" cy="50%" r="50%">
           <stop offset="0%" stopColor="oklch(0.85 0.11 85)" stopOpacity="0.9" />
-          <stop offset="100%" stopColor="oklch(0.35 0.15 290)" stopOpacity="0.1" />
+          <stop
+            offset="100%"
+            stopColor="oklch(0.35 0.15 290)"
+            stopOpacity="0.1"
+          />
         </radialGradient>
       </defs>
 
       {/* outer ring */}
-      <circle cx={cx} cy={cy} r={rOuter} fill="none" stroke="var(--gold)" strokeOpacity="0.55" strokeWidth="1.2" />
-      <circle cx={cx} cy={cy} r={rInner} fill="none" stroke="var(--gold)" strokeOpacity="0.35" strokeWidth="0.8" />
+      <circle
+        cx={cx}
+        cy={cy}
+        r={rOuter}
+        fill="none"
+        stroke="var(--gold)"
+        strokeOpacity="0.55"
+        strokeWidth="1.2"
+      />
+      <circle
+        cx={cx}
+        cy={cy}
+        r={rInner}
+        fill="none"
+        stroke="var(--gold)"
+        strokeOpacity="0.35"
+        strokeWidth="0.8"
+      />
       <circle cx={cx} cy={cy} r={rCore} fill="url(#core)" />
 
       {/* zodiac segments */}
-      <g className="animate-zodiac" style={{ transformOrigin: `${cx}px ${cy}px` }}>
+      <g
+        className="animate-zodiac"
+        style={{ transformOrigin: `${cx}px ${cy}px` }}
+      >
         {ZODIAC.map((sym, i) => {
           const deg = i * 30;
           const [x1, y1] = polar(rInner, deg);
@@ -57,7 +96,14 @@ export function AstroChart({ planetPositions = DEFAULT_PLANETS, size = 320 }: Pr
           const [tx, ty] = polar(rInner + 16, deg + 15);
           return (
             <g key={i}>
-              <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="var(--gold)" strokeOpacity="0.4" />
+              <line
+                x1={x1}
+                y1={y1}
+                x2={x2}
+                y2={y2}
+                stroke="var(--gold)"
+                strokeOpacity="0.4"
+              />
               <text
                 x={tx}
                 y={ty}
@@ -100,15 +146,36 @@ export function AstroChart({ planetPositions = DEFAULT_PLANETS, size = 320 }: Pr
         const [x, y] = polar(rPlanet, p.angle);
         return (
           <g key={p.name}>
-            <circle cx={x} cy={y} r="11" fill="var(--card)" stroke="var(--gold)" strokeWidth="1.2" />
-            <text x={x} y={y} textAnchor="middle" dominantBaseline="middle" fill="var(--gold-soft)" fontSize="11">
+            <circle
+              cx={x}
+              cy={y}
+              r="11"
+              fill="var(--card)"
+              stroke="var(--gold)"
+              strokeWidth="1.2"
+            />
+            <text
+              x={x}
+              y={y}
+              textAnchor="middle"
+              dominantBaseline="middle"
+              fill="var(--gold-soft)"
+              fontSize="11"
+            >
               {p.symbol}
             </text>
           </g>
         );
       })}
 
-      <text x={cx} y={cy + 4} textAnchor="middle" fill="var(--gold)" fontSize="14" className="font-display">
+      <text
+        x={cx}
+        y={cy + 4}
+        textAnchor="middle"
+        fill="var(--gold)"
+        fontSize="14"
+        className="font-display"
+      >
         ✦
       </text>
     </svg>

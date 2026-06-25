@@ -20,35 +20,63 @@ export function ZodiacAI() {
   return (
     <div
       className="glass relative overflow-hidden rounded-3xl p-8 transition-all duration-500"
-      style={{ boxShadow: `0 0 80px -20px ${z.color}80`, borderColor: `${z.color}55` }}
+      style={{
+        boxShadow: `0 0 80px -20px ${z.color}80`,
+        borderColor: `${z.color}55`,
+      }}
     >
-      <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full blur-3xl opacity-30 transition-all duration-700" style={{ background: z.color }} />
+      <div
+        className="absolute -top-20 -right-20 h-64 w-64 rounded-full blur-3xl opacity-30 transition-all duration-700"
+        style={{ background: z.color }}
+      />
       <div className="relative flex flex-col gap-6 md:flex-row md:items-center">
         <div
           className="grid h-32 w-32 shrink-0 place-items-center rounded-3xl text-6xl transition-all duration-500"
-          style={{ background: `linear-gradient(135deg, ${z.color}33, transparent)`, border: `1px solid ${z.color}`, color: z.color, boxShadow: `0 0 40px ${z.color}55` }}
+          style={{
+            background: `linear-gradient(135deg, ${z.color}33, transparent)`,
+            border: `1px solid ${z.color}`,
+            color: z.color,
+            boxShadow: `0 0 40px ${z.color}55`,
+          }}
         >
           {z.symbol}
         </div>
         <div className="flex-1">
-          <div className="text-xs uppercase tracking-[0.3em]" style={{ color: z.color }}>AI Zodiac Oracle</div>
+          <div
+            className="text-xs uppercase tracking-[0.3em]"
+            style={{ color: z.color }}
+          >
+            AI Zodiac Oracle
+          </div>
           <h3 className="mt-2 font-display text-3xl text-gradient-gold">
             Xin chào {z.name} — Năng lượng kết nối
           </h3>
           <p className="mt-2 text-muted-foreground">
-            AI Zodiac Oracle phân tích cung hoàng đạo của bạn và đưa ra gợi ý cá nhân hoá về tình duyên, sự nghiệp và năng lượng nội tâm.
+            AI Zodiac Oracle phân tích cung hoàng đạo của bạn và đưa ra gợi ý cá
+            nhân hoá về tình duyên, sự nghiệp và năng lượng nội tâm.
           </p>
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <select
               value={z.name}
-              onChange={(e) => setZ(ZODIACS.find((x) => x.name === e.target.value) || ZODIACS[0])}
+              onChange={(e) =>
+                setZ(
+                  ZODIACS.find((x) => x.name === e.target.value) || ZODIACS[0],
+                )
+              }
               className="rounded-full border border-gold/40 bg-input/70 px-4 py-2 text-sm text-foreground outline-none"
             >
-              {ZODIACS.map((x) => <option key={x.name} value={x.name}>{x.symbol} {x.name}</option>)}
+              {ZODIACS.map((x) => (
+                <option key={x.name} value={x.name}>
+                  {x.symbol} {x.name}
+                </option>
+              ))}
             </select>
             <button
               className="rounded-full px-6 py-2 text-sm font-medium text-primary-foreground transition hover:scale-105"
-              style={{ background: `linear-gradient(135deg, ${z.color}, var(--gold))`, boxShadow: `0 0 25px ${z.color}80` }}
+              style={{
+                background: `linear-gradient(135deg, ${z.color}, var(--gold))`,
+                boxShadow: `0 0 25px ${z.color}80`,
+              }}
             >
               Dùng AI ngay ✦
             </button>

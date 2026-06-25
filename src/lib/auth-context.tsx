@@ -1,5 +1,11 @@
 // src/lib/auth-context.tsx
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
 import { useNavigate } from "@tanstack/react-router";
 import * as authApi from "@/api/auth";
 import type { User } from "@/api/types";
@@ -7,7 +13,7 @@ import type { User } from "@/api/types";
 export type Role = "guest" | "user" | "reader" | "admin";
 
 const toUiRole = (r: User["role"]): Role =>
-    r === "ADMIN" ? "admin" : r === "READER" ? "reader" : "user";
+  r === "ADMIN" ? "admin" : r === "READER" ? "reader" : "user";
 
 export interface AuthUser {
   id: string;
@@ -24,11 +30,19 @@ export interface AuthUser {
 interface AuthCtx {
   user: AuthUser | null;
   login: (emailOrUsername: string, password: string) => Promise<void>;
-  register: (data: { username: string; full_name: string; password: string }) => Promise<void>;
-  logout: () => Promise<void>;  // <-- Đổi thành Promise
-  updateProfile: (patch: Partial<Omit<AuthUser, "id" | "role" | "joinedAt">>) => void;
+  register: (data: {
+    username: string;
+    full_name: string;
+    password: string;
+  }) => Promise<void>;
+  logout: () => Promise<void>; // <-- Đổi thành Promise
+  updateProfile: (
+    patch: Partial<Omit<AuthUser, "id" | "role" | "joinedAt">>,
+  ) => void;
   requestAuth: (cb: () => void) => void;
-  authPrompt: { open: false } | { open: true; mode: "login" | "register" | "forgot" | "reader" };
+  authPrompt:
+    | { open: false }
+    | { open: true; mode: "login" | "register" | "forgot" | "reader" };
   openAuth: (mode: "login" | "register" | "forgot" | "reader") => void;
   closeAuth: () => void;
 }
@@ -53,7 +67,9 @@ function toAuthUser(u: User): AuthUser {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const [user, setUser] = useState<AuthUser | null>(null);
-  const [authPrompt, setAuthPrompt] = useState<AuthCtx["authPrompt"]>({ open: false });
+  const [authPrompt, setAuthPrompt] = useState<AuthCtx["authPrompt"]>({
+    open: false,
+  });
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
 
   useEffect(() => {
@@ -76,8 +92,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login: AuthCtx["login"] = async (emailOrUsername, password) => {
     const username = emailOrUsername.includes("@")
-        ? emailOrUsername.split("@")[0]
-        : emailOrUsername;
+      ? emailOrUsername.split("@")[0]
+      : emailOrUsername;
 
     const res = await authApi.login({ username, password });
     persist(toAuthUser(res.user));
@@ -115,7 +131,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const updateProfile = (patch: Partial<Omit<AuthUser, "id" | "role" | "joinedAt">>) => {
+  const updateProfile = (
+    patch: Partial<Omit<AuthUser, "id" | "role" | "joinedAt">>,
+  ) => {
     if (user) {
       persist({ ...user, ...patch });
     }
@@ -130,21 +148,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-      <Ctx.Provider
-          value={{
-            user,
-            login,
-            register,
-            logout,
-            updateProfile,
-            requestAuth,
-            authPrompt,
-            openAuth: (mode) => setAuthPrompt({ open: true, mode }),
-            closeAuth: () => setAuthPrompt({ open: false }),
-          }}
-      >
-        {children}
-      </Ctx.Provider>
+    <Ctx.Provider
+      value={{
+        user,
+        login,
+        register,
+        logout,
+        updateProfile,
+        requestAuth,
+        authPrompt,
+        openAuth: (mode) => setAuthPrompt({ open: true, mode }),
+        closeAuth: () => setAuthPrompt({ open: false }),
+      }}
+    >
+      {children}
+    </Ctx.Provider>
   );
 }
 
