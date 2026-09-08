@@ -4,6 +4,7 @@
 // READER cũ đã gộp vào STAFF (xem migration V2_0 và src/lib/roles.ts).
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { CalendarClock, MessageCircle, Star } from "lucide-react";
 import { RoleGuard } from "@/components/RoleGuard";
 import { NotWiredYet, WorkspaceShell } from "@/components/WorkspaceShell";
@@ -11,6 +12,9 @@ import { getMyReaderProfile } from "@/api/reader";
 import { ApiError } from "@/api/client";
 import { formatVND } from "@/lib/mock-data";
 import { useAuth } from "@/lib/auth-context";
+import { BookingList } from "@/features/booking/components/BookingList";
+import { useReaderBookings } from "@/features/booking/queries";
+import { BOOKING_STATUS_LABEL, type BookingStatus } from "@/api/booking";
 
 export const Route = createFileRoute("/staff")({
   head: () => ({ meta: [{ title: "Bàn làm việc — ASTROTAROT" }] }),
@@ -40,6 +44,11 @@ function StaffWorkspace() {
         ...(can("READER_MANAGE_PROFILE")
           ? [
               {
+                key: "bookings",
+                label: "Lịch hẹn",
+                render: () => <ReaderBookings />,
+              },
+              {
                 key: "reader",
                 label: "Hồ sơ Reader",
                 render: () => <ReaderPanel />,
@@ -48,6 +57,58 @@ function StaffWorkspace() {
           : []),
       ]}
     />
+  );
+}
+
+/**
+ * Lịch hẹn Reader nhận được.
+ *
+ * Trước đây chỗ này là một ô "chưa nối được" vì Booking chưa có tầng code nào
+ * phía trên bảng. Nay đã có, nên nối vào dữ liệu thật.
+ */
+function ReaderBookings() {
+  const [status, setStatus] = useState("");
+  const query = useReaderBookings({ status: status || undefined, page: 0, size: 50 });
+
+  const filters = [
+    { key: "", label: "Tất cả" },
+    ...(Object.keys(BOOKING_STATUS_LABEL) as BookingStatus[]).map((s) => ({
+      key: s,
+      label: BOOKING_STATUS_LABEL[s],
+    })),
+  ];
+
+  return (
+    <div>
+      <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label="Lọc theo trạng thái">
+        {filters.map((f) => (
+          <button
+            key={f.key || "all"}
+            type="button"
+            onClick={() => setStatus(f.key)}
+            aria-pressed={status === f.key}
+            className={
+              status === f.key
+                ? "rounded-full border border-gold bg-gold/20 px-4 py-1.5 text-xs text-gold"
+                : "rounded-full border border-mystic/50 bg-mystic/10 px-4 py-1.5 text-xs text-foreground/80 transition hover:border-gold/60"
+            }
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      <div aria-live="polite" aria-busy={query.isFetching}>
+        <BookingList
+          bookings={query.data?.content ?? []}
+          side="reader"
+          isPending={query.isPending}
+          isError={query.isError}
+          error={query.error}
+          onRetry={() => void query.refetch()}
+        />
+      </div>
+    </div>
   );
 }
 
@@ -193,11 +254,10 @@ function ReaderPanel() {
         <section className="glass rounded-2xl p-5">
           <h3 className="flex items-center gap-2 font-display text-lg">
             <MessageCircle aria-hidden="true" className="h-4 w-4 text-gold" />
-            Booking
+            Lịch hẹn
           </h3>
           <p className="mt-2 text-xs text-muted-foreground">
-            Danh sách lịch hẹn thật chưa nối được: BE chưa có endpoint đọc
-            bookings của Reader.
+            Toàn bộ lịch hẹn nằm ở tab Lịch hẹn phía trên.
           </p>
         </section>
       </div>

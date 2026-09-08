@@ -10,12 +10,14 @@ import {
   History,
   ShoppingBag,
   Package,
+  CalendarClock,
   Menu,
   X,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { PUBLIC_NAV, workspaceNavFor } from "@/lib/roles";
 import { RoleBadge } from "./RoleBadge";
+import { NotificationBell } from "./NotificationBell";
 import { useCart } from "@/lib/cart-context";
 import { LogoutConfirm } from "./LogoutConfirm";
 import { ScrollProgress } from "./ScrollProgress";
@@ -101,6 +103,10 @@ export function Header() {
           </nav>
 
           <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+            {/* Chuông thông báo. Đứng cạnh giỏ hàng vì cùng là chỉ báo có việc
+                cần xử lý, và cùng chỉ có nghĩa khi đã đăng nhập. */}
+            <NotificationBell />
+
             {/* Giỏ hàng: chỉ hiện khi đã đăng nhập, vì giỏ nằm ở BE theo user. */}
             {user && (
               <Link
@@ -151,6 +157,14 @@ export function Header() {
                         a: () => {
                           setOpen(false);
                           navigate({ to: "/profile" });
+                        },
+                      },
+                      {
+                        ic: CalendarClock,
+                        l: "Lịch hẹn của tôi",
+                        a: () => {
+                          setOpen(false);
+                          navigate({ to: "/bookings" });
                         },
                       },
                       {
@@ -235,6 +249,15 @@ export function Header() {
                   {l.label}
                 </Link>
               ))}
+              {user && (
+                <Link
+                  to="/bookings"
+                  onClick={() => setMobileOpen(false)}
+                  className="rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition hover:bg-gold/10 hover:text-gold"
+                >
+                  Lịch hẹn của tôi
+                </Link>
+              )}
               {user && (
                 <Link
                   to="/orders"
