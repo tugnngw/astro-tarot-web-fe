@@ -1,3 +1,20 @@
 node_modules
-node_modules
-/.env.local
+
+# Build output
+dist
+.output
+.nitro
+.tanstack
+
+# Environment
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Editor
+.idea
+.vscode
+
+# Logs
+*.log
