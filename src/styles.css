@@ -191,10 +191,39 @@
   .bg-cosmic {
     background: var(--gradient-cosmic);
   }
+  /* Thẻ: nền đen, viền vàng mảnh có ánh sáng hắt nhẹ.
+     Trước đây nền thẻ là tím pha (card 60%) nên đứng trên nền đen mới nhìn
+     ra một mảng xám xanh. Giờ đen gần như nền, tách khỏi nền bằng viền
+     sáng chứ không bằng độ sáng của mặt thẻ. */
   .glass {
-    background: color-mix(in oklab, var(--card) 60%, transparent);
+    background: color-mix(in oklab, oklch(0.09 0.02 282) 82%, transparent);
     backdrop-filter: blur(14px);
-    border: 1px solid color-mix(in oklab, var(--gold) 18%, transparent);
+    border: 1px solid color-mix(in oklab, var(--gold) 30%, transparent);
+    box-shadow:
+      inset 0 0 0 1px color-mix(in oklab, var(--gold) 7%, transparent),
+      0 0 24px -18px color-mix(in oklab, var(--gold) 55%, transparent);
+  }
+
+  /* Nền cho khung hoa văn OrnateFrame — đen sâu hơn thẻ thường một chút để
+     hoạ tiết vàng nổi lên. */
+  .panel-black {
+    background: oklch(0.055 0.012 282);
+    box-shadow: 0 0 40px -26px color-mix(in oklab, var(--gold) 70%, transparent);
+  }
+
+  /* Thanh điều hướng: nền xanh mực đặc, viền dưới vàng rõ, thêm một vệt
+     sáng mảnh phía trên viền cho ra chất kim loại. */
+  .site-header {
+    background: linear-gradient(
+      180deg,
+      oklch(0.17 0.05 268) 0%,
+      oklch(0.13 0.045 265) 100%
+    );
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid color-mix(in oklab, var(--gold) 45%, transparent);
+    box-shadow:
+      inset 0 -2px 0 -1px color-mix(in oklab, var(--gold) 16%, transparent),
+      0 10px 30px -22px oklch(0 0 0 / 0.9);
   }
 
   /* Thẻ nội dung: viền sáng lên và nhấc nhẹ khi rê chuột.

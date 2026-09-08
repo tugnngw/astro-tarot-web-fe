@@ -60,7 +60,10 @@ export function Header() {
   return (
     <>
       <ScrollProgress />
-      <header className="sticky top-0 z-40 glass">
+      {/* Nền xanh mực đặc thay cho lớp kính trong suốt, và một đường viền
+          vàng ở dưới đủ rõ để tách hẳn thanh điều hướng khỏi bầu trời sao —
+          trước đây header gần như tan vào nền. */}
+      <header className="site-header sticky top-0 z-40">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
           {/* min-w-0 + truncate: ở 375px, wordmark + giỏ + avatar + nút menu
               cộng lại rộng hơn màn hình và đẩy cả trang cuộn ngang. Cho phép

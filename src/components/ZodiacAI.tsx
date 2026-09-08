@@ -1,5 +1,6 @@
 import { useId, useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { OrnateFrame } from "@/components/OrnateFrame";
 
 /**
  * Bảng màu theo 4 nguyên tố của chiêm tinh (Lửa, Đất, Khí, Nước) thay vì mỗi
@@ -45,15 +46,9 @@ export function ZodiacAI() {
   const accent = element.color;
   const selectId = useId();
   return (
-    <div
-      className="glass relative overflow-hidden rounded-3xl p-8 transition-all duration-500"
-      style={{
-        boxShadow: `0 0 80px -20px ${accent}80`,
-        borderColor: `${accent}55`,
-      }}
-    >
+    <OrnateFrame className="overflow-hidden rounded-2xl p-8">
       <div
-        className="absolute -top-20 -right-20 h-64 w-64 rounded-full blur-3xl opacity-30 transition-all duration-700"
+        className="absolute -top-24 -right-24 h-64 w-64 rounded-full opacity-25 blur-3xl transition-all duration-700"
         style={{ background: accent }}
       />
       <div className="relative flex flex-col gap-6 md:flex-row md:items-center">
@@ -121,6 +116,6 @@ export function ZodiacAI() {
           </div>
         </div>
       </div>
-    </div>
+    </OrnateFrame>
   );
 }

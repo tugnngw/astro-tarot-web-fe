@@ -8,7 +8,7 @@ import { FeaturedProducts } from "@/components/FeaturedProducts";
 import { Reveal } from "@/components/Reveal";
 import { ContactSection } from "@/components/ContactSection";
 import { useAuth } from "@/lib/auth-context";
-import zodiacWheel from "@/assets/zodiac-wheel.png";
+import { TarotWheel } from "@/components/TarotWheel";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -48,24 +48,13 @@ function Landing() {
         {/* ─── Section 1: Hero with zodiac wheel ─── */}
         <section className="snap-section relative flex items-center justify-center overflow-hidden px-6">
 
-          {/* Rotating zodiac wheel backdrop */}
+          {/* Vòng lá bài Tarot xoay chậm.
+              Trước đây là ảnh PNG bánh xe hoàng đạo — nền của nó là xanh đen
+              chứ không trong suốt nên trên nền đen lộ nguyên khung chữ nhật,
+              phải chắp vá bằng mask. Vẽ bằng DOM thì nền trong suốt thật,
+              theo đúng tông vàng, và nét căng ở mọi độ phân giải. */}
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            {/* Mask tròn: PNG bánh xe có nền xanh đen chứ không đen tuyệt
-                đối, nên với mix-blend-screen trên nền đen nó lộ nguyên khung
-                chữ nhật sáng hơn xung quanh. Mask cho ảnh tan dần ra rìa để
-                chỉ còn thấy vòng tròn. */}
-            <img
-              src={zodiacWheel}
-              alt=""
-              aria-hidden
-              className="animate-zodiac-slow w-[min(120vmin,1100px)] max-w-none opacity-30 mix-blend-screen"
-              style={{
-                maskImage:
-                  "radial-gradient(circle at center, black 42%, transparent 62%)",
-                WebkitMaskImage:
-                  "radial-gradient(circle at center, black 42%, transparent 62%)",
-              }}
-            />
+            <TarotWheel className="w-[min(118vmin,1080px)]" />
             {/* Làm tối vùng giữa để chữ tiêu đề nổi lên khỏi bánh xe hoàng
                 đạo — trước đây phần giữa trong suốt hoàn toàn nên các nan
                 bánh xe chạy xuyên qua chữ, đọc rất mệt mắt.
