@@ -25,7 +25,7 @@ import { Route as BookingsRouteImport } from './routes/bookings'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShopSlugRouteImport } from './routes/shop_.$slug'
-import { Route as ReadersIdRouteImport } from './routes/readers.$id'
+import { Route as ReadersIdRouteImport } from './routes/readers_.$id'
 import { Route as ProfileAstrologyRouteImport } from './routes/profile/astrology'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 
@@ -110,9 +110,9 @@ const ShopSlugRoute = ShopSlugRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReadersIdRoute = ReadersIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => ReadersRoute,
+  id: '/readers_/$id',
+  path: '/readers/$id',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileAstrologyRoute = ProfileAstrologyRouteImport.update({
   id: '/astrology',
@@ -135,7 +135,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRouteWithChildren
   '/reader': typeof ReaderRoute
   '/reader-hub': typeof ReaderHubRoute
-  '/readers': typeof ReadersRouteWithChildren
+  '/readers': typeof ReadersRoute
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRoute
   '/staff': typeof StaffRoute
@@ -156,7 +156,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRouteWithChildren
   '/reader': typeof ReaderRoute
   '/reader-hub': typeof ReaderHubRoute
-  '/readers': typeof ReadersRouteWithChildren
+  '/readers': typeof ReadersRoute
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRoute
   '/staff': typeof StaffRoute
@@ -178,7 +178,7 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRouteWithChildren
   '/reader': typeof ReaderRoute
   '/reader-hub': typeof ReaderHubRoute
-  '/readers': typeof ReadersRouteWithChildren
+  '/readers': typeof ReadersRoute
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRoute
   '/staff': typeof StaffRoute
@@ -186,7 +186,7 @@ export interface FileRoutesById {
   '/verify-email': typeof VerifyEmailRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/profile/astrology': typeof ProfileAstrologyRoute
-  '/readers/$id': typeof ReadersIdRoute
+  '/readers_/$id': typeof ReadersIdRoute
   '/shop_/$slug': typeof ShopSlugRoute
 }
 export interface FileRouteTypes {
@@ -251,7 +251,7 @@ export interface FileRouteTypes {
     | '/verify-email'
     | '/blog/$slug'
     | '/profile/astrology'
-    | '/readers/$id'
+    | '/readers_/$id'
     | '/shop_/$slug'
   fileRoutesById: FileRoutesById
 }
@@ -265,13 +265,14 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRouteWithChildren
   ReaderRoute: typeof ReaderRoute
   ReaderHubRoute: typeof ReaderHubRoute
-  ReadersRoute: typeof ReadersRouteWithChildren
+  ReadersRoute: typeof ReadersRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ShopRoute: typeof ShopRoute
   StaffRoute: typeof StaffRoute
   TarotRoute: typeof TarotRoute
   VerifyEmailRoute: typeof VerifyEmailRoute
   BlogSlugRoute: typeof BlogSlugRoute
+  ReadersIdRoute: typeof ReadersIdRoute
   ShopSlugRoute: typeof ShopSlugRoute
 }
 
@@ -389,12 +390,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShopSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/readers/$id': {
-      id: '/readers/$id'
-      path: '/$id'
+    '/readers_/$id': {
+      id: '/readers_/$id'
+      path: '/readers/$id'
       fullPath: '/readers/$id'
       preLoaderRoute: typeof ReadersIdRouteImport
-      parentRoute: typeof ReadersRoute
+      parentRoute: typeof rootRouteImport
     }
     '/profile/astrology': {
       id: '/profile/astrology'
@@ -424,17 +425,6 @@ const ProfileRouteChildren: ProfileRouteChildren = {
 const ProfileRouteWithChildren =
   ProfileRoute._addFileChildren(ProfileRouteChildren)
 
-interface ReadersRouteChildren {
-  ReadersIdRoute: typeof ReadersIdRoute
-}
-
-const ReadersRouteChildren: ReadersRouteChildren = {
-  ReadersIdRoute: ReadersIdRoute,
-}
-
-const ReadersRouteWithChildren =
-  ReadersRoute._addFileChildren(ReadersRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
@@ -445,13 +435,14 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRouteWithChildren,
   ReaderRoute: ReaderRoute,
   ReaderHubRoute: ReaderHubRoute,
-  ReadersRoute: ReadersRouteWithChildren,
+  ReadersRoute: ReadersRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ShopRoute: ShopRoute,
   StaffRoute: StaffRoute,
   TarotRoute: TarotRoute,
   VerifyEmailRoute: VerifyEmailRoute,
   BlogSlugRoute: BlogSlugRoute,
+  ReadersIdRoute: ReadersIdRoute,
   ShopSlugRoute: ShopSlugRoute,
 }
 export const routeTree = rootRouteImport

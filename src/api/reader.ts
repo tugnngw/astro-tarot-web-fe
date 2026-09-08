@@ -24,6 +24,11 @@ export interface ReaderUnavailableDate {
 export interface ReaderProfile {
   id: string;
   username: string;
+  /** Tài khoản đứng sau hồ sơ — dùng để nhận ra "Reader này là chính tôi". */
+  userId: string | null;
+  /** Tên hiển thị. Trang công khai gọi Reader bằng tên, không phải username. */
+  fullName: string | null;
+  avatar: string | null;
   bio: string | null;
   specialties: string[] | null;
   yearsExperience: number | null;
@@ -39,6 +44,14 @@ export interface ReaderProfile {
 
 export function getMyReaderProfile() {
   return apiFetch<ReaderProfile>("/api/v1/readers/profile/me");
+}
+
+export function getReader(readerProfileId: string) {
+  return apiFetch<ReaderProfile>(
+    `/api/v1/readers/${readerProfileId}`,
+    {},
+    { auth: false },
+  );
 }
 
 export function getVerifiedReaders() {

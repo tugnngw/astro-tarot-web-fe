@@ -1,7 +1,15 @@
+// Danh sách Reader — trụ cột 2, cửa vào của toàn bộ luồng đặt lịch.
+//
+// Trang này trước đây chạy trên mảng READERS trong mock-data.ts. Nó trông như
+// đã xong nên rất dễ bị bỏ quên, mà người dùng thật thì tin vào những cái tên
+// và mức giá bịa ra ở đó. Nay đọc từ GET /api/v1/readers.
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { motion } from "framer-motion";
+import { useMemo, useState } from "react";
+import { AlertCircle, Search, Star, UserSearch } from "lucide-react";
 import { Header } from "@/components/Header";
-import { READERS, formatVND, type Reader } from "@/lib/mock-data";
+import { useReaders } from "@/features/readers/queries";
+import { formatVND } from "@/lib/mock-data";
+import type { ReaderProfile } from "@/api/reader";
 
 export const Route = createFileRoute("/readers")({
   head: () => ({
@@ -9,7 +17,7 @@ export const Route = createFileRoute("/readers")({
       { title: "Tìm Reader — ASTROTAROT" },
       {
         name: "description",
-        content: "Đặt lịch với các Reader Tarot & Chiêm tinh chuyên nghiệp.",
+        content: "Đặt lịch với các Reader Tarot và Chiêm tinh đã được duyệt.",
       },
     ],
   }),
@@ -17,75 +25,186 @@ export const Route = createFileRoute("/readers")({
 });
 
 function ReadersPage() {
+  const query = useReaders();
+  const [keyword, setKeyword] = useState("");
+
+  const readers = useMemo(() => {
+    const all = query.data ?? [];
+    const kw = keyword.trim().toLowerCase();
+    if (!kw) return all;
+    // Lọc ở phía trình duyệt: số Reader đã duyệt còn nhỏ, thêm một endpoint
+    // tìm kiếm lúc này là phức tạp hoá mà không đổi được gì cho người dùng.
+    return all.filter((r) =>
+      [r.fullName, r.username, r.bio, ...(r.specialties ?? [])]
+        .filter(Boolean)
+        .some((field) => String(field).toLowerCase().includes(kw)),
+    );
+  }, [query.data, keyword]);
+
   return (
     <div className="relative min-h-screen">
       <Header />
 
-      <div className="mx-auto max-w-7xl px-6 py-10">
-        <h1 className="font-display text-4xl">
-          Kết nối với <span className="text-gradient-gold">chuyên gia</span>
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
+        <h1 className="font-display text-3xl sm:text-4xl">
+          Kết nối với <span className="text-gradient-gold">Reader thật</span>
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Chọn Reader phù hợp và đặt lịch ngay. Thanh toán qua ký quỹ an toàn.
+        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+          Mỗi Reader ở đây đều đã qua duyệt hồ sơ. Chọn khung giờ trống, đặt lịch,
+          và đánh giá sau khi buổi xem hoàn tất.
         </p>
 
-        <div className="mt-8 grid gap-6 md:grid-cols-2">
-          {READERS.map((r) => (
-            <ReaderCard key={r.id} reader={r} />
-          ))}
+        <div className="relative mt-6 max-w-md">
+          <label htmlFor="reader-search" className="sr-only">
+            Tìm Reader theo tên hoặc chuyên môn
+          </label>
+          <Search
+            aria-hidden="true"
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+          />
+          <input
+            id="reader-search"
+            type="search"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            placeholder="Tên Reader hoặc chuyên môn..."
+            className="w-full rounded-full border border-gold/30 bg-input/70 py-2.5 pl-10 pr-4 text-sm text-foreground outline-none transition focus:border-gold focus-visible:ring-2 focus-visible:ring-gold/40"
+          />
         </div>
-      </div>
+
+        <div className="mt-8" aria-live="polite" aria-busy={query.isFetching}>
+          {query.isError ? (
+            <div className="glass flex flex-col items-center rounded-2xl px-6 py-14 text-center">
+              <AlertCircle className="h-9 w-9 text-destructive/70" />
+              <h2 className="mt-3 font-display text-lg">Không tải được danh sách Reader</h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {query.error instanceof Error ? query.error.message : "Lỗi không xác định."}
+              </p>
+              <button
+                type="button"
+                onClick={() => void query.refetch()}
+                className="mt-4 rounded-full border border-gold/50 px-5 py-2 text-sm text-gold transition hover:bg-gold/10"
+              >
+                Thử lại
+              </button>
+            </div>
+          ) : query.isPending ? (
+            <div className="grid gap-5 md:grid-cols-2">
+              {Array.from({ length: 4 }, (_, i) => (
+                <div key={i} className="glass h-52 animate-pulse rounded-2xl" aria-hidden="true" />
+              ))}
+            </div>
+          ) : readers.length === 0 ? (
+            <div className="glass flex flex-col items-center rounded-2xl px-6 py-16 text-center">
+              <UserSearch aria-hidden="true" className="h-10 w-10 text-gold/50" />
+              <h2 className="mt-4 font-display text-xl">
+                {keyword ? "Không có Reader nào khớp" : "Chưa có Reader nào"}
+              </h2>
+              <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+                {keyword
+                  ? `Không tìm thấy Reader nào cho "${keyword}". Thử từ khoá khác nhé.`
+                  : "Hồ sơ Reader phải được duyệt mới xuất hiện ở đây. Bạn cũng có thể nộp hồ sơ để trở thành Reader."}
+              </p>
+            </div>
+          ) : (
+            <div className="grid gap-5 md:grid-cols-2">
+              {readers.map((r) => (
+                <ReaderCard key={r.id} reader={r} />
+              ))}
+            </div>
+          )}
+        </div>
+      </main>
     </div>
   );
 }
 
-function ReaderCard({ reader }: { reader: Reader }) {
+function ReaderCard({ reader }: { reader: ReaderProfile }) {
+  const name = reader.fullName ?? `@${reader.username}`;
+  const specialties = reader.specialties ?? [];
+  const cheapest = reader.pricePer15m ?? reader.pricePer30m ?? reader.pricePer60m;
+
   return (
-    <motion.div className="glass rounded-2xl p-6" whileHover={{ y: -4 }}>
+    <article className="card-hover glass flex flex-col rounded-2xl p-6">
       <div className="flex items-start gap-4">
-        <div className="grid h-16 w-16 place-items-center rounded-full border border-gold bg-card text-3xl glow-gold">
-          {reader.avatar}
-        </div>
-        <div className="flex-1">
-          <h3 className="font-display text-2xl text-foreground">
-            {reader.name}
-          </h3>
-          <p className="text-sm text-muted-foreground">{reader.title}</p>
-          <div className="mt-1 flex items-center gap-2 text-xs">
-            <span className="text-gold">★ {reader.rating}</span>
-            <span className="text-muted-foreground">
-              ({reader.reviews} đánh giá)
-            </span>
-          </div>
-        </div>
-        <div className="text-right">
-          <div className="text-xs text-muted-foreground">15 phút</div>
-          <div className="font-display text-xl text-gold">
-            {formatVND(reader.pricePer15m)}
-          </div>
-        </div>
-      </div>
-
-      <p className="mt-4 text-sm text-muted-foreground">{reader.bio}</p>
-
-      <div className="mt-4 flex flex-wrap gap-2">
-        {reader.specialties.map((s) => (
+        {reader.avatar ? (
+          <img
+            src={reader.avatar}
+            alt=""
+            className="h-16 w-16 shrink-0 rounded-full object-cover ring-1 ring-gold/40"
+          />
+        ) : (
           <span
-            key={s}
-            className="rounded-full border border-mystic/50 bg-mystic/10 px-3 py-1 text-xs text-foreground/80"
+            aria-hidden="true"
+            className="grid h-16 w-16 shrink-0 place-items-center rounded-full border border-gold bg-card font-display text-2xl text-gold"
           >
-            {s}
+            {name.charAt(name.startsWith("@") ? 1 : 0).toUpperCase()}
           </span>
-        ))}
+        )}
+
+        <div className="min-w-0 flex-1">
+          <h2 className="font-display text-2xl leading-tight">
+            <Link
+              to="/readers/$id"
+              params={{ id: reader.id }}
+              className="text-foreground transition hover:text-gold"
+            >
+              {name}
+            </Link>
+          </h2>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            {reader.yearsExperience ? `${reader.yearsExperience} năm kinh nghiệm` : "Reader mới"}
+            {reader.isAvailable === false && (
+              <span className="ml-2 text-amber-300">tạm ngưng nhận lịch</span>
+            )}
+          </p>
+          <p className="mt-1 flex items-center gap-1.5 text-xs">
+            <Star aria-hidden="true" className="h-3.5 w-3.5 fill-gold text-gold" />
+            <span className="text-gold">
+              {reader.totalReviews ? Number(reader.rating ?? 0).toFixed(1) : "Chưa có"}
+            </span>
+            <span className="text-muted-foreground">
+              {reader.totalReviews ? `(${reader.totalReviews} đánh giá)` : "đánh giá"}
+            </span>
+          </p>
+        </div>
+
+        {cheapest != null && (
+          <div className="shrink-0 text-right">
+            <div className="text-[11px] text-muted-foreground">chỉ từ</div>
+            <div className="font-display text-xl text-gold">{formatVND(cheapest)}</div>
+          </div>
+        )}
       </div>
 
-      <Link
-        to="/readers/$id"
-        params={{ id: reader.id }}
-        className="mt-5 block w-full rounded-full bg-gold py-3 text-center text-sm font-medium text-primary-foreground glow-gold transition hover:scale-[1.02]"
-      >
-        Xem hồ sơ & Book lịch ✦
-      </Link>
-    </motion.div>
+      {reader.bio && (
+        <p className="mt-4 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
+          {reader.bio}
+        </p>
+      )}
+
+      {specialties.length > 0 && (
+        <ul className="mt-4 flex flex-wrap gap-2">
+          {specialties.map((s) => (
+            <li
+              key={s}
+              className="rounded-full border border-gold/25 px-2.5 py-0.5 text-[11px] text-gold/80"
+            >
+              {s}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="mt-auto pt-5">
+        <Link
+          to="/readers/$id"
+          params={{ id: reader.id }}
+          className="block rounded-full bg-gold py-2.5 text-center text-sm font-medium text-primary-foreground glow-gold transition hover:scale-[1.02]"
+        >
+          Xem hồ sơ và đặt lịch
+        </Link>
+      </div>
+    </article>
   );
 }
