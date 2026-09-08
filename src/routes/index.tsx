@@ -59,47 +59,72 @@ function Landing() {
               overflow-hidden nên cung dưới bị cắt cụt giữa chừng. */}
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
             <TarotWheel className="h-[min(86vh,760px)] w-[min(86vh,760px)]" />
-            {/* Làm tối vùng giữa để chữ tiêu đề nổi lên khỏi bánh xe hoàng
-                đạo — trước đây phần giữa trong suốt hoàn toàn nên các nan
-                bánh xe chạy xuyên qua chữ, đọc rất mệt mắt.
-                Nền đã là đen nên chỉ cần phủ nhẹ; phủ đậm như hồi nền tím
-                sẽ nuốt luôn bánh xe lẫn bầu trời sao phía sau. */}
+            {/* Làm tối phần LỖ GIỮA vòng bài để chữ tiêu đề đọc được.
+                Lưu ý bán kính của radial-gradient tính theo nửa chiều rộng
+                hộp: "ellipse 48%" nghĩa là trải 96% bề ngang, tức phủ đen
+                luôn các lá bài hai bên. Lỗ giữa vòng chỉ khoảng 55% bề ngang
+                nên bán kính phải nhỏ hơn nhiều, và phải tắt hẳn trước khi
+                chạm tới vành bài. */}
             <div
               aria-hidden="true"
               className="absolute inset-0"
               style={{
                 background:
-                  "radial-gradient(ellipse 48% 36% at center, oklch(0.02 0.004 280 / 0.96) 0%, oklch(0.02 0.004 280 / 0.88) 45%, oklch(0.02 0.004 280 / 0.45) 72%, transparent 100%)",
+                  "radial-gradient(ellipse 27% 25% at center, oklch(0.02 0.004 280 / 0.95) 0%, oklch(0.02 0.004 280 / 0.8) 62%, transparent 100%)",
               }}
             />
           </div>
 
-          <div className="hero-enter relative z-10 text-center">
+          {/* pointer-events-none cho cả khối chữ, chỉ bật lại ở nút bấm.
+              Hộp bao của tiêu đề rộng hơn lỗ giữa vòng bài nên nó trùm lên
+              các lá hai bên và ăn mất chuột — rê vào lá không có phản hồi
+              gì. Chữ thì không cần nhận chuột, nên trả chuột lại cho vòng
+              bài phía dưới. */}
+          <div className="hero-enter pointer-events-none relative z-10 text-center">
             <div className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-card/40 px-4 py-1.5 text-xs uppercase tracking-[0.4em] text-gold backdrop-blur">
               ✦ ASTROTAROT ✦
             </div>
+            {/* Bóng đổ nhiều lớp bám sát nét chữ. Lớp phủ tối giờ chỉ còn
+                trong lỗ giữa vòng, nên hai đầu dòng tiêu đề nằm đè lên lá
+                bài — phải dựa vào bóng chữ chứ không dựa vào nền tối nữa. */}
+            {/* Dùng filter: drop-shadow chứ KHÔNG dùng text-shadow.
+                Dòng "Tử vi · Tarot" tô bằng background-clip:text với
+                color:transparent; thứ tự vẽ của trình duyệt là nền (phần
+                gradient đã cắt theo chữ) -> text-shadow -> glyph. Chữ trong
+                suốt nên text-shadow rơi thẳng lên mặt gradient và làm xỉn
+                chữ vàng. drop-shadow tác động lên kết quả đã dựng nên đổ
+                bóng ra phía sau đúng như mong đợi. */}
             <h1
               className="mt-6 font-display text-5xl leading-tight md:text-7xl lg:text-8xl"
-              style={{ textShadow: "0 2px 28px oklch(0.04 0.01 280 / 0.95)" }}
+              style={{
+                filter:
+                  "drop-shadow(0 0 9px rgba(3,2,8,0.95)) drop-shadow(0 0 26px rgba(3,2,8,0.9)) drop-shadow(0 2px 44px rgba(3,2,8,0.8))",
+              }}
             >
               <span className="text-gradient-gold">Tử vi · Tarot</span>
               <br />
               <span className="text-foreground">Cộng đồng Reader</span>
             </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-base text-foreground/80 md:text-lg">
+            <p
+              className="mx-auto mt-6 max-w-2xl text-base text-foreground/85 md:text-lg"
+              style={{
+                textShadow:
+                  "0 0 8px oklch(0.02 0 280 / 0.95), 0 0 20px oklch(0.02 0 280 / 0.85)",
+              }}
+            >
               Vũ trụ huyền bí mở ra trước bạn — nơi 12 cung hoàng đạo, lá bài
               Tarot và những Reader chuyên nghiệp cùng hội tụ.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <button
                 onClick={() => requestAuth(() => {})}
-                className="rounded-full bg-gold px-7 py-3 font-medium text-primary-foreground glow-gold transition hover:scale-105"
+                className="pointer-events-auto rounded-full bg-gold px-7 py-3 font-medium text-primary-foreground glow-gold transition hover:scale-105"
               >
                 ✦ Bắt đầu ngay
               </button>
               <Link
                 to="/tarot"
-                className="rounded-full border border-gold/60 px-7 py-3 font-medium text-gold transition hover:bg-gold/10"
+                className="pointer-events-auto rounded-full border border-gold/60 px-7 py-3 font-medium text-gold transition hover:bg-gold/10"
               >
                 Khám phá
               </Link>
