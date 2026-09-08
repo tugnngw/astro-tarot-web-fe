@@ -1,12 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Header } from "@/components/Header";
-import { ZodiacAI } from "@/components/ZodiacAI";
+import { DailyCardDraw } from "@/components/DailyCardDraw";
 import { TopReaders } from "@/components/TopReaders";
 import { BlogToday } from "@/components/BlogToday";
 import { FeaturedProducts } from "@/components/FeaturedProducts";
 import { Reveal } from "@/components/Reveal";
-import { ContactSection } from "@/components/ContactSection";
+import { WhatYouCanDo } from "@/components/WhatYouCanDo";
+import { FaqSection } from "@/components/FaqSection";
 import { useAuth } from "@/lib/auth-context";
 import { TarotWheel } from "@/components/TarotWheel";
 
@@ -17,7 +18,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Khám phá vận mệnh qua chiêm tinh, Tarot AI và cộng đồng Reader chuyên nghiệp.",
+          "Trải bài Tarot miễn phí cùng AI đọc theo bản đồ sao, đặt lịch với Reader thật, và mua bộ bài, đá khoáng, phụ kiện trải bài.",
       },
       {
         property: "og:title",
@@ -26,7 +27,7 @@ export const Route = createFileRoute("/")({
       {
         property: "og:description",
         content:
-          "Tarot AI cá nhân hoá theo cung hoàng đạo. Kết nối với Reader hàng đầu.",
+          "Rút bài miễn phí, không cần tài khoản. AI đọc theo câu hỏi và bản đồ sao của bạn.",
       },
     ],
   }),
@@ -34,7 +35,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Landing() {
-  const { openAuth, requestAuth } = useAuth();
+  const { openAuth } = useAuth();
 
   return (
     <div className="relative">
@@ -112,21 +113,25 @@ function Landing() {
                   "0 0 8px oklch(0.02 0 280 / 0.95), 0 0 20px oklch(0.02 0 280 / 0.85)",
               }}
             >
-              Vũ trụ huyền bí mở ra trước bạn — nơi 12 cung hoàng đạo, lá bài
-              Tarot và những Reader chuyên nghiệp cùng hội tụ.
+              Đặt một câu hỏi, AI rút bài và đọc theo bản đồ sao của bạn. Cần
+              sâu hơn thì có Reader thật. Miễn phí, không cần tài khoản.
             </p>
+            {/* Nút chính trước đây gọi requestAuth, tức là bắt đăng nhập ngay
+                từ cú bấm đầu tiên — trong khi trải bài AI vốn không cần tài
+                khoản. Rào người dùng lại trước khi họ thấy giá trị là cách
+                nhanh nhất để mất họ. Giờ đi thẳng vào trang trải bài. */}
             <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <button
-                onClick={() => requestAuth(() => {})}
-                className="pointer-events-auto rounded-full bg-gold px-7 py-3 font-medium text-primary-foreground glow-gold transition hover:scale-105"
-              >
-                ✦ Bắt đầu ngay
-              </button>
               <Link
                 to="/tarot"
+                className="pointer-events-auto rounded-full bg-gold px-7 py-3 font-medium text-primary-foreground glow-gold transition hover:scale-105"
+              >
+                ✦ Trải bài miễn phí
+              </Link>
+              <Link
+                to="/readers"
                 className="pointer-events-auto rounded-full border border-gold/60 px-7 py-3 font-medium text-gold transition hover:bg-gold/10"
               >
-                Khám phá
+                Đặt lịch Reader
               </Link>
             </div>
             <motion.div
@@ -139,73 +144,118 @@ function Landing() {
             </motion.div>
           </div>
         </section>
-
-        {/* ─── Section 2: Khám phá + Top Reader (vertical) ─── */}
+        {/* ─── Section 2: Rút thử một lá + Top Reader ───
+            Khối cũ ở đây là một tiêu đề chung chung cộng card "AI Zodiac
+            Oracle" chỉ có ô chọn cung hoàng đạo mà chọn xong chẳng đổi gì —
+            trông như tương tác được nhưng thực ra không. Thay bằng việc cho
+            người dùng lật một lá bài thật ngay lập tức. */}
         <section className="snap-section relative flex items-center px-6">
           <div className="mx-auto w-full max-w-7xl">
             <div className="grid items-start gap-8 lg:grid-cols-[1.4fr_1fr]">
               <Reveal>
-                <div className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-card/60 px-4 py-1.5 text-xs uppercase tracking-[0.25em] text-gold">
-                  ✦ Vận mệnh
-                </div>
-                <h2 className="mt-4 font-display text-4xl leading-tight md:text-5xl">
-                  Khám phá <span className="text-gradient-gold">vận mệnh</span>
-                  <br />
-                  qua Tarot &amp; Chiêm tinh hiện đại
-                </h2>
-                <p className="mt-4 max-w-xl text-sm text-muted-foreground md:text-base">
-                  Trải bài Tarot cá nhân hoá bởi AI dựa trên bản đồ sao của bạn,
-                  hoặc kết nối trực tiếp với Reader chuyên nghiệp.
-                </p>
-                <div className="mt-6 flex flex-wrap gap-3">
-                  <Link
-                    to="/tarot"
-                    className="rounded-full bg-gold px-6 py-2.5 text-sm font-medium text-primary-foreground glow-gold transition hover:scale-105"
-                  >
-                    Xem Tarot Miễn phí
-                  </Link>
-                  <button
-                    onClick={() => openAuth("reader")}
-                    className="rounded-full border border-gold/60 px-6 py-2.5 text-sm font-medium text-gold transition hover:bg-gold/10"
-                  >
-                    Đăng ký Chuyên gia
-                  </button>
-                </div>
-                <div className="mt-6">
-                  <ZodiacAI />
-                </div>
+                <DailyCardDraw />
               </Reveal>
               <Reveal delay={0.1}>
-                <h3 className="mb-4 font-display text-2xl text-gradient-gold">
-                  Top Reader nổi bật
-                </h3>
+                <div className="mb-4 flex items-baseline justify-between gap-3">
+                  <h2 className="font-display text-2xl text-gradient-gold">
+                    Reader đang nhận lịch
+                  </h2>
+                  <Link
+                    to="/readers"
+                    className="shrink-0 text-xs text-gold hover:underline"
+                  >
+                    Xem tất cả
+                  </Link>
+                </div>
                 <TopReaders vertical />
+                <button
+                  onClick={() => openAuth("reader")}
+                  className="mt-4 w-full rounded-full border border-gold/40 py-2.5 text-xs text-gold transition hover:bg-gold/10"
+                >
+                  Bạn là Reader? Đăng ký nhận khách
+                </button>
               </Reveal>
             </div>
           </div>
         </section>
 
-        {/* ─── Section 3: Shop ─── */}
+        {/* ─── Section 3: Ba việc làm được ở đây ─── */}
+        <section className="snap-section relative flex items-center px-6">
+          <WhatYouCanDo />
+        </section>
+
+        {/* ─── Section 4: Shop ─── */}
         <section id="shop" className="snap-section relative flex items-center px-6">
           <Reveal className="w-full">
             <FeaturedProducts />
           </Reveal>
         </section>
 
-        {/* ─── Section 4: Blog ─── */}
+        {/* ─── Section 5: Nhật ký ─── */}
         <section className="snap-section relative flex items-center px-6">
           <Reveal className="w-full">
             <BlogToday />
           </Reveal>
         </section>
 
-        {/* ─── Section 5: Contact ─── */}
+        {/* ─── Section 6: FAQ ───
+            Thay khối "Liên hệ với chúng tôi" cũ: nó in email, hotline và địa
+            chỉ văn phòng đều là dữ liệu bịa, kèm form gửi tin nhắn không nối
+            vào đâu. Thông tin liên hệ giả trên trang chủ làm mất lòng tin
+            nhanh hơn bất cứ thứ gì. */}
+        <section className="snap-section relative flex items-center px-6">
+          <FaqSection />
+        </section>
+
+        {/* ─── Kết: mời hành động lần cuối ─── */}
         <section className="snap-section relative flex flex-col justify-center px-6">
           <Reveal>
-            <ContactSection />
+            <div className="mx-auto max-w-2xl text-center">
+              <p className="text-xs uppercase tracking-[0.3em] text-gold/70">
+                ✦ Bắt đầu thôi
+              </p>
+              <h2 className="mt-3 font-display text-3xl sm:text-4xl md:text-5xl">
+                Lá bài đầu tiên đang chờ bạn
+              </h2>
+              <p className="mt-3 text-sm text-muted-foreground md:text-base">
+                Không cần tài khoản, không cần biết gì về Tarot. Chỉ cần một câu
+                hỏi bạn đang mang trong lòng.
+              </p>
+              <div className="mt-7 flex flex-wrap justify-center gap-3">
+                <Link
+                  to="/tarot"
+                  className="rounded-full bg-gold px-7 py-3 font-medium text-primary-foreground glow-gold transition hover:scale-105"
+                >
+                  ✦ Trải bài miễn phí
+                </Link>
+                <Link
+                  to="/readers"
+                  className="rounded-full border border-gold/60 px-7 py-3 font-medium text-gold transition hover:bg-gold/10"
+                >
+                  Đặt lịch Reader
+                </Link>
+              </div>
+            </div>
           </Reveal>
-          <footer className="mt-12 text-center text-xs text-muted-foreground">
-            © 2026 ASTROTAROT — Khám phá năng lượng vũ trụ
+
+          <footer className="mt-16 border-t border-border/50 pt-8 text-center">
+            <p className="font-display text-lg tracking-[0.2em] text-gradient-gold">
+              ASTROTAROT
+            </p>
+            <nav className="mt-4 flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
+              <Link to="/tarot" className="transition hover:text-gold">
+                Tarot AI
+              </Link>
+              <Link to="/readers" className="transition hover:text-gold">
+                Reader
+              </Link>
+              <Link to="/shop" className="transition hover:text-gold">
+                Cửa hàng
+              </Link>
+            </nav>
+            <p className="mt-6 text-xs text-muted-foreground">
+              © 2026 ASTROTAROT — Khám phá năng lượng vũ trụ
+            </p>
           </footer>
         </section>
       </main>
