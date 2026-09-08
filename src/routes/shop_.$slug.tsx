@@ -7,9 +7,10 @@ import { useAuth } from "@/lib/auth-context";
 import { useCart } from "@/lib/cart-context";
 import { formatVND } from "@/lib/mock-data";
 import { ProductArtwork } from "@/components/ProductArtwork";
+import { IllustrativeNote } from "@/components/IllustrativeNote";
 import { useProduct } from "@/features/shop/queries";
 
-export const Route = createFileRoute("/shop/$slug")({
+export const Route = createFileRoute("/shop_/$slug")({
   component: ProductDetailPage,
 });
 
@@ -142,6 +143,10 @@ function ProductDetailPage() {
                   `Còn ${product.stock} sản phẩm`
                 )}
               </p>
+
+              {product.imageIsIllustrative && product.imageUrl && (
+                <IllustrativeNote variant="inline" />
+              )}
 
               {product.description && (
                 <p className="mt-5 text-sm leading-relaxed text-muted-foreground">

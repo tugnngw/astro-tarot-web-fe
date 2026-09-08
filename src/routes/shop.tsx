@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useCart } from "@/lib/cart-context";
 import { formatVND } from "@/lib/mock-data";
 import { ProductArtwork } from "@/components/ProductArtwork";
+import { IllustrativeNote } from "@/components/IllustrativeNote";
 import { useCategories, useProducts } from "@/features/shop/queries";
 import type { Product } from "@/api/shop";
 
@@ -291,38 +292,46 @@ export function ProductCard({ product }: { product: Product }) {
   // của framer nữa — hai bên cùng ghi transform thì đá nhau.
   return (
     <article className="card-hover group glass flex flex-col overflow-hidden rounded-2xl">
-      <Link
-        to="/shop/$slug"
-        params={{ slug: product.slug }}
-        tabIndex={-1}
-        aria-hidden="true"
-        className="relative block aspect-[4/3] overflow-hidden bg-mystic/10"
-      >
-        {product.imageUrl ? (
-          <img
-            src={product.imageUrl}
-            alt=""
-            loading="lazy"
-            className="h-full w-full object-contain p-3 transition-transform duration-500 group-hover:scale-105"
-          />
-        ) : (
-          <ProductArtwork
-            slug={product.slug}
-            categorySlug={product.categorySlug}
-            className="h-full w-full transition-transform duration-500 group-hover:scale-105"
-          />
+      {/* Ảnh chỉ để trang trí: tên sản phẩm ngay bên dưới đã là link rồi,
+          nên link ảnh bị ẩn khỏi screen reader. Nhãn "ảnh minh hoạ" vì thế
+          phải nằm NGOÀI link, không thì trình đọc màn hình bỏ qua nó. */}
+      <div className="relative">
+        <Link
+          to="/shop/$slug"
+          params={{ slug: product.slug }}
+          tabIndex={-1}
+          aria-hidden="true"
+          className="block aspect-[4/3] overflow-hidden bg-mystic/10"
+        >
+          {product.imageUrl ? (
+            <img
+              src={product.imageUrl}
+              alt=""
+              loading="lazy"
+              className="h-full w-full object-contain p-3 transition-transform duration-500 group-hover:scale-105"
+            />
+          ) : (
+            <ProductArtwork
+              slug={product.slug}
+              categorySlug={product.categorySlug}
+              className="h-full w-full transition-transform duration-500 group-hover:scale-105"
+            />
+          )}
+          {discount !== null && (
+            <span className="absolute left-3 top-3 rounded-full bg-gold px-2.5 py-1 text-[11px] font-semibold text-primary-foreground">
+              -{discount}%
+            </span>
+          )}
+          {soldOut && (
+            <span className="absolute right-3 top-3 rounded-full bg-destructive/90 px-2.5 py-1 text-[11px] font-semibold text-destructive-foreground">
+              Hết hàng
+            </span>
+          )}
+        </Link>
+        {product.imageIsIllustrative && product.imageUrl && (
+          <IllustrativeNote />
         )}
-        {discount !== null && (
-          <span className="absolute left-3 top-3 rounded-full bg-gold px-2.5 py-1 text-[11px] font-semibold text-primary-foreground">
-            -{discount}%
-          </span>
-        )}
-        {soldOut && (
-          <span className="absolute right-3 top-3 rounded-full bg-destructive/90 px-2.5 py-1 text-[11px] font-semibold text-destructive-foreground">
-            Hết hàng
-          </span>
-        )}
-      </Link>
+      </div>
 
       <div className="flex flex-1 flex-col p-5">
         {product.categoryName && (

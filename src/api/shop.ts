@@ -30,6 +30,8 @@ export interface Product {
   compareAtPrice: number | null;
   stock: number;
   imageUrl: string | null;
+  /** true khi imageUrl là ảnh minh hoạ, không phải ảnh chụp đúng sản phẩm. */
+  imageIsIllustrative?: boolean;
   featured: boolean;
   categoryName: string | null;
   categorySlug: string | null;

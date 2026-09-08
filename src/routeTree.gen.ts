@@ -9,8 +9,10 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as TarotRouteImport } from './routes/tarot'
 import { Route as ShopRouteImport } from './routes/shop'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ReadersRouteImport } from './routes/readers'
 import { Route as ReaderHubRouteImport } from './routes/reader-hub'
 import { Route as ReaderRouteImport } from './routes/reader'
@@ -19,11 +21,16 @@ import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ShopSlugRouteImport } from './routes/shop.$slug'
+import { Route as ShopSlugRouteImport } from './routes/shop_.$slug'
 import { Route as ReadersIdRouteImport } from './routes/readers.$id'
 import { Route as ProfileAstrologyRouteImport } from './routes/profile/astrology'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 
+const VerifyEmailRoute = VerifyEmailRouteImport.update({
+  id: '/verify-email',
+  path: '/verify-email',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TarotRoute = TarotRouteImport.update({
   id: '/tarot',
   path: '/tarot',
@@ -32,6 +39,11 @@ const TarotRoute = TarotRouteImport.update({
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReadersRoute = ReadersRouteImport.update({
@@ -75,9 +87,9 @@ const IndexRoute = IndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const ShopSlugRoute = ShopSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => ShopRoute,
+  id: '/shop_/$slug',
+  path: '/shop/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ReadersIdRoute = ReadersIdRouteImport.update({
   id: '/$id',
@@ -104,8 +116,10 @@ export interface FileRoutesByFullPath {
   '/reader': typeof ReaderRoute
   '/reader-hub': typeof ReaderHubRoute
   '/readers': typeof ReadersRouteWithChildren
-  '/shop': typeof ShopRouteWithChildren
+  '/reset-password': typeof ResetPasswordRoute
+  '/shop': typeof ShopRoute
   '/tarot': typeof TarotRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/profile/astrology': typeof ProfileAstrologyRoute
   '/readers/$id': typeof ReadersIdRoute
@@ -120,8 +134,10 @@ export interface FileRoutesByTo {
   '/reader': typeof ReaderRoute
   '/reader-hub': typeof ReaderHubRoute
   '/readers': typeof ReadersRouteWithChildren
-  '/shop': typeof ShopRouteWithChildren
+  '/reset-password': typeof ResetPasswordRoute
+  '/shop': typeof ShopRoute
   '/tarot': typeof TarotRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/profile/astrology': typeof ProfileAstrologyRoute
   '/readers/$id': typeof ReadersIdRoute
@@ -137,12 +153,14 @@ export interface FileRoutesById {
   '/reader': typeof ReaderRoute
   '/reader-hub': typeof ReaderHubRoute
   '/readers': typeof ReadersRouteWithChildren
-  '/shop': typeof ShopRouteWithChildren
+  '/reset-password': typeof ResetPasswordRoute
+  '/shop': typeof ShopRoute
   '/tarot': typeof TarotRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/profile/astrology': typeof ProfileAstrologyRoute
   '/readers/$id': typeof ReadersIdRoute
-  '/shop/$slug': typeof ShopSlugRoute
+  '/shop_/$slug': typeof ShopSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -155,8 +173,10 @@ export interface FileRouteTypes {
     | '/reader'
     | '/reader-hub'
     | '/readers'
+    | '/reset-password'
     | '/shop'
     | '/tarot'
+    | '/verify-email'
     | '/blog/$slug'
     | '/profile/astrology'
     | '/readers/$id'
@@ -171,8 +191,10 @@ export interface FileRouteTypes {
     | '/reader'
     | '/reader-hub'
     | '/readers'
+    | '/reset-password'
     | '/shop'
     | '/tarot'
+    | '/verify-email'
     | '/blog/$slug'
     | '/profile/astrology'
     | '/readers/$id'
@@ -187,12 +209,14 @@ export interface FileRouteTypes {
     | '/reader'
     | '/reader-hub'
     | '/readers'
+    | '/reset-password'
     | '/shop'
     | '/tarot'
+    | '/verify-email'
     | '/blog/$slug'
     | '/profile/astrology'
     | '/readers/$id'
-    | '/shop/$slug'
+    | '/shop_/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -204,13 +228,23 @@ export interface RootRouteChildren {
   ReaderRoute: typeof ReaderRoute
   ReaderHubRoute: typeof ReaderHubRoute
   ReadersRoute: typeof ReadersRouteWithChildren
-  ShopRoute: typeof ShopRouteWithChildren
+  ResetPasswordRoute: typeof ResetPasswordRoute
+  ShopRoute: typeof ShopRoute
   TarotRoute: typeof TarotRoute
+  VerifyEmailRoute: typeof VerifyEmailRoute
   BlogSlugRoute: typeof BlogSlugRoute
+  ShopSlugRoute: typeof ShopSlugRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/verify-email': {
+      id: '/verify-email'
+      path: '/verify-email'
+      fullPath: '/verify-email'
+      preLoaderRoute: typeof VerifyEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tarot': {
       id: '/tarot'
       path: '/tarot'
@@ -223,6 +257,13 @@ declare module '@tanstack/react-router' {
       path: '/shop'
       fullPath: '/shop'
       preLoaderRoute: typeof ShopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/readers': {
@@ -281,12 +322,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/shop/$slug': {
-      id: '/shop/$slug'
-      path: '/$slug'
+    '/shop_/$slug': {
+      id: '/shop_/$slug'
+      path: '/shop/$slug'
       fullPath: '/shop/$slug'
       preLoaderRoute: typeof ShopSlugRouteImport
-      parentRoute: typeof ShopRoute
+      parentRoute: typeof rootRouteImport
     }
     '/readers/$id': {
       id: '/readers/$id'
@@ -334,16 +375,6 @@ const ReadersRouteChildren: ReadersRouteChildren = {
 const ReadersRouteWithChildren =
   ReadersRoute._addFileChildren(ReadersRouteChildren)
 
-interface ShopRouteChildren {
-  ShopSlugRoute: typeof ShopSlugRoute
-}
-
-const ShopRouteChildren: ShopRouteChildren = {
-  ShopSlugRoute: ShopSlugRoute,
-}
-
-const ShopRouteWithChildren = ShopRoute._addFileChildren(ShopRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
@@ -353,9 +384,12 @@ const rootRouteChildren: RootRouteChildren = {
   ReaderRoute: ReaderRoute,
   ReaderHubRoute: ReaderHubRoute,
   ReadersRoute: ReadersRouteWithChildren,
-  ShopRoute: ShopRouteWithChildren,
+  ResetPasswordRoute: ResetPasswordRoute,
+  ShopRoute: ShopRoute,
   TarotRoute: TarotRoute,
+  VerifyEmailRoute: VerifyEmailRoute,
   BlogSlugRoute: BlogSlugRoute,
+  ShopSlugRoute: ShopSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

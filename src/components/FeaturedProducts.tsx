@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { formatVND } from "@/lib/mock-data";
 import { ProductArtwork } from "@/components/ProductArtwork";
+import { IllustrativeNote } from "@/components/IllustrativeNote";
 import { useFeaturedProducts } from "@/features/shop/queries";
 
 /**
@@ -56,7 +57,7 @@ export function FeaturedProducts() {
                   params={{ slug: p.slug }}
                   className="glass block overflow-hidden rounded-2xl"
                 >
-                  <div className="aspect-[4/3] bg-mystic/10">
+                  <div className="relative aspect-[4/3] bg-mystic/10">
                     {p.imageUrl ? (
                       <img
                         src={p.imageUrl}
@@ -71,6 +72,7 @@ export function FeaturedProducts() {
                         className="h-full w-full"
                       />
                     )}
+                    {p.imageIsIllustrative && p.imageUrl && <IllustrativeNote />}
                   </div>
                   <div className="p-4">
                     {p.categoryName && (
