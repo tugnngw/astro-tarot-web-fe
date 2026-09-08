@@ -1,0 +1,398 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-display: "Cormorant Garamond", ui-serif, Georgia, serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-mystic: var(--mystic);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --gradient-cosmic: var(--gradient-cosmic);
+  --gradient-gold: var(--gradient-gold);
+  --shadow-glow: var(--shadow-glow);
+  --shadow-gold: var(--shadow-gold);
+}
+
+:root,
+.dark {
+  --radius: 0.75rem;
+  /* Nền gần như đen, chỉ giữ một chút ngả tím để không thành đen chết.
+     Trước đây là tím đậm oklch(0.16 0.04 280); đổi sang đen để bầu trời sao
+     nổi lên, và để các thẻ kính màu tím tách khỏi nền rõ hơn. */
+  --background: oklch(0.035 0.007 280);
+  --foreground: oklch(0.96 0.01 80);
+  /* Bộ nền bề mặt đều kéo về gần đen.
+     Trước đây card/popover/input đều là tím pha khoảng oklch(0.21-0.28),
+     hợp với nền tím cũ; từ khi nền chuyển sang đen thì chúng nổi lên thành
+     những mảng xám tím, nhất là các ô nhập liệu. Giờ mọi bề mặt đều gần đen
+     và tách nhau bằng viền vàng chứ không bằng độ sáng. */
+  --card: oklch(0.09 0.018 282);
+  --card-foreground: oklch(0.96 0.01 80);
+  --popover: oklch(0.08 0.016 282);
+  --popover-foreground: oklch(0.96 0.01 80);
+  /* Gold #D4AF37 */
+  --primary: oklch(0.78 0.13 85);
+  --primary-foreground: oklch(0.18 0.04 280);
+  --secondary: oklch(0.13 0.03 288);
+  --secondary-foreground: oklch(0.96 0.01 80);
+  --muted: oklch(0.12 0.022 282);
+  --muted-foreground: oklch(0.72 0.03 80);
+  --accent: oklch(0.45 0.18 295);
+  --accent-foreground: oklch(0.98 0.01 80);
+  --destructive: oklch(0.6 0.22 25);
+  --destructive-foreground: oklch(0.98 0.01 80);
+  --border: oklch(0.35 0.06 285 / 50%);
+  --input: oklch(0.075 0.015 283);
+  --ring: oklch(0.78 0.13 85);
+  --gold: oklch(0.78 0.13 85);
+  --gold-soft: oklch(0.85 0.09 85);
+  --mystic: oklch(0.45 0.18 295);
+  --success: oklch(0.68 0.16 160);
+  --warning: oklch(0.78 0.15 75);
+  /* Nền bầu trời đêm — đen, phần nhìn để cho lớp sao (StarrySky) lo.
+     Từng thử thêm một lớp hạt nhiễu để chống banding, nhưng feTurbulence cho
+     ra nhiễu xám: ở opacity đủ thấy thì nó nâng cả nền lên xám và nhấn chìm
+     luôn những chấm sao 1-3px. Đã bỏ hẳn. Chỉ còn một quầng rất mờ ở đỉnh
+     cho đỡ phẳng. */
+  --gradient-cosmic:
+    radial-gradient(
+      ellipse 110% 50% at 50% -12%,
+      oklch(0.16 0.035 285 / 0.5) 0%,
+      transparent 70%
+    ),
+    linear-gradient(
+      180deg,
+      oklch(0.045 0.008 282) 0%,
+      oklch(0.025 0.005 278) 100%
+    );
+  --gradient-gold: linear-gradient(
+    135deg,
+    oklch(0.85 0.11 85) 0%,
+    oklch(0.72 0.14 75) 100%
+  );
+  --shadow-glow: 0 0 60px -10px oklch(0.55 0.2 295 / 0.45);
+  --shadow-gold: 0 10px 40px -10px oklch(0.78 0.13 85 / 0.5);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  html {
+    color-scheme: dark;
+    /* Nền vẽ ở ĐÂY chứ không phải ở body — và đây là điểm mấu chốt.
+       Trong stacking context gốc, thứ tự vẽ là: nền của html -> các phần tử
+       z-index âm -> rồi mới tới các khối thường (trong đó có body). Nên nếu
+       để nền ở body, nó vẽ ĐÈ LÊN lớp sao (z-index -20) và sao biến mất
+       sạch. Đặt ở html thì nền nằm dưới cùng, sao hiện lên trên. */
+    background: var(--gradient-cosmic);
+    background-size: cover, cover;
+    background-repeat: no-repeat, no-repeat;
+    background-attachment: fixed;
+    background-color: var(--background);
+    /* Neo anchor xuống dưới header sticky, không bị header che mất tiêu đề. */
+    scroll-padding-top: 5rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--gold) transparent;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  /* Scrollbar theo tông vàng - tím của app thay vì thanh xám mặc định. */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(
+      to bottom,
+      color-mix(in oklch, var(--gold) 70%, transparent),
+      color-mix(in oklch, var(--mystic) 70%, transparent)
+    );
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(to bottom, var(--gold), var(--mystic));
+    background-clip: padding-box;
+  }
+
+  /* Vòng focus thống nhất cho thao tác bàn phím. */
+  :focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  body {
+    /* Cố ý KHÔNG đặt nền ở đây — xem chú thích ở html. Nền body sẽ che mất
+       lớp sao. */
+    background: transparent;
+    color: var(--color-foreground);
+    font-family: var(--font-body);
+    min-height: 100vh;
+  }
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+}
+
+@layer utilities {
+  .text-gold {
+    color: var(--gold);
+  }
+  .bg-gold {
+    background: var(--gradient-gold);
+  }
+  .border-gold {
+    border-color: var(--gold);
+  }
+  .glow-gold {
+    box-shadow: var(--shadow-gold);
+  }
+  .glow-mystic {
+    box-shadow: var(--shadow-glow);
+  }
+  .bg-cosmic {
+    background: var(--gradient-cosmic);
+  }
+  /* Thẻ: nền đen, viền vàng mảnh có ánh sáng hắt nhẹ.
+     Trước đây nền thẻ là tím pha (card 60%) nên đứng trên nền đen mới nhìn
+     ra một mảng xám xanh. Giờ đen gần như nền, tách khỏi nền bằng viền
+     sáng chứ không bằng độ sáng của mặt thẻ. */
+  .glass {
+    background: color-mix(in oklab, var(--card) 82%, transparent);
+    backdrop-filter: blur(14px);
+    border: 1px solid color-mix(in oklab, var(--gold) 30%, transparent);
+    box-shadow:
+      inset 0 0 0 1px color-mix(in oklab, var(--gold) 7%, transparent),
+      0 0 24px -18px color-mix(in oklab, var(--gold) 55%, transparent);
+  }
+
+  /* Nền cho khung hoa văn OrnateFrame — đen sâu hơn thẻ thường một chút để
+     hoạ tiết vàng nổi lên. */
+  .panel-black {
+    background: oklch(0.055 0.012 282);
+    box-shadow: 0 0 40px -26px color-mix(in oklab, var(--gold) 70%, transparent);
+  }
+
+  /* Thanh điều hướng: nền xanh mực đặc, viền dưới vàng rõ, thêm một vệt
+     sáng mảnh phía trên viền cho ra chất kim loại. */
+  .site-header {
+    background: linear-gradient(
+      180deg,
+      oklch(0.06 0.008 275) 0%,
+      oklch(0.035 0.005 275) 100%
+    );
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid color-mix(in oklab, var(--gold) 45%, transparent);
+    box-shadow:
+      inset 0 -2px 0 -1px color-mix(in oklab, var(--gold) 16%, transparent),
+      0 10px 30px -22px oklch(0 0 0 / 0.9);
+  }
+
+  /* Thẻ nội dung: viền sáng lên và nhấc nhẹ khi rê chuột.
+     Gom vào một utility để card sản phẩm, Reader và bài viết phản hồi giống
+     nhau — trước đây mỗi chỗ tự chế một kiểu hover. */
+  .card-hover {
+    transition:
+      transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.3s ease,
+      box-shadow 0.3s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-4px);
+    border-color: color-mix(in oklab, var(--gold) 45%, transparent);
+    box-shadow: 0 18px 40px -24px color-mix(in oklab, var(--gold) 70%, transparent);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .card-hover,
+    .card-hover:hover {
+      transition: none;
+      transform: none;
+    }
+  }
+  .text-gradient-gold {
+    background: var(--gradient-gold);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  @keyframes zodiac-spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .animate-zodiac {
+    animation: zodiac-spin 120s linear infinite;
+  }
+  .animate-zodiac-slow {
+    animation: zodiac-spin 240s linear infinite;
+    transform-origin: center;
+  }
+
+  /* Hiệu ứng vào của khối chữ hero.
+     Trước đây dùng motion.div initial/animate của framer. Nhưng đây là nội
+     dung quan trọng nhất trang mà lại phụ thuộc vòng lặp rAF mới hiện ra:
+     rAF bị tiết chế (tab nền, trình duyệt hạn chế) là chữ kẹt ở opacity dở
+     dang. Dùng CSS animation thì trình duyệt lo, và nếu vì lý do gì mà quy
+     tắc không áp dụng được thì phần tử vẫn ở trạng thái bình thường tức là
+     hiện đầy đủ. */
+  @keyframes hero-enter {
+    from {
+      opacity: 0;
+      transform: translateY(28px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .hero-enter {
+    animation: hero-enter 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-enter {
+      animation: none;
+    }
+  }
+  @keyframes twinkle {
+    0%,
+    100% {
+      opacity: 0.3;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+  .animate-twinkle {
+    animation: twinkle 3s ease-in-out infinite;
+  }
+
+  /* Sao của StarrySky.
+     Đỉnh sáng lấy từ --star-opacity nên mỗi ngôi một độ sáng riêng mà vẫn
+     dùng chung một keyframes. Đáy để 22% thay vì 0 để sao mờ dần chứ không
+     tắt hẳn — tắt hẳn nhìn như lỗi nhấp nháy. */
+  .star {
+    opacity: var(--star-opacity, 0.5);
+    animation-name: star-twinkle;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+  }
+  @keyframes star-twinkle {
+    0%,
+    100% {
+      /* Đáy 40% chứ không thấp hơn: sao mờ nhất chỉ khoảng 0.3 độ đục, hạ
+         quá sâu thì nửa chu kỳ nó biến mất khỏi màn hình. */
+      opacity: calc(var(--star-opacity, 0.5) * 0.4);
+    }
+    50% {
+      opacity: var(--star-opacity, 0.5);
+    }
+  }
+  /* Người tắt hiệu ứng vẫn thấy bầu trời sao, chỉ là không nháy. */
+  @media (prefers-reduced-motion: reduce) {
+    .star {
+      animation: none;
+      opacity: var(--star-opacity, 0.5);
+    }
+  }
+  @keyframes shuffle {
+    0%,
+    100% {
+      transform: translateX(0) rotate(0);
+    }
+    25% {
+      transform: translateX(-20px) rotate(-8deg);
+    }
+    75% {
+      transform: translateX(20px) rotate(8deg);
+    }
+  }
+  .animate-shuffle {
+    animation: shuffle 0.4s ease-in-out infinite;
+  }
+
+  /* ----------------------------------------------------------------
+     Cuộn trang
+     ----------------------------------------------------------------
+     Trước đây trang chủ cuộn bên trong một <main> riêng với
+     scroll-snap-type: y mandatory và scrollbar bị ẩn. Cách đó gây ra
+     mấy vấn đề thật:
+       - Cuộn nằm trong div lồng nhau nên scrollRestoration của router
+         (vốn khôi phục scroll của window) không có tác dụng, và header
+         sticky không thật sự dính theo nội dung.
+       - mandatory ép dừng mỗi 100vh; section nào cao hơn màn hình thì
+         thành ra giành giật với thao tác của người dùng.
+       - Ẩn scrollbar làm mất hoàn toàn phản hồi về vị trí trong trang.
+     Giờ trang cuộn bằng document như mọi trang bình thường; nhịp giữa
+     các phần do padding quyết định chứ không ép chiều cao màn hình.  */
+  .snap-container {
+    width: 100%;
+  }
+  .snap-section {
+    width: 100%;
+    /* Đủ thoáng để mỗi phần vẫn ra tấm ra món, nhưng không ép 100vh
+       nên phần nào nhiều nội dung sẽ tự cao lên thay vì bị cắt. */
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+    scroll-margin-top: 5rem;
+  }
+  @media (min-width: 768px) {
+    .snap-section {
+      padding-top: 6rem;
+      padding-bottom: 6rem;
+    }
+  }
+  /* Hero vẫn chiếm trọn màn hình đầu tiên. */
+  .snap-section:first-child {
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+}
