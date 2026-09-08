@@ -91,7 +91,12 @@ export async function apiFetch<T>(
   if (!isLiveBackend()) throw new MockUnavailableError();
 
   const headers = new Headers(init.headers);
-  if (init.body && !headers.has("Content-Type"))
+  // Với FormData phải để trình duyệt tự đặt Content-Type: nó cần kèm chuỗi
+  // boundary do chính nó sinh ra. Tự gán "multipart/form-data" (hay tệ hơn là
+  // application/json như nhánh dưới) sẽ làm server không tách được các phần.
+  const isFormData =
+    typeof FormData !== "undefined" && init.body instanceof FormData;
+  if (init.body && !isFormData && !headers.has("Content-Type"))
     headers.set("Content-Type", "application/json");
   if (auth) {
     const t = tokenStore.getAccess();
