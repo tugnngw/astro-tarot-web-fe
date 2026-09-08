@@ -8,6 +8,7 @@ import { RoleGuard } from "@/components/RoleGuard";
 import { WorkspaceShell } from "@/components/WorkspaceShell";
 import { UserDirectory } from "@/features/admin/components/UserDirectory";
 import { ReaderApplications } from "@/features/admin/components/ReaderApplications";
+import { ReportQueue } from "@/features/money/components/AdminMoneyTables";
 
 export const Route = createFileRoute("/manager")({
   head: () => ({ meta: [{ title: "Quản lý — ASTROTAROT" }] }),
@@ -28,6 +29,11 @@ function ManagerWorkspace() {
           key: "applications",
           label: "Hồ sơ chờ duyệt",
           render: () => <ReaderApplications />,
+        },
+        {
+          key: "reports",
+          label: "Báo cáo vi phạm",
+          render: () => <ReportQueue />,
         },
         {
           key: "staff",

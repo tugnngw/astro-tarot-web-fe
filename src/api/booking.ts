@@ -18,6 +18,8 @@ export type Duration = (typeof DURATIONS)[number];
 export interface Booking {
   id: string;
   readerProfileId: string;
+  /** Tài khoản của Reader. Cần để báo cáo đúng người, không phải hồ sơ. */
+  readerUserId: string;
   readerName: string;
   readerAvatar: string | null;
   customerId: string;

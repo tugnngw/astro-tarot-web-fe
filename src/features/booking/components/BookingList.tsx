@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AlertCircle, CalendarX, Check, Star, X } from "lucide-react";
+import { AlertCircle, CalendarX, Check, Flag, Landmark, Star, X } from "lucide-react";
 import { toast } from "sonner";
 import {
   BOOKING_STATUS_LABEL,
@@ -13,6 +13,10 @@ import {
   useReviewBooking,
 } from "@/features/booking/queries";
 import { formatVND } from "@/lib/mock-data";
+import { PaymentDialog } from "@/features/money/components/PaymentDialog";
+import { ReportDialog } from "@/features/money/components/ReportDialog";
+import { useCreatePaymentIntent } from "@/features/money/queries";
+import type { PaymentInstruction } from "@/api/money";
 
 const STATUS_CLASS: Record<BookingStatus, string> = {
   PENDING: "border-amber-400/40 text-amber-300",
@@ -51,11 +55,14 @@ export function BookingList({
   const [cancelling, setCancelling] = useState<string | null>(null);
   const [reason, setReason] = useState("");
   const [reviewing, setReviewing] = useState<string | null>(null);
+  const [instruction, setInstruction] = useState<PaymentInstruction | null>(null);
+  const [reporting, setReporting] = useState<Booking | null>(null);
+  const pay = useCreatePaymentIntent();
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
 
   const busy =
-    confirm.isPending || complete.isPending || cancel.isPending || review.isPending;
+    confirm.isPending || complete.isPending || cancel.isPending || review.isPending || pay.isPending;
 
   async function run(fn: () => Promise<unknown>, ok: string) {
     try {
@@ -192,6 +199,40 @@ export function BookingList({
                 </button>
               )}
 
+              {side === "customer" && b.paymentStatus === "UNPAID" && b.status !== "CANCELLED" && (
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={async () => {
+                    try {
+                      setInstruction(await pay.mutateAsync(b.id));
+                    } catch (e) {
+                      toast.error(e instanceof Error ? e.message : "Không tạo được lệnh thanh toán");
+                    }
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-gold px-3.5 py-1.5 text-xs font-medium text-primary-foreground glow-gold transition disabled:opacity-40"
+                >
+                  <Landmark aria-hidden="true" className="h-3.5 w-3.5" /> Thanh toán
+                </button>
+              )}
+
+              {side === "customer" && b.paymentStatus === "PAID" && (
+                <span className="inline-flex items-center gap-1.5 text-xs text-emerald-300">
+                  <Check aria-hidden="true" className="h-3.5 w-3.5" /> Đã thanh toán
+                </span>
+              )}
+
+              {side === "customer" && b.status === "COMPLETED" && (
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => setReporting(b)}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-destructive/30 px-3.5 py-1.5 text-xs text-destructive/80 transition hover:bg-destructive/10 disabled:opacity-40"
+                >
+                  <Flag aria-hidden="true" className="h-3.5 w-3.5" /> Báo cáo
+                </button>
+              )}
+
               {side === "customer" && b.status === "COMPLETED" && !b.reviewed && (
                 <button
                   type="button"
@@ -319,6 +360,19 @@ export function BookingList({
           </article>
         );
       })}
+
+      {instruction && (
+        <PaymentDialog instruction={instruction} onClose={() => setInstruction(null)} />
+      )}
+
+      {reporting && (
+        <ReportDialog
+          reportedUserId={side === "customer" ? reporting.readerUserId : reporting.customerId}
+          reportedName={side === "customer" ? reporting.readerName : reporting.customerName}
+          bookingId={reporting.id}
+          onClose={() => setReporting(null)}
+        />
+      )}
     </div>
   );
 }

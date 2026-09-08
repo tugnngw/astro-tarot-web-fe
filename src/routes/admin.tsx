@@ -10,6 +10,11 @@ import { NotWiredYet, WorkspaceShell } from "@/components/WorkspaceShell";
 import { UserDirectory } from "@/features/admin/components/UserDirectory";
 import { ReaderApplications } from "@/features/admin/components/ReaderApplications";
 import { ActivityLogTable } from "@/features/admin/components/ActivityLogTable";
+import {
+  PaymentQueue,
+  PayoutQueue,
+  ReportQueue,
+} from "@/features/money/components/AdminMoneyTables";
 import { ROLE_DESCRIPTION, APP_ROLES, ROLE_PERMISSIONS, ROLE_LABEL } from "@/lib/roles";
 import { RoleBadge } from "@/components/RoleBadge";
 
@@ -43,6 +48,21 @@ function AdminWorkspace() {
           key: "applications",
           label: "Hồ sơ Reader",
           render: () => <ReaderApplications />,
+        },
+        {
+          key: "payments",
+          label: "Thanh toán",
+          render: () => <PaymentQueue />,
+        },
+        {
+          key: "payouts",
+          label: "Rút tiền",
+          render: () => <PayoutQueue />,
+        },
+        {
+          key: "reports",
+          label: "Báo cáo vi phạm",
+          render: () => <ReportQueue />,
         },
         {
           key: "audit",

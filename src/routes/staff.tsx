@@ -15,6 +15,7 @@ import { useAuth } from "@/lib/auth-context";
 import { BookingList } from "@/features/booking/components/BookingList";
 import { useReaderBookings } from "@/features/booking/queries";
 import { BOOKING_STATUS_LABEL, type BookingStatus } from "@/api/booking";
+import { EarningsPanel } from "@/features/money/components/EarningsPanel";
 
 export const Route = createFileRoute("/staff")({
   head: () => ({ meta: [{ title: "Bàn làm việc — ASTROTAROT" }] }),
@@ -47,6 +48,11 @@ function StaffWorkspace() {
                 key: "bookings",
                 label: "Lịch hẹn",
                 render: () => <ReaderBookings />,
+              },
+              {
+                key: "earnings",
+                label: "Thu nhập",
+                render: () => <EarningsPanel />,
               },
               {
                 key: "reader",
