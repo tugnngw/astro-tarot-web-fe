@@ -72,12 +72,30 @@
   --mystic: oklch(0.45 0.18 295);
   --success: oklch(0.68 0.16 160);
   --warning: oklch(0.78 0.15 75);
-  --gradient-cosmic: radial-gradient(
-    ellipse at top,
-    oklch(0.28 0.12 290) 0%,
-    oklch(0.14 0.04 280) 60%,
-    oklch(0.1 0.03 275) 100%
-  );
+  /* Nền vũ trụ nhiều lớp.
+     Bản cũ chỉ có một radial gradient từ trên xuống: phẳng, và vì trải một
+     dải tối rất rộng nên hay bị banding (thấy rõ các vệt chuyển màu).
+     Giờ xếp chồng: hạt nhiễu mảnh trên cùng để phá banding, quầng sáng vàng
+     ở đỉnh, hai vầng tím và chàm lệch hai bên tạo chiều sâu kiểu cực quang,
+     dưới cùng là nền chuyển đứng. */
+  --gradient-cosmic:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E"),
+    radial-gradient(
+      ellipse 90% 45% at 50% -5%,
+      oklch(0.5 0.1 78 / 0.16) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 65% 55% at 12% 28%,
+      oklch(0.4 0.17 302 / 0.34) 0%,
+      transparent 65%
+    ),
+    radial-gradient(
+      ellipse 60% 50% at 90% 68%,
+      oklch(0.34 0.15 272 / 0.32) 0%,
+      transparent 65%
+    ),
+    linear-gradient(180deg, oklch(0.17 0.05 286) 0%, oklch(0.11 0.035 278) 100%);
   --gradient-gold: linear-gradient(
     135deg,
     oklch(0.85 0.11 85) 0%,
@@ -139,6 +157,10 @@
   }
   body {
     background: var(--gradient-cosmic);
+    /* Lớp nhiễu lát nhỏ để thành hạt mịn; các lớp gradient phủ kín khung nhìn.
+       Thứ tự khớp với các lớp trong --gradient-cosmic. */
+    background-size: 140px 140px, cover, cover, cover, cover;
+    background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat;
     background-attachment: fixed;
     color: var(--color-foreground);
     font-family: var(--font-body);
@@ -176,6 +198,28 @@
     background: color-mix(in oklab, var(--card) 60%, transparent);
     backdrop-filter: blur(14px);
     border: 1px solid color-mix(in oklab, var(--gold) 18%, transparent);
+  }
+
+  /* Thẻ nội dung: viền sáng lên và nhấc nhẹ khi rê chuột.
+     Gom vào một utility để card sản phẩm, Reader và bài viết phản hồi giống
+     nhau — trước đây mỗi chỗ tự chế một kiểu hover. */
+  .card-hover {
+    transition:
+      transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.3s ease,
+      box-shadow 0.3s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-4px);
+    border-color: color-mix(in oklab, var(--gold) 45%, transparent);
+    box-shadow: 0 18px 40px -24px color-mix(in oklab, var(--gold) 70%, transparent);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .card-hover,
+    .card-hover:hover {
+      transition: none;
+      transform: none;
+    }
   }
   .text-gradient-gold {
     background: var(--gradient-gold);

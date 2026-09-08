@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useId, useMemo, useState } from "react";
-import { motion } from "framer-motion";
 import { Search, ShoppingBag, PackageX, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Header } from "@/components/Header";
@@ -290,11 +289,10 @@ export function ProductCard({ product }: { product: Product }) {
     }
   }
 
+  // Hiệu ứng nhấc thẻ nằm ở utility .card-hover (CSS), không dùng whileHover
+  // của framer nữa — hai bên cùng ghi transform thì đá nhau.
   return (
-    <motion.article
-      className="group glass flex flex-col overflow-hidden rounded-2xl transition-shadow duration-300 hover:shadow-[0_0_40px_-12px_var(--gold)]"
-      whileHover={{ y: -4 }}
-    >
+    <article className="card-hover group glass flex flex-col overflow-hidden rounded-2xl">
       <Link
         to="/shop/$slug"
         params={{ slug: product.slug }}
@@ -370,6 +368,6 @@ export function ProductCard({ product }: { product: Product }) {
           </button>
         </div>
       </div>
-    </motion.article>
+    </article>
   );
 }

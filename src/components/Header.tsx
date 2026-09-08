@@ -16,6 +16,7 @@ import {
 import { useAuth } from "@/lib/auth-context";
 import { useCart } from "@/lib/cart-context";
 import { LogoutConfirm } from "./LogoutConfirm";
+import { ScrollProgress } from "./ScrollProgress";
 import logo from "@/assets/logo-astrotarot.png";
 
 /** Ba phần chính của sản phẩm, dùng chung cho nav desktop và menu mobile. */
@@ -58,6 +59,7 @@ export function Header() {
 
   return (
     <>
+      <ScrollProgress />
       <header className="sticky top-0 z-40 glass">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
           {/* min-w-0 + truncate: ở 375px, wordmark + giỏ + avatar + nút menu

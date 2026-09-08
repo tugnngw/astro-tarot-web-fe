@@ -5,6 +5,17 @@ import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
 import { formatNumber } from "@/lib/utils";
 
+/**
+ * Màu và ký hiệu của Reader.
+ *
+ * Bản cũ dùng cyan #67e8f9 và vàng chanh #facc15 — hai màu này bão hoà và
+ * lệch hẳn khỏi tông vàng - tím của app, nhìn như dán từ bảng màu khác vào.
+ * Đổi sang ba tông trong họ tím - hổ phách - xanh mực.
+ *
+ * Avatar cũng đổi từ emoji màu (🌙 ✨) sang glyph chiêm tinh dạng chữ: emoji
+ * render mỗi hệ điều hành một kiểu và luôn có màu riêng, không nhuộm theo
+ * accent được; glyph chữ thì ăn màu và đồng bộ với phần còn lại.
+ */
 const READERS = [
   {
     id: "r1",
@@ -13,8 +24,8 @@ const READERS = [
     desc: "Hơn 10 năm dẫn lối tâm hồn qua những lá bài cổ. Trực giác sắc bén, đồng cảm sâu sắc.",
     rating: 4.9,
     views: 18420,
-    color: "#a78bfa",
-    avatar: "🌙",
+    color: "#b9a2f0",
+    avatar: "☾",
   },
   {
     id: "r2",
@@ -23,8 +34,8 @@ const READERS = [
     desc: "Đọc vị các vì sao, kết nối định mệnh và lộ trình sự nghiệp cá nhân hoá.",
     rating: 4.8,
     views: 15230,
-    color: "#67e8f9",
-    avatar: "✨",
+    color: "#9fb0dd",
+    avatar: "✦",
   },
   {
     id: "r1",
@@ -33,7 +44,7 @@ const READERS = [
     desc: "Chữa lành nội tâm thông qua thần số học và năng lượng vũ trụ.",
     rating: 5.0,
     views: 12100,
-    color: "#facc15",
+    color: "#e0a154",
     avatar: "☉",
   },
 ];

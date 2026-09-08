@@ -40,11 +40,24 @@ function Landing() {
 
   return (
     <div className="relative">
+      {/* Ảnh chòm sao chỉ làm chất liệu mờ. Trước đây để opacity 25 rồi phủ
+          thêm một lớp background/70→85→100 lên trên, thành ra vừa đục vừa
+          xoá mất dải màu của nền. Giờ hoà bằng soft-light ở độ mờ thấp để
+          nền cosmic nhiều lớp ở body vẫn ăn qua. */}
       <div
-        className="fixed inset-0 -z-10 bg-cover bg-center opacity-25"
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 -z-10 bg-cover bg-center opacity-[0.14] mix-blend-soft-light"
         style={{ backgroundImage: `url(${bgConstellations})` }}
       />
-      <div className="fixed inset-0 -z-10 bg-gradient-to-b from-background/70 via-background/85 to-background" />
+      {/* Vignette nhẹ để mắt dồn vào giữa, thay cho lớp wash phẳng cũ. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 -z-10"
+        style={{
+          background:
+            "radial-gradient(ellipse 75% 60% at 50% 40%, transparent 40%, oklch(0.11 0.035 278 / 0.55) 100%)",
+        }}
+      />
 
       <Header />
 
