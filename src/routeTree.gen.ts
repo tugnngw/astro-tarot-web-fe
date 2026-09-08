@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as TarotRouteImport } from './routes/tarot'
+import { Route as StaffRouteImport } from './routes/staff'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ReadersRouteImport } from './routes/readers'
@@ -18,6 +19,7 @@ import { Route as ReaderHubRouteImport } from './routes/reader-hub'
 import { Route as ReaderRouteImport } from './routes/reader'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as OrdersRouteImport } from './routes/orders'
+import { Route as ManagerRouteImport } from './routes/manager'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -34,6 +36,11 @@ const VerifyEmailRoute = VerifyEmailRouteImport.update({
 const TarotRoute = TarotRouteImport.update({
   id: '/tarot',
   path: '/tarot',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StaffRoute = StaffRouteImport.update({
+  id: '/staff',
+  path: '/staff',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ShopRoute = ShopRouteImport.update({
@@ -69,6 +76,11 @@ const ProfileRoute = ProfileRouteImport.update({
 const OrdersRoute = OrdersRouteImport.update({
   id: '/orders',
   path: '/orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManagerRoute = ManagerRouteImport.update({
+  id: '/manager',
+  path: '/manager',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CartRoute = CartRouteImport.update({
@@ -111,6 +123,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/cart': typeof CartRoute
+  '/manager': typeof ManagerRoute
   '/orders': typeof OrdersRoute
   '/profile': typeof ProfileRouteWithChildren
   '/reader': typeof ReaderRoute
@@ -118,6 +131,7 @@ export interface FileRoutesByFullPath {
   '/readers': typeof ReadersRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRoute
+  '/staff': typeof StaffRoute
   '/tarot': typeof TarotRoute
   '/verify-email': typeof VerifyEmailRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -129,6 +143,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/cart': typeof CartRoute
+  '/manager': typeof ManagerRoute
   '/orders': typeof OrdersRoute
   '/profile': typeof ProfileRouteWithChildren
   '/reader': typeof ReaderRoute
@@ -136,6 +151,7 @@ export interface FileRoutesByTo {
   '/readers': typeof ReadersRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRoute
+  '/staff': typeof StaffRoute
   '/tarot': typeof TarotRoute
   '/verify-email': typeof VerifyEmailRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -148,6 +164,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/cart': typeof CartRoute
+  '/manager': typeof ManagerRoute
   '/orders': typeof OrdersRoute
   '/profile': typeof ProfileRouteWithChildren
   '/reader': typeof ReaderRoute
@@ -155,6 +172,7 @@ export interface FileRoutesById {
   '/readers': typeof ReadersRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRoute
+  '/staff': typeof StaffRoute
   '/tarot': typeof TarotRoute
   '/verify-email': typeof VerifyEmailRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -168,6 +186,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/cart'
+    | '/manager'
     | '/orders'
     | '/profile'
     | '/reader'
@@ -175,6 +194,7 @@ export interface FileRouteTypes {
     | '/readers'
     | '/reset-password'
     | '/shop'
+    | '/staff'
     | '/tarot'
     | '/verify-email'
     | '/blog/$slug'
@@ -186,6 +206,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/cart'
+    | '/manager'
     | '/orders'
     | '/profile'
     | '/reader'
@@ -193,6 +214,7 @@ export interface FileRouteTypes {
     | '/readers'
     | '/reset-password'
     | '/shop'
+    | '/staff'
     | '/tarot'
     | '/verify-email'
     | '/blog/$slug'
@@ -204,6 +226,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/cart'
+    | '/manager'
     | '/orders'
     | '/profile'
     | '/reader'
@@ -211,6 +234,7 @@ export interface FileRouteTypes {
     | '/readers'
     | '/reset-password'
     | '/shop'
+    | '/staff'
     | '/tarot'
     | '/verify-email'
     | '/blog/$slug'
@@ -223,6 +247,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   CartRoute: typeof CartRoute
+  ManagerRoute: typeof ManagerRoute
   OrdersRoute: typeof OrdersRoute
   ProfileRoute: typeof ProfileRouteWithChildren
   ReaderRoute: typeof ReaderRoute
@@ -230,6 +255,7 @@ export interface RootRouteChildren {
   ReadersRoute: typeof ReadersRouteWithChildren
   ResetPasswordRoute: typeof ResetPasswordRoute
   ShopRoute: typeof ShopRoute
+  StaffRoute: typeof StaffRoute
   TarotRoute: typeof TarotRoute
   VerifyEmailRoute: typeof VerifyEmailRoute
   BlogSlugRoute: typeof BlogSlugRoute
@@ -250,6 +276,13 @@ declare module '@tanstack/react-router' {
       path: '/tarot'
       fullPath: '/tarot'
       preLoaderRoute: typeof TarotRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/staff': {
+      id: '/staff'
+      path: '/staff'
+      fullPath: '/staff'
+      preLoaderRoute: typeof StaffRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/shop': {
@@ -299,6 +332,13 @@ declare module '@tanstack/react-router' {
       path: '/orders'
       fullPath: '/orders'
       preLoaderRoute: typeof OrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manager': {
+      id: '/manager'
+      path: '/manager'
+      fullPath: '/manager'
+      preLoaderRoute: typeof ManagerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cart': {
@@ -379,6 +419,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   CartRoute: CartRoute,
+  ManagerRoute: ManagerRoute,
   OrdersRoute: OrdersRoute,
   ProfileRoute: ProfileRouteWithChildren,
   ReaderRoute: ReaderRoute,
@@ -386,6 +427,7 @@ const rootRouteChildren: RootRouteChildren = {
   ReadersRoute: ReadersRouteWithChildren,
   ResetPasswordRoute: ResetPasswordRoute,
   ShopRoute: ShopRoute,
+  StaffRoute: StaffRoute,
   TarotRoute: TarotRoute,
   VerifyEmailRoute: VerifyEmailRoute,
   BlogSlugRoute: BlogSlugRoute,

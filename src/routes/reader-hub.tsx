@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Header } from "@/components/Header";
+import { RoleGuard } from "@/components/RoleGuard";
 import { formatVND } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/reader-hub")({
@@ -14,7 +15,13 @@ export const Route = createFileRoute("/reader-hub")({
       },
     ],
   }),
-  component: ReaderHub,
+  // Trang này trước đây ai cũng mở được, kể cả khách chưa đăng nhập. Nó là
+  // bảng điều khiển của Reader nên phải cùng một hàng rào với /reader.
+  component: () => (
+    <RoleGuard require={["READER_MANAGE_PROFILE"]}>
+      <ReaderHub />
+    </RoleGuard>
+  ),
 });
 
 const TABS = ["Dashboard", "Lịch hẹn", "Quản lý giá", "Ký quỹ"] as const;

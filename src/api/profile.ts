@@ -28,7 +28,9 @@ export interface Profile {
   address: string | null;
   city: string | null;
   country: string | null;
-  role: "USER" | "READER" | "ADMIN";
+  role: "USER" | "STAFF" | "MANAGER" | "ADMIN";
+  /** Quyền của vai trò, do BE cấp. Chỉ dùng để hiện/ẩn giao diện. */
+  permissions?: string[];
   status: string;
   authProvider: string;
   lastLoginAt: string | null;

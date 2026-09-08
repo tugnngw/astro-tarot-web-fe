@@ -14,21 +14,18 @@ import {
   X,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { PUBLIC_NAV, workspaceNavFor } from "@/lib/roles";
+import { RoleBadge } from "./RoleBadge";
 import { useCart } from "@/lib/cart-context";
 import { LogoutConfirm } from "./LogoutConfirm";
 import { ScrollProgress } from "./ScrollProgress";
 import logo from "@/assets/logo-astrotarot.png";
 
-/** Ba phần chính của sản phẩm, dùng chung cho nav desktop và menu mobile. */
-const NAV_LINKS = [
-  { to: "/", label: "Trang chủ" },
-  { to: "/tarot", label: "Tarot AI" },
-  { to: "/readers", label: "Reader" },
-  { to: "/shop", label: "Shop" },
-] as const;
-
 export function Header() {
   const { user, openAuth } = useAuth();
+  // Link khu vực làm việc suy ra từ QUYỀN, không phải từ tên vai trò: thêm một
+  // vai trò mới thì chỉ sửa bảng ở @/lib/roles, không phải sửa header.
+  const workspaceLinks = workspaceNavFor(user);
   const { cart } = useCart();
   const [open, setOpen] = useState(false);
   const [logoutOpen, setLogoutOpen] = useState(false);
@@ -80,7 +77,7 @@ export function Header() {
           </Link>
 
           <nav className="hidden items-center gap-7 text-sm md:flex">
-            {NAV_LINKS.map((l) => (
+            {PUBLIC_NAV.map((l) => (
               <Link
                 key={l.to}
                 to={l.to}
@@ -91,22 +88,16 @@ export function Header() {
                 {l.label}
               </Link>
             ))}
-            {user?.role === "admin" && (
+            {workspaceLinks.map((l) => (
               <Link
-                to="/admin"
+                key={l.to}
+                to={l.to}
                 className="text-gold transition hover:underline"
+                activeProps={{ className: "underline" }}
               >
-                Admin
+                {l.label}
               </Link>
-            )}
-            {user?.role === "reader" && (
-              <Link
-                to="/reader"
-                className="text-gold transition hover:underline"
-              >
-                Workspace
-              </Link>
-            )}
+            ))}
           </nav>
 
           <div className="flex shrink-0 items-center gap-2 sm:gap-3">
@@ -151,9 +142,7 @@ export function Header() {
                       <div className="text-xs text-muted-foreground">
                         {user.email}
                       </div>
-                      <span className="mt-2 inline-block rounded-full bg-gold/20 px-2 py-0.5 text-[10px] uppercase tracking-wider text-gold">
-                        {user.role}
-                      </span>
+                      <RoleBadge role={user.role} className="mt-2" />
                     </div>
                     {[
                       {
@@ -234,7 +223,7 @@ export function Header() {
         {mobileOpen && (
           <nav className="border-t border-gold/20 px-4 py-3 md:hidden">
             <div className="flex flex-col">
-              {NAV_LINKS.map((l) => (
+              {PUBLIC_NAV.map((l) => (
                 <Link
                   key={l.to}
                   to={l.to}
@@ -255,24 +244,16 @@ export function Header() {
                   Đơn hàng của tôi
                 </Link>
               )}
-              {user?.role === "admin" && (
+              {workspaceLinks.map((l) => (
                 <Link
-                  to="/admin"
+                  key={l.to}
+                  to={l.to}
                   onClick={() => setMobileOpen(false)}
                   className="rounded-lg px-3 py-2.5 text-sm text-gold"
                 >
-                  Admin
+                  {l.label}
                 </Link>
-              )}
-              {user?.role === "reader" && (
-                <Link
-                  to="/reader"
-                  onClick={() => setMobileOpen(false)}
-                  className="rounded-lg px-3 py-2.5 text-sm text-gold"
-                >
-                  Workspace
-                </Link>
-              )}
+              ))}
               {!user && (
                 <button
                   onClick={() => {

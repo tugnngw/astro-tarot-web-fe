@@ -25,7 +25,9 @@ interface AuthResponseRaw {
   username: string;
   email: string | null;
   fullName: string;
-  role: "USER" | "READER" | "ADMIN";
+  role: "USER" | "STAFF" | "MANAGER" | "ADMIN";
+  /** BE cũ chưa có trường này, nên để optional và có đường lùi ở auth-context. */
+  permissions?: string[];
   accessToken: string;
   refreshToken: string;
   expiresIn: number;
@@ -49,6 +51,7 @@ function toAuthResult(data: AuthResponseRaw): AuthResult {
       updated_at: new Date().toISOString(),
       deleted_at: null,
     },
+    permissions: data.permissions ?? [],
     accessToken: data.accessToken,
     refreshToken: data.refreshToken,
     expiresIn: data.expiresIn,

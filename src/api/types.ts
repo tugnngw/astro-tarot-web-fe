@@ -3,8 +3,11 @@
 // TYPES — Khớp 1-1 với BE (snake_case)
 // ============================================================
 
-/** Vai trò người dùng */
-export type UserRole = "USER" | "READER" | "ADMIN";
+/**
+ * Vai trò người dùng. READER cũ đã gộp vào STAFF ở BE (migration V2_0) —
+ * xem src/lib/roles.ts.
+ */
+export type UserRole = "USER" | "STAFF" | "MANAGER" | "ADMIN";
 /** Trạng thái tài khoản */
 export type UserStatus = "ACTIVE" | "INACTIVE" | "BANNED";
 
@@ -32,6 +35,8 @@ export interface User {
 /** Auth response từ BE */
 export interface AuthResult {
   user: User;
+  /** Quyền của vai trò, do BE cấp. Chỉ dùng để hiện/ẩn giao diện. */
+  permissions: string[];
   accessToken: string;
   refreshToken: string;
   expiresIn: number;
