@@ -3,7 +3,6 @@ import { useEffect, useId, useMemo, useState } from "react";
 import { Search, ShoppingBag, PackageX, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Header } from "@/components/Header";
-import { StarField } from "@/components/StarField";
 import { useAuth } from "@/lib/auth-context";
 import { useCart } from "@/lib/cart-context";
 import { formatVND } from "@/lib/mock-data";
@@ -65,7 +64,6 @@ function ShopPage() {
   return (
     <div className="relative min-h-screen">
       <Header />
-      <StarField count={50} seed={4} />
 
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
         <h1 className="font-display text-3xl sm:text-4xl">

@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Header } from "@/components/Header";
-import { StarField } from "@/components/StarField";
 import { formatVND } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/reader-hub")({
@@ -59,7 +58,6 @@ function ReaderHub() {
   return (
     <div className="relative min-h-screen">
       <Header />
-      <StarField count={40} />
 
       <div className="mx-auto max-w-7xl px-6 py-10">
         <div className="flex flex-wrap items-end justify-between gap-4">

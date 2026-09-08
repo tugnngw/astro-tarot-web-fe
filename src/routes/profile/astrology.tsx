@@ -2,7 +2,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
-import { StarField } from "@/components/StarField";
 import { useAuth } from "@/lib/auth-context";
 import { getAstrologyProfiles, deleteAstrologyProfile } from "@/api/astrology";
 import type { AstrologyProfile } from "@/api/astrology";
@@ -50,7 +49,6 @@ function AstrologyProfilesPage() {
     return (
       <div className="relative min-h-screen">
         <Header />
-        <StarField count={30} />
         <div className="mx-auto max-w-4xl px-6 py-20 text-center">
           <h1 className="font-display text-3xl text-gradient-gold">
             Vui lòng đăng nhập
@@ -63,7 +61,6 @@ function AstrologyProfilesPage() {
   return (
     <div className="relative min-h-screen">
       <Header />
-      <StarField count={30} />
       <div className="mx-auto max-w-4xl px-6 py-10">
         <h1 className="font-display text-3xl text-gradient-gold">
           Thông tin chiêm tinh

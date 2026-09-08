@@ -46,8 +46,10 @@
 :root,
 .dark {
   --radius: 0.75rem;
-  /* Deep cosmic navy */
-  --background: oklch(0.16 0.04 280);
+  /* Nền gần như đen, chỉ giữ một chút ngả tím để không thành đen chết.
+     Trước đây là tím đậm oklch(0.16 0.04 280); đổi sang đen để bầu trời sao
+     nổi lên, và để các thẻ kính màu tím tách khỏi nền rõ hơn. */
+  --background: oklch(0.07 0.014 280);
   --foreground: oklch(0.96 0.01 80);
   --card: oklch(0.21 0.05 280);
   --card-foreground: oklch(0.96 0.01 80);
@@ -72,30 +74,23 @@
   --mystic: oklch(0.45 0.18 295);
   --success: oklch(0.68 0.16 160);
   --warning: oklch(0.78 0.15 75);
-  /* Nền vũ trụ nhiều lớp.
-     Bản cũ chỉ có một radial gradient từ trên xuống: phẳng, và vì trải một
-     dải tối rất rộng nên hay bị banding (thấy rõ các vệt chuyển màu).
-     Giờ xếp chồng: hạt nhiễu mảnh trên cùng để phá banding, quầng sáng vàng
-     ở đỉnh, hai vầng tím và chàm lệch hai bên tạo chiều sâu kiểu cực quang,
-     dưới cùng là nền chuyển đứng. */
+  /* Nền bầu trời đêm.
+     Bản trước xếp nhiều vầng tím và vàng khá đậm — nhìn ra "gradient" chứ
+     không ra "bầu trời". Giờ để gần như đen và đẩy phần nhìn cho lớp sao
+     (StarrySky). Chỉ giữ một quầng cực mờ ở đỉnh cho đỡ phẳng, cùng lớp hạt
+     nhiễu rất nhẹ để dải tối rộng không bị banding. */
   --gradient-cosmic:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E"),
     radial-gradient(
-      ellipse 90% 45% at 50% -5%,
-      oklch(0.5 0.1 78 / 0.16) 0%,
-      transparent 70%
+      ellipse 100% 55% at 50% -10%,
+      oklch(0.22 0.05 285 / 0.55) 0%,
+      transparent 72%
     ),
-    radial-gradient(
-      ellipse 65% 55% at 12% 28%,
-      oklch(0.4 0.17 302 / 0.34) 0%,
-      transparent 65%
-    ),
-    radial-gradient(
-      ellipse 60% 50% at 90% 68%,
-      oklch(0.34 0.15 272 / 0.32) 0%,
-      transparent 65%
-    ),
-    linear-gradient(180deg, oklch(0.17 0.05 286) 0%, oklch(0.11 0.035 278) 100%);
+    linear-gradient(
+      180deg,
+      oklch(0.085 0.018 282) 0%,
+      oklch(0.055 0.012 278) 100%
+    );
   --gradient-gold: linear-gradient(
     135deg,
     oklch(0.85 0.11 85) 0%,
@@ -159,8 +154,8 @@
     background: var(--gradient-cosmic);
     /* Lớp nhiễu lát nhỏ để thành hạt mịn; các lớp gradient phủ kín khung nhìn.
        Thứ tự khớp với các lớp trong --gradient-cosmic. */
-    background-size: 140px 140px, cover, cover, cover, cover;
-    background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+    background-size: 140px 140px, cover, cover;
+    background-repeat: repeat, no-repeat, no-repeat;
     background-attachment: fixed;
     color: var(--color-foreground);
     font-family: var(--font-body);
@@ -253,6 +248,33 @@
   }
   .animate-twinkle {
     animation: twinkle 3s ease-in-out infinite;
+  }
+
+  /* Sao của StarrySky.
+     Đỉnh sáng lấy từ --star-opacity nên mỗi ngôi một độ sáng riêng mà vẫn
+     dùng chung một keyframes. Đáy để 22% thay vì 0 để sao mờ dần chứ không
+     tắt hẳn — tắt hẳn nhìn như lỗi nhấp nháy. */
+  .star {
+    opacity: var(--star-opacity, 0.5);
+    animation-name: star-twinkle;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+  }
+  @keyframes star-twinkle {
+    0%,
+    100% {
+      opacity: calc(var(--star-opacity, 0.5) * 0.22);
+    }
+    50% {
+      opacity: var(--star-opacity, 0.5);
+    }
+  }
+  /* Người tắt hiệu ứng vẫn thấy bầu trời sao, chỉ là không nháy. */
+  @media (prefers-reduced-motion: reduce) {
+    .star {
+      animation: none;
+      opacity: var(--star-opacity, 0.5);
+    }
   }
   @keyframes shuffle {
     0%,

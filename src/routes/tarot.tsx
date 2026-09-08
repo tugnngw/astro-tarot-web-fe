@@ -29,7 +29,6 @@ import {
   Trash2,
 } from "lucide-react";
 import { Header } from "@/components/Header";
-import { StarField } from "@/components/StarField";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
 import { TAROT_DECK, getCardMeaning } from "@/lib/mock-data";
@@ -163,7 +162,6 @@ function TarotPageWithErrorBoundary() {
     return (
       <div className="relative min-h-screen">
         <Header />
-        <StarField count={30} />
         <div className="mx-auto max-w-4xl px-6 py-20 text-center">
           <h1 className="font-display text-3xl text-gradient-gold">
             Có lỗi xảy ra
@@ -1302,7 +1300,6 @@ function TarotPage() {
   return (
     <div className="relative min-h-screen">
       <Header />
-      <StarField count={50} />
 
       <div className="mx-auto max-w-6xl px-4 py-6">
         <div className="mb-4 text-center">

@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Header } from "@/components/Header";
-import { StarField } from "@/components/StarField";
 import { ZodiacAI } from "@/components/ZodiacAI";
 import { TopReaders } from "@/components/TopReaders";
 import { BlogToday } from "@/components/BlogToday";
@@ -9,7 +8,6 @@ import { FeaturedProducts } from "@/components/FeaturedProducts";
 import { Reveal } from "@/components/Reveal";
 import { ContactSection } from "@/components/ContactSection";
 import { useAuth } from "@/lib/auth-context";
-import bgConstellations from "@/assets/constellations-bg.png";
 import zodiacWheel from "@/assets/zodiac-wheel.png";
 
 export const Route = createFileRoute("/")({
@@ -40,31 +38,15 @@ function Landing() {
 
   return (
     <div className="relative">
-      {/* Ảnh chòm sao chỉ làm chất liệu mờ. Trước đây để opacity 25 rồi phủ
-          thêm một lớp background/70→85→100 lên trên, thành ra vừa đục vừa
-          xoá mất dải màu của nền. Giờ hoà bằng soft-light ở độ mờ thấp để
-          nền cosmic nhiều lớp ở body vẫn ăn qua. */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none fixed inset-0 -z-10 bg-cover bg-center opacity-[0.14] mix-blend-soft-light"
-        style={{ backgroundImage: `url(${bgConstellations})` }}
-      />
-      {/* Vignette nhẹ để mắt dồn vào giữa, thay cho lớp wash phẳng cũ. */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none fixed inset-0 -z-10"
-        style={{
-          background:
-            "radial-gradient(ellipse 75% 60% at 50% 40%, transparent 40%, oklch(0.11 0.035 278 / 0.55) 100%)",
-        }}
-      />
+      {/* Nền là bầu trời sao thật ở StarrySky (mount một lần tại root).
+          Ảnh chòm sao tĩnh và lớp vignette trước đây đã bỏ: chúng làm nền
+          đục, và giờ đã có sao thật nhấp nháy nên chồng thêm chỉ gây rối. */}
 
       <Header />
 
       <main className="snap-container">
         {/* ─── Section 1: Hero with zodiac wheel ─── */}
         <section className="snap-section relative flex items-center justify-center overflow-hidden px-6">
-          <StarField count={140} />
 
           {/* Rotating zodiac wheel backdrop */}
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
@@ -75,14 +57,16 @@ function Landing() {
               className="animate-zodiac-slow w-[min(120vmin,1100px)] max-w-none opacity-30 mix-blend-screen"
             />
             {/* Làm tối vùng giữa để chữ tiêu đề nổi lên khỏi bánh xe hoàng
-                đạo. Trước đây phần giữa để trong suốt hoàn toàn nên các nan
-                của bánh xe chạy xuyên qua chữ, đọc rất mệt mắt. */}
+                đạo — trước đây phần giữa trong suốt hoàn toàn nên các nan
+                bánh xe chạy xuyên qua chữ, đọc rất mệt mắt.
+                Nền đã là đen nên chỉ cần phủ nhẹ; phủ đậm như hồi nền tím
+                sẽ nuốt luôn bánh xe lẫn bầu trời sao phía sau. */}
             <div
               aria-hidden="true"
               className="absolute inset-0"
               style={{
                 background:
-                  "radial-gradient(ellipse 60% 45% at center, oklch(0.16 0.04 280 / 0.82) 0%, oklch(0.16 0.04 280 / 0.55) 45%, oklch(0.16 0.04 280 / 0.75) 100%)",
+                  "radial-gradient(ellipse 58% 42% at center, oklch(0.05 0.01 280 / 0.72) 0%, oklch(0.05 0.01 280 / 0.3) 55%, transparent 100%)",
               }}
             />
           </div>
@@ -98,7 +82,7 @@ function Landing() {
             </div>
             <h1
               className="mt-6 font-display text-5xl leading-tight md:text-7xl lg:text-8xl"
-              style={{ textShadow: "0 2px 24px oklch(0.16 0.04 280 / 0.9)" }}
+              style={{ textShadow: "0 2px 28px oklch(0.04 0.01 280 / 0.95)" }}
             >
               <span className="text-gradient-gold">Tử vi · Tarot</span>
               <br />

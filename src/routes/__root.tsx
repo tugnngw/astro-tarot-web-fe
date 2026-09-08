@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AuthProvider } from "@/lib/auth-context";
 import { CartProvider } from "@/lib/cart-context";
+import { StarrySky } from "@/components/StarrySky";
 import { AuthModal } from "@/components/AuthModal";
 import { BecomeReaderModal } from "@/components/BecomeReaderModal";
 
@@ -148,6 +149,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <CartProvider>
+          <StarrySky />
           <Outlet />
           <AuthModal />
           <BecomeReaderModal />

@@ -1,7 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Header } from "@/components/Header";
-import { StarField } from "@/components/StarField";
 import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
 import {
@@ -93,7 +92,6 @@ function ProfilePage() {
   return (
     <div className="relative min-h-screen">
       <Header />
-      <StarField count={50} />
       <div className="mx-auto max-w-4xl px-6 py-10">
         <h1 className="font-display text-4xl text-gradient-gold">
           Hồ sơ cá nhân

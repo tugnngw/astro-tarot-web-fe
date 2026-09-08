@@ -3,7 +3,6 @@ import { useEffect, useId, useState } from "react";
 import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { Header } from "@/components/Header";
-import { StarField } from "@/components/StarField";
 import { useAuth } from "@/lib/auth-context";
 import { useCart } from "@/lib/cart-context";
 import { formatVND } from "@/lib/mock-data";
@@ -383,7 +382,6 @@ function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative min-h-screen">
       <Header />
-      <StarField count={40} seed={6} />
       <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
         {children}
       </main>

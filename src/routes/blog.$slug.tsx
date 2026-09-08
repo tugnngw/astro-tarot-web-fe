@@ -2,7 +2,6 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, Calendar, Tag, User as UserIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import { Header } from "@/components/Header";
-import { StarField } from "@/components/StarField";
 import { getPost, POSTS } from "@/lib/blog-data";
 
 export const Route = createFileRoute("/blog/$slug")({
@@ -49,7 +48,6 @@ function BlogDetail() {
   return (
     <div className="relative min-h-screen">
       <Header />
-      <StarField count={50} />
 
       <article className="mx-auto max-w-3xl px-6 py-10">
         <Link

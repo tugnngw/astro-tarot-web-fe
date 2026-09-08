@@ -12,7 +12,6 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { Header } from "@/components/Header";
-import { StarField } from "@/components/StarField";
 import { RoleGuard } from "@/components/RoleGuard";
 import { useBookings } from "@/lib/use-booking-store";
 
@@ -138,7 +137,6 @@ function AdminPage() {
   return (
     <div className="relative min-h-screen">
       <Header />
-      <StarField count={40} />
       <div className="mx-auto max-w-7xl px-6 py-8">
         <div className="mb-6 flex items-center justify-between">
           <div>

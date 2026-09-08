@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Package, PackageX, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Header } from "@/components/Header";
-import { StarField } from "@/components/StarField";
 import { useAuth } from "@/lib/auth-context";
 import { formatVND } from "@/lib/mock-data";
 import { useCancelOrder, useMyOrders } from "@/features/shop/queries";
@@ -65,7 +64,6 @@ function OrdersPage() {
   return (
     <div className="relative min-h-screen">
       <Header />
-      <StarField count={40} seed={7} />
 
       <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-10">
         <h1 className="font-display text-3xl sm:text-4xl">

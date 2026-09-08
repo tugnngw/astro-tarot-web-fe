@@ -11,7 +11,6 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Header } from "@/components/Header";
-import { StarField } from "@/components/StarField";
 import { READERS, formatVND } from "@/lib/mock-data";
 import { useSlots, useBookings } from "@/lib/use-booking-store";
 import {
@@ -55,7 +54,6 @@ function ReaderProfilePage() {
     return (
       <div className="relative min-h-screen">
         <Header />
-        <StarField count={30} />
         <div className="mx-auto max-w-3xl p-10 text-center">
           <h1 className="font-display text-2xl">Không tìm thấy Reader</h1>
           <button
@@ -100,7 +98,6 @@ function ReaderProfilePage() {
   return (
     <div className="relative min-h-screen">
       <Header />
-      <StarField count={30} />
       <div className="mx-auto max-w-6xl px-4 py-6">
         {/* Banner */}
         <div className="relative overflow-hidden rounded-2xl border border-gold/30 bg-gradient-to-r from-mystic/40 via-card/60 to-mystic/40 p-6">
