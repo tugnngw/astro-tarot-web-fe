@@ -49,7 +49,7 @@
   /* Nền gần như đen, chỉ giữ một chút ngả tím để không thành đen chết.
      Trước đây là tím đậm oklch(0.16 0.04 280); đổi sang đen để bầu trời sao
      nổi lên, và để các thẻ kính màu tím tách khỏi nền rõ hơn. */
-  --background: oklch(0.07 0.014 280);
+  --background: oklch(0.035 0.007 280);
   --foreground: oklch(0.96 0.01 80);
   --card: oklch(0.21 0.05 280);
   --card-foreground: oklch(0.96 0.01 80);
@@ -74,22 +74,21 @@
   --mystic: oklch(0.45 0.18 295);
   --success: oklch(0.68 0.16 160);
   --warning: oklch(0.78 0.15 75);
-  /* Nền bầu trời đêm.
-     Bản trước xếp nhiều vầng tím và vàng khá đậm — nhìn ra "gradient" chứ
-     không ra "bầu trời". Giờ để gần như đen và đẩy phần nhìn cho lớp sao
-     (StarrySky). Chỉ giữ một quầng cực mờ ở đỉnh cho đỡ phẳng, cùng lớp hạt
-     nhiễu rất nhẹ để dải tối rộng không bị banding. */
+  /* Nền bầu trời đêm — đen, phần nhìn để cho lớp sao (StarrySky) lo.
+     Từng thử thêm một lớp hạt nhiễu để chống banding, nhưng feTurbulence cho
+     ra nhiễu xám: ở opacity đủ thấy thì nó nâng cả nền lên xám và nhấn chìm
+     luôn những chấm sao 1-3px. Đã bỏ hẳn. Chỉ còn một quầng rất mờ ở đỉnh
+     cho đỡ phẳng. */
   --gradient-cosmic:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E"),
     radial-gradient(
-      ellipse 100% 55% at 50% -10%,
-      oklch(0.22 0.05 285 / 0.55) 0%,
-      transparent 72%
+      ellipse 110% 50% at 50% -12%,
+      oklch(0.16 0.035 285 / 0.5) 0%,
+      transparent 70%
     ),
     linear-gradient(
       180deg,
-      oklch(0.085 0.018 282) 0%,
-      oklch(0.055 0.012 278) 100%
+      oklch(0.045 0.008 282) 0%,
+      oklch(0.025 0.005 278) 100%
     );
   --gradient-gold: linear-gradient(
     135deg,
@@ -106,9 +105,15 @@
   }
   html {
     color-scheme: dark;
-    /* body mới là chỗ vẽ gradient, nhưng nó dùng background-attachment: fixed
-       nên lúc overscroll hoặc repaint giữa chừng có thể lộ nền trắng/đen của
-       trình duyệt. Đặt màu nền cho html để khe hở đó vẫn ra màu của app. */
+    /* Nền vẽ ở ĐÂY chứ không phải ở body — và đây là điểm mấu chốt.
+       Trong stacking context gốc, thứ tự vẽ là: nền của html -> các phần tử
+       z-index âm -> rồi mới tới các khối thường (trong đó có body). Nên nếu
+       để nền ở body, nó vẽ ĐÈ LÊN lớp sao (z-index -20) và sao biến mất
+       sạch. Đặt ở html thì nền nằm dưới cùng, sao hiện lên trên. */
+    background: var(--gradient-cosmic);
+    background-size: cover, cover;
+    background-repeat: no-repeat, no-repeat;
+    background-attachment: fixed;
     background-color: var(--background);
     /* Neo anchor xuống dưới header sticky, không bị header che mất tiêu đề. */
     scroll-padding-top: 5rem;
@@ -151,12 +156,9 @@
     border-radius: 4px;
   }
   body {
-    background: var(--gradient-cosmic);
-    /* Lớp nhiễu lát nhỏ để thành hạt mịn; các lớp gradient phủ kín khung nhìn.
-       Thứ tự khớp với các lớp trong --gradient-cosmic. */
-    background-size: 140px 140px, cover, cover;
-    background-repeat: repeat, no-repeat, no-repeat;
-    background-attachment: fixed;
+    /* Cố ý KHÔNG đặt nền ở đây — xem chú thích ở html. Nền body sẽ che mất
+       lớp sao. */
+    background: transparent;
     color: var(--color-foreground);
     font-family: var(--font-body);
     min-height: 100vh;
@@ -263,7 +265,9 @@
   @keyframes star-twinkle {
     0%,
     100% {
-      opacity: calc(var(--star-opacity, 0.5) * 0.22);
+      /* Đáy 40% chứ không thấp hơn: sao mờ nhất chỉ khoảng 0.3 độ đục, hạ
+         quá sâu thì nửa chu kỳ nó biến mất khỏi màn hình. */
+      opacity: calc(var(--star-opacity, 0.5) * 0.4);
     }
     50% {
       opacity: var(--star-opacity, 0.5);

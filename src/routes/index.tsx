@@ -50,11 +50,21 @@ function Landing() {
 
           {/* Rotating zodiac wheel backdrop */}
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+            {/* Mask tròn: PNG bánh xe có nền xanh đen chứ không đen tuyệt
+                đối, nên với mix-blend-screen trên nền đen nó lộ nguyên khung
+                chữ nhật sáng hơn xung quanh. Mask cho ảnh tan dần ra rìa để
+                chỉ còn thấy vòng tròn. */}
             <img
               src={zodiacWheel}
               alt=""
               aria-hidden
               className="animate-zodiac-slow w-[min(120vmin,1100px)] max-w-none opacity-30 mix-blend-screen"
+              style={{
+                maskImage:
+                  "radial-gradient(circle at center, black 42%, transparent 62%)",
+                WebkitMaskImage:
+                  "radial-gradient(circle at center, black 42%, transparent 62%)",
+              }}
             />
             {/* Làm tối vùng giữa để chữ tiêu đề nổi lên khỏi bánh xe hoàng
                 đạo — trước đây phần giữa trong suốt hoàn toàn nên các nan
@@ -66,7 +76,7 @@ function Landing() {
               className="absolute inset-0"
               style={{
                 background:
-                  "radial-gradient(ellipse 58% 42% at center, oklch(0.05 0.01 280 / 0.72) 0%, oklch(0.05 0.01 280 / 0.3) 55%, transparent 100%)",
+                  "radial-gradient(ellipse 55% 40% at center, oklch(0.03 0.006 280 / 0.92) 0%, oklch(0.03 0.006 280 / 0.7) 50%, oklch(0.03 0.006 280 / 0.25) 78%, transparent 100%)",
               }}
             />
           </div>

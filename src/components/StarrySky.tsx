@@ -57,9 +57,11 @@ function makeLayer(
 export function StarrySky() {
   const { far, mid, near } = useMemo(
     () => ({
-      far: makeLayer(1337, 110, [0.8, 1.4], [0.18, 0.45], [5, 9]),
-      mid: makeLayer(7331, 55, [1.3, 2], [0.35, 0.7], [3.5, 6]),
-      near: makeLayer(9137, 16, [2.2, 3.2], [0.7, 1], [2.5, 4.5]),
+      // Độ sáng nhích lên so với lần đầu: trên nền đen thật, sao ở opacity
+      // 0.18 gần như không thấy.
+      far: makeLayer(1337, 120, [1, 1.6], [0.3, 0.6], [5, 9]),
+      mid: makeLayer(7331, 60, [1.6, 2.3], [0.55, 0.85], [3.5, 6]),
+      near: makeLayer(9137, 18, [2.4, 3.4], [0.85, 1], [2.5, 4.5]),
     }),
     [],
   );
