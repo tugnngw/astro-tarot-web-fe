@@ -5,6 +5,7 @@ import { StarField } from "@/components/StarField";
 import { ZodiacAI } from "@/components/ZodiacAI";
 import { TopReaders } from "@/components/TopReaders";
 import { BlogToday } from "@/components/BlogToday";
+import { FeaturedProducts } from "@/components/FeaturedProducts";
 import { ContactSection } from "@/components/ContactSection";
 import { useAuth } from "@/lib/auth-context";
 import bgConstellations from "@/assets/constellations-bg.png";
@@ -164,12 +165,17 @@ function Landing() {
           </div>
         </section>
 
-        {/* ─── Section 3: Blog ─── */}
+        {/* ─── Section 3: Shop ─── */}
+        <section className="snap-section relative flex items-center px-6 py-16">
+          <FeaturedProducts />
+        </section>
+
+        {/* ─── Section 4: Blog ─── */}
         <section className="snap-section relative flex items-center px-6 py-16">
           <BlogToday />
         </section>
 
-        {/* ─── Section 4: Contact ─── */}
+        {/* ─── Section 5: Contact ─── */}
         <section className="snap-section relative flex flex-col justify-center px-6 py-16">
           <ContactSection />
           <footer className="mt-12 text-center text-xs text-muted-foreground">

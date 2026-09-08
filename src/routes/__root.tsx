@@ -13,6 +13,7 @@ import { Toaster } from "sonner";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AuthProvider } from "@/lib/auth-context";
+import { CartProvider } from "@/lib/cart-context";
 import { AuthModal } from "@/components/AuthModal";
 import { BecomeReaderModal } from "@/components/BecomeReaderModal";
 
@@ -146,10 +147,12 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Outlet />
-        <AuthModal />
-        <BecomeReaderModal />
-        <Toaster position="top-center" theme="dark" richColors />
+        <CartProvider>
+          <Outlet />
+          <AuthModal />
+          <BecomeReaderModal />
+          <Toaster position="top-center" theme="dark" richColors />
+        </CartProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

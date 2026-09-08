@@ -10,12 +10,16 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TarotRouteImport } from './routes/tarot'
+import { Route as ShopRouteImport } from './routes/shop'
 import { Route as ReadersRouteImport } from './routes/readers'
 import { Route as ReaderHubRouteImport } from './routes/reader-hub'
 import { Route as ReaderRouteImport } from './routes/reader'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as OrdersRouteImport } from './routes/orders'
+import { Route as CartRouteImport } from './routes/cart'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ShopSlugRouteImport } from './routes/shop.$slug'
 import { Route as ReadersIdRouteImport } from './routes/readers.$id'
 import { Route as ProfileAstrologyRouteImport } from './routes/profile/astrology'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
@@ -23,6 +27,11 @@ import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 const TarotRoute = TarotRouteImport.update({
   id: '/tarot',
   path: '/tarot',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShopRoute = ShopRouteImport.update({
+  id: '/shop',
+  path: '/shop',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReadersRoute = ReadersRouteImport.update({
@@ -45,6 +54,16 @@ const ProfileRoute = ProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrdersRoute = OrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CartRoute = CartRouteImport.update({
+  id: '/cart',
+  path: '/cart',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -54,6 +73,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ShopSlugRoute = ShopSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => ShopRoute,
 } as any)
 const ReadersIdRoute = ReadersIdRouteImport.update({
   id: '/$id',
@@ -74,86 +98,113 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/cart': typeof CartRoute
+  '/orders': typeof OrdersRoute
   '/profile': typeof ProfileRouteWithChildren
   '/reader': typeof ReaderRoute
   '/reader-hub': typeof ReaderHubRoute
   '/readers': typeof ReadersRouteWithChildren
+  '/shop': typeof ShopRouteWithChildren
   '/tarot': typeof TarotRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/profile/astrology': typeof ProfileAstrologyRoute
   '/readers/$id': typeof ReadersIdRoute
+  '/shop/$slug': typeof ShopSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/cart': typeof CartRoute
+  '/orders': typeof OrdersRoute
   '/profile': typeof ProfileRouteWithChildren
   '/reader': typeof ReaderRoute
   '/reader-hub': typeof ReaderHubRoute
   '/readers': typeof ReadersRouteWithChildren
+  '/shop': typeof ShopRouteWithChildren
   '/tarot': typeof TarotRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/profile/astrology': typeof ProfileAstrologyRoute
   '/readers/$id': typeof ReadersIdRoute
+  '/shop/$slug': typeof ShopSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/cart': typeof CartRoute
+  '/orders': typeof OrdersRoute
   '/profile': typeof ProfileRouteWithChildren
   '/reader': typeof ReaderRoute
   '/reader-hub': typeof ReaderHubRoute
   '/readers': typeof ReadersRouteWithChildren
+  '/shop': typeof ShopRouteWithChildren
   '/tarot': typeof TarotRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/profile/astrology': typeof ProfileAstrologyRoute
   '/readers/$id': typeof ReadersIdRoute
+  '/shop/$slug': typeof ShopSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/admin'
+    | '/cart'
+    | '/orders'
     | '/profile'
     | '/reader'
     | '/reader-hub'
     | '/readers'
+    | '/shop'
     | '/tarot'
     | '/blog/$slug'
     | '/profile/astrology'
     | '/readers/$id'
+    | '/shop/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/admin'
+    | '/cart'
+    | '/orders'
     | '/profile'
     | '/reader'
     | '/reader-hub'
     | '/readers'
+    | '/shop'
     | '/tarot'
     | '/blog/$slug'
     | '/profile/astrology'
     | '/readers/$id'
+    | '/shop/$slug'
   id:
     | '__root__'
     | '/'
     | '/admin'
+    | '/cart'
+    | '/orders'
     | '/profile'
     | '/reader'
     | '/reader-hub'
     | '/readers'
+    | '/shop'
     | '/tarot'
     | '/blog/$slug'
     | '/profile/astrology'
     | '/readers/$id'
+    | '/shop/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
+  CartRoute: typeof CartRoute
+  OrdersRoute: typeof OrdersRoute
   ProfileRoute: typeof ProfileRouteWithChildren
   ReaderRoute: typeof ReaderRoute
   ReaderHubRoute: typeof ReaderHubRoute
   ReadersRoute: typeof ReadersRouteWithChildren
+  ShopRoute: typeof ShopRouteWithChildren
   TarotRoute: typeof TarotRoute
   BlogSlugRoute: typeof BlogSlugRoute
 }
@@ -165,6 +216,13 @@ declare module '@tanstack/react-router' {
       path: '/tarot'
       fullPath: '/tarot'
       preLoaderRoute: typeof TarotRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shop': {
+      id: '/shop'
+      path: '/shop'
+      fullPath: '/shop'
+      preLoaderRoute: typeof ShopRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/readers': {
@@ -195,6 +253,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/orders': {
+      id: '/orders'
+      path: '/orders'
+      fullPath: '/orders'
+      preLoaderRoute: typeof OrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cart': {
+      id: '/cart'
+      path: '/cart'
+      fullPath: '/cart'
+      preLoaderRoute: typeof CartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin': {
       id: '/admin'
       path: '/admin'
@@ -208,6 +280,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/shop/$slug': {
+      id: '/shop/$slug'
+      path: '/$slug'
+      fullPath: '/shop/$slug'
+      preLoaderRoute: typeof ShopSlugRouteImport
+      parentRoute: typeof ShopRoute
     }
     '/readers/$id': {
       id: '/readers/$id'
@@ -255,13 +334,26 @@ const ReadersRouteChildren: ReadersRouteChildren = {
 const ReadersRouteWithChildren =
   ReadersRoute._addFileChildren(ReadersRouteChildren)
 
+interface ShopRouteChildren {
+  ShopSlugRoute: typeof ShopSlugRoute
+}
+
+const ShopRouteChildren: ShopRouteChildren = {
+  ShopSlugRoute: ShopSlugRoute,
+}
+
+const ShopRouteWithChildren = ShopRoute._addFileChildren(ShopRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
+  CartRoute: CartRoute,
+  OrdersRoute: OrdersRoute,
   ProfileRoute: ProfileRouteWithChildren,
   ReaderRoute: ReaderRoute,
   ReaderHubRoute: ReaderHubRoute,
   ReadersRoute: ReadersRouteWithChildren,
+  ShopRoute: ShopRouteWithChildren,
   TarotRoute: TarotRoute,
   BlogSlugRoute: BlogSlugRoute,
 }
