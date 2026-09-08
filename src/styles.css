@@ -216,8 +216,8 @@
   .site-header {
     background: linear-gradient(
       180deg,
-      oklch(0.17 0.05 268) 0%,
-      oklch(0.13 0.045 265) 100%
+      oklch(0.06 0.008 275) 0%,
+      oklch(0.035 0.005 275) 100%
     );
     backdrop-filter: blur(12px);
     border-bottom: 1px solid color-mix(in oklab, var(--gold) 45%, transparent);
@@ -267,6 +267,32 @@
   .animate-zodiac-slow {
     animation: zodiac-spin 240s linear infinite;
     transform-origin: center;
+  }
+
+  /* Hiệu ứng vào của khối chữ hero.
+     Trước đây dùng motion.div initial/animate của framer. Nhưng đây là nội
+     dung quan trọng nhất trang mà lại phụ thuộc vòng lặp rAF mới hiện ra:
+     rAF bị tiết chế (tab nền, trình duyệt hạn chế) là chữ kẹt ở opacity dở
+     dang. Dùng CSS animation thì trình duyệt lo, và nếu vì lý do gì mà quy
+     tắc không áp dụng được thì phần tử vẫn ở trạng thái bình thường tức là
+     hiện đầy đủ. */
+  @keyframes hero-enter {
+    from {
+      opacity: 0;
+      transform: translateY(28px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .hero-enter {
+    animation: hero-enter 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-enter {
+      animation: none;
+    }
   }
   @keyframes twinkle {
     0%,

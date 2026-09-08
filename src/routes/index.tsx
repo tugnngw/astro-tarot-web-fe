@@ -53,8 +53,12 @@ function Landing() {
               chứ không trong suốt nên trên nền đen lộ nguyên khung chữ nhật,
               phải chắp vá bằng mask. Vẽ bằng DOM thì nền trong suốt thật,
               theo đúng tông vàng, và nét căng ở mọi độ phân giải. */}
+          {/* Kích thước tính theo CHIỀU CAO khung nhìn, không theo vmin.
+              Trước đây để 118vmin: trên màn hình ngang thì vmin lấy theo
+              chiều cao rồi nhân 1.18 nên vòng cao hơn cả hero, và section có
+              overflow-hidden nên cung dưới bị cắt cụt giữa chừng. */}
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <TarotWheel className="w-[min(118vmin,1080px)]" />
+            <TarotWheel className="h-[min(86vh,760px)] w-[min(86vh,760px)]" />
             {/* Làm tối vùng giữa để chữ tiêu đề nổi lên khỏi bánh xe hoàng
                 đạo — trước đây phần giữa trong suốt hoàn toàn nên các nan
                 bánh xe chạy xuyên qua chữ, đọc rất mệt mắt.
@@ -65,17 +69,12 @@ function Landing() {
               className="absolute inset-0"
               style={{
                 background:
-                  "radial-gradient(ellipse 55% 40% at center, oklch(0.03 0.006 280 / 0.92) 0%, oklch(0.03 0.006 280 / 0.7) 50%, oklch(0.03 0.006 280 / 0.25) 78%, transparent 100%)",
+                  "radial-gradient(ellipse 48% 36% at center, oklch(0.02 0.004 280 / 0.96) 0%, oklch(0.02 0.004 280 / 0.88) 45%, oklch(0.02 0.004 280 / 0.45) 72%, transparent 100%)",
               }}
             />
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1 }}
-            className="relative z-10 text-center"
-          >
+          <div className="hero-enter relative z-10 text-center">
             <div className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-card/40 px-4 py-1.5 text-xs uppercase tracking-[0.4em] text-gold backdrop-blur">
               ✦ ASTROTAROT ✦
             </div>
@@ -113,7 +112,7 @@ function Landing() {
               <span>Cuộn xuống</span>
               <span className="mt-1 text-2xl">↓</span>
             </motion.div>
-          </motion.div>
+          </div>
         </section>
 
         {/* ─── Section 2: Khám phá + Top Reader (vertical) ─── */}
