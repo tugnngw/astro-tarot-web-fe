@@ -51,23 +51,28 @@
      nổi lên, và để các thẻ kính màu tím tách khỏi nền rõ hơn. */
   --background: oklch(0.035 0.007 280);
   --foreground: oklch(0.96 0.01 80);
-  --card: oklch(0.21 0.05 280);
+  /* Bộ nền bề mặt đều kéo về gần đen.
+     Trước đây card/popover/input đều là tím pha khoảng oklch(0.21-0.28),
+     hợp với nền tím cũ; từ khi nền chuyển sang đen thì chúng nổi lên thành
+     những mảng xám tím, nhất là các ô nhập liệu. Giờ mọi bề mặt đều gần đen
+     và tách nhau bằng viền vàng chứ không bằng độ sáng. */
+  --card: oklch(0.09 0.018 282);
   --card-foreground: oklch(0.96 0.01 80);
-  --popover: oklch(0.21 0.05 280);
+  --popover: oklch(0.08 0.016 282);
   --popover-foreground: oklch(0.96 0.01 80);
   /* Gold #D4AF37 */
   --primary: oklch(0.78 0.13 85);
   --primary-foreground: oklch(0.18 0.04 280);
-  --secondary: oklch(0.28 0.07 290);
+  --secondary: oklch(0.13 0.03 288);
   --secondary-foreground: oklch(0.96 0.01 80);
-  --muted: oklch(0.25 0.04 280);
+  --muted: oklch(0.12 0.022 282);
   --muted-foreground: oklch(0.72 0.03 80);
   --accent: oklch(0.45 0.18 295);
   --accent-foreground: oklch(0.98 0.01 80);
   --destructive: oklch(0.6 0.22 25);
   --destructive-foreground: oklch(0.98 0.01 80);
   --border: oklch(0.35 0.06 285 / 50%);
-  --input: oklch(0.28 0.05 285);
+  --input: oklch(0.075 0.015 283);
   --ring: oklch(0.78 0.13 85);
   --gold: oklch(0.78 0.13 85);
   --gold-soft: oklch(0.85 0.09 85);
@@ -196,7 +201,7 @@
      ra một mảng xám xanh. Giờ đen gần như nền, tách khỏi nền bằng viền
      sáng chứ không bằng độ sáng của mặt thẻ. */
   .glass {
-    background: color-mix(in oklab, oklch(0.09 0.02 282) 82%, transparent);
+    background: color-mix(in oklab, var(--card) 82%, transparent);
     backdrop-filter: blur(14px);
     border: 1px solid color-mix(in oklab, var(--gold) 30%, transparent);
     box-shadow:

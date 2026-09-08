@@ -88,13 +88,17 @@ export function CelestialArtwork({
       className={className}
     >
       <defs>
+        {/* Nền artwork phải bám theo nền trang. Bộ màu cũ (L 18/12/9%) hợp
+            với nền tím đậm; từ khi trang chuyển sang đen (L khoảng 3.5%) thì
+            chúng nổi lên thành những mảng tím sáng giữa lưới sản phẩm. Hạ
+            xuống sát đen, để khung vàng và hoạ tiết làm phần nhận diện. */}
         <linearGradient id={`${uid}-bg`} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor={`hsl(${268 + hueShift} 45% 18%)`} />
-          <stop offset="55%" stopColor={`hsl(${280 + hueShift} 50% 12%)`} />
-          <stop offset="100%" stopColor={`hsl(${292 + hueShift} 40% 9%)`} />
+          <stop offset="0%" stopColor={`hsl(${268 + hueShift} 40% 9%)`} />
+          <stop offset="55%" stopColor={`hsl(${280 + hueShift} 45% 6%)`} />
+          <stop offset="100%" stopColor={`hsl(${292 + hueShift} 38% 4%)`} />
         </linearGradient>
         <radialGradient id={`${uid}-glow`} cx="50%" cy="45%" r="55%">
-          <stop offset="0%" stopColor="rgba(226,183,92,0.30)" />
+          <stop offset="0%" stopColor="rgba(226,183,92,0.22)" />
           <stop offset="100%" stopColor="rgba(226,183,92,0)" />
         </radialGradient>
       </defs>
