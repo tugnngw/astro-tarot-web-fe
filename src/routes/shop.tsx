@@ -303,7 +303,7 @@ export function ProductCard({ product }: { product: Product }) {
             src={product.imageUrl}
             alt=""
             loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="h-full w-full object-contain p-3 transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
           <ProductArtwork

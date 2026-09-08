@@ -95,17 +95,9 @@ export function TarotWheel({ className = "" }: { className?: string }) {
         })}
       </div>
 
-      {/* Hai vòng tròn mảnh giữ nhịp cho vành bài. */}
-      <svg
-        viewBox="0 0 100 100"
-        className="absolute inset-0 h-full w-full"
-        fill="none"
-        stroke="rgba(226,183,92,0.14)"
-        strokeWidth="0.2"
-      >
-        <circle cx="50" cy="50" r="28" />
-        <circle cx="50" cy="50" r="43" />
-      </svg>
+      {/* Bỏ hai vòng tròn dẫn hướng từng vẽ ở đây: bản thân vành bài đã đủ
+          tạo hình tròn, thêm hai đường mảnh mờ chỉ làm nền rối và nhìn như
+          vết bẩn trên màn hình. */}
     </div>
   );
 }

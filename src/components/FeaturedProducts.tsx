@@ -62,7 +62,7 @@ export function FeaturedProducts() {
                         src={p.imageUrl}
                         alt=""
                         loading="lazy"
-                        className="h-full w-full object-cover"
+                        className="h-full w-full object-contain p-3"
                       />
                     ) : (
                       <ProductArtwork
