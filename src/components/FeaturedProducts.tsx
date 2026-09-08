@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { formatVND } from "@/lib/mock-data";
+import { ProductArtwork } from "@/components/ProductArtwork";
 import { useFeaturedProducts } from "@/features/shop/queries";
 
 /**
@@ -64,12 +65,11 @@ export function FeaturedProducts() {
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <div
-                        aria-hidden="true"
-                        className="grid h-full w-full place-items-center text-5xl text-gold/25"
-                      >
-                        ✦
-                      </div>
+                      <ProductArtwork
+                        slug={p.slug}
+                        categorySlug={p.categorySlug}
+                        className="h-full w-full"
+                      />
                     )}
                   </div>
                   <div className="p-4">

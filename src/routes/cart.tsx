@@ -7,6 +7,7 @@ import { StarField } from "@/components/StarField";
 import { useAuth } from "@/lib/auth-context";
 import { useCart } from "@/lib/cart-context";
 import { formatVND } from "@/lib/mock-data";
+import { ProductArtwork } from "@/components/ProductArtwork";
 import { useCheckout } from "@/features/shop/queries";
 
 export const Route = createFileRoute("/cart")({
@@ -176,7 +177,10 @@ function CartPage() {
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <span className="text-2xl text-gold/30">✦</span>
+                    <ProductArtwork
+                      slug={it.productSlug}
+                      className="h-full w-full"
+                    />
                   )}
                 </Link>
 

@@ -93,6 +93,49 @@
   }
   html {
     color-scheme: dark;
+    /* body mới là chỗ vẽ gradient, nhưng nó dùng background-attachment: fixed
+       nên lúc overscroll hoặc repaint giữa chừng có thể lộ nền trắng/đen của
+       trình duyệt. Đặt màu nền cho html để khe hở đó vẫn ra màu của app. */
+    background-color: var(--background);
+    /* Neo anchor xuống dưới header sticky, không bị header che mất tiêu đề. */
+    scroll-padding-top: 5rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--gold) transparent;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  /* Scrollbar theo tông vàng - tím của app thay vì thanh xám mặc định. */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(
+      to bottom,
+      color-mix(in oklch, var(--gold) 70%, transparent),
+      color-mix(in oklch, var(--mystic) 70%, transparent)
+    );
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(to bottom, var(--gold), var(--mystic));
+    background-clip: padding-box;
+  }
+
+  /* Vòng focus thống nhất cho thao tác bàn phím. */
+  :focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+    border-radius: 4px;
   }
   body {
     background: var(--gradient-cosmic);
@@ -183,46 +226,43 @@
     animation: shuffle 0.4s ease-in-out infinite;
   }
 
+  /* ----------------------------------------------------------------
+     Cuộn trang
+     ----------------------------------------------------------------
+     Trước đây trang chủ cuộn bên trong một <main> riêng với
+     scroll-snap-type: y mandatory và scrollbar bị ẩn. Cách đó gây ra
+     mấy vấn đề thật:
+       - Cuộn nằm trong div lồng nhau nên scrollRestoration của router
+         (vốn khôi phục scroll của window) không có tác dụng, và header
+         sticky không thật sự dính theo nội dung.
+       - mandatory ép dừng mỗi 100vh; section nào cao hơn màn hình thì
+         thành ra giành giật với thao tác của người dùng.
+       - Ẩn scrollbar làm mất hoàn toàn phản hồi về vị trí trong trang.
+     Giờ trang cuộn bằng document như mọi trang bình thường; nhịp giữa
+     các phần do padding quyết định chứ không ép chiều cao màn hình.  */
   .snap-container {
-    scroll-snap-type: y mandatory;
-    height: 100vh;
-    height: 100dvh;
-    overflow-y: auto;
-    overflow-x: hidden;
-    scroll-behavior: smooth;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: contain;
-  }
-  .snap-container::-webkit-scrollbar {
-    display: none;
-  }
-  .snap-section {
-    scroll-snap-align: start;
-    scroll-snap-stop: normal;
-    min-height: 100vh;
-    min-height: 100dvh;
     width: 100%;
   }
-  /* Tablet & mobile: looser snapping so fast scroll/swipes feel natural */
-  @media (max-width: 1024px) {
-    .snap-container {
-      scroll-snap-type: y proximity;
-    }
+  .snap-section {
+    width: 100%;
+    /* Đủ thoáng để mỗi phần vẫn ra tấm ra món, nhưng không ép 100vh
+       nên phần nào nhiều nội dung sẽ tự cao lên thay vì bị cắt. */
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+    scroll-margin-top: 5rem;
+  }
+  @media (min-width: 768px) {
     .snap-section {
-      scroll-snap-stop: normal;
+      padding-top: 6rem;
+      padding-bottom: 6rem;
     }
   }
-  /* If section is taller than viewport (long content on mobile), let it scroll naturally */
-  @media (max-height: 700px) {
-    .snap-container {
-      scroll-snap-type: none;
-    }
+  /* Hero vẫn chiếm trọn màn hình đầu tiên. */
+  .snap-section:first-child {
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding-top: 0;
+    padding-bottom: 0;
   }
-  @media (prefers-reduced-motion: reduce) {
-    .snap-container {
-      scroll-behavior: auto;
-      scroll-snap-type: none;
-    }
-  }
+
 }

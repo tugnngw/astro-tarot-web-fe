@@ -8,6 +8,7 @@ import { StarField } from "@/components/StarField";
 import { useAuth } from "@/lib/auth-context";
 import { useCart } from "@/lib/cart-context";
 import { formatVND } from "@/lib/mock-data";
+import { ProductArtwork } from "@/components/ProductArtwork";
 import { useCategories, useProducts } from "@/features/shop/queries";
 import type { Product } from "@/api/shop";
 
@@ -291,7 +292,7 @@ export function ProductCard({ product }: { product: Product }) {
 
   return (
     <motion.article
-      className="glass flex flex-col overflow-hidden rounded-2xl"
+      className="group glass flex flex-col overflow-hidden rounded-2xl transition-shadow duration-300 hover:shadow-[0_0_40px_-12px_var(--gold)]"
       whileHover={{ y: -4 }}
     >
       <Link
@@ -306,12 +307,14 @@ export function ProductCard({ product }: { product: Product }) {
             src={product.imageUrl}
             alt=""
             loading="lazy"
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
-          <div className="grid h-full w-full place-items-center text-5xl text-gold/30">
-            ✦
-          </div>
+          <ProductArtwork
+            slug={product.slug}
+            categorySlug={product.categorySlug}
+            className="h-full w-full transition-transform duration-500 group-hover:scale-105"
+          />
         )}
         {discount !== null && (
           <span className="absolute left-3 top-3 rounded-full bg-gold px-2.5 py-1 text-[11px] font-semibold text-primary-foreground">

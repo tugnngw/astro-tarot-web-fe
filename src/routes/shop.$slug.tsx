@@ -7,6 +7,7 @@ import { StarField } from "@/components/StarField";
 import { useAuth } from "@/lib/auth-context";
 import { useCart } from "@/lib/cart-context";
 import { formatVND } from "@/lib/mock-data";
+import { ProductArtwork } from "@/components/ProductArtwork";
 import { useProduct } from "@/features/shop/queries";
 
 export const Route = createFileRoute("/shop/$slug")({
@@ -101,12 +102,11 @@ function ProductDetailPage() {
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <div
-                  aria-hidden="true"
-                  className="grid h-full w-full place-items-center text-8xl text-gold/25"
-                >
-                  ✦
-                </div>
+                <ProductArtwork
+                  slug={product.slug}
+                  categorySlug={product.categorySlug}
+                  className="h-full w-full"
+                />
               )}
               {discount !== null && (
                 <span className="absolute left-4 top-4 rounded-full bg-gold px-3 py-1 text-xs font-semibold text-primary-foreground">

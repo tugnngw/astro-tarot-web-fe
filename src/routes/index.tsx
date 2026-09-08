@@ -6,6 +6,7 @@ import { ZodiacAI } from "@/components/ZodiacAI";
 import { TopReaders } from "@/components/TopReaders";
 import { BlogToday } from "@/components/BlogToday";
 import { FeaturedProducts } from "@/components/FeaturedProducts";
+import { Reveal } from "@/components/Reveal";
 import { ContactSection } from "@/components/ContactSection";
 import { useAuth } from "@/lib/auth-context";
 import bgConstellations from "@/assets/constellations-bg.png";
@@ -60,11 +61,15 @@ function Landing() {
               aria-hidden
               className="animate-zodiac-slow w-[min(120vmin,1100px)] max-w-none opacity-30 mix-blend-screen"
             />
+            {/* Làm tối vùng giữa để chữ tiêu đề nổi lên khỏi bánh xe hoàng
+                đạo. Trước đây phần giữa để trong suốt hoàn toàn nên các nan
+                của bánh xe chạy xuyên qua chữ, đọc rất mệt mắt. */}
             <div
-              className="absolute inset-0 bg-gradient-radial from-transparent via-background/40 to-background"
+              aria-hidden="true"
+              className="absolute inset-0"
               style={{
                 background:
-                  "radial-gradient(circle at center, transparent 0%, oklch(0.16 0.04 280 / 0.65) 70%)",
+                  "radial-gradient(ellipse 60% 45% at center, oklch(0.16 0.04 280 / 0.82) 0%, oklch(0.16 0.04 280 / 0.55) 45%, oklch(0.16 0.04 280 / 0.75) 100%)",
               }}
             />
           </div>
@@ -78,12 +83,15 @@ function Landing() {
             <div className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-card/40 px-4 py-1.5 text-xs uppercase tracking-[0.4em] text-gold backdrop-blur">
               ✦ ASTROTAROT ✦
             </div>
-            <h1 className="mt-6 font-display text-5xl leading-tight md:text-7xl lg:text-8xl">
+            <h1
+              className="mt-6 font-display text-5xl leading-tight md:text-7xl lg:text-8xl"
+              style={{ textShadow: "0 2px 24px oklch(0.16 0.04 280 / 0.9)" }}
+            >
               <span className="text-gradient-gold">Tử vi · Tarot</span>
               <br />
               <span className="text-foreground">Cộng đồng Reader</span>
             </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-base text-muted-foreground md:text-lg">
+            <p className="mx-auto mt-6 max-w-2xl text-base text-foreground/80 md:text-lg">
               Vũ trụ huyền bí mở ra trước bạn — nơi 12 cung hoàng đạo, lá bài
               Tarot và những Reader chuyên nghiệp cùng hội tụ.
             </p>
@@ -113,14 +121,10 @@ function Landing() {
         </section>
 
         {/* ─── Section 2: Khám phá + Top Reader (vertical) ─── */}
-        <section className="snap-section relative flex items-center px-6 py-16">
+        <section className="snap-section relative flex items-center px-6">
           <div className="mx-auto w-full max-w-7xl">
             <div className="grid items-start gap-8 lg:grid-cols-[1.4fr_1fr]">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-              >
+              <Reveal>
                 <div className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-card/60 px-4 py-1.5 text-xs uppercase tracking-[0.25em] text-gold">
                   ✦ Vận mệnh
                 </div>
@@ -150,34 +154,36 @@ function Landing() {
                 <div className="mt-6">
                   <ZodiacAI />
                 </div>
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-              >
+              </Reveal>
+              <Reveal delay={0.1}>
                 <h3 className="mb-4 font-display text-2xl text-gradient-gold">
                   Top Reader nổi bật
                 </h3>
                 <TopReaders vertical />
-              </motion.div>
+              </Reveal>
             </div>
           </div>
         </section>
 
         {/* ─── Section 3: Shop ─── */}
-        <section className="snap-section relative flex items-center px-6 py-16">
-          <FeaturedProducts />
+        <section id="shop" className="snap-section relative flex items-center px-6">
+          <Reveal className="w-full">
+            <FeaturedProducts />
+          </Reveal>
         </section>
 
         {/* ─── Section 4: Blog ─── */}
-        <section className="snap-section relative flex items-center px-6 py-16">
-          <BlogToday />
+        <section className="snap-section relative flex items-center px-6">
+          <Reveal className="w-full">
+            <BlogToday />
+          </Reveal>
         </section>
 
         {/* ─── Section 5: Contact ─── */}
-        <section className="snap-section relative flex flex-col justify-center px-6 py-16">
-          <ContactSection />
+        <section className="snap-section relative flex flex-col justify-center px-6">
+          <Reveal>
+            <ContactSection />
+          </Reveal>
           <footer className="mt-12 text-center text-xs text-muted-foreground">
             © 2026 ASTROTAROT — Khám phá năng lượng vũ trụ
           </footer>
