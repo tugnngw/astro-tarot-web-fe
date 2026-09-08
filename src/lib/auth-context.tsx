@@ -29,12 +29,13 @@ export interface AuthUser {
 
 interface AuthCtx {
   user: AuthUser | null;
-  login: (emailOrUsername: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
+  /** Trả về email đã gửi mail xác minh; KHÔNG đăng nhập luôn. */
   register: (data: {
-    username: string;
+    email: string;
     full_name: string;
     password: string;
-  }) => Promise<void>;
+  }) => Promise<{ email: string; verificationEmailSent: boolean }>;
   logout: () => Promise<void>; // <-- Đổi thành Promise
   updateProfile: (
     patch: Partial<Omit<AuthUser, "id" | "role" | "joinedAt">>,
@@ -90,12 +91,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const login: AuthCtx["login"] = async (emailOrUsername, password) => {
-    const username = emailOrUsername.includes("@")
-      ? emailOrUsername.split("@")[0]
-      : emailOrUsername;
-
-    const res = await authApi.login({ username, password });
+  // Gửi thẳng email xuống BE. Bản cũ cắt lấy phần trước dấu @ để làm username
+  // — từ khi BE đăng nhập bằng email thì cách đó luôn sai.
+  const login: AuthCtx["login"] = async (email, password) => {
+    const res = await authApi.login({ email: email.trim(), password });
     persist(toAuthUser(res.user));
     navigate({ to: "/" });
     if (pendingAction) {
@@ -105,14 +104,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  /**
+   * Đăng ký KHÔNG đăng nhập luôn: BE chỉ tạo tài khoản và gửi mail xác minh,
+   * không cấp token. Trả kết quả về để giao diện hiện màn "kiểm tra hộp thư".
+   */
   const register: AuthCtx["register"] = async (data) => {
-    const res = await authApi.register({
+    return authApi.register({
+      email: data.email.trim(),
       full_name: data.full_name,
-      username: data.username,
       password: data.password,
     });
-    persist(toAuthUser(res.user));
-    navigate({ to: "/" });
   };
 
   // ============================================================
