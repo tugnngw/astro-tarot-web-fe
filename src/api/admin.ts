@@ -117,3 +117,128 @@ export function reviewReaderApplication(
     body: JSON.stringify({ action, rejectionReason: rejectionReason ?? null }),
   });
 }
+
+// ---------- Chi tiết và thao tác trên một tài khoản ----------
+
+export interface ManagedUserDetail extends Omit<ManagedUser, "role" | "status"> {
+  role: AccountRole;
+  status: AccountStatus;
+  phone: string | null;
+  gender: string | null;
+  dateOfBirth: string | null;
+  bio: string | null;
+  address: string | null;
+  city: string | null;
+  country: string | null;
+  authProvider: string | null;
+  /** Quyền suy ra từ vai trò — để người sắp đổi vai trò thấy mình đang trao gì. */
+  permissions: string[];
+  activeSessions: number;
+  orderCount: number;
+  totalSpent: number;
+  hasReaderProfile: boolean;
+  hasPendingReaderApplication: boolean;
+}
+
+export interface CreateUserPayload {
+  email: string;
+  fullName: string;
+  role: AccountRole;
+  phone?: string;
+  temporaryPassword?: string;
+  /** true = đăng nhập được ngay; false = phải bấm link trong mail xác minh. */
+  markEmailVerified?: boolean;
+}
+
+export interface UpdateUserInfoPayload {
+  fullName?: string;
+  phone?: string;
+  city?: string;
+  address?: string;
+}
+
+export function getUserDetail(userId: string) {
+  return apiFetch<ManagedUserDetail>(`${BASE}/users/${userId}`);
+}
+
+export function createUser(payload: CreateUserPayload) {
+  return apiFetch<ManagedUser>(`${BASE}/users`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function updateUserInfo(userId: string, payload: UpdateUserInfoPayload) {
+  return apiFetch<ManagedUser>(`${BASE}/users/${userId}`, {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function updateRoleBulk(userIds: string[], role: AccountRole) {
+  return apiFetch<ManagedUser[]>(`${BASE}/users/role`, {
+    method: "PATCH",
+    body: JSON.stringify({ userIds, role }),
+  });
+}
+
+export function revokeUserSessions(userId: string) {
+  return apiFetch<void>(`${BASE}/users/${userId}/sessions/revoke`, { method: "POST" });
+}
+
+export function sendPasswordReset(userId: string) {
+  return apiFetch<void>(`${BASE}/users/${userId}/password-reset`, { method: "POST" });
+}
+
+export function resendVerification(userId: string) {
+  return apiFetch<void>(`${BASE}/users/${userId}/resend-verification`, { method: "POST" });
+}
+
+export function deleteUser(userId: string) {
+  return apiFetch<void>(`${BASE}/users/${userId}`, { method: "DELETE" });
+}
+
+// ---------- Nhật ký hệ thống ----------
+
+export interface ActivityLog {
+  id: string;
+  actorId: string | null;
+  actorName: string;
+  actorRole: string | null;
+  action: string;
+  entityType: string | null;
+  entityId: string | null;
+  /** JSON thô mô tả thay đổi. Null khi hành động không có gì để so sánh. */
+  changes: string | null;
+  createdAt: string;
+}
+
+export interface ActivityLogPage {
+  content: ActivityLog[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  first: boolean;
+  last: boolean;
+}
+
+/** Nhãn tiếng Việt cho từng hành động, khớp với AdminActions bên BE. */
+export const ACTION_LABEL: Record<string, string> = {
+  USER_CREATE: "Tạo tài khoản",
+  USER_UPDATE: "Sửa thông tin",
+  USER_ROLE_CHANGE: "Đổi vai trò",
+  USER_STATUS_CHANGE: "Đổi trạng thái",
+  USER_DELETE: "Xoá tài khoản",
+  USER_SESSIONS_REVOKE: "Buộc đăng xuất",
+  USER_PASSWORD_RESET_SENT: "Gửi link đặt lại mật khẩu",
+  USER_VERIFICATION_RESENT: "Gửi lại mail xác minh",
+};
+
+export function getActivityLogs(query: { action?: string; page?: number; size?: number } = {}) {
+  const params = new URLSearchParams();
+  if (query.action) params.set("action", query.action);
+  if (query.page !== undefined) params.set("page", String(query.page));
+  if (query.size !== undefined) params.set("size", String(query.size));
+  const qs = params.toString();
+  return apiFetch<ActivityLogPage>(`${BASE}/activity-logs${qs ? `?${qs}` : ""}`);
+}

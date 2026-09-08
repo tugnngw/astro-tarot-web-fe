@@ -1,12 +1,23 @@
 import { useEffect, useId, useState } from "react";
-import { AlertCircle, Lock, Search, ShieldCheck, Unlock, UserX } from "lucide-react";
+import {
+  AlertCircle,
+  Lock,
+  Search,
+  ShieldCheck,
+  Unlock,
+  UserPlus,
+  UserX,
+} from "lucide-react";
 import { toast } from "sonner";
 import { RoleBadge } from "@/components/RoleBadge";
 import {
   useManagedUsers,
+  useUpdateRoleBulk,
   useUpdateUserRole,
   useUpdateUserStatus,
 } from "@/features/admin/queries";
+import { UserDetailPanel } from "@/features/admin/components/UserDetailPanel";
+import { CreateUserDialog } from "@/features/admin/components/CreateUserDialog";
 import { ACCOUNT_STATUS_LABEL, type AccountStatus, type ManagedUser } from "@/api/admin";
 import { ROLE_DESCRIPTION, toAppRole, type AccountRole } from "@/lib/roles";
 
@@ -42,6 +53,11 @@ export function UserDirectory({
   const [role, setRole] = useState("");
   const [status, setStatus] = useState("");
   const [page, setPage] = useState(0);
+  const [detailId, setDetailId] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
+  // Chọn nhiều để đổi vai trò hàng loạt. Giữ theo id chứ không theo chỉ số
+  // hàng: đổi trang hay đổi bộ lọc là chỉ số trỏ sang người khác.
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const t = setTimeout(() => setDebounced(keyword.trim()), 350);
@@ -62,11 +78,37 @@ export function UserDirectory({
   });
 
   const changeRole = useUpdateUserRole();
+  const changeRoleBulk = useUpdateRoleBulk();
   const changeStatus = useUpdateUserStatus();
 
   const users = query.data?.content ?? [];
   const totalPages = query.data?.totalPages ?? 0;
-  const busy = changeRole.isPending || changeStatus.isPending;
+  const busy = changeRole.isPending || changeStatus.isPending || changeRoleBulk.isPending;
+
+  // Chỉ những hàng BE cho phép sửa mới được chọn — nếu không, thao tác hàng
+  // loạt sẽ bị rollback toàn bộ chỉ vì lỡ tick một tài khoản ngoài tầm.
+  const selectableIds = users.filter((u) => u.editable).map((u) => u.id);
+  const allSelected = selectableIds.length > 0 && selectableIds.every((id) => selected.has(id));
+
+  function toggle(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  async function applyBulkRole(role: AccountRole) {
+    const ids = [...selected];
+    try {
+      await changeRoleBulk.mutateAsync({ userIds: ids, role });
+      toast.success(`Đã đổi vai trò cho ${ids.length} tài khoản`);
+      setSelected(new Set());
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Không đổi được vai trò hàng loạt");
+    }
+  }
 
   async function handleRole(user: ManagedUser, next: AccountRole) {
     if (next === user.role) return;
@@ -102,11 +144,21 @@ export function UserDirectory({
             </p>
           )}
         </div>
-        {query.isSuccess && (
-          <p className="text-xs text-muted-foreground">
-            {query.data.totalElements} tài khoản
-          </p>
-        )}
+        <div className="flex items-center gap-3">
+          {query.isSuccess && (
+            <p className="text-xs text-muted-foreground">
+              {query.data.totalElements} tài khoản
+            </p>
+          )}
+          <button
+            type="button"
+            onClick={() => setCreating(true)}
+            className="inline-flex items-center gap-2 rounded-full border border-gold/50 px-4 py-1.5 text-sm text-gold transition hover:bg-gold/10"
+          >
+            <UserPlus aria-hidden="true" className="h-4 w-4" />
+            Tạo tài khoản
+          </button>
+        </div>
       </div>
 
       {/* Bộ lọc */}
@@ -155,6 +207,43 @@ export function UserDirectory({
         </select>
       </div>
 
+      {/* Thanh thao tác hàng loạt. Chỉ hiện khi đã chọn — một thanh trống
+          thường trực chỉ chiếm chỗ và làm người dùng tưởng nó hỏng. */}
+      {selected.size > 0 && (
+        <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-gold/40 bg-gold/5 px-4 py-3">
+          <span className="text-sm">
+            Đã chọn <strong className="text-gold">{selected.size}</strong> tài khoản
+          </span>
+          <label className="flex items-center gap-2 text-sm text-muted-foreground">
+            Đổi tất cả thành
+            <select
+              aria-label="Vai trò áp dụng cho các tài khoản đã chọn"
+              defaultValue=""
+              disabled={busy}
+              onChange={(e) => {
+                if (e.target.value) void applyBulkRole(e.target.value as AccountRole);
+                e.target.value = "";
+              }}
+              className="rounded-full border border-gold/40 bg-input/70 px-3 py-1 text-xs text-foreground outline-none focus:border-gold disabled:opacity-50"
+            >
+              <option value="">Chọn vai trò…</option>
+              {assignableRoles.map((r) => (
+                <option key={r} value={r}>
+                  {ROLE_LABEL_SHORT[r]}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button
+            type="button"
+            onClick={() => setSelected(new Set())}
+            className="ml-auto text-xs text-muted-foreground hover:text-gold"
+          >
+            Bỏ chọn
+          </button>
+        </div>
+      )}
+
       {/* Bảng */}
       <div aria-live="polite" aria-busy={query.isFetching} className="mt-5">
         {query.isError ? (
@@ -194,6 +283,25 @@ export function UserDirectory({
             <table className="w-full min-w-[760px] border-collapse text-sm">
               <thead>
                 <tr className="border-b border-gold/15 text-left text-xs uppercase tracking-[0.15em] text-muted-foreground">
+                  <th scope="col" className="w-1 py-2 pr-3">
+                    <input
+                      type="checkbox"
+                      aria-label="Chọn tất cả tài khoản sửa được trên trang này"
+                      checked={allSelected}
+                      disabled={selectableIds.length === 0}
+                      onChange={(e) =>
+                        setSelected((prev) => {
+                          const next = new Set(prev);
+                          for (const id of selectableIds) {
+                            if (e.target.checked) next.add(id);
+                            else next.delete(id);
+                          }
+                          return next;
+                        })
+                      }
+                      className="h-3.5 w-3.5 accent-[var(--gold)]"
+                    />
+                  </th>
                   <th scope="col" className="py-2 pr-3 font-normal">Tài khoản</th>
                   <th scope="col" className="py-2 pr-3 font-normal">Vai trò</th>
                   <th scope="col" className="py-2 pr-3 font-normal">Trạng thái</th>
@@ -209,6 +317,17 @@ export function UserDirectory({
                     key={u.id}
                     className="border-b border-white/5 align-middle last:border-0"
                   >
+                    <td className="py-3 pr-3">
+                      <input
+                        type="checkbox"
+                        aria-label={`Chọn `}
+                        checked={selected.has(u.id)}
+                        disabled={!u.editable}
+                        onChange={() => toggle(u.id)}
+                        className="h-3.5 w-3.5 accent-[var(--gold)] disabled:opacity-30"
+                      />
+                    </td>
+
                     <td className="py-3 pr-3">
                       <div className="flex items-center gap-3">
                         {u.avatar ? (
@@ -226,7 +345,13 @@ export function UserDirectory({
                           </span>
                         )}
                         <div className="min-w-0">
-                          <p className="truncate text-foreground">{u.fullName}</p>
+                          <button
+                            type="button"
+                            onClick={() => setDetailId(u.id)}
+                            className="block max-w-full truncate text-left text-foreground transition hover:text-gold"
+                          >
+                            {u.fullName}
+                          </button>
                           <p className="truncate text-xs text-muted-foreground">
                             {u.email ?? `@${u.username}`}
                             {!u.emailVerified && u.email && (
@@ -353,6 +478,14 @@ export function UserDirectory({
         đó — quyền nằm trong token đã cấp, không thu hồi thì token cũ vẫn dùng
         được tới khi hết hạn.
       </p>
+
+      <UserDetailPanel userId={detailId} onClose={() => setDetailId(null)} />
+      {creating && (
+        <CreateUserDialog
+          assignableRoles={assignableRoles}
+          onClose={() => setCreating(false)}
+        />
+      )}
     </section>
   );
 }

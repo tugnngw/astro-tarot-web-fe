@@ -9,6 +9,7 @@ import { RoleGuard } from "@/components/RoleGuard";
 import { NotWiredYet, WorkspaceShell } from "@/components/WorkspaceShell";
 import { UserDirectory } from "@/features/admin/components/UserDirectory";
 import { ReaderApplications } from "@/features/admin/components/ReaderApplications";
+import { ActivityLogTable } from "@/features/admin/components/ActivityLogTable";
 import { ROLE_DESCRIPTION, APP_ROLES, ROLE_PERMISSIONS, ROLE_LABEL } from "@/lib/roles";
 import { RoleBadge } from "@/components/RoleBadge";
 
@@ -42,6 +43,11 @@ function AdminWorkspace() {
           key: "applications",
           label: "Hồ sơ Reader",
           render: () => <ReaderApplications />,
+        },
+        {
+          key: "audit",
+          label: "Nhật ký hệ thống",
+          render: () => <ActivityLogTable />,
         },
         {
           key: "matrix",
