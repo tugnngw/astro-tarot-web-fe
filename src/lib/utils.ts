@@ -130,3 +130,15 @@ export function getUserTimezone(): string {
     return "Asia/Ho_Chi_Minh";
   }
 }
+
+/**
+ * Format số theo locale vi-VN, cố định.
+ *
+ * KHÔNG dùng n.toLocaleString() trần: Node (lúc SSR) và trình duyệt có thể
+ * resolve ra locale khác nhau, cho ra "18.420" ở server và "18,420" ở client
+ * -> React ném "Hydration failed because the server rendered text that didn't
+ * match the client". Luôn truyền locale tường minh cho mọi giá trị được SSR.
+ */
+export function formatNumber(n: number): string {
+  return new Intl.NumberFormat("vi-VN").format(n);
+}

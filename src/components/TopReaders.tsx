@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Link } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
+import { formatNumber } from "@/lib/utils";
 
 const READERS = [
   {
@@ -82,7 +83,7 @@ export function TopReaders({ vertical = false }: { vertical?: boolean }) {
                 {r.expertise}
               </div>
               <div className="mt-0.5 inline-flex items-center gap-1 text-[10px] text-muted-foreground">
-                <Eye className="h-3 w-3" /> {r.views.toLocaleString()}
+                <Eye className="h-3 w-3" /> {formatNumber(r.views)}
               </div>
             </div>
             <div className="relative flex shrink-0 flex-col gap-1.5">
@@ -157,7 +158,7 @@ export function TopReaders({ vertical = false }: { vertical?: boolean }) {
               <span className="text-foreground font-medium">{r.rating}</span>
             </span>
             <span className="inline-flex items-center gap-1">
-              <Eye className="h-3.5 w-3.5" /> {r.views.toLocaleString()}
+              <Eye className="h-3.5 w-3.5" /> {formatNumber(r.views)}
             </span>
           </div>
           <div className="relative mt-4 flex gap-2">
