@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VerifyEmailRouteImport } from './routes/verify-email'
+import { Route as TarotHistoryRouteImport } from './routes/tarot-history'
 import { Route as TarotRouteImport } from './routes/tarot'
 import { Route as SupportRouteImport } from './routes/support'
 import { Route as StaffRouteImport } from './routes/staff'
@@ -31,6 +32,11 @@ import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 const VerifyEmailRoute = VerifyEmailRouteImport.update({
   id: '/verify-email',
   path: '/verify-email',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TarotHistoryRoute = TarotHistoryRouteImport.update({
+  id: '/tarot-history',
+  path: '/tarot-history',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TarotRoute = TarotRouteImport.update({
@@ -133,6 +139,7 @@ export interface FileRoutesByFullPath {
   '/staff': typeof StaffRoute
   '/support': typeof SupportRoute
   '/tarot': typeof TarotRoute
+  '/tarot-history': typeof TarotHistoryRoute
   '/verify-email': typeof VerifyEmailRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/profile/astrology': typeof ProfileAstrologyRoute
@@ -153,6 +160,7 @@ export interface FileRoutesByTo {
   '/staff': typeof StaffRoute
   '/support': typeof SupportRoute
   '/tarot': typeof TarotRoute
+  '/tarot-history': typeof TarotHistoryRoute
   '/verify-email': typeof VerifyEmailRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/profile/astrology': typeof ProfileAstrologyRoute
@@ -174,6 +182,7 @@ export interface FileRoutesById {
   '/staff': typeof StaffRoute
   '/support': typeof SupportRoute
   '/tarot': typeof TarotRoute
+  '/tarot-history': typeof TarotHistoryRoute
   '/verify-email': typeof VerifyEmailRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/profile/astrology': typeof ProfileAstrologyRoute
@@ -196,6 +205,7 @@ export interface FileRouteTypes {
     | '/staff'
     | '/support'
     | '/tarot'
+    | '/tarot-history'
     | '/verify-email'
     | '/blog/$slug'
     | '/profile/astrology'
@@ -216,6 +226,7 @@ export interface FileRouteTypes {
     | '/staff'
     | '/support'
     | '/tarot'
+    | '/tarot-history'
     | '/verify-email'
     | '/blog/$slug'
     | '/profile/astrology'
@@ -236,6 +247,7 @@ export interface FileRouteTypes {
     | '/staff'
     | '/support'
     | '/tarot'
+    | '/tarot-history'
     | '/verify-email'
     | '/blog/$slug'
     | '/profile/astrology'
@@ -257,6 +269,7 @@ export interface RootRouteChildren {
   StaffRoute: typeof StaffRoute
   SupportRoute: typeof SupportRoute
   TarotRoute: typeof TarotRoute
+  TarotHistoryRoute: typeof TarotHistoryRoute
   VerifyEmailRoute: typeof VerifyEmailRoute
   BlogSlugRoute: typeof BlogSlugRoute
   ReadersIdRoute: typeof ReadersIdRoute
@@ -270,6 +283,13 @@ declare module '@tanstack/react-router' {
       path: '/verify-email'
       fullPath: '/verify-email'
       preLoaderRoute: typeof VerifyEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tarot-history': {
+      id: '/tarot-history'
+      path: '/tarot-history'
+      fullPath: '/tarot-history'
+      preLoaderRoute: typeof TarotHistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tarot': {
@@ -419,6 +439,7 @@ const rootRouteChildren: RootRouteChildren = {
   StaffRoute: StaffRoute,
   SupportRoute: SupportRoute,
   TarotRoute: TarotRoute,
+  TarotHistoryRoute: TarotHistoryRoute,
   VerifyEmailRoute: VerifyEmailRoute,
   BlogSlugRoute: BlogSlugRoute,
   ReadersIdRoute: ReadersIdRoute,

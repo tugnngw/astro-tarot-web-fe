@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import {
   ChevronDown,
   User as UserIcon,
+  History,
   Settings,
   LogOut,
   CalendarClock,
@@ -157,6 +158,14 @@ export function Header() {
                         a: () => {
                           setOpen(false);
                           navigate({ to: "/bookings" });
+                        },
+                      },
+                      {
+                        ic: History,
+                        l: "Lịch sử trải bài",
+                        a: () => {
+                          setOpen(false);
+                          navigate({ to: "/tarot-history" });
                         },
                       },
                       {
