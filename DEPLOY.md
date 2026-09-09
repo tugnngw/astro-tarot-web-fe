@@ -61,7 +61,38 @@ build.
 
 ---
 
-## Các bước
+## Trang đang chạy ở đâu
+
+**https://astro-tarot-web-fe.vercel.app**
+
+Deploy bằng **Vercel CLI từ máy**, không nối với GitHub. Lý do: repo thuộc tài
+khoản `tugnngw`, còn Vercel thì thuộc `Megalit2578`, và Vercel chỉ nhập được
+repo mà nó đã được cài GitHub App lên đó — kể cả repo public, kể cả khi nhập
+bằng URL trực tiếp.
+
+### Deploy lại sau khi sửa code
+
+```bash
+npx vercel deploy --prod
+```
+
+Chạy trong thư mục này. **Push lên git KHÔNG tự deploy** — đây là điểm khác
+biệt lớn nhất so với cách nối GitHub, rất dễ quên rồi ngồi thắc mắc sao sửa mãi
+mà trang không đổi.
+
+Thư mục `.vercel/` (đã gitignore) giữ liên kết tới dự án; xoá nó đi thì lần sau
+CLI sẽ hỏi lại và có thể tạo nhầm một dự án mới.
+
+### Muốn có tự động deploy mỗi lần push
+
+Nhờ chủ repo `tugnngw` cài [Vercel GitHub App](https://github.com/apps/vercel)
+cho repo `astro-tarot-web-fe`, rồi ở Project Settings → Git nối vào và chọn
+nhánh `feat/dat-branch`. Hoặc chạy `npx vercel git connect` sau khi app đã được
+cài.
+
+---
+
+## Các bước (nếu dựng lại từ đầu bằng giao diện web)
 
 ### 1. Nhập dự án vào Vercel
 
@@ -108,14 +139,19 @@ tự động chuyển sang dữ liệu giả, và console in ra:
 Bấm Deploy. Xong thì Vercel cho một domain dạng `ten-du-an.vercel.app`.
 
 **Chưa xong ở đây.** Backend phải biết domain đó, nếu không trình duyệt chặn mọi
-lời gọi API vì CORS. Trên VPS, sửa `.env` của backend:
+lời gọi API vì CORS. Domain hiện tại là `https://astro-tarot-web-fe.vercel.app`.
 
-```bash
-FRONTEND_URL=https://ten-du-an.vercel.app
-CORS_ALLOWED_ORIGINS=https://ten-du-an.vercel.app
+Trên Render, đặt hai biến môi trường (Environment → Environment Variables):
+
+```
+FRONTEND_URL=https://astro-tarot-web-fe.vercel.app
+CORS_ALLOWED_ORIGINS=https://astro-tarot-web-fe.vercel.app
 ```
 
-rồi khởi động lại:
+Render tự deploy lại khi đổi biến môi trường.
+
+Nếu chạy trên VPS thì sửa `.env` của backend với đúng hai dòng trên rồi khởi
+động lại:
 
 ```bash
 docker compose -f docker-compose.prod.yml up -d backend
