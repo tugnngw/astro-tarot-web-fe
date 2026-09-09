@@ -1,0 +1,23 @@
+# Deploy bằng CLI thì Vercel đóng gói cả thư mục này gửi lên, chứ không lấy từ
+# git. Nghĩa là những file .gitignore vẫn nằm trong máy sẽ bị gửi theo nếu
+# không chặn ở đây.
+#
+# Quan trọng nhất là .env: build trên Vercel đọc .env ở thư mục gốc, nên nếu
+# file đó lọt lên thì VITE_API_BASE_URL=http://localhost:8080 sẽ bị nhúng vào
+# bản chạy thật — trang lên bình thường rồi mọi lời gọi API chạy tới localhost
+# của máy người xem.
+.env
+.env.local
+.env.*.local
+
+node_modules
+dist
+.output
+.nitro
+.tanstack
+.vercel
+
+.git
+.idea
+.vscode
+*.log
