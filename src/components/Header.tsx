@@ -3,40 +3,33 @@ import { useEffect, useState } from "react";
 import {
   ChevronDown,
   User as UserIcon,
-  BookMarked,
-  Bell,
+  History,
   Settings,
   LogOut,
-  History,
-  ShoppingBag,
-  Package,
+  CalendarClock,
+  LifeBuoy,
   Menu,
   X,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
-import { useCart } from "@/lib/cart-context";
+import { avatarUrl } from "@/api/profile";
+import { PUBLIC_NAV, workspaceNavFor } from "@/lib/roles";
+import { RoleBadge } from "./RoleBadge";
+import { NotificationBell } from "./NotificationBell";
 import { LogoutConfirm } from "./LogoutConfirm";
 import { ScrollProgress } from "./ScrollProgress";
 import logo from "@/assets/logo-astrotarot.png";
 
-/** Ba phần chính của sản phẩm, dùng chung cho nav desktop và menu mobile. */
-const NAV_LINKS = [
-  { to: "/", label: "Trang chủ" },
-  { to: "/tarot", label: "Tarot AI" },
-  { to: "/readers", label: "Reader" },
-  { to: "/shop", label: "Shop" },
-] as const;
-
 export function Header() {
   const { user, openAuth } = useAuth();
-  const { cart } = useCart();
+  // Link khu vực làm việc suy ra từ QUYỀN, không phải từ tên vai trò: thêm một
+  // vai trò mới thì chỉ sửa bảng ở @/lib/roles, không phải sửa header.
+  const workspaceLinks = workspaceNavFor(user);
   const [open, setOpen] = useState(false);
   const [logoutOpen, setLogoutOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-
-  const cartCount = cart?.totalQuantity ?? 0;
 
   // Đổi trang thì đóng cả hai menu, nếu không chúng treo lại trên trang mới.
   useEffect(() => {
@@ -80,7 +73,7 @@ export function Header() {
           </Link>
 
           <nav className="hidden items-center gap-7 text-sm md:flex">
-            {NAV_LINKS.map((l) => (
+            {PUBLIC_NAV.map((l) => (
               <Link
                 key={l.to}
                 to={l.to}
@@ -91,40 +84,22 @@ export function Header() {
                 {l.label}
               </Link>
             ))}
-            {user?.role === "admin" && (
+            {workspaceLinks.map((l) => (
               <Link
-                to="/admin"
+                key={l.to}
+                to={l.to}
                 className="text-gold transition hover:underline"
+                activeProps={{ className: "underline" }}
               >
-                Admin
+                {l.label}
               </Link>
-            )}
-            {user?.role === "reader" && (
-              <Link
-                to="/reader"
-                className="text-gold transition hover:underline"
-              >
-                Workspace
-              </Link>
-            )}
+            ))}
           </nav>
 
           <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-            {/* Giỏ hàng: chỉ hiện khi đã đăng nhập, vì giỏ nằm ở BE theo user. */}
-            {user && (
-              <Link
-                to="/cart"
-                aria-label={`Giỏ hàng, ${cartCount} sản phẩm`}
-                className="relative grid h-9 w-9 place-items-center rounded-full border border-gold/40 bg-card/60 transition hover:border-gold"
-              >
-                <ShoppingBag className="h-4 w-4 text-gold" />
-                {cartCount > 0 && (
-                  <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-gold px-1 text-[10px] font-semibold text-primary-foreground">
-                    {cartCount > 99 ? "99+" : cartCount}
-                  </span>
-                )}
-              </Link>
-            )}
+            {/* Chuông thông báo. Đứng cạnh giỏ hàng vì cùng là chỉ báo có việc
+                cần xử lý, và cùng chỉ có nghĩa khi đã đăng nhập. */}
+            <NotificationBell />
 
             {user ? (
               <div className="relative">
@@ -132,8 +107,23 @@ export function Header() {
                   onClick={() => setOpen((v) => !v)}
                   className="flex items-center gap-2 rounded-full border border-gold/40 bg-card/60 px-2 py-1.5 text-sm transition hover:border-gold sm:px-3"
                 >
-                  <span className="grid h-7 w-7 place-items-center rounded-full bg-gold text-primary-foreground">
-                    <UserIcon className="h-4 w-4" />
+                  <span className="grid h-7 w-7 place-items-center overflow-hidden rounded-full bg-gold text-primary-foreground">
+                    {/*
+                      Trước đây ô này luôn vẽ UserIcon mặc định, kể cả khi người
+                      dùng đã tải ảnh đại diện lên — nên đổi avatar ở trang hồ sơ
+                      xong quay ra header vẫn thấy hình người xám. avatarUrl ghép
+                      API_BASE cho đường dẫn tương đối BE trả về (và trả nguyên
+                      nếu đã là URL đầy đủ).
+                    */}
+                    {user.avatar ? (
+                      <img
+                        src={avatarUrl(user.avatar) ?? ""}
+                        alt=""
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <UserIcon className="h-4 w-4" />
+                    )}
                   </span>
                   <span className="hidden text-foreground sm:inline">
                     {user.name}
@@ -151,9 +141,7 @@ export function Header() {
                       <div className="text-xs text-muted-foreground">
                         {user.email}
                       </div>
-                      <span className="mt-2 inline-block rounded-full bg-gold/20 px-2 py-0.5 text-[10px] uppercase tracking-wider text-gold">
-                        {user.role}
-                      </span>
+                      <RoleBadge role={user.role} className="mt-2" />
                     </div>
                     {[
                       {
@@ -165,17 +153,43 @@ export function Header() {
                         },
                       },
                       {
-                        ic: Package,
-                        l: "Đơn hàng của tôi",
+                        ic: CalendarClock,
+                        l: "Lịch hẹn của tôi",
                         a: () => {
                           setOpen(false);
-                          navigate({ to: "/orders" });
+                          navigate({ to: "/bookings" });
                         },
                       },
-                      { ic: History, l: "Lịch sử tư vấn" },
-                      { ic: BookMarked, l: "Bài viết đã lưu" },
-                      { ic: Bell, l: "Thông báo" },
-                      { ic: Settings, l: "Cài đặt tài khoản" },
+                      {
+                        ic: History,
+                        l: "Lịch sử trải bài",
+                        a: () => {
+                          setOpen(false);
+                          navigate({ to: "/tarot-history" });
+                        },
+                      },
+                      {
+                        ic: LifeBuoy,
+                        l: "Hỗ trợ",
+                        a: () => {
+                          setOpen(false);
+                          navigate({ to: "/support" });
+                        },
+                      },
+                      // "Cài đặt tài khoản" mở thẳng trang hồ sơ — nơi đổi
+                      // thông tin và ảnh đại diện. Ba mục cũ (Lịch sử tư vấn,
+                      // Bài viết đã lưu, Thông báo) đã bỏ: chúng là nút chết,
+                      // bấm không ra gì vì chưa có trang/endpoint phía sau, và
+                      // riêng "Thông báo" trùng với chuông ngay cạnh. Thà bớt
+                      // mục còn hơn để người dùng bấm vào khoảng không.
+                      {
+                        ic: Settings,
+                        l: "Cài đặt tài khoản",
+                        a: () => {
+                          setOpen(false);
+                          navigate({ to: "/profile" });
+                        },
+                      },
                     ].map(({ ic: Ic, l, a }) => (
                       <button
                         key={l}
@@ -234,7 +248,7 @@ export function Header() {
         {mobileOpen && (
           <nav className="border-t border-gold/20 px-4 py-3 md:hidden">
             <div className="flex flex-col">
-              {NAV_LINKS.map((l) => (
+              {PUBLIC_NAV.map((l) => (
                 <Link
                   key={l.to}
                   to={l.to}
@@ -248,31 +262,23 @@ export function Header() {
               ))}
               {user && (
                 <Link
-                  to="/orders"
+                  to="/bookings"
                   onClick={() => setMobileOpen(false)}
                   className="rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition hover:bg-gold/10 hover:text-gold"
                 >
-                  Đơn hàng của tôi
+                  Lịch hẹn của tôi
                 </Link>
               )}
-              {user?.role === "admin" && (
+              {workspaceLinks.map((l) => (
                 <Link
-                  to="/admin"
+                  key={l.to}
+                  to={l.to}
                   onClick={() => setMobileOpen(false)}
                   className="rounded-lg px-3 py-2.5 text-sm text-gold"
                 >
-                  Admin
+                  {l.label}
                 </Link>
-              )}
-              {user?.role === "reader" && (
-                <Link
-                  to="/reader"
-                  onClick={() => setMobileOpen(false)}
-                  className="rounded-lg px-3 py-2.5 text-sm text-gold"
-                >
-                  Workspace
-                </Link>
-              )}
+              ))}
               {!user && (
                 <button
                   onClick={() => {

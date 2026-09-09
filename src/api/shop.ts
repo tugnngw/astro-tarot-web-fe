@@ -32,6 +32,12 @@ export interface Product {
   imageUrl: string | null;
   /** true khi imageUrl là ảnh minh hoạ, không phải ảnh chụp đúng sản phẩm. */
   imageIsIllustrative?: boolean;
+  /** Đường dẫn sang sàn. NULL nghĩa là chưa gắn link — giao diện ẩn nút mua. */
+  affiliateUrl: string | null;
+  affiliatePlatform: string | null;
+  /** Chỉ để ước lượng. Số hoa hồng thật lấy từ báo cáo của sàn. */
+  commissionPercent: number | null;
+  clickCount: number | null;
   featured: boolean;
   categoryName: string | null;
   categorySlug: string | null;
@@ -153,6 +159,30 @@ export function getProduct(slug: string) {
     { auth: false },
   );
 }
+
+/**
+ * Ghi nhận lượt bấm rồi trả về đường dẫn sang sàn.
+ *
+ * Server trả link để GIAO DIỆN tự mở, không dùng 302: mở bằng window.open ngay
+ * trong cú bấm của người dùng thì trình duyệt không chặn popup, còn chuyển
+ * hướng vòng qua server sẽ mất referrer mà sàn liên kết cần để ghi công.
+ */
+export function trackAffiliateClick(slug: string) {
+  return apiFetch<{ url: string }>(
+    `${BASE}/products/${encodeURIComponent(slug)}/click`,
+    { method: "POST" },
+    { auth: false },
+  );
+}
+
+/** Nhãn sàn cho giao diện. */
+export const PLATFORM_LABEL: Record<string, string> = {
+  SHOPEE: "Shopee",
+  LAZADA: "Lazada",
+  TIKI: "Tiki",
+  TIKTOK: "TikTok Shop",
+  OTHER: "sàn liên kết",
+};
 
 // ---------- Giỏ hàng (cần đăng nhập) ----------
 // Mọi thao tác đều trả về giỏ đầy đủ, nên caller chỉ cần thay nguyên state.

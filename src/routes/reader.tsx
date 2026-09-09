@@ -1,4 +1,6 @@
-// Reader Workspace — chỉ role READER mới được vào (bảo vệ qua <RoleGuard />).
+// Reader Workspace — nay thuộc về STAFF: READER đã gộp vào STAFF (xem
+// src/lib/roles.ts). Chặn theo quyền READER_MANAGE_PROFILE, tức là người tự
+// quản lý được hồ sơ và lịch Reader của mình.
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import {
@@ -27,7 +29,7 @@ import {
 export const Route = createFileRoute("/reader")({
   head: () => ({ meta: [{ title: "Reader Workspace — ASTROTAROT" }] }),
   component: () => (
-    <RoleGuard allow={["reader"]}>
+    <RoleGuard require={["READER_MANAGE_PROFILE"]}>
       <ReaderPage />
     </RoleGuard>
   ),
@@ -39,7 +41,7 @@ function readerIdFor(_email: string): string {
 }
 
 function ReaderPage() {
-  // RoleGuard đã bảo đảm role === "reader", user chắc chắn tồn tại ở đây.
+  // RoleGuard đã bảo đảm user tồn tại và có quyền quản lý hồ sơ Reader.
   const { user } = useAuth();
   const readerId = readerIdFor(user!.email); // map account → reader_profiles.id
   const slots = useSlots(readerId); // lịch trống do reader tự thêm

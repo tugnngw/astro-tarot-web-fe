@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { formatVND } from "@/lib/mock-data";
+import { BuyOnPlatformButton } from "@/features/shop/components/BuyOnPlatformButton";
 import { ProductArtwork } from "@/components/ProductArtwork";
 import { IllustrativeNote } from "@/components/IllustrativeNote";
 import { useFeaturedProducts } from "@/features/shop/queries";
@@ -51,11 +52,15 @@ export function FeaturedProducts() {
               />
             ))
           : products.map((p) => (
-              <motion.article key={p.id} whileHover={{ y: -4 }}>
+              <motion.article
+                key={p.id}
+                whileHover={{ y: -4 }}
+                className="glass flex flex-col overflow-hidden rounded-2xl"
+              >
                 <Link
                   to="/shop/$slug"
                   params={{ slug: p.slug }}
-                  className="glass block overflow-hidden rounded-2xl"
+                  className="block"
                 >
                   <div className="relative aspect-[4/3] bg-mystic/10">
                     {p.imageUrl ? (
@@ -74,7 +79,7 @@ export function FeaturedProducts() {
                     )}
                     {p.imageIsIllustrative && p.imageUrl && <IllustrativeNote />}
                   </div>
-                  <div className="p-4">
+                  <div className="flex flex-1 flex-col p-4">
                     {p.categoryName && (
                       <p className="text-[10px] uppercase tracking-[0.2em] text-gold/70">
                         {p.categoryName}
@@ -88,6 +93,13 @@ export function FeaturedProducts() {
                     </p>
                   </div>
                 </Link>
+
+                {/* Nút mua nằm NGOÀI link tới trang chi tiết: lồng một nút vào
+                    trong thẻ <a> là HTML không hợp lệ, và bấm nút sẽ kéo theo
+                    điều hướng của link cha. */}
+                <div className="mt-auto px-4 pb-4">
+                  <BuyOnPlatformButton product={p} />
+                </div>
               </motion.article>
             ))}
       </div>

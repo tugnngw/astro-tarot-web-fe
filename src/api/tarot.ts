@@ -59,3 +59,44 @@ export async function startAiTarotReading(
     body: JSON.stringify(payload),
   });
 }
+
+// ============================================================
+// LỊCH SỬ TRẢI BÀI — GET /api/ai-readings
+// Khớp ReadingHistoryItem + Page của BE. Mỗi người chỉ thấy lượt của mình
+// (BE lấy danh tính từ token, không nhận userId từ ngoài).
+// ============================================================
+
+export interface ReadingHistoryItem {
+  id: string;
+  mainQuestion: string;
+  sessionType: string | null;
+  aiModelUsed: string | null;
+  createdAt: string;
+}
+
+export interface ReadingHistoryPage {
+  content: ReadingHistoryItem[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  first: boolean;
+  last: boolean;
+}
+
+export function getReadingHistory(page = 0, size = 20) {
+  return apiFetch<ReadingHistoryPage>(`/api/ai-readings?page=${page}&size=${size}`);
+}
+
+/** Tin nhắn của một lượt trải bài — dùng để xem lại lời giải AI đã lưu. */
+export interface ReadingMessage {
+  id: string;
+  senderType: string; // USER | AI
+  content: string;
+  createdAt: string;
+}
+
+export function getReadingMessages(readingId: string) {
+  return apiFetch<ReadingMessage[] | { content: ReadingMessage[] }>(
+    `/api/ai-readings/${readingId}/chat/messages`,
+  );
+}

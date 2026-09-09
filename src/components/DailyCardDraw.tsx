@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { RelatedProducts } from "@/features/shop/components/RelatedProducts";
 import { Sparkles, RotateCcw, ArrowRight } from "lucide-react";
 import { MAJOR_ARCANA, getDailyCard, type TarotCard } from "@/lib/tarot-cards";
 import { OrnateFrame } from "@/components/OrnateFrame";
@@ -208,6 +209,14 @@ function Revealed({
             <ArrowRight aria-hidden="true" className="ml-0.5 inline h-3 w-3" />
           </Link>
         </p>
+
+        {/* Liên hệ có thật, không phải ghép cho có: ảnh lá bài ở trên lấy từ
+            chính bản in Rider-Waite-Smith 1909 — cùng bộ bài đang bán. */}
+        <RelatedProducts
+          categorySlug="bai-tarot"
+          title="Muốn tự rút bài ở nhà?"
+          hint="Ảnh lá bài phía trên lấy từ bộ Rider-Waite-Smith. Đây là những bộ bài cùng dòng."
+        />
       </div>
     </div>
   );

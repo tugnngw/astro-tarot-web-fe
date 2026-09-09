@@ -5,6 +5,7 @@ dist
 .output
 .nitro
 .tanstack
+.vercel
 
 # Environment
 .env
@@ -18,3 +19,5 @@ dist
 
 # Logs
 *.log
+
+.vercel

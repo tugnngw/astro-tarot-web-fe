@@ -10,19 +10,22 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VerifyEmailRouteImport } from './routes/verify-email'
+import { Route as TarotHistoryRouteImport } from './routes/tarot-history'
 import { Route as TarotRouteImport } from './routes/tarot'
+import { Route as SupportRouteImport } from './routes/support'
+import { Route as StaffRouteImport } from './routes/staff'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ReadersRouteImport } from './routes/readers'
 import { Route as ReaderHubRouteImport } from './routes/reader-hub'
 import { Route as ReaderRouteImport } from './routes/reader'
 import { Route as ProfileRouteImport } from './routes/profile'
-import { Route as OrdersRouteImport } from './routes/orders'
-import { Route as CartRouteImport } from './routes/cart'
+import { Route as ManagerRouteImport } from './routes/manager'
+import { Route as BookingsRouteImport } from './routes/bookings'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShopSlugRouteImport } from './routes/shop_.$slug'
-import { Route as ReadersIdRouteImport } from './routes/readers.$id'
+import { Route as ReadersIdRouteImport } from './routes/readers_.$id'
 import { Route as ProfileAstrologyRouteImport } from './routes/profile/astrology'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 
@@ -31,9 +34,24 @@ const VerifyEmailRoute = VerifyEmailRouteImport.update({
   path: '/verify-email',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TarotHistoryRoute = TarotHistoryRouteImport.update({
+  id: '/tarot-history',
+  path: '/tarot-history',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TarotRoute = TarotRouteImport.update({
   id: '/tarot',
   path: '/tarot',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SupportRoute = SupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StaffRoute = StaffRouteImport.update({
+  id: '/staff',
+  path: '/staff',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ShopRoute = ShopRouteImport.update({
@@ -66,14 +84,14 @@ const ProfileRoute = ProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OrdersRoute = OrdersRouteImport.update({
-  id: '/orders',
-  path: '/orders',
+const ManagerRoute = ManagerRouteImport.update({
+  id: '/manager',
+  path: '/manager',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CartRoute = CartRouteImport.update({
-  id: '/cart',
-  path: '/cart',
+const BookingsRoute = BookingsRouteImport.update({
+  id: '/bookings',
+  path: '/bookings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -92,9 +110,9 @@ const ShopSlugRoute = ShopSlugRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReadersIdRoute = ReadersIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => ReadersRoute,
+  id: '/readers_/$id',
+  path: '/readers/$id',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileAstrologyRoute = ProfileAstrologyRouteImport.update({
   id: '/astrology',
@@ -110,15 +128,18 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
-  '/cart': typeof CartRoute
-  '/orders': typeof OrdersRoute
+  '/bookings': typeof BookingsRoute
+  '/manager': typeof ManagerRoute
   '/profile': typeof ProfileRouteWithChildren
   '/reader': typeof ReaderRoute
   '/reader-hub': typeof ReaderHubRoute
-  '/readers': typeof ReadersRouteWithChildren
+  '/readers': typeof ReadersRoute
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRoute
+  '/staff': typeof StaffRoute
+  '/support': typeof SupportRoute
   '/tarot': typeof TarotRoute
+  '/tarot-history': typeof TarotHistoryRoute
   '/verify-email': typeof VerifyEmailRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/profile/astrology': typeof ProfileAstrologyRoute
@@ -128,15 +149,18 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
-  '/cart': typeof CartRoute
-  '/orders': typeof OrdersRoute
+  '/bookings': typeof BookingsRoute
+  '/manager': typeof ManagerRoute
   '/profile': typeof ProfileRouteWithChildren
   '/reader': typeof ReaderRoute
   '/reader-hub': typeof ReaderHubRoute
-  '/readers': typeof ReadersRouteWithChildren
+  '/readers': typeof ReadersRoute
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRoute
+  '/staff': typeof StaffRoute
+  '/support': typeof SupportRoute
   '/tarot': typeof TarotRoute
+  '/tarot-history': typeof TarotHistoryRoute
   '/verify-email': typeof VerifyEmailRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/profile/astrology': typeof ProfileAstrologyRoute
@@ -147,19 +171,22 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
-  '/cart': typeof CartRoute
-  '/orders': typeof OrdersRoute
+  '/bookings': typeof BookingsRoute
+  '/manager': typeof ManagerRoute
   '/profile': typeof ProfileRouteWithChildren
   '/reader': typeof ReaderRoute
   '/reader-hub': typeof ReaderHubRoute
-  '/readers': typeof ReadersRouteWithChildren
+  '/readers': typeof ReadersRoute
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRoute
+  '/staff': typeof StaffRoute
+  '/support': typeof SupportRoute
   '/tarot': typeof TarotRoute
+  '/tarot-history': typeof TarotHistoryRoute
   '/verify-email': typeof VerifyEmailRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/profile/astrology': typeof ProfileAstrologyRoute
-  '/readers/$id': typeof ReadersIdRoute
+  '/readers_/$id': typeof ReadersIdRoute
   '/shop_/$slug': typeof ShopSlugRoute
 }
 export interface FileRouteTypes {
@@ -167,15 +194,18 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
-    | '/cart'
-    | '/orders'
+    | '/bookings'
+    | '/manager'
     | '/profile'
     | '/reader'
     | '/reader-hub'
     | '/readers'
     | '/reset-password'
     | '/shop'
+    | '/staff'
+    | '/support'
     | '/tarot'
+    | '/tarot-history'
     | '/verify-email'
     | '/blog/$slug'
     | '/profile/astrology'
@@ -185,15 +215,18 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin'
-    | '/cart'
-    | '/orders'
+    | '/bookings'
+    | '/manager'
     | '/profile'
     | '/reader'
     | '/reader-hub'
     | '/readers'
     | '/reset-password'
     | '/shop'
+    | '/staff'
+    | '/support'
     | '/tarot'
+    | '/tarot-history'
     | '/verify-email'
     | '/blog/$slug'
     | '/profile/astrology'
@@ -203,36 +236,43 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
-    | '/cart'
-    | '/orders'
+    | '/bookings'
+    | '/manager'
     | '/profile'
     | '/reader'
     | '/reader-hub'
     | '/readers'
     | '/reset-password'
     | '/shop'
+    | '/staff'
+    | '/support'
     | '/tarot'
+    | '/tarot-history'
     | '/verify-email'
     | '/blog/$slug'
     | '/profile/astrology'
-    | '/readers/$id'
+    | '/readers_/$id'
     | '/shop_/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
-  CartRoute: typeof CartRoute
-  OrdersRoute: typeof OrdersRoute
+  BookingsRoute: typeof BookingsRoute
+  ManagerRoute: typeof ManagerRoute
   ProfileRoute: typeof ProfileRouteWithChildren
   ReaderRoute: typeof ReaderRoute
   ReaderHubRoute: typeof ReaderHubRoute
-  ReadersRoute: typeof ReadersRouteWithChildren
+  ReadersRoute: typeof ReadersRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ShopRoute: typeof ShopRoute
+  StaffRoute: typeof StaffRoute
+  SupportRoute: typeof SupportRoute
   TarotRoute: typeof TarotRoute
+  TarotHistoryRoute: typeof TarotHistoryRoute
   VerifyEmailRoute: typeof VerifyEmailRoute
   BlogSlugRoute: typeof BlogSlugRoute
+  ReadersIdRoute: typeof ReadersIdRoute
   ShopSlugRoute: typeof ShopSlugRoute
 }
 
@@ -245,11 +285,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VerifyEmailRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tarot-history': {
+      id: '/tarot-history'
+      path: '/tarot-history'
+      fullPath: '/tarot-history'
+      preLoaderRoute: typeof TarotHistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tarot': {
       id: '/tarot'
       path: '/tarot'
       fullPath: '/tarot'
       preLoaderRoute: typeof TarotRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/support': {
+      id: '/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof SupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/staff': {
+      id: '/staff'
+      path: '/staff'
+      fullPath: '/staff'
+      preLoaderRoute: typeof StaffRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/shop': {
@@ -294,18 +355,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/orders': {
-      id: '/orders'
-      path: '/orders'
-      fullPath: '/orders'
-      preLoaderRoute: typeof OrdersRouteImport
+    '/manager': {
+      id: '/manager'
+      path: '/manager'
+      fullPath: '/manager'
+      preLoaderRoute: typeof ManagerRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/cart': {
-      id: '/cart'
-      path: '/cart'
-      fullPath: '/cart'
-      preLoaderRoute: typeof CartRouteImport
+    '/bookings': {
+      id: '/bookings'
+      path: '/bookings'
+      fullPath: '/bookings'
+      preLoaderRoute: typeof BookingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -329,12 +390,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShopSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/readers/$id': {
-      id: '/readers/$id'
-      path: '/$id'
+    '/readers_/$id': {
+      id: '/readers_/$id'
+      path: '/readers/$id'
       fullPath: '/readers/$id'
       preLoaderRoute: typeof ReadersIdRouteImport
-      parentRoute: typeof ReadersRoute
+      parentRoute: typeof rootRouteImport
     }
     '/profile/astrology': {
       id: '/profile/astrology'
@@ -364,31 +425,24 @@ const ProfileRouteChildren: ProfileRouteChildren = {
 const ProfileRouteWithChildren =
   ProfileRoute._addFileChildren(ProfileRouteChildren)
 
-interface ReadersRouteChildren {
-  ReadersIdRoute: typeof ReadersIdRoute
-}
-
-const ReadersRouteChildren: ReadersRouteChildren = {
-  ReadersIdRoute: ReadersIdRoute,
-}
-
-const ReadersRouteWithChildren =
-  ReadersRoute._addFileChildren(ReadersRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
-  CartRoute: CartRoute,
-  OrdersRoute: OrdersRoute,
+  BookingsRoute: BookingsRoute,
+  ManagerRoute: ManagerRoute,
   ProfileRoute: ProfileRouteWithChildren,
   ReaderRoute: ReaderRoute,
   ReaderHubRoute: ReaderHubRoute,
-  ReadersRoute: ReadersRouteWithChildren,
+  ReadersRoute: ReadersRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ShopRoute: ShopRoute,
+  StaffRoute: StaffRoute,
+  SupportRoute: SupportRoute,
   TarotRoute: TarotRoute,
+  TarotHistoryRoute: TarotHistoryRoute,
   VerifyEmailRoute: VerifyEmailRoute,
   BlogSlugRoute: BlogSlugRoute,
+  ReadersIdRoute: ReadersIdRoute,
   ShopSlugRoute: ShopSlugRoute,
 }
 export const routeTree = rootRouteImport
