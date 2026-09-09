@@ -63,7 +63,13 @@ build.
 
 ## Trang đang chạy ở đâu
 
-**https://astro-tarot-web-fe.vercel.app**
+**https://astro-tarot-web-fe.vercel.app** — nói chuyện với backend tại
+**https://astra-tarot-api.onrender.com** (xem `DEPLOY-RENDER.md` của repo backend).
+
+Backend nằm trên gói free của Render nên **ngủ sau 15 phút không ai truy cập**.
+Lần tải đầu sau đó có thể chờ tới 90 giây trước khi dữ liệu hiện ra. Trang vẫn
+lên ngay vì phần vỏ do Vercel phục vụ; chỉ danh sách sản phẩm và Reader là phải
+đợi backend thức dậy.
 
 Deploy bằng **Vercel CLI từ máy**, không nối với GitHub. Lý do: repo thuộc tài
 khoản `tugnngw`, còn Vercel thì thuộc `Megalit2578`, và Vercel chỉ nhập được
