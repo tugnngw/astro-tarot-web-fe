@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as TarotRouteImport } from './routes/tarot'
+import { Route as SupportRouteImport } from './routes/support'
 import { Route as StaffRouteImport } from './routes/staff'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
@@ -37,6 +38,11 @@ const VerifyEmailRoute = VerifyEmailRouteImport.update({
 const TarotRoute = TarotRouteImport.update({
   id: '/tarot',
   path: '/tarot',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SupportRoute = SupportRouteImport.update({
+  id: '/support',
+  path: '/support',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StaffRoute = StaffRouteImport.update({
@@ -139,6 +145,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRoute
   '/staff': typeof StaffRoute
+  '/support': typeof SupportRoute
   '/tarot': typeof TarotRoute
   '/verify-email': typeof VerifyEmailRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -160,6 +167,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRoute
   '/staff': typeof StaffRoute
+  '/support': typeof SupportRoute
   '/tarot': typeof TarotRoute
   '/verify-email': typeof VerifyEmailRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -182,6 +190,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRoute
   '/staff': typeof StaffRoute
+  '/support': typeof SupportRoute
   '/tarot': typeof TarotRoute
   '/verify-email': typeof VerifyEmailRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -205,6 +214,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/shop'
     | '/staff'
+    | '/support'
     | '/tarot'
     | '/verify-email'
     | '/blog/$slug'
@@ -226,6 +236,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/shop'
     | '/staff'
+    | '/support'
     | '/tarot'
     | '/verify-email'
     | '/blog/$slug'
@@ -247,6 +258,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/shop'
     | '/staff'
+    | '/support'
     | '/tarot'
     | '/verify-email'
     | '/blog/$slug'
@@ -269,6 +281,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   ShopRoute: typeof ShopRoute
   StaffRoute: typeof StaffRoute
+  SupportRoute: typeof SupportRoute
   TarotRoute: typeof TarotRoute
   VerifyEmailRoute: typeof VerifyEmailRoute
   BlogSlugRoute: typeof BlogSlugRoute
@@ -290,6 +303,13 @@ declare module '@tanstack/react-router' {
       path: '/tarot'
       fullPath: '/tarot'
       preLoaderRoute: typeof TarotRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/support': {
+      id: '/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof SupportRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/staff': {
@@ -439,6 +459,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   ShopRoute: ShopRoute,
   StaffRoute: StaffRoute,
+  SupportRoute: SupportRoute,
   TarotRoute: TarotRoute,
   VerifyEmailRoute: VerifyEmailRoute,
   BlogSlugRoute: BlogSlugRoute,

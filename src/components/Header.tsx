@@ -9,6 +9,7 @@ import {
   LogOut,
   History,
   CalendarClock,
+  LifeBuoy,
   Menu,
   X,
 } from "lucide-react";
@@ -143,6 +144,14 @@ export function Header() {
                         a: () => {
                           setOpen(false);
                           navigate({ to: "/bookings" });
+                        },
+                      },
+                      {
+                        ic: LifeBuoy,
+                        l: "Hỗ trợ",
+                        a: () => {
+                          setOpen(false);
+                          navigate({ to: "/support" });
                         },
                       },
                       { ic: History, l: "Lịch sử tư vấn" },

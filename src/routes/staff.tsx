@@ -7,12 +7,13 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { CalendarClock, MessageCircle, Star } from "lucide-react";
 import { RoleGuard } from "@/components/RoleGuard";
-import { NotWiredYet, WorkspaceShell } from "@/components/WorkspaceShell";
+import { WorkspaceShell } from "@/components/WorkspaceShell";
 import { getMyReaderProfile } from "@/api/reader";
 import { ApiError } from "@/api/client";
 import { formatVND } from "@/lib/mock-data";
 import { useAuth } from "@/lib/auth-context";
 import { BookingList } from "@/features/booking/components/BookingList";
+import { StaffSupportQueue } from "@/features/support/components/StaffSupportQueue";
 import { useReaderBookings } from "@/features/booking/queries";
 import { BOOKING_STATUS_LABEL, type BookingStatus } from "@/api/booking";
 import { EarningsPanel } from "@/features/money/components/EarningsPanel";
@@ -40,7 +41,7 @@ function StaffWorkspace() {
         {
           key: "support",
           label: "Hỗ trợ khách",
-          render: () => <SupportQueue />,
+          render: () => <StaffSupportQueue />,
         },
         ...(can("READER_MANAGE_PROFILE")
           ? [
@@ -114,23 +115,6 @@ function ReaderBookings() {
           onRetry={() => void query.refetch()}
         />
       </div>
-    </div>
-  );
-}
-
-function SupportQueue() {
-  return (
-    <div className="space-y-4">
-      <NotWiredYet
-        title="Hàng chờ hỗ trợ"
-        what="Danh sách câu hỏi của khách đang chờ trả lời, kèm lịch sử trao đổi và trạng thái xử lý."
-        missing="BE chưa có endpoint cho hàng chờ hỗ trợ. Quyền SUPPORT_VIEW và SUPPORT_RESPOND đã có sẵn, chỉ còn thiếu API và bảng lưu ticket."
-      />
-      <p className="text-xs text-muted-foreground">
-        Ô này để trống có chủ ý. Bày một danh sách ticket giả ở đây thì nhìn thì
-        đủ, nhưng nhân viên sẽ tưởng là việc thật và ngồi xử lý dữ liệu không có
-        ai gửi.
-      </p>
     </div>
   );
 }
