@@ -212,16 +212,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // LOGOUT - Cập nhật: clear user, token, redirect về trang chủ
   // ============================================================
   const logout: AuthCtx["logout"] = async () => {
-    try {
-      await authApi.logout();
-    } catch {
-      // ignore
-    } finally {
-      // Clear user state
-      persist(null);
-      // Chuyển về trang chủ (sẽ hiển thị login button)
-      navigate({ to: "/" });
-    }
+    // Đăng xuất là hành động CỤC BỘ: xoá token và user ngay lập tức. Trước đây
+    // hàm này await authApi.logout() rồi mới persist(null) — mà backend trên
+    // gói free có thể đang ngủ và mất tới một phút mới trả lời, nên người dùng
+    // bấm "Đăng xuất", thấy toast báo thành công, nhưng vẫn ngồi nguyên trong
+    // phiên cho tới khi BE tỉnh. Và persist(null) KHÔNG xoá token: chỉ gỡ user
+    // khỏi localStorage. Token còn nguyên nên chỉ cần tải lại trang là phần
+    // bootstrap thấy token, gọi /me và kéo tài khoản cũ trở lại.
+    //
+    // Gọi thu hồi phiên phía server ở chế độ tốt-nhất-có-thể: authApi.logout()
+    // đọc refresh token ngay khi được gọi, trước các dòng xoá bên dưới, nên vẫn
+    // gửi đúng token đi. KHÔNG await — hỏng hay chậm cũng không giữ người dùng
+    // lại.
+    authApi.logout().catch(() => {
+      /* thu hồi phía server hỏng cũng mặc kệ, phía client đã sạch */
+    });
+    tokenStore.clear();
+    persist(null);
+    navigate({ to: "/" });
   };
 
   const updateProfile = (
