@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { avatarUrl } from "@/api/profile";
 import { PUBLIC_NAV, workspaceNavFor } from "@/lib/roles";
 import { RoleBadge } from "./RoleBadge";
 import { NotificationBell } from "./NotificationBell";
@@ -108,8 +109,23 @@ export function Header() {
                   onClick={() => setOpen((v) => !v)}
                   className="flex items-center gap-2 rounded-full border border-gold/40 bg-card/60 px-2 py-1.5 text-sm transition hover:border-gold sm:px-3"
                 >
-                  <span className="grid h-7 w-7 place-items-center rounded-full bg-gold text-primary-foreground">
-                    <UserIcon className="h-4 w-4" />
+                  <span className="grid h-7 w-7 place-items-center overflow-hidden rounded-full bg-gold text-primary-foreground">
+                    {/*
+                      Trước đây ô này luôn vẽ UserIcon mặc định, kể cả khi người
+                      dùng đã tải ảnh đại diện lên — nên đổi avatar ở trang hồ sơ
+                      xong quay ra header vẫn thấy hình người xám. avatarUrl ghép
+                      API_BASE cho đường dẫn tương đối BE trả về (và trả nguyên
+                      nếu đã là URL đầy đủ).
+                    */}
+                    {user.avatar ? (
+                      <img
+                        src={avatarUrl(user.avatar) ?? ""}
+                        alt=""
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <UserIcon className="h-4 w-4" />
+                    )}
                   </span>
                   <span className="hidden text-foreground sm:inline">
                     {user.name}
