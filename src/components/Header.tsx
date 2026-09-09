@@ -8,8 +8,6 @@ import {
   Settings,
   LogOut,
   History,
-  ShoppingBag,
-  Package,
   CalendarClock,
   Menu,
   X,
@@ -18,7 +16,6 @@ import { useAuth } from "@/lib/auth-context";
 import { PUBLIC_NAV, workspaceNavFor } from "@/lib/roles";
 import { RoleBadge } from "./RoleBadge";
 import { NotificationBell } from "./NotificationBell";
-import { useCart } from "@/lib/cart-context";
 import { LogoutConfirm } from "./LogoutConfirm";
 import { ScrollProgress } from "./ScrollProgress";
 import logo from "@/assets/logo-astrotarot.png";
@@ -28,14 +25,11 @@ export function Header() {
   // Link khu vực làm việc suy ra từ QUYỀN, không phải từ tên vai trò: thêm một
   // vai trò mới thì chỉ sửa bảng ở @/lib/roles, không phải sửa header.
   const workspaceLinks = workspaceNavFor(user);
-  const { cart } = useCart();
   const [open, setOpen] = useState(false);
   const [logoutOpen, setLogoutOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-
-  const cartCount = cart?.totalQuantity ?? 0;
 
   // Đổi trang thì đóng cả hai menu, nếu không chúng treo lại trên trang mới.
   useEffect(() => {
@@ -107,22 +101,6 @@ export function Header() {
                 cần xử lý, và cùng chỉ có nghĩa khi đã đăng nhập. */}
             <NotificationBell />
 
-            {/* Giỏ hàng: chỉ hiện khi đã đăng nhập, vì giỏ nằm ở BE theo user. */}
-            {user && (
-              <Link
-                to="/cart"
-                aria-label={`Giỏ hàng, ${cartCount} sản phẩm`}
-                className="relative grid h-9 w-9 place-items-center rounded-full border border-gold/40 bg-card/60 transition hover:border-gold"
-              >
-                <ShoppingBag className="h-4 w-4 text-gold" />
-                {cartCount > 0 && (
-                  <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-gold px-1 text-[10px] font-semibold text-primary-foreground">
-                    {cartCount > 99 ? "99+" : cartCount}
-                  </span>
-                )}
-              </Link>
-            )}
-
             {user ? (
               <div className="relative">
                 <button
@@ -165,14 +143,6 @@ export function Header() {
                         a: () => {
                           setOpen(false);
                           navigate({ to: "/bookings" });
-                        },
-                      },
-                      {
-                        ic: Package,
-                        l: "Đơn hàng của tôi",
-                        a: () => {
-                          setOpen(false);
-                          navigate({ to: "/orders" });
                         },
                       },
                       { ic: History, l: "Lịch sử tư vấn" },
@@ -256,15 +226,6 @@ export function Header() {
                   className="rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition hover:bg-gold/10 hover:text-gold"
                 >
                   Lịch hẹn của tôi
-                </Link>
-              )}
-              {user && (
-                <Link
-                  to="/orders"
-                  onClick={() => setMobileOpen(false)}
-                  className="rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition hover:bg-gold/10 hover:text-gold"
-                >
-                  Đơn hàng của tôi
                 </Link>
               )}
               {workspaceLinks.map((l) => (

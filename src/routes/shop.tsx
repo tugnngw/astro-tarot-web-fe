@@ -1,13 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useId, useMemo, useState } from "react";
-import { Search, ShoppingBag, PackageX, AlertCircle } from "lucide-react";
-import { toast } from "sonner";
+import { Search, PackageX, AlertCircle } from "lucide-react";
 import { Header } from "@/components/Header";
-import { useAuth } from "@/lib/auth-context";
-import { useCart } from "@/lib/cart-context";
 import { formatVND } from "@/lib/mock-data";
 import { ProductArtwork } from "@/components/ProductArtwork";
 import { IllustrativeNote } from "@/components/IllustrativeNote";
+import {
+  AffiliateDisclosure,
+  BuyOnPlatformButton,
+} from "@/features/shop/components/BuyOnPlatformButton";
 import { useCategories, useProducts } from "@/features/shop/queries";
 import type { Product } from "@/api/shop";
 
@@ -70,10 +71,11 @@ function ShopPage() {
         <h1 className="font-display text-3xl sm:text-4xl">
           Vật phẩm <span className="text-gradient-gold">Tarot</span>
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
           Bộ bài, đá khoáng và phụ kiện trải bài — tuyển chọn cho cả người mới
-          lẫn Reader chuyên nghiệp.
+          lẫn Reader chuyên nghiệp. Bấm mua sẽ mở sản phẩm trên sàn.
         </p>
+        <AffiliateDisclosure className="mt-3 max-w-2xl" />
 
         {/* Bộ lọc */}
         <div className="mt-6">
@@ -261,9 +263,6 @@ function EmptyState({
 }
 
 export function ProductCard({ product }: { product: Product }) {
-  const { user, openAuth } = useAuth();
-  const { add, busy } = useCart();
-
   const discount = useMemo(() => {
     if (!product.compareAtPrice || product.compareAtPrice <= product.price) {
       return null;
@@ -273,20 +272,9 @@ export function ProductCard({ product }: { product: Product }) {
     );
   }, [product.compareAtPrice, product.price]);
 
-  const soldOut = product.stock <= 0;
-
-  async function handleAdd() {
-    if (!user) {
-      openAuth("login");
-      return;
-    }
-    try {
-      await add(product.id, 1);
-      toast.success(`Đã thêm "${product.name}" vào giỏ`);
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Không thêm được vào giỏ");
-    }
-  }
+  // Không còn nhãn "Hết hàng": tồn kho là việc của người bán trên sàn, mình
+  // không biết và không nên đoán. Đoán sai theo hướng "còn hàng" thì khách bấm
+  // sang mới biết hết; đoán sai theo hướng "hết hàng" thì mất một đơn.
 
   // Hiệu ứng nhấc thẻ nằm ở utility .card-hover (CSS), không dùng whileHover
   // của framer nữa — hai bên cùng ghi transform thì đá nhau.
@@ -320,11 +308,6 @@ export function ProductCard({ product }: { product: Product }) {
           {discount !== null && (
             <span className="absolute left-3 top-3 rounded-full bg-gold px-2.5 py-1 text-[11px] font-semibold text-primary-foreground">
               -{discount}%
-            </span>
-          )}
-          {soldOut && (
-            <span className="absolute right-3 top-3 rounded-full bg-destructive/90 px-2.5 py-1 text-[11px] font-semibold text-destructive-foreground">
-              Hết hàng
             </span>
           )}
         </Link>
@@ -361,18 +344,7 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
 
         <div className="mt-auto pt-4">
-          <button
-            type="button"
-            onClick={handleAdd}
-            disabled={soldOut || busy}
-            aria-label={
-              soldOut ? `${product.name} đã hết hàng` : `Thêm ${product.name} vào giỏ`
-            }
-            className="flex w-full items-center justify-center gap-2 rounded-full bg-gold py-2.5 text-sm font-medium text-primary-foreground glow-gold transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
-          >
-            <ShoppingBag aria-hidden="true" className="h-4 w-4" />
-            {soldOut ? "Hết hàng" : "Thêm vào giỏ"}
-          </button>
+          <BuyOnPlatformButton product={product} />
         </div>
       </div>
     </article>

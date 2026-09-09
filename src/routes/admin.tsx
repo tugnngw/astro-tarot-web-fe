@@ -1,15 +1,15 @@
-// Trang Quản trị (ADMIN): toàn quyền — tài khoản, phân quyền, hồ sơ Reader,
-// và (khi có API) sản phẩm với đơn hàng.
+// Trang Quản trị (ADMIN): toàn quyền — tài khoản, phân quyền, tiền, hồ sơ
+// Reader và sản phẩm liên kết.
 //
-// Bản trước của trang này chạy trên MOCK_USERS và số doanh thu bịa. Đã thay
-// bằng dữ liệu thật từ /api/v1/admin/users; phần nào BE chưa có endpoint thì
-// nói thẳng là chưa có, thay vì dựng số liệu giả trông như thật.
+// Bản đầu tiên của trang này chạy trên MOCK_USERS và số doanh thu bịa. Giờ mọi
+// tab đều đọc dữ liệu thật.
 import { createFileRoute } from "@tanstack/react-router";
 import { RoleGuard } from "@/components/RoleGuard";
-import { NotWiredYet, WorkspaceShell } from "@/components/WorkspaceShell";
+import { WorkspaceShell } from "@/components/WorkspaceShell";
 import { UserDirectory } from "@/features/admin/components/UserDirectory";
 import { ReaderApplications } from "@/features/admin/components/ReaderApplications";
 import { ActivityLogTable } from "@/features/admin/components/ActivityLogTable";
+import { CatalogManager } from "@/features/shop/components/CatalogManager";
 import {
   PaymentQueue,
   PayoutQueue,
@@ -31,7 +31,7 @@ function AdminWorkspace() {
   return (
     <WorkspaceShell
       title="Quản trị"
-      subtitle="Toàn quyền trên tài khoản và phân quyền. Sản phẩm và đơn hàng cũng thuộc khu vực này."
+      subtitle="Toàn quyền trên tài khoản, tiền và sản phẩm liên kết."
       tabs={[
         {
           key: "users",
@@ -76,21 +76,8 @@ function AdminWorkspace() {
         },
         {
           key: "commerce",
-          label: "Sản phẩm & đơn hàng",
-          render: () => (
-            <div className="space-y-4">
-              <NotWiredYet
-                title="Quản lý sản phẩm"
-                what="Thêm, sửa, ẩn sản phẩm; cập nhật giá và tồn kho; đánh dấu ảnh minh hoạ hay ảnh thật."
-                missing="BE mới có API đọc catalog (GET /api/v1/shop/products). Chưa có endpoint ghi cho quản trị viên; quyền CATALOG_MANAGE đã sẵn sàng để gắn vào."
-              />
-              <NotWiredYet
-                title="Quản lý đơn hàng"
-                what="Xem mọi đơn của mọi khách, đổi trạng thái giao hàng và thanh toán."
-                missing="/api/v1/shop/orders hiện chỉ trả đơn của chính người đang đăng nhập. Cần thêm endpoint quản trị dùng quyền ORDERS_MANAGE."
-              />
-            </div>
-          ),
+          label: "Sản phẩm liên kết",
+          render: () => <CatalogManager />,
         },
       ]}
     />
