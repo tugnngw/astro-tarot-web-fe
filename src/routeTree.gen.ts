@@ -19,9 +19,7 @@ import { Route as ReadersRouteImport } from './routes/readers'
 import { Route as ReaderHubRouteImport } from './routes/reader-hub'
 import { Route as ReaderRouteImport } from './routes/reader'
 import { Route as ProfileRouteImport } from './routes/profile'
-import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as ManagerRouteImport } from './routes/manager'
-import { Route as CartRouteImport } from './routes/cart'
 import { Route as BookingsRouteImport } from './routes/bookings'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -80,19 +78,9 @@ const ProfileRoute = ProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OrdersRoute = OrdersRouteImport.update({
-  id: '/orders',
-  path: '/orders',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ManagerRoute = ManagerRouteImport.update({
   id: '/manager',
   path: '/manager',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CartRoute = CartRouteImport.update({
-  id: '/cart',
-  path: '/cart',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BookingsRoute = BookingsRouteImport.update({
@@ -135,9 +123,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/bookings': typeof BookingsRoute
-  '/cart': typeof CartRoute
   '/manager': typeof ManagerRoute
-  '/orders': typeof OrdersRoute
   '/profile': typeof ProfileRouteWithChildren
   '/reader': typeof ReaderRoute
   '/reader-hub': typeof ReaderHubRoute
@@ -157,9 +143,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/bookings': typeof BookingsRoute
-  '/cart': typeof CartRoute
   '/manager': typeof ManagerRoute
-  '/orders': typeof OrdersRoute
   '/profile': typeof ProfileRouteWithChildren
   '/reader': typeof ReaderRoute
   '/reader-hub': typeof ReaderHubRoute
@@ -180,9 +164,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/bookings': typeof BookingsRoute
-  '/cart': typeof CartRoute
   '/manager': typeof ManagerRoute
-  '/orders': typeof OrdersRoute
   '/profile': typeof ProfileRouteWithChildren
   '/reader': typeof ReaderRoute
   '/reader-hub': typeof ReaderHubRoute
@@ -204,9 +186,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/bookings'
-    | '/cart'
     | '/manager'
-    | '/orders'
     | '/profile'
     | '/reader'
     | '/reader-hub'
@@ -226,9 +206,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/bookings'
-    | '/cart'
     | '/manager'
-    | '/orders'
     | '/profile'
     | '/reader'
     | '/reader-hub'
@@ -248,9 +226,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/bookings'
-    | '/cart'
     | '/manager'
-    | '/orders'
     | '/profile'
     | '/reader'
     | '/reader-hub'
@@ -271,9 +247,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   BookingsRoute: typeof BookingsRoute
-  CartRoute: typeof CartRoute
   ManagerRoute: typeof ManagerRoute
-  OrdersRoute: typeof OrdersRoute
   ProfileRoute: typeof ProfileRouteWithChildren
   ReaderRoute: typeof ReaderRoute
   ReaderHubRoute: typeof ReaderHubRoute
@@ -361,25 +335,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/orders': {
-      id: '/orders'
-      path: '/orders'
-      fullPath: '/orders'
-      preLoaderRoute: typeof OrdersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/manager': {
       id: '/manager'
       path: '/manager'
       fullPath: '/manager'
       preLoaderRoute: typeof ManagerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cart': {
-      id: '/cart'
-      path: '/cart'
-      fullPath: '/cart'
-      preLoaderRoute: typeof CartRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/bookings': {
@@ -449,9 +409,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   BookingsRoute: BookingsRoute,
-  CartRoute: CartRoute,
   ManagerRoute: ManagerRoute,
-  OrdersRoute: OrdersRoute,
   ProfileRoute: ProfileRouteWithChildren,
   ReaderRoute: ReaderRoute,
   ReaderHubRoute: ReaderHubRoute,
