@@ -433,10 +433,11 @@ function ProductDialog({
             <span className="text-xs text-muted-foreground">Danh mục</span>
             <select
               value={form.categoryId ?? ""}
+              required
               onChange={(e) => setForm((f) => ({ ...f, categoryId: e.target.value || null }))}
               className="mt-1 w-full rounded-lg border border-gold/25 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
             >
-              <option value="">Chưa phân loại</option>
+              <option value="">— Chọn danh mục —</option>
               {(categories.data ?? []).map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
@@ -444,6 +445,10 @@ function ProductDialog({
               ))}
             </select>
           </label>
+          <p className="text-[11px] text-muted-foreground">
+            Danh mục là thứ giữ cho cửa hàng bám đề tài. Món nào không xếp được vào
+            năm danh mục này thì gần như chắc chắn không nên bán ở đây.
+          </p>
 
           <div className="space-y-2 pt-1">
             <Checkbox
