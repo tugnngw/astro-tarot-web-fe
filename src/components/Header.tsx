@@ -3,11 +3,8 @@ import { useEffect, useState } from "react";
 import {
   ChevronDown,
   User as UserIcon,
-  BookMarked,
-  Bell,
   Settings,
   LogOut,
-  History,
   CalendarClock,
   LifeBuoy,
   Menu,
@@ -170,10 +167,20 @@ export function Header() {
                           navigate({ to: "/support" });
                         },
                       },
-                      { ic: History, l: "Lịch sử tư vấn" },
-                      { ic: BookMarked, l: "Bài viết đã lưu" },
-                      { ic: Bell, l: "Thông báo" },
-                      { ic: Settings, l: "Cài đặt tài khoản" },
+                      // "Cài đặt tài khoản" mở thẳng trang hồ sơ — nơi đổi
+                      // thông tin và ảnh đại diện. Ba mục cũ (Lịch sử tư vấn,
+                      // Bài viết đã lưu, Thông báo) đã bỏ: chúng là nút chết,
+                      // bấm không ra gì vì chưa có trang/endpoint phía sau, và
+                      // riêng "Thông báo" trùng với chuông ngay cạnh. Thà bớt
+                      // mục còn hơn để người dùng bấm vào khoảng không.
+                      {
+                        ic: Settings,
+                        l: "Cài đặt tài khoản",
+                        a: () => {
+                          setOpen(false);
+                          navigate({ to: "/profile" });
+                        },
+                      },
                     ].map(({ ic: Ic, l, a }) => (
                       <button
                         key={l}
