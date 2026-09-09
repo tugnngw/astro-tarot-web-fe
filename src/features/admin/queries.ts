@@ -140,3 +140,18 @@ export function useActivityLogs(query: { action?: string; page?: number; size?: 
     placeholderData: keepPreviousData,
   });
 }
+
+/**
+ * Số liệu tổng quan cho trang Quản trị.
+ *
+ * Làm mới sau 30 giây: các con số này đổi chậm, không cần bắn lại mỗi lần
+ * chuyển tab. Đủ tươi cho một bảng theo dõi, đủ rẻ để không phiền BE.
+ */
+export function useAdminStats(enabled = true) {
+  return useQuery({
+    queryKey: [...adminKeys.all, "stats"] as const,
+    queryFn: () => adminApi.getAdminStats(),
+    enabled,
+    staleTime: 30_000,
+  });
+}

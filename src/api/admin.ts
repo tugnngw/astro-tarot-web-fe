@@ -242,3 +242,36 @@ export function getActivityLogs(query: { action?: string; page?: number; size?: 
   const qs = params.toString();
   return apiFetch<ActivityLogPage>(`${BASE}/activity-logs${qs ? `?${qs}` : ""}`);
 }
+
+// ============================================================
+// Thống kê tổng quan — GET /api/v1/admin/stats
+// Khớp AdminStatsResponse ở BE. Toàn số đếm, không có dữ liệu cá nhân.
+// ============================================================
+
+export interface AdminStats {
+  users: {
+    total: number;
+    byRole: Record<AccountRole, number>;
+    newLast7Days: number;
+  };
+  readers: {
+    pendingApplications: number;
+    activeProfiles: number;
+  };
+  bookings: {
+    total: number;
+    byStatus: Record<string, number>;
+  };
+  moderation: {
+    pendingReports: number;
+  };
+  shop: {
+    activeProducts: number;
+    clicksLast30Days: number;
+    clicksTotal: number;
+  };
+}
+
+export function getAdminStats() {
+  return apiFetch<AdminStats>(`${BASE}/stats`);
+}

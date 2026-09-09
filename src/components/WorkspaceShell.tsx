@@ -52,35 +52,47 @@ export function WorkspaceShell({
           {aside}
         </div>
 
-        {tabs.length > 1 && (
-          <div
-            role="tablist"
-            aria-label="Khu vực làm việc"
-            className="mt-6 flex flex-wrap gap-2 border-b border-gold/15 pb-3"
-          >
-            {tabs.map((tab) => {
-              const isActive = tab.key === current?.key;
-              return (
-                <button
-                  key={tab.key}
-                  type="button"
-                  role="tab"
-                  aria-selected={isActive}
-                  onClick={() => setActive(tab.key)}
-                  className={`rounded-full border px-4 py-1.5 text-sm transition focus-visible:ring-2 focus-visible:ring-gold/40 ${
-                    isActive
-                      ? "border-gold bg-gold/15 text-gold"
-                      : "border-mystic/50 bg-mystic/10 text-foreground/80 hover:border-gold/60"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
-        )}
+        {/*
+         * Điều hướng dọc bên trái. Trước đây là một hàng pill ngang chạy hết
+         * chiều rộng; với tám mục của trang Quản trị thì hàng đó tràn xuống hai
+         * dòng và khó quét mắt. Cột dọc đọc theo chiều tự nhiên hơn và chừa chỗ
+         * cho nội dung rộng bên phải.
+         *
+         * Trên màn hẹp cột dọc sẽ ăn hết bề ngang, nên ở đó nó thu lại thành
+         * một hàng pill cuộn ngang (lg: mới chuyển sang cột).
+         */}
+        <div className="mt-8 flex flex-col gap-6 lg:flex-row lg:gap-8">
+          {tabs.length > 1 && (
+            <nav
+              role="tablist"
+              aria-label="Khu vực làm việc"
+              aria-orientation="vertical"
+              className="-mx-1 flex flex-row gap-1.5 overflow-x-auto px-1 pb-1 lg:mx-0 lg:w-56 lg:shrink-0 lg:flex-col lg:overflow-visible lg:px-0 lg:pb-0 lg:sticky lg:top-24 lg:self-start"
+            >
+              {tabs.map((tab) => {
+                const isActive = tab.key === current?.key;
+                return (
+                  <button
+                    key={tab.key}
+                    type="button"
+                    role="tab"
+                    aria-selected={isActive}
+                    onClick={() => setActive(tab.key)}
+                    className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-left text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/40 lg:w-full ${
+                      isActive
+                        ? "bg-gold font-medium text-background shadow-sm"
+                        : "text-foreground/70 hover:bg-mystic/15 hover:text-foreground"
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </nav>
+          )}
 
-        <div className="mt-6">{current?.render()}</div>
+          <div className="min-w-0 flex-1">{current?.render()}</div>
+        </div>
       </main>
     </div>
   );

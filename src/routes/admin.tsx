@@ -6,6 +6,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { RoleGuard } from "@/components/RoleGuard";
 import { WorkspaceShell } from "@/components/WorkspaceShell";
+import { AdminOverview } from "@/features/admin/components/AdminOverview";
 import { UserDirectory } from "@/features/admin/components/UserDirectory";
 import { ReaderApplications } from "@/features/admin/components/ReaderApplications";
 import { ActivityLogTable } from "@/features/admin/components/ActivityLogTable";
@@ -33,6 +34,11 @@ function AdminWorkspace() {
       title="Quản trị"
       subtitle="Toàn quyền trên tài khoản, tiền và sản phẩm liên kết."
       tabs={[
+        {
+          key: "overview",
+          label: "Tổng quan",
+          render: () => <AdminOverview />,
+        },
         {
           key: "users",
           label: "Tài khoản",
