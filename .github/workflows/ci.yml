@@ -24,10 +24,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Cài Node 20
+      # Node 24, không phải 20. Hai lý do, cả hai đều đã làm CI đỏ thật:
+      # - @tanstack/react-start đòi node >= 22.12.
+      # - package-lock.json này do npm 11 (đi kèm Node 24) sinh ra; npm 10.8 của
+      #   Node 20 giải cây phụ thuộc khác đi và báo thiếu lru-cache. Dùng đúng
+      #   phiên bản Node như máy dev và Vercel thì `npm ci` mới tái lập được.
+      - name: Cài Node 24
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: npm
 
       # npm ci chứ không phải npm install: cài đúng theo package-lock.json,
