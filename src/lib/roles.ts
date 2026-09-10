@@ -32,7 +32,12 @@ export type Permission =
   | "ADMIN_READERS_REVIEW"
   | "CATALOG_MANAGE"
   | "ORDERS_MANAGE"
-  | "USERS_MANAGE";
+  | "USERS_MANAGE"
+  | "AUDIT_VIEW"
+  | "PAYMENTS_MANAGE"
+  | "PAYOUT_REQUEST"
+  | "PAYOUT_REVIEW"
+  | "REPORT_REVIEW";
 
 /**
  * Vai trò cấp trên KHÔNG tự thừa kế quyền cấp dưới — giống hệt bên BE.
@@ -47,6 +52,7 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "READER_MANAGE_PROFILE",
     "SUPPORT_VIEW",
     "SUPPORT_RESPOND",
+    "PAYOUT_REQUEST",
   ],
   manager: [
     "USER_BASIC",
@@ -55,6 +61,7 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "STAFF_MANAGE",
     "ADMIN_READERS_VIEW",
     "ADMIN_READERS_REVIEW",
+    "REPORT_REVIEW",
   ],
   admin: [
     "USER_BASIC",
@@ -68,6 +75,10 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "CATALOG_MANAGE",
     "ORDERS_MANAGE",
     "USERS_MANAGE",
+    "AUDIT_VIEW",
+    "PAYMENTS_MANAGE",
+    "PAYOUT_REVIEW",
+    "REPORT_REVIEW",
   ],
 };
 

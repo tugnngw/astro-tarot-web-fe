@@ -8,6 +8,7 @@ import {
   LogOut,
   CalendarClock,
   LifeBuoy,
+  Star,
   Menu,
   X,
 } from "lucide-react";
@@ -158,6 +159,14 @@ export function Header() {
                         a: () => {
                           setOpen(false);
                           navigate({ to: "/bookings" });
+                        },
+                      },
+                      {
+                        ic: Star,
+                        l: "Bản đồ sao",
+                        a: () => {
+                          setOpen(false);
+                          navigate({ to: "/profile/astrology" });
                         },
                       },
                       {

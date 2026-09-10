@@ -37,7 +37,7 @@ export function TicketThread({
   /** true khi nhân viên mở — hiện ô đổi trạng thái. */
   staffControls?: boolean;
 }) {
-  const { user } = useAuth();
+  const { user, can } = useAuth();
   const query = useTicket(ticketId);
   const reply = useReplyTicket();
   const updateStatus = useUpdateTicketStatus();
@@ -56,6 +56,13 @@ export function TicketThread({
 
   const ticket = query.data;
   const closed = ticket.status === "CLOSED";
+
+  // Quản lý có SUPPORT_VIEW nhưng KHÔNG có SUPPORT_RESPOND: họ giám sát hàng
+  // chờ chứ không trực tiếp trả lời khách. Trước đây ô trả lời vẫn hiện cho
+  // họ, gõ xong bấm Gửi thì nhận 403 — đúng thứ "nút bấm vào sẽ hỏng" mà cả
+  // dự án này cố tránh. Ở trang khách (staffControls = false) thì không xét:
+  // khách trả lời ticket của chính mình chỉ cần USER_BASIC.
+  const canRespond = !staffControls || can("SUPPORT_RESPOND");
 
   async function send() {
     const body = draft.trim();
@@ -92,7 +99,7 @@ export function TicketThread({
           <span className={`rounded-full px-3 py-1 text-xs ${STATUS_PILL[ticket.status]}`}>
             {TICKET_STATUS_LABEL[ticket.status]}
           </span>
-          {staffControls && (
+          {staffControls && canRespond && (
             <select
               value=""
               onChange={(e) => e.target.value && changeStatus(e.target.value as TicketStatus)}
@@ -139,6 +146,10 @@ export function TicketThread({
       {closed ? (
         <p className="border-t border-gold/10 p-4 text-center text-sm text-muted-foreground">
           Yêu cầu đã đóng.
+        </p>
+      ) : !canRespond ? (
+        <p className="border-t border-gold/10 p-4 text-center text-sm text-muted-foreground">
+          Bạn xem được hàng chờ nhưng không trả lời khách — phần đó thuộc nhân viên hỗ trợ.
         </p>
       ) : (
         <div className="flex items-end gap-2 border-t border-gold/10 p-3">
