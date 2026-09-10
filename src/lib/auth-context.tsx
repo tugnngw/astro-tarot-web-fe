@@ -13,6 +13,7 @@ import { ApiError, tokenStore } from "@/api/client";
 import { getProfile } from "@/api/profile";
 import {
   can as hasPermission,
+  homePathFor,
   toAppRole,
   type Permission,
   type Role,
@@ -185,9 +186,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // tự tìm đường quay lại.
     //
     // Trừ mấy trang chỉ tồn tại cho luồng xác thực: ở lại đó sau khi đăng nhập
-    // thì chẳng còn gì để xem, nên về trang chủ.
+    // thì chẳng còn gì để xem, nên về trang chủ đúng vai trò.
     if (AUTH_ONLY_ROUTES.some((p) => pathname.startsWith(p))) {
-      navigate({ to: "/" });
+      navigate({
+        to: homePathFor(toAuthUser(res.user, res.permissions)),
+      });
     }
     if (pendingAction) {
       const a = pendingAction;

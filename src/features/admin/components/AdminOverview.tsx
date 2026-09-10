@@ -1,9 +1,11 @@
-// Bảng tổng quan cho trang Quản trị.
+// Bảng tổng quan cho trang Quản trị — KPI + biểu đồ tương tác.
 //
 // Đứng đầu vì đây là câu hỏi đầu tiên của người quản trị mỗi lần mở trang:
 // hệ thống đang có bao nhiêu người, bao nhiêu việc đang chờ tay mình. Mọi con
 // số đọc từ một lần gọi /api/v1/admin/stats — toàn phép đếm ở tầng CSDL, không
 // kéo bản ghi về đếm trong trình duyệt.
+//
+// Biểu đồ dùng Recharts: rê chuột vào cột / phần bánh để xem số liệu chi tiết.
 import {
   Users,
   UserCheck,
@@ -12,10 +14,27 @@ import {
   MousePointerClick,
   Package,
   AlertCircle,
-  TrendingUp,
 } from "lucide-react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Pie,
+  PieChart,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { useAdminStats } from "@/features/admin/queries";
 import type { AdminStats } from "@/api/admin";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
 
 const ROLE_VI: Record<string, string> = {
   USER: "Thành viên",
@@ -31,13 +50,18 @@ const BOOKING_VI: Record<string, string> = {
   CANCELLED: "Đã huỷ",
 };
 
-// Màu thanh trạng thái đặt lịch — cùng hệ với phần còn lại của trang, đủ khác
-// nhau để phân biệt mà không lòe loẹt.
-const BOOKING_BAR: Record<string, string> = {
-  PENDING: "bg-amber-400/70",
-  CONFIRMED: "bg-sky-400/70",
-  COMPLETED: "bg-emerald-400/70",
-  CANCELLED: "bg-rose-400/60",
+const ROLE_COLORS: Record<string, string> = {
+  USER: "#38bdf8",
+  STAFF: "#34d399",
+  MANAGER: "#a78bfa",
+  ADMIN: "#d4a84b",
+};
+
+const BOOKING_COLORS: Record<string, string> = {
+  PENDING: "#fbbf24",
+  CONFIRMED: "#38bdf8",
+  COMPLETED: "#34d399",
+  CANCELLED: "#fb7185",
 };
 
 function nf(n: number) {
@@ -49,10 +73,16 @@ export function AdminOverview() {
 
   if (query.isLoading) {
     return (
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-5">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="glass h-28 animate-pulse rounded-2xl" />
-        ))}
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-5">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="glass h-28 animate-pulse rounded-2xl" />
+          ))}
+        </div>
+        <div className="grid gap-4 lg:grid-cols-2">
+          <div className="glass h-72 animate-pulse rounded-2xl" />
+          <div className="glass h-72 animate-pulse rounded-2xl" />
+        </div>
       </div>
     );
   }
@@ -114,7 +144,6 @@ export function AdminOverview() {
 
   return (
     <div className="space-y-6">
-      {/* Hàng chỉ số chính */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-5">
         {kpis.map((k) => {
           const Icon = k.icon;
@@ -140,113 +169,346 @@ export function AdminOverview() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <RoleBreakdown users={s.users} />
-        <BookingBreakdown bookings={s.bookings} />
+        <RoleChart users={s.users} />
+        <BookingChart bookings={s.bookings} />
       </div>
 
-      <ShopSummary shop={s.shop} />
+      <div className="grid gap-4 lg:grid-cols-2">
+        <ReaderChart readers={s.readers} />
+        <ShopChart shop={s.shop} />
+      </div>
     </div>
   );
 }
 
-function Bar({ value, total, className }: { value: number; total: number; className: string }) {
-  const pct = total > 0 ? Math.round((value / total) * 100) : 0;
-  return (
-    <div className="h-2 flex-1 overflow-hidden rounded-full bg-mystic/20">
-      <div className={`h-full rounded-full ${className}`} style={{ width: `${pct}%` }} />
-    </div>
-  );
-}
+function RoleChart({ users }: { users: AdminStats["users"] }) {
+  const order = ["USER", "STAFF", "MANAGER", "ADMIN"] as const;
+  const data = order.map((role) => ({
+    key: role,
+    name: ROLE_VI[role],
+    value: Number(users.byRole[role] ?? 0),
+    fill: ROLE_COLORS[role],
+  }));
+  const total = users.total;
 
-function RoleBreakdown({ users }: { users: AdminStats["users"] }) {
-  // Thứ tự quyền tăng dần để bảng luôn đọc từ ít quyền tới nhiều quyền.
-  const order = ["USER", "STAFF", "MANAGER", "ADMIN"];
+  const config = {
+    value: { label: "Số tài khoản" },
+    ...Object.fromEntries(
+      data.map((d) => [d.key, { label: d.name, color: d.fill }]),
+    ),
+  } satisfies ChartConfig;
+
   return (
     <section className="glass rounded-2xl p-5">
       <div className="flex items-center gap-2">
         <Users className="h-4 w-4 text-gold" />
         <h2 className="font-display text-lg">Tài khoản theo vai trò</h2>
       </div>
-      <dl className="mt-4 space-y-3">
-        {order.map((role) => {
-          const count = users.byRole[role as keyof typeof users.byRole] ?? 0;
-          return (
-            <div key={role} className="flex items-center gap-3">
-              <dt className="w-28 shrink-0 text-sm text-foreground/80">
-                {ROLE_VI[role] ?? role}
-              </dt>
-              <Bar value={count} total={users.total} className="bg-gold/60" />
-              <dd className="w-10 shrink-0 text-right text-sm tabular-nums">
-                {nf(count)}
-              </dd>
-            </div>
-          );
-        })}
-      </dl>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Rê chuột vào từng phần để xem số lượng và tỉ lệ.
+      </p>
+
+      {total === 0 ? (
+        <p className="mt-8 text-center text-sm text-muted-foreground">
+          Chưa có tài khoản nào.
+        </p>
+      ) : (
+        <ChartContainer config={config} className="mx-auto mt-2 aspect-square max-h-[280px] w-full">
+          <PieChart>
+            <ChartTooltip
+              cursor={false}
+              content={
+                <ChartTooltipContent
+                  hideLabel
+                  formatter={(value, _name, item) => {
+                    const n = Number(value) || 0;
+                    const pct = total > 0 ? Math.round((n / total) * 100) : 0;
+                    const label =
+                      (item?.payload as { name?: string } | undefined)?.name ??
+                      String(_name);
+                    return (
+                      <div className="flex w-full items-center justify-between gap-4">
+                        <span className="text-muted-foreground">{label}</span>
+                        <span className="font-mono font-medium tabular-nums text-foreground">
+                          {nf(n)} · {pct}%
+                        </span>
+                      </div>
+                    );
+                  }}
+                />
+              }
+            />
+            <Pie
+              data={data}
+              dataKey="value"
+              nameKey="name"
+              innerRadius={58}
+              outerRadius={96}
+              strokeWidth={2}
+              stroke="oklch(0.16 0.02 280)"
+            >
+              {data.map((d) => (
+                <Cell
+                  key={d.key}
+                  fill={d.fill}
+                  className="outline-none transition-opacity hover:opacity-90"
+                />
+              ))}
+            </Pie>
+            <ChartLegend
+              content={<ChartLegendContent nameKey="key" />}
+              className="-translate-y-1 flex-wrap gap-2"
+            />
+          </PieChart>
+        </ChartContainer>
+      )}
     </section>
   );
 }
 
-function BookingBreakdown({ bookings }: { bookings: AdminStats["bookings"] }) {
-  const order = ["PENDING", "CONFIRMED", "COMPLETED", "CANCELLED"];
+function BookingChart({ bookings }: { bookings: AdminStats["bookings"] }) {
+  const order = ["PENDING", "CONFIRMED", "COMPLETED", "CANCELLED"] as const;
+  const data = order.map((st) => ({
+    key: st,
+    label: BOOKING_VI[st],
+    count: Number(bookings.byStatus[st] ?? 0),
+    fill: BOOKING_COLORS[st],
+  }));
+  const total = bookings.total;
+
+  const config = {
+    count: { label: "Lượt đặt", color: "#d4a84b" },
+  } satisfies ChartConfig;
+
   return (
     <section className="glass rounded-2xl p-5">
       <div className="flex items-center gap-2">
         <CalendarClock className="h-4 w-4 text-gold" />
         <h2 className="font-display text-lg">Đặt lịch theo trạng thái</h2>
       </div>
-      {bookings.total === 0 ? (
-        <p className="mt-4 text-sm text-muted-foreground">Chưa có lượt đặt lịch nào.</p>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Rê chuột vào cột để xem số lượt và tỉ lệ trên tổng {nf(total)}.
+      </p>
+
+      {total === 0 ? (
+        <p className="mt-8 text-center text-sm text-muted-foreground">
+          Chưa có lượt đặt lịch nào.
+        </p>
       ) : (
-        <dl className="mt-4 space-y-3">
-          {order.map((st) => {
-            const count = bookings.byStatus[st] ?? 0;
-            return (
-              <div key={st} className="flex items-center gap-3">
-                <dt className="w-28 shrink-0 text-sm text-foreground/80">
-                  {BOOKING_VI[st] ?? st}
-                </dt>
-                <Bar value={count} total={bookings.total} className={BOOKING_BAR[st] ?? "bg-gold/60"} />
-                <dd className="w-10 shrink-0 text-right text-sm tabular-nums">
-                  {nf(count)}
-                </dd>
-              </div>
-            );
-          })}
-        </dl>
+        <ChartContainer config={config} className="mt-4 aspect-auto h-[260px] w-full">
+          <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+            <CartesianGrid vertical={false} strokeDasharray="3 3" />
+            <XAxis
+              dataKey="label"
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              interval={0}
+              tick={{ fontSize: 11 }}
+            />
+            <YAxis
+              allowDecimals={false}
+              tickLine={false}
+              axisLine={false}
+              width={36}
+              tick={{ fontSize: 11 }}
+            />
+            <ChartTooltip
+              cursor={{ fill: "oklch(0.75 0.12 85 / 0.12)" }}
+              content={
+                <ChartTooltipContent
+                  labelKey="label"
+                  formatter={(value, _name, item) => {
+                    const n = Number(value) || 0;
+                    const pct = total > 0 ? Math.round((n / total) * 100) : 0;
+                    const label =
+                      (item?.payload as { label?: string } | undefined)?.label ??
+                      "Lượt";
+                    return (
+                      <div className="flex w-full flex-col gap-0.5">
+                        <span className="font-medium text-foreground">{label}</span>
+                        <span className="font-mono tabular-nums text-muted-foreground">
+                          {nf(n)} lượt · {pct}% tổng
+                        </span>
+                      </div>
+                    );
+                  }}
+                />
+              }
+            />
+            <Bar dataKey="count" radius={[6, 6, 0, 0]} maxBarSize={48}>
+              {data.map((d) => (
+                <Cell key={d.key} fill={d.fill} className="outline-none" />
+              ))}
+            </Bar>
+          </BarChart>
+        </ChartContainer>
       )}
     </section>
   );
 }
 
-function ShopSummary({ shop }: { shop: AdminStats["shop"] }) {
-  const items = [
-    { icon: Package, label: "Sản phẩm đang bán", value: shop.activeProducts },
-    { icon: MousePointerClick, label: "Lượt sang sàn (30 ngày)", value: shop.clicksLast30Days },
-    { icon: TrendingUp, label: "Tổng lượt sang sàn", value: shop.clicksTotal },
+function ReaderChart({ readers }: { readers: AdminStats["readers"] }) {
+  const data = [
+    {
+      key: "pending",
+      label: "Chờ duyệt",
+      count: Number(readers.pendingApplications),
+      fill: "#fbbf24",
+    },
+    {
+      key: "active",
+      label: "Hồ sơ đang có",
+      count: Number(readers.activeProfiles),
+      fill: "#d4a84b",
+    },
   ];
+
+  const config = {
+    count: { label: "Số hồ sơ", color: "#d4a84b" },
+  } satisfies ChartConfig;
+
+  return (
+    <section className="glass rounded-2xl p-5">
+      <div className="flex items-center gap-2">
+        <UserCheck className="h-4 w-4 text-gold" />
+        <h2 className="font-display text-lg">Hồ sơ Reader</h2>
+      </div>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Rê chuột vào cột để xem chi tiết từng nhóm.
+      </p>
+
+      <ChartContainer config={config} className="mt-4 aspect-auto h-[240px] w-full">
+        <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+          <CartesianGrid vertical={false} strokeDasharray="3 3" />
+          <XAxis
+            dataKey="label"
+            tickLine={false}
+            axisLine={false}
+            tickMargin={8}
+            tick={{ fontSize: 11 }}
+          />
+          <YAxis
+            allowDecimals={false}
+            tickLine={false}
+            axisLine={false}
+            width={36}
+            tick={{ fontSize: 11 }}
+          />
+          <ChartTooltip
+            cursor={{ fill: "oklch(0.75 0.12 85 / 0.12)" }}
+            content={
+              <ChartTooltipContent
+                formatter={(value, _name, item) => {
+                  const n = Number(value) || 0;
+                  const label =
+                    (item?.payload as { label?: string } | undefined)?.label ??
+                    "Hồ sơ";
+                  return (
+                    <div className="flex w-full items-center justify-between gap-4">
+                      <span className="text-muted-foreground">{label}</span>
+                      <span className="font-mono font-medium tabular-nums">
+                        {nf(n)}
+                      </span>
+                    </div>
+                  );
+                }}
+              />
+            }
+          />
+          <Bar dataKey="count" radius={[6, 6, 0, 0]} maxBarSize={64}>
+            {data.map((d) => (
+              <Cell key={d.key} fill={d.fill} />
+            ))}
+          </Bar>
+        </BarChart>
+      </ChartContainer>
+    </section>
+  );
+}
+
+function ShopChart({ shop }: { shop: AdminStats["shop"] }) {
+  const data = [
+    {
+      key: "products",
+      label: "Sản phẩm đang bán",
+      count: Number(shop.activeProducts),
+      fill: "#a78bfa",
+    },
+    {
+      key: "clicks30",
+      label: "Bấm 30 ngày",
+      count: Number(shop.clicksLast30Days),
+      fill: "#38bdf8",
+    },
+    {
+      key: "clicksTotal",
+      label: "Bấm tổng cộng",
+      count: Number(shop.clicksTotal),
+      fill: "#d4a84b",
+    },
+  ];
+
+  const config = {
+    count: { label: "Số lượng", color: "#d4a84b" },
+  } satisfies ChartConfig;
+
   return (
     <section className="glass rounded-2xl p-5">
       <div className="flex items-center gap-2">
         <Package className="h-4 w-4 text-gold" />
         <h2 className="font-display text-lg">Cửa hàng liên kết</h2>
       </div>
-      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {items.map((it) => {
-          const Icon = it.icon;
-          return (
-            <div key={it.label} className="flex items-center gap-3">
-              <span className="rounded-lg bg-gold/10 p-2 text-gold">
-                <Icon className="h-4 w-4" />
-              </span>
-              <div>
-                <div className="font-display text-2xl leading-none">{nf(it.value)}</div>
-                <div className="mt-1 text-xs text-muted-foreground">{it.label}</div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Rê chuột vào cột để xem số liệu từng chỉ số.
+      </p>
+
+      <ChartContainer config={config} className="mt-4 aspect-auto h-[240px] w-full">
+        <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+          <CartesianGrid vertical={false} strokeDasharray="3 3" />
+          <XAxis
+            dataKey="label"
+            tickLine={false}
+            axisLine={false}
+            tickMargin={8}
+            interval={0}
+            tick={{ fontSize: 11 }}
+          />
+          <YAxis
+            allowDecimals={false}
+            tickLine={false}
+            axisLine={false}
+            width={40}
+            tick={{ fontSize: 11 }}
+          />
+          <ChartTooltip
+            cursor={{ fill: "oklch(0.75 0.12 85 / 0.12)" }}
+            content={
+              <ChartTooltipContent
+                formatter={(value, _name, item) => {
+                  const n = Number(value) || 0;
+                  const label =
+                    (item?.payload as { label?: string } | undefined)?.label ??
+                    "Chỉ số";
+                  return (
+                    <div className="flex w-full flex-col gap-0.5">
+                      <span className="font-medium text-foreground">{label}</span>
+                      <span className="font-mono tabular-nums text-muted-foreground">
+                        {nf(n)}
+                      </span>
+                    </div>
+                  );
+                }}
+              />
+            }
+          />
+          <Bar dataKey="count" radius={[6, 6, 0, 0]} maxBarSize={56}>
+            {data.map((d) => (
+              <Cell key={d.key} fill={d.fill} />
+            ))}
+          </Bar>
+        </BarChart>
+      </ChartContainer>
     </section>
   );
 }

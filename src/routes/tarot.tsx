@@ -622,7 +622,11 @@ function TarotPage() {
         const data = JSON.parse(raw);
         if (Array.isArray(data?.messages) && data.messages.length) {
           setMessages(data.messages);
-          if (data.people) setPeople(data.people);
+          if (data.people) {
+            const capped = data.people.slice(0, 2);
+            setPeople(capped);
+            setCount(capped.length || 1);
+          }
           if (data.drawnCards) setDrawnCards(data.drawnCards);
           if (data.readingResult) setReadingResult(data.readingResult);
           if (data.cardsDrawn) setCardsDrawn(data.cardsDrawn);
@@ -666,10 +670,11 @@ function TarotPage() {
   }, [messages, thinking]);
 
   const updateCount = (n: number) => {
-    setCount(n);
+    const next = Math.min(Math.max(n, 1), 2);
+    setCount(next);
     setPeople((prev) => {
       const arr = [...prev];
-      while (arr.length < n)
+      while (arr.length < next)
         arr.push({
           id: `p${arr.length + 1}`,
           name: "",
@@ -682,7 +687,7 @@ function TarotPage() {
           timezone: "",
           timezoneOffset: 7,
         });
-      return arr.slice(0, n);
+      return arr.slice(0, next);
     });
   };
 
@@ -952,7 +957,7 @@ function TarotPage() {
         title: `Profile của ${primaryPerson.name}`,
         targetName: primaryPerson.name,
         birthDate: birthDateISO,
-        birthTime: birthTimeISO || "00:00:00",
+        birthTime: birthTimeISO || "12:00:00",
         birthPlace: primaryPerson.birthPlace || "Chưa xác định",
         latitude: primaryPerson.lat || 0,
         longitude: primaryPerson.lng || 0,
@@ -1302,7 +1307,7 @@ function TarotPage() {
                 <Users className="h-3.5 w-3.5" /> Số người tham gia
               </span>
               <div className="flex gap-2">
-                {[1, 2, 3, 4].map((n) => (
+                {[1, 2].map((n) => (
                   <button
                     key={n}
                     onClick={() => updateCount(n)}
@@ -1312,10 +1317,13 @@ function TarotPage() {
                         : "border-border text-muted-foreground hover:border-gold/40"
                     }`}
                   >
-                    {n} người
+                    {n === 1 ? "1 người" : "2 người (đôi)"}
                   </button>
                 ))}
               </div>
+              <p className="mt-1.5 text-[10px] text-muted-foreground/60">
+                Tối đa 2 người — phù hợp xem bản đồ sao đôi / tương hợp.
+              </p>
             </div>
 
             <div className="space-y-4">
@@ -1380,7 +1388,9 @@ function TarotPage() {
                           </p>
                         ) : (
                           <p className="mt-1 text-[10px] text-muted-foreground/60">
-                            💡 900 → 9:00 | 930 → 9:30 | 9 → 09:00 (khi rời)
+                            💡 Không biết giờ sinh? Để trống — mặc định 12:00.
+                            <br />
+                            900 → 9:00 | 930 → 9:30 | 9 → 09:00 (khi rời)
                           </p>
                         )}
                       </div>

@@ -1,0 +1,44 @@
+# Deploy production khi có code mới trên main.
+#
+# Không dùng Vercel token đầy đủ: token đó cho phép tạo/xoá dự án, đọc env,
+# đụng mọi thứ. Deploy Hook chỉ bấm nút "deploy lại đúng một dự án / một nhánh"
+# — phù hợp repo dùng chung của nhóm.
+#
+# Cần secret `VERCEL_DEPLOY_HOOK` trên GitHub (Settings → Secrets and variables
+# → Actions). Cách lấy: Vercel → Project → Settings → Git → Deploy Hooks →
+# Create Hook, tên tuỳ ý, nhánh `main`, rồi dán URL vào secret.
+name: CD
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    name: Deploy lên Vercel
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Kiểm tra secret
+        env:
+          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "::error::Thiếu secret VERCEL_DEPLOY_HOOK."
+            echo "Vercel → Project → Settings → Git → Deploy Hooks → Create (nhánh main),"
+            echo "rồi dán URL vào GitHub → Settings → Secrets → Actions."
+            exit 1
+          fi
+
+      # Deploy Hook của Vercel là POST không cần body. 2xx = đã xếp hàng deploy.
+      - name: Gọi Deploy Hook
+        env:
+          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: |
+          code=$(curl -sS -o /tmp/hook-body -w "%{http_code}" -X POST "$HOOK")
+          echo "HTTP $code"
+          cat /tmp/hook-body || true
+          case "$code" in
+            2*) echo "Đã xếp hàng deploy production trên Vercel." ;;
+            *) echo "::error::Deploy Hook trả $code"; exit 1 ;;
+          esac

@@ -1,13 +1,7 @@
 # Kiểm tra mỗi lần đẩy code: build được thì mới cho merge.
 #
-# Cố ý KHÔNG deploy từ đây. Vercel deploy bằng `vercel deploy --prod` và cần
-# token riêng; nhét token vào repo dùng chung của nhóm là trao quyền deploy
-# production cho bất kỳ ai đọc được secrets.
-#
-# Cũng cố ý KHÔNG chạy `tsc --noEmit`: các thư mục src/features/{admin,dashboard,
-# tarot} còn mã cũ không dùng tới nhưng vẫn lỗi kiểu, nên bật lên là CI đỏ vĩnh
-# viễn và mọi người sẽ quen với việc bỏ qua nó — tệ hơn là không có CI. Dọn xong
-# đám đó thì thêm bước typecheck vào đây.
+# Deploy production nằm ở `.github/workflows/cd.yml` (chỉ chạy trên `main`),
+# gọi Vercel Deploy Hook — không nhét Vercel token đầy đủ vào secrets.
 name: CI
 
 on:

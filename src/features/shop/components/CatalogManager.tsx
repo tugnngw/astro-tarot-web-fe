@@ -13,6 +13,14 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  XAxis,
+  YAxis,
+} from "recharts";
+import {
   createProduct,
   getAdminProducts,
   getAffiliateStats,
@@ -25,6 +33,12 @@ import {
 import { PLATFORM_LABEL, type Product } from "@/api/shop";
 import { useCategories } from "@/features/shop/queries";
 import { formatVND } from "@/lib/mock-data";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
 
 const catalogKeys = {
   all: ["catalog-admin"] as const,
@@ -96,6 +110,7 @@ export function CatalogManager() {
                 warn={stats.data!.productsWithoutLink > 0}
               />
             </dl>
+            <TopProductsChart products={stats.data!.topProducts} />
             <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
               Hoa hồng ước lượng:{" "}
               <span className="text-gold">{formatVND(stats.data!.estimatedCommission)}</span> — tính
@@ -271,6 +286,110 @@ export function CatalogManager() {
           onSaved={() => queryClient.invalidateQueries({ queryKey: catalogKeys.all })}
         />
       )}
+    </div>
+  );
+}
+
+function TopProductsChart({ products }: { products: Product[] }) {
+  const data = products
+    .filter((p) => (p.clickCount ?? 0) > 0)
+    .slice(0, 8)
+    .map((p) => ({
+      id: p.id,
+      name: p.name.length > 28 ? `${p.name.slice(0, 26)}…` : p.name,
+      fullName: p.name,
+      clicks: p.clickCount ?? 0,
+      price: p.price,
+      platform: p.affiliatePlatform
+        ? PLATFORM_LABEL[p.affiliatePlatform] ?? p.affiliatePlatform
+        : "—",
+    }));
+
+  if (data.length === 0) {
+    return (
+      <p className="mt-4 text-sm text-muted-foreground">
+        Chưa có lượt bấm nào để vẽ biểu đồ.
+      </p>
+    );
+  }
+
+  const config = {
+    clicks: { label: "Lượt bấm", color: "#d4a84b" },
+  } satisfies ChartConfig;
+
+  const nf = (n: number) => new Intl.NumberFormat("vi-VN").format(n);
+
+  return (
+    <div className="mt-5">
+      <h3 className="text-sm font-medium text-foreground/90">
+        Top sản phẩm theo lượt bấm
+      </h3>
+      <p className="mt-0.5 text-xs text-muted-foreground">
+        Rê chuột vào cột để xem tên đầy đủ, sàn và số lượt.
+      </p>
+      <ChartContainer config={config} className="mt-3 aspect-auto h-[280px] w-full">
+        <BarChart
+          data={data}
+          layout="vertical"
+          margin={{ top: 4, right: 16, left: 4, bottom: 4 }}
+        >
+          <CartesianGrid horizontal={false} strokeDasharray="3 3" />
+          <XAxis
+            type="number"
+            allowDecimals={false}
+            tickLine={false}
+            axisLine={false}
+            tick={{ fontSize: 11 }}
+          />
+          <YAxis
+            type="category"
+            dataKey="name"
+            width={128}
+            tickLine={false}
+            axisLine={false}
+            tick={{ fontSize: 11 }}
+          />
+          <ChartTooltip
+            cursor={{ fill: "oklch(0.75 0.12 85 / 0.12)" }}
+            content={
+              <ChartTooltipContent
+                hideLabel
+                formatter={(value, _name, item) => {
+                  const row = item?.payload as
+                    | {
+                        fullName?: string;
+                        platform?: string;
+                        price?: number;
+                        clicks?: number;
+                      }
+                    | undefined;
+                  return (
+                    <div className="flex min-w-[12rem] flex-col gap-1">
+                      <span className="font-medium text-foreground">
+                        {row?.fullName ?? "Sản phẩm"}
+                      </span>
+                      <span className="text-muted-foreground">
+                        Sàn: {row?.platform ?? "—"}
+                      </span>
+                      <span className="text-muted-foreground">
+                        Giá: {formatVND(row?.price ?? 0)}
+                      </span>
+                      <span className="font-mono tabular-nums text-gold">
+                        {nf(Number(value) || 0)} lượt bấm
+                      </span>
+                    </div>
+                  );
+                }}
+              />
+            }
+          />
+          <Bar dataKey="clicks" radius={[0, 6, 6, 0]} maxBarSize={22}>
+            {data.map((d) => (
+              <Cell key={d.id} fill="#d4a84b" />
+            ))}
+          </Bar>
+        </BarChart>
+      </ChartContainer>
     </div>
   );
 }

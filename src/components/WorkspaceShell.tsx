@@ -1,7 +1,10 @@
 import { useState, type ReactNode } from "react";
+import { Link } from "@tanstack/react-router";
+import { Sparkles } from "lucide-react";
 import { Header } from "@/components/Header";
 import { RoleBadge } from "@/components/RoleBadge";
 import { useAuth } from "@/lib/auth-context";
+import { homePathFor } from "@/lib/roles";
 
 export interface WorkspaceTab {
   key: string;
@@ -33,6 +36,10 @@ export function WorkspaceShell({
   const { user } = useAuth();
   const [active, setActive] = useState(tabs[0]?.key ?? "");
   const current = tabs.find((t) => t.key === active) ?? tabs[0];
+  // Staff / manager / admin vẫn có USER_BASIC — họ có thể cần trải bài hoặc
+  // xem lịch cá nhân. "Trang chủ" của họ là khu làm việc, nên mở lối phụ sang
+  // hub thành viên thay vì bắt họ gõ URL.
+  const showMemberLink = user != null && homePathFor(user) !== "/home";
 
   return (
     <div className="relative min-h-screen">
@@ -49,7 +56,18 @@ export function WorkspaceShell({
               {subtitle}
             </p>
           </div>
-          {aside}
+          <div className="flex flex-wrap items-center gap-2">
+            {showMemberLink && (
+              <Link
+                to="/home"
+                className="inline-flex items-center gap-1.5 rounded-full border border-gold/40 px-4 py-2 text-xs text-gold transition hover:bg-gold/10"
+              >
+                <Sparkles className="h-3.5 w-3.5" />
+                Không gian thành viên
+              </Link>
+            )}
+            {aside}
+          </div>
         </div>
 
         {/*
