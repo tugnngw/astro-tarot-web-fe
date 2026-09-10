@@ -281,6 +281,26 @@ export interface AdminStats {
     estimatedCostUsd: number;
     tokensByModel: Record<string, number>;
   };
+  /**
+   * Tiền vào, tiền ra và phần còn lại của nền tảng. Optional vì BE cũ chưa trả.
+   *
+   * Lưu ý `netProfit` KHÔNG phải doanh thu gộp: phần lớn tiền khách trả là của
+   * Reader, nền tảng chỉ giữ `platformFeePercent`%, rồi trừ tiếp chi phí AI.
+   */
+  revenue?: {
+    grossRevenue: number;
+    grossRevenueLast30Days: number;
+    platformFeePercent: number;
+    platformFee: number;
+    readerShare: number;
+    paidOut: number;
+    pendingPayout: number;
+    aiCostVnd: number;
+    netProfit: number;
+    successfulPayments: number;
+    pendingPayments: number;
+    revenueByMonth: Record<string, number>;
+  };
 }
 
 export function getAdminStats() {

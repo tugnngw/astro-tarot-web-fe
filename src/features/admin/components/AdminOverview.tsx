@@ -16,6 +16,8 @@ import {
   AlertCircle,
   Sparkles,
   Bot,
+  Wallet,
+  TrendingUp,
 } from "lucide-react";
 import {
   Bar,
@@ -79,8 +81,36 @@ function usd(n: number) {
   }).format(n);
 }
 
+function vnd(n: number) {
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+    maximumFractionDigits: 0,
+  }).format(n);
+}
+
+/** BE cũ chưa có khối `revenue` thì coi như 0 — tránh vỡ trang khi lệch phiên bản. */
+function revenueStats(s: AdminStats): NonNullable<AdminStats["revenue"]> {
+  return (
+    s.revenue ?? {
+      grossRevenue: 0,
+      grossRevenueLast30Days: 0,
+      platformFeePercent: 15,
+      platformFee: 0,
+      readerShare: 0,
+      paidOut: 0,
+      pendingPayout: 0,
+      aiCostVnd: 0,
+      netProfit: 0,
+      successfulPayments: 0,
+      pendingPayments: 0,
+      revenueByMonth: {},
+    }
+  );
+}
+
 /** BE cũ chưa có khối `ai` thì coi như 0 — tránh vỡ trang khi lệch phiên bản. */
-function aiStats(s: AdminStats): AdminStats["ai"] {
+function aiStats(s: AdminStats): NonNullable<AdminStats["ai"]> {
   return (
     s.ai ?? {
       totalCalls: 0,
@@ -212,12 +242,220 @@ export function AdminOverview() {
         <ShopChart shop={s.shop} />
       </div>
 
+      <RevenueSummary revenue={revenueStats(s)} />
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <RevenueMonthChart revenue={revenueStats(s)} />
+        <ProfitBreakdownChart revenue={revenueStats(s)} />
+      </div>
+
       <div className="grid gap-4 lg:grid-cols-2">
         <AiTokenBreakdownChart ai={ai} />
         <AiModelChart ai={ai} />
       </div>
     </div>
   );
+}
+
+// ------------------------------------------------------------
+// Doanh thu va loi nhuan
+// ------------------------------------------------------------
+
+/**
+ * Bon con so quan trong nhat ve tien.
+ *
+ * Co y KHONG goi doanh thu gop la "loi nhuan": phan lon tien khach tra thuoc
+ * ve Reader, nen tang chi giu lai phan phi. Ghi ro ngay duoi moi con so de
+ * nguoi doc khong nham cai no sang cai kia.
+ */
+function RevenueSummary({
+  revenue: r,
+}: {
+  revenue: NonNullable<AdminStats["revenue"]>;
+}) {
+  const cards = [
+    {
+      icon: Wallet,
+      label: "Doanh thu gộp",
+      value: vnd(r.grossRevenue),
+      hint: nf(r.successfulPayments) + " giao dịch · " + vnd(r.grossRevenueLast30Days) + " trong 30 ngày",
+      negative: false,
+    },
+    {
+      icon: TrendingUp,
+      label: "Phí nền tảng (" + r.platformFeePercent + "%)",
+      value: vnd(r.platformFee),
+      hint: vnd(r.readerShare) + " còn lại là của Reader",
+      negative: false,
+    },
+    {
+      icon: Bot,
+      label: "Chi phí AI",
+      value: vnd(r.aiCostVnd),
+      hint: "Quy đổi từ token đã tiêu thụ",
+      negative: false,
+    },
+    {
+      icon: TrendingUp,
+      label: "Lợi nhuận ròng",
+      value: vnd(r.netProfit),
+      hint: "Phí nền tảng trừ chi phí AI",
+      negative: r.netProfit < 0,
+    },
+  ];
+
+  return (
+    <section className="glass rounded-2xl p-5">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h2 className="font-display text-lg">Doanh thu và lợi nhuận</h2>
+        <p className="text-xs text-muted-foreground">
+          Đã chi trả Reader {vnd(r.paidOut)}
+          {r.pendingPayout > 0 ? " · " + vnd(r.pendingPayout) + " chờ chi" : ""}
+        </p>
+      </div>
+
+      <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {cards.map((c) => {
+          const Icon = c.icon;
+          return (
+            <div key={c.label} className="rounded-xl border border-gold/20 p-4">
+              <span
+                className={
+                  c.negative
+                    ? "inline-flex rounded-lg bg-rose-400/15 p-2 text-rose-300"
+                    : "inline-flex rounded-lg bg-gold/10 p-2 text-gold"
+                }
+              >
+                <Icon className="h-4 w-4" />
+              </span>
+              <div
+                className={
+                  c.negative
+                    ? "mt-3 font-display text-2xl leading-none text-rose-300"
+                    : "mt-3 font-display text-2xl leading-none"
+                }
+              >
+                {c.value}
+              </div>
+              <div className="mt-1.5 text-sm text-foreground/80">{c.label}</div>
+              <div className="mt-0.5 text-xs text-muted-foreground">{c.hint}</div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+/** Doanh thu theo thang — nhin ra xu huong thay vi chi mot con so cong don. */
+function RevenueMonthChart({
+  revenue: r,
+}: {
+  revenue: NonNullable<AdminStats["revenue"]>;
+}) {
+  const data = Object.entries(r.revenueByMonth).map(([month, total]) => ({
+    key: month,
+    label: monthLabel(month),
+    count: Number(total),
+  }));
+
+  const config = {
+    count: { label: "Doanh thu", color: "#34d399" },
+  } satisfies ChartConfig;
+
+  return (
+    <section className="glass rounded-2xl p-5">
+      <h2 className="font-display text-lg">Doanh thu theo tháng</h2>
+      <p className="mt-1 text-xs text-muted-foreground">
+        12 tháng gần nhất, tính trên giao dịch đã thu được tiền.
+      </p>
+      {data.length === 0 ? (
+        <p className="mt-6 text-sm text-muted-foreground">
+          Chưa có giao dịch thành công nào.
+        </p>
+      ) : (
+        <ChartContainer config={config} className="mt-4 aspect-auto h-[260px] w-full">
+          <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+            <ChartTooltip
+              content={
+                <ChartTooltipContent
+                  formatter={(value) => (
+                    <span className="font-medium text-foreground">
+                      {vnd(Number(value))}
+                    </span>
+                  )}
+                />
+              }
+            />
+            <Bar dataKey="count" fill="var(--color-count)" radius={[6, 6, 0, 0]} />
+          </BarChart>
+        </ChartContainer>
+      )}
+    </section>
+  );
+}
+
+/** Tien khach tra chia ve dau: Reader, phi nen tang, chi phi AI. */
+function ProfitBreakdownChart({
+  revenue: r,
+}: {
+  revenue: NonNullable<AdminStats["revenue"]>;
+}) {
+  const data = [
+    { key: "reader", label: "Reader nhận", count: r.readerShare, fill: "#38bdf8" },
+    {
+      key: "fee",
+      label: "Phí nền tảng " + r.platformFeePercent + "%",
+      count: r.platformFee,
+      fill: "#d4a84b",
+    },
+    { key: "ai", label: "Chi phí AI", count: r.aiCostVnd, fill: "#fb7185" },
+  ].filter((d) => d.count > 0);
+
+  const config = {
+    count: { label: "Số tiền" },
+  } satisfies ChartConfig;
+
+  return (
+    <section className="glass rounded-2xl p-5">
+      <h2 className="font-display text-lg">Tiền đi về đâu</h2>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Phần lớn doanh thu là của Reader — phần nền tảng giữ lại mới là nguồn bù chi phí.
+      </p>
+      {data.length === 0 ? (
+        <p className="mt-6 text-sm text-muted-foreground">Chưa có số liệu.</p>
+      ) : (
+        <ChartContainer config={config} className="mt-4 aspect-auto h-[260px] w-full">
+          <PieChart>
+            <ChartTooltip
+              content={
+                <ChartTooltipContent
+                  nameKey="label"
+                  formatter={(value, _name, item) => (
+                    <span className="font-medium text-foreground">
+                      {String(item?.payload?.label ?? "")}: {vnd(Number(value))}
+                    </span>
+                  )}
+                />
+              }
+            />
+            <Pie data={data} dataKey="count" nameKey="label" innerRadius={55} outerRadius={95}>
+              {data.map((d) => (
+                <Cell key={d.key} fill={d.fill} />
+              ))}
+            </Pie>
+            <ChartLegend content={<ChartLegendContent nameKey="label" />} />
+          </PieChart>
+        </ChartContainer>
+      )}
+    </section>
+  );
+}
+
+/** "2026-09" -> "T9/26". Truc X ngan de khong chong chu. */
+function monthLabel(ym: string) {
+  const parts = ym.split("-");
+  return parts.length === 2 ? "T" + Number(parts[1]) + "/" + parts[0].slice(2) : ym;
 }
 
 function RoleChart({ users }: { users: AdminStats["users"] }) {
@@ -554,7 +792,7 @@ function ShopChart({ shop }: { shop: AdminStats["shop"] }) {
 
 const MODEL_COLORS = ["#d4a84b", "#38bdf8", "#34d399", "#a78bfa", "#fb7185", "#fbbf24"];
 
-function AiTokenBreakdownChart({ ai }: { ai: AdminStats["ai"] }) {
+function AiTokenBreakdownChart({ ai }: { ai: NonNullable<AdminStats["ai"]> }) {
   const data = [
     {
       key: "prompt",
@@ -661,7 +899,7 @@ function AiTokenBreakdownChart({ ai }: { ai: AdminStats["ai"] }) {
   );
 }
 
-function AiModelChart({ ai }: { ai: AdminStats["ai"] }) {
+function AiModelChart({ ai }: { ai: NonNullable<AdminStats["ai"]> }) {
   const entries = Object.entries(ai.tokensByModel ?? {});
   const data = entries.map(([model, tokens], i) => ({
     key: model,
