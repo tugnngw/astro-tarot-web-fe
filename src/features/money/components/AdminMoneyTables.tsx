@@ -67,6 +67,7 @@ export function PaymentQueue() {
       </div>
 
       <Body
+        resetKey={status}
         query={query}
         emptyTitle="Không có giao dịch nào"
         emptyHint="Khi khách tạo lệnh chuyển khoản, giao dịch sẽ xuất hiện ở đây."
@@ -206,6 +207,7 @@ export function PayoutQueue() {
       </div>
 
       <Body
+        resetKey={status}
         query={query}
         emptyTitle="Không có lệnh rút nào"
         emptyHint="Reader gửi lệnh rút từ tab Thu nhập ở bàn làm việc."
@@ -352,6 +354,7 @@ export function ReportQueue() {
       </div>
 
       <Body
+        resetKey={status}
         query={query}
         emptyTitle="Không có báo cáo nào"
         emptyHint="Khách gửi báo cáo từ trang Lịch hẹn của tôi sau khi buổi xem hoàn tất."
@@ -555,16 +558,19 @@ function Body({
   query,
   emptyTitle,
   emptyHint,
+  resetKey,
   children,
 }: {
   query: { isPending: boolean; isError: boolean; error: unknown; data?: { content: unknown[] } };
   emptyTitle: string;
   emptyHint: string;
+  /** Đổi bộ lọc thì quên chiều cao đã nhớ. */
+  resetKey?: string | number;
   children: React.ReactNode;
 }) {
   if (query.isError) {
     return (
-      <PagedList>
+      <PagedList resetKey={resetKey}>
       <div className="flex flex-col items-center py-12 text-center">
         <AlertCircle className="h-8 w-8 text-destructive/70" />
         <p className="mt-3 text-sm text-muted-foreground">
@@ -576,7 +582,7 @@ function Body({
   }
   if (query.isPending) {
     return (
-      <PagedList>
+      <PagedList resetKey={resetKey}>
         <div className="mt-4 space-y-2" aria-busy="true">
           {Array.from({ length: 4 }, (_, i) => (
             <div key={i} className="h-20 animate-pulse rounded-xl bg-mystic/10" aria-hidden="true" />
@@ -587,7 +593,7 @@ function Body({
   }
   if ((query.data?.content.length ?? 0) === 0) {
     return (
-      <PagedList>
+      <PagedList resetKey={resetKey}>
       <div className="flex flex-col items-center py-14 text-center">
         <Inbox aria-hidden="true" className="h-9 w-9 text-gold/50" />
         <h3 className="mt-3 font-display text-lg">{emptyTitle}</h3>
@@ -596,7 +602,7 @@ function Body({
       </PagedList>
     );
   }
-  return <PagedList>{children}</PagedList>;
+  return <PagedList resetKey={resetKey}>{children}</PagedList>;
 }
 
 function InlineReason({

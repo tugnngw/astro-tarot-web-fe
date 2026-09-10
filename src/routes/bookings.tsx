@@ -89,7 +89,7 @@ function MyBookingsPage() {
         </div>
 
         <div className="mt-6" aria-live="polite" aria-busy={query.isFetching}>
-          <PagedList>
+          <PagedList resetKey={status}>
             <BookingList
               bookings={query.data?.content ?? []}
               side="customer"

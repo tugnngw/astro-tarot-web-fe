@@ -9,7 +9,7 @@
 //      trang cũ trên màn hình thay vì rơi về khung xương rỗng.
 //   2. Bọc phần danh sách trong <PagedList> để mọi trang cao bằng nhau —
 //      trang cuối ít dòng hơn vẫn chiếm đúng chỗ, nên nút bấm không chạy lên.
-import type { ReactNode } from "react";
+import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 
 /** Số dòng mỗi trang, dùng chung để mọi bảng trông giống nhau. */
@@ -79,25 +79,46 @@ export function Pagination({
 }
 
 /**
- * Giữ chiều cao của vùng danh sách cố định giữa các trang.
+ * Giữ chiều cao của vùng danh sách không tụt xuống khi sang trang.
  *
- * Trang cuối thường ít dòng hơn; nếu để tự co thì cả khối tụt lên và nút "Trang
- * sau" chạy khỏi chỗ ngón tay vừa bấm. `minRows` nhân với chiều cao một dòng ra
- * chiều cao tối thiểu, nên mọi trang chiếm đúng một khoảng như nhau.
+ * Trang cuối thường ít dòng hơn; nếu để tự co thì cả khối tụt lên và nút
+ * "Trang sau" chạy khỏi chỗ ngón tay vừa bấm.
  *
- * Dùng min-height chứ không phải height cố định: dòng nào nội dung dài hơn vẫn
- * giãn ra được thay vì bị cắt.
+ * Cách làm: ĐO chiều cao thật của nội dung rồi nhớ mức cao nhất từng thấy, và
+ * đặt mức đó làm min-height. Ban đầu tôi nhân "số dòng × chiều cao dòng ước
+ * lượng" — sai ngay, vì mỗi bảng có dòng cao khác nhau (bảng đối soát đo được
+ * ~600px một dòng, gấp tám lần con số tôi đoán). Đo thì không phải đoán.
+ *
+ * Chỉ tăng, không giảm, nên không có vòng lặp đo–đặt–đo lại: sau lần đầu,
+ * chiều cao nội dung đã bằng min-height nên không kích hoạt cập nhật nữa.
+ *
+ * `resetKey` để đổi bộ lọc thì quên mức cũ — không thì lọc từ mục nhiều dòng
+ * sang mục ít dòng sẽ chừa lại một khoảng trống dài không lý do.
  */
 export function PagedList({
   children,
-  rows = PAGE_SIZE,
-  rowHeight = 76,
+  resetKey,
 }: {
   children: ReactNode;
-  /** Số dòng của một trang đầy. */
-  rows?: number;
-  /** Chiều cao ước lượng của một dòng, tính bằng px. */
-  rowHeight?: number;
+  /** Đổi giá trị này thì quên chiều cao đã nhớ (ví dụ khi đổi bộ lọc). */
+  resetKey?: string | number;
 }) {
-  return <div style={{ minHeight: rows * rowHeight }}>{children}</div>;
+  const inner = useRef<HTMLDivElement>(null);
+  const [minHeight, setMinHeight] = useState(0);
+
+  useLayoutEffect(() => {
+    setMinHeight(0);
+  }, [resetKey]);
+
+  useLayoutEffect(() => {
+    const h = inner.current?.getBoundingClientRect().height ?? 0;
+    // Ngưỡng 1px để tránh nhấp nháy vì số lẻ khi trình duyệt làm tròn.
+    if (h > minHeight + 1) setMinHeight(h);
+  });
+
+  return (
+    <div style={minHeight ? { minHeight } : undefined}>
+      <div ref={inner}>{children}</div>
+    </div>
+  );
 }
