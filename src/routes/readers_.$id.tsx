@@ -4,7 +4,7 @@
 // trong bộ nhớ trình duyệt: đặt lịch xong tải lại trang là mất, và Reader
 // không bao giờ nhìn thấy gì. Nay nối thẳng vào /api/v1/bookings.
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AlertCircle, ArrowLeft, CalendarClock, Clock, Star } from "lucide-react";
 import { toast } from "sonner";
 import { Header } from "@/components/Header";
@@ -14,6 +14,7 @@ import {
   useCreateBooking,
   useReaderReviews,
   useSlots,
+  useNextAvailableDate,
 } from "@/features/booking/queries";
 import { DURATIONS, type Duration, type Slot } from "@/api/booking";
 import { formatVND } from "@/lib/mock-data";
@@ -36,6 +37,17 @@ function ReaderProfilePage() {
   const [duration, setDuration] = useState<Duration>(30);
   const [date, setDate] = useState(() => toDateInput(new Date()));
   const [picked, setPicked] = useState<Slot | null>(null);
+
+  // Khung đã qua giờ bị loại, nên mở trang vào buổi tối là hôm nay trống trơn
+  // và Reader trông như không nhận khách — dù mai vẫn còn chỗ. Hỏi BE ngày
+  // trống gần nhất rồi nhảy thẳng tới đó, một lần, ngay khi mở trang.
+  const nextDay = useNextAvailableDate(id, duration, reader.isSuccess);
+  const [jumped, setJumped] = useState(false);
+  useEffect(() => {
+    if (jumped || !nextDay.data) return;
+    if (nextDay.data !== date) setDate(nextDay.data);
+    setJumped(true);
+  }, [nextDay.data, jumped, date]);
 
   const slots = useSlots(id, date, duration, reader.isSuccess);
   const create = useCreateBooking();
@@ -308,10 +320,34 @@ function ReaderProfilePage() {
                       {slots.error instanceof Error ? slots.error.message : "Không tải được khung giờ"}
                     </p>
                   ) : (slots.data?.length ?? 0) === 0 ? (
-                    <p className="mt-2 flex items-start gap-2 text-sm text-muted-foreground">
+                    <div className="mt-2 flex items-start gap-2 text-sm text-muted-foreground">
                       <Clock aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
-                      Ngày này Reader không còn khung nào trống. Thử chọn ngày khác.
-                    </p>
+                      <div>
+                        <p>
+                          {date === toDateInput(new Date())
+                            ? "Hôm nay đã qua giờ làm việc của Reader."
+                            : "Ngày này Reader không còn khung nào trống."}
+                        </p>
+                        {nextDay.data && nextDay.data !== date ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setDate(nextDay.data as string);
+                              setPicked(null);
+                            }}
+                            className="mt-1 text-gold underline-offset-4 hover:underline"
+                          >
+                            Xem ngày trống gần nhất ({formatDayLabel(nextDay.data)})
+                          </button>
+                        ) : (
+                          <p className="mt-1">
+                            {nextDay.isPending
+                              ? "Đang tìm ngày trống gần nhất…"
+                              : "Reader này chưa có khung trống trong hai tuần tới."}
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   ) : (
                     <div className="mt-2 grid max-h-64 grid-cols-3 gap-2 overflow-y-auto pr-1">
                       {slots.data!.map((s) => (
@@ -396,6 +432,16 @@ function priceFor(r: { pricePer15m: number | null; pricePer30m: number | null; p
 }
 
 /** yyyy-mm-dd theo giờ ĐỊA PHƯƠNG. toISOString() sẽ lệch một ngày với múi giờ VN. */
+/** "2026-10-09" → "Thứ 6, 09/10". Dùng cho nút nhảy tới ngày trống. */
+function formatDayLabel(iso: string) {
+  const d = new Date(iso + "T00:00:00");
+  return d.toLocaleDateString("vi-VN", {
+    weekday: "short",
+    day: "2-digit",
+    month: "2-digit",
+  });
+}
+
 function toDateInput(d: Date) {
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;

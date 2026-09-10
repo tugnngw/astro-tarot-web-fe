@@ -39,6 +39,20 @@ export function useSlots(readerProfileId: string, date: string, duration: number
   });
 }
 
+/** Ngày trống gần nhất — dùng để mở trang đúng ngày thay vì mặc định hôm nay. */
+export function useNextAvailableDate(
+  readerProfileId: string,
+  duration: number,
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: [...bookingKeys.all, "next-available", readerProfileId, duration],
+    queryFn: () => bookingApi.getNextAvailableDate(readerProfileId, duration),
+    enabled: enabled && Boolean(readerProfileId),
+    staleTime: 60_000,
+  });
+}
+
 export function useReaderReviews(readerProfileId: string, page = 0) {
   return useQuery({
     queryKey: bookingKeys.reviews(readerProfileId, page),
