@@ -26,7 +26,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShopSlugRouteImport } from './routes/shop_.$slug'
 import { Route as ReadersIdRouteImport } from './routes/readers_.$id'
-import { Route as ProfileAstrologyRouteImport } from './routes/profile/astrology'
+import { Route as ProfileAstrologyRouteImport } from './routes/profile_.astrology'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 
 const VerifyEmailRoute = VerifyEmailRouteImport.update({
@@ -115,9 +115,9 @@ const ReadersIdRoute = ReadersIdRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileAstrologyRoute = ProfileAstrologyRouteImport.update({
-  id: '/astrology',
-  path: '/astrology',
-  getParentRoute: () => ProfileRoute,
+  id: '/profile_/astrology',
+  path: '/profile/astrology',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/blog/$slug',
@@ -130,7 +130,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/bookings': typeof BookingsRoute
   '/manager': typeof ManagerRoute
-  '/profile': typeof ProfileRouteWithChildren
+  '/profile': typeof ProfileRoute
   '/reader': typeof ReaderRoute
   '/reader-hub': typeof ReaderHubRoute
   '/readers': typeof ReadersRoute
@@ -151,7 +151,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/bookings': typeof BookingsRoute
   '/manager': typeof ManagerRoute
-  '/profile': typeof ProfileRouteWithChildren
+  '/profile': typeof ProfileRoute
   '/reader': typeof ReaderRoute
   '/reader-hub': typeof ReaderHubRoute
   '/readers': typeof ReadersRoute
@@ -173,7 +173,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/bookings': typeof BookingsRoute
   '/manager': typeof ManagerRoute
-  '/profile': typeof ProfileRouteWithChildren
+  '/profile': typeof ProfileRoute
   '/reader': typeof ReaderRoute
   '/reader-hub': typeof ReaderHubRoute
   '/readers': typeof ReadersRoute
@@ -185,7 +185,7 @@ export interface FileRoutesById {
   '/tarot-history': typeof TarotHistoryRoute
   '/verify-email': typeof VerifyEmailRoute
   '/blog/$slug': typeof BlogSlugRoute
-  '/profile/astrology': typeof ProfileAstrologyRoute
+  '/profile_/astrology': typeof ProfileAstrologyRoute
   '/readers_/$id': typeof ReadersIdRoute
   '/shop_/$slug': typeof ShopSlugRoute
 }
@@ -250,7 +250,7 @@ export interface FileRouteTypes {
     | '/tarot-history'
     | '/verify-email'
     | '/blog/$slug'
-    | '/profile/astrology'
+    | '/profile_/astrology'
     | '/readers_/$id'
     | '/shop_/$slug'
   fileRoutesById: FileRoutesById
@@ -260,7 +260,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   BookingsRoute: typeof BookingsRoute
   ManagerRoute: typeof ManagerRoute
-  ProfileRoute: typeof ProfileRouteWithChildren
+  ProfileRoute: typeof ProfileRoute
   ReaderRoute: typeof ReaderRoute
   ReaderHubRoute: typeof ReaderHubRoute
   ReadersRoute: typeof ReadersRoute
@@ -272,6 +272,7 @@ export interface RootRouteChildren {
   TarotHistoryRoute: typeof TarotHistoryRoute
   VerifyEmailRoute: typeof VerifyEmailRoute
   BlogSlugRoute: typeof BlogSlugRoute
+  ProfileAstrologyRoute: typeof ProfileAstrologyRoute
   ReadersIdRoute: typeof ReadersIdRoute
   ShopSlugRoute: typeof ShopSlugRoute
 }
@@ -397,12 +398,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReadersIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/profile/astrology': {
-      id: '/profile/astrology'
-      path: '/astrology'
+    '/profile_/astrology': {
+      id: '/profile_/astrology'
+      path: '/profile/astrology'
       fullPath: '/profile/astrology'
       preLoaderRoute: typeof ProfileAstrologyRouteImport
-      parentRoute: typeof ProfileRoute
+      parentRoute: typeof rootRouteImport
     }
     '/blog/$slug': {
       id: '/blog/$slug'
@@ -414,23 +415,12 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface ProfileRouteChildren {
-  ProfileAstrologyRoute: typeof ProfileAstrologyRoute
-}
-
-const ProfileRouteChildren: ProfileRouteChildren = {
-  ProfileAstrologyRoute: ProfileAstrologyRoute,
-}
-
-const ProfileRouteWithChildren =
-  ProfileRoute._addFileChildren(ProfileRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   BookingsRoute: BookingsRoute,
   ManagerRoute: ManagerRoute,
-  ProfileRoute: ProfileRouteWithChildren,
+  ProfileRoute: ProfileRoute,
   ReaderRoute: ReaderRoute,
   ReaderHubRoute: ReaderHubRoute,
   ReadersRoute: ReadersRoute,
@@ -442,6 +432,7 @@ const rootRouteChildren: RootRouteChildren = {
   TarotHistoryRoute: TarotHistoryRoute,
   VerifyEmailRoute: VerifyEmailRoute,
   BlogSlugRoute: BlogSlugRoute,
+  ProfileAstrologyRoute: ProfileAstrologyRoute,
   ReadersIdRoute: ReadersIdRoute,
   ShopSlugRoute: ShopSlugRoute,
 }

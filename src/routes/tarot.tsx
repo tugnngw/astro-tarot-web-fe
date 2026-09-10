@@ -40,6 +40,7 @@ import {
   getUserTimezone,
 } from "@/lib/utils";
 import { API_BASE } from "@/api/client";
+import { searchPlaces } from "@/lib/geocode";
 
 const DrawStage = lazy(() =>
   import("@/components/TarotDraw").then((m) => ({ default: m.TarotDraw })),
@@ -318,38 +319,9 @@ function formatAndValidateTime(value: string): {
 // ============================================================
 // SEARCH PLACE - AUTOCOMPLETE
 // ============================================================
+// searchPlaces đã chuyển sang @/lib/geocode để trang sửa hồ sơ chiêm tinh
+// (/profile/astrology) dùng chung đúng một cách tra toạ độ.
 let searchTimeout: NodeJS.Timeout | null = null;
-
-async function searchPlaces(query: string): Promise<Suggestion[]> {
-  if (!query || query.length < 2) return [];
-
-  try {
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&countrycodes=vn&accept-language=vi`,
-      {
-        headers: {
-          "User-Agent": "ASTROTAROT/1.0 (https://astrotarot.vn)",
-        },
-      },
-    );
-
-    if (!response.ok) return [];
-
-    const data = await response.json();
-    if (data && data.length > 0) {
-      return data.map((item: any) => ({
-        displayName: item.display_name,
-        lat: parseFloat(item.lat),
-        lng: parseFloat(item.lon),
-        placeId: item.place_id,
-      }));
-    }
-    return [];
-  } catch (error) {
-    console.error("Search places error:", error);
-    return [];
-  }
-}
 
 // ============================================================
 // GET ELEVATION

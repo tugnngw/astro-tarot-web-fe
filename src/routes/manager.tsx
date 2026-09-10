@@ -9,6 +9,7 @@ import { WorkspaceShell } from "@/components/WorkspaceShell";
 import { UserDirectory } from "@/features/admin/components/UserDirectory";
 import { ReaderApplications } from "@/features/admin/components/ReaderApplications";
 import { ReportQueue } from "@/features/money/components/AdminMoneyTables";
+import { StaffSupportQueue } from "@/features/support/components/StaffSupportQueue";
 
 export const Route = createFileRoute("/manager")({
   head: () => ({ meta: [{ title: "Quản lý — ASTROTAROT" }] }),
@@ -34,6 +35,16 @@ function ManagerWorkspace() {
           key: "reports",
           label: "Báo cáo vi phạm",
           render: () => <ReportQueue />,
+        },
+        {
+          // Quản lý có SUPPORT_VIEW nhưng không có SUPPORT_RESPOND: họ giám
+          // sát hàng chờ chứ không trả lời khách. Trước đây quyền này được cấp
+          // mà khu của họ không có chỗ nào dùng tới, nên muốn xem thì phải
+          // vòng sang /staff — trang của nhân viên. TicketThread tự ẩn ô trả
+          // lời khi thiếu SUPPORT_RESPOND, nên ở đây chỉ là xem.
+          key: "support",
+          label: "Hàng chờ hỗ trợ",
+          render: () => <StaffSupportQueue />,
         },
         {
           key: "staff",
