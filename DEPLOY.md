@@ -71,30 +71,51 @@ Lần tải đầu sau đó có thể chờ tới 90 giây trước khi dữ li�
 lên ngay vì phần vỏ do Vercel phục vụ; chỉ danh sách sản phẩm và Reader là phải
 đợi backend thức dậy.
 
-Deploy bằng **Vercel CLI từ máy**, không nối với GitHub. Lý do: repo thuộc tài
-khoản `tugnngw`, còn Vercel thì thuộc `Megalit2578`, và Vercel chỉ nhập được
-repo mà nó đã được cài GitHub App lên đó — kể cả repo public, kể cả khi nhập
-bằng URL trực tiếp.
+Deploy bằng **Vercel CLI từ máy**, hoặc để GitHub Actions gọi Deploy Hook khi
+có push lên `main` (xem mục "Tự động deploy trên main" bên dưới).
 
-### Deploy lại sau khi sửa code
+Lý do trước đây không nối GitHub App: repo thuộc tài khoản `tugnngw`, còn
+Vercel thuộc `Megalit2578`, và Vercel chỉ nhập được repo mà nó đã được cài
+GitHub App lên đó — kể cả repo public, kể cả khi nhập bằng URL trực tiếp.
+
+### Deploy lại sau khi sửa code (tay)
 
 ```bash
 npx vercel deploy --prod
 ```
 
-Chạy trong thư mục này. **Push lên git KHÔNG tự deploy** — đây là điểm khác
-biệt lớn nhất so với cách nối GitHub, rất dễ quên rồi ngồi thắc mắc sao sửa mãi
-mà trang không đổi.
+Chạy trong thư mục này. Nếu chưa gắn secret Deploy Hook thì **push lên git
+KHÔNG tự deploy** — đây là điểm khác biệt lớn nhất so với cách nối GitHub, rất
+dễ quên rồi ngồi thắc mắc sao sửa mãi mà trang không đổi.
 
 Thư mục `.vercel/` (đã gitignore) giữ liên kết tới dự án; xoá nó đi thì lần sau
 CLI sẽ hỏi lại và có thể tạo nhầm một dự án mới.
 
-### Muốn có tự động deploy mỗi lần push
+### Tự động deploy trên main (Deploy Hook)
+
+Không cần cài Vercel GitHub App. Mỗi lần có push/merge vào `nhánh main`,
+workflow `.github/workflows/cd.yml` gọi một URL Deploy Hook — URL đó chỉ kích
+hoạt lại đúng dự án này.
+
+1. Vercel → Project → **Settings → Git → Deploy Hooks** → Create Hook  
+   - Tên: `github-main` (tuỳ ý)  
+   - Branch: **`main`**
+2. Chép URL vừa tạo.
+3. GitHub → repo `astro-tarot-web-fe` → **Settings → Secrets and variables →
+   Actions** → New repository secret  
+   - Name: `VERCEL_DEPLOY_HOOK`  
+   - Value: URL vừa chép
+
+Sau đó mỗi lần merge PR vào `main`, Actions tab sẽ có job **CD / Deploy lên
+Vercel**. Vẫn giữ được `npx vercel deploy --prod` khi cần deploy tay.
+
+### Cách khác: nối Vercel GitHub App
 
 Nhờ chủ repo `tugnngw` cài [Vercel GitHub App](https://github.com/apps/vercel)
 cho repo `astro-tarot-web-fe`, rồi ở Project Settings → Git nối vào và chọn
-nhánh `feat/dat-branch`. Hoặc chạy `npx vercel git connect` sau khi app đã được
-cài.
+nhánh `main`. Hoặc chạy `npx vercel git connect` sau khi app đã được cài. Cách
+này không cần secret `VERCEL_DEPLOY_HOOK` — có thể tắt workflow CD nếu đã nối
+App.
 
 ---
 
@@ -102,8 +123,7 @@ cài.
 
 ### 1. Nhập dự án vào Vercel
 
-Ở [vercel.com/new](https://vercel.com/new), chọn repo này và nhánh
-`feat/dat-branch`.
+Ở [vercel.com/new](https://vercel.com/new), chọn repo này và nhánh `main`.
 
 `vercel.json` đã khai sẵn nên **không cần đụng gì** trong phần Build Settings:
 

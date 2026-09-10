@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { avatarUrl } from "@/api/profile";
-import { PUBLIC_NAV, workspaceNavFor } from "@/lib/roles";
+import { PUBLIC_NAV, homePathFor, workspaceNavFor } from "@/lib/roles";
 import { RoleBadge } from "./RoleBadge";
 import { NotificationBell } from "./NotificationBell";
 import { LogoutConfirm } from "./LogoutConfirm";
@@ -26,6 +26,7 @@ export function Header() {
   // Link khu vực làm việc suy ra từ QUYỀN, không phải từ tên vai trò: thêm một
   // vai trò mới thì chỉ sửa bảng ở @/lib/roles, không phải sửa header.
   const workspaceLinks = workspaceNavFor(user);
+  const homeTo = homePathFor(user);
   const [open, setOpen] = useState(false);
   const [logoutOpen, setLogoutOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -62,7 +63,7 @@ export function Header() {
           {/* min-w-0 + truncate: ở 375px, wordmark + giỏ + avatar + nút menu
               cộng lại rộng hơn màn hình và đẩy cả trang cuộn ngang. Cho phép
               phần thương hiệu co lại thay vì làm tràn layout. */}
-          <Link to="/" className="flex min-w-0 items-center gap-2">
+          <Link to={homeTo} className="flex min-w-0 items-center gap-2">
             <img
               src={logo}
               alt=""
@@ -74,17 +75,20 @@ export function Header() {
           </Link>
 
           <nav className="hidden items-center gap-7 text-sm md:flex">
-            {PUBLIC_NAV.map((l) => (
-              <Link
-                key={l.to}
-                to={l.to}
-                className="text-muted-foreground transition hover:text-gold"
-                activeProps={{ className: "text-gold" }}
-                activeOptions={{ exact: l.to === "/" }}
-              >
-                {l.label}
-              </Link>
-            ))}
+            {PUBLIC_NAV.map((l) => {
+              const to = l.to === "/" ? homeTo : l.to;
+              return (
+                <Link
+                  key={l.label}
+                  to={to}
+                  className="text-muted-foreground transition hover:text-gold"
+                  activeProps={{ className: "text-gold" }}
+                  activeOptions={{ exact: true }}
+                >
+                  {l.label}
+                </Link>
+              );
+            })}
             {workspaceLinks.map((l) => (
               <Link
                 key={l.to}
@@ -257,18 +261,21 @@ export function Header() {
         {mobileOpen && (
           <nav className="border-t border-gold/20 px-4 py-3 md:hidden">
             <div className="flex flex-col">
-              {PUBLIC_NAV.map((l) => (
-                <Link
-                  key={l.to}
-                  to={l.to}
-                  onClick={() => setMobileOpen(false)}
-                  className="rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition hover:bg-gold/10 hover:text-gold"
-                  activeProps={{ className: "text-gold" }}
-                  activeOptions={{ exact: l.to === "/" }}
-                >
-                  {l.label}
-                </Link>
-              ))}
+              {PUBLIC_NAV.map((l) => {
+                const to = l.to === "/" ? homeTo : l.to;
+                return (
+                  <Link
+                    key={l.label}
+                    to={to}
+                    onClick={() => setMobileOpen(false)}
+                    className="rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition hover:bg-gold/10 hover:text-gold"
+                    activeProps={{ className: "text-gold" }}
+                    activeOptions={{ exact: true }}
+                  >
+                    {l.label}
+                  </Link>
+                );
+              })}
               {user && (
                 <Link
                   to="/bookings"

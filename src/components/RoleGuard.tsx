@@ -14,20 +14,21 @@ import { useNavigate } from "@tanstack/react-router";
 import { ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
-import { canAny, type Permission } from "@/lib/roles";
+import { canAny, homePathFor, type Permission } from "@/lib/roles";
 
 interface Props {
   /** Có ÍT NHẤT một trong các quyền này thì vào được. */
   require: Permission[];
   children: ReactNode;
-  /** Điểm đến khi bị từ chối. Mặc định về trang chủ. */
+  /** Điểm đến khi bị từ chối. Mặc định về trang chủ đúng vai trò. */
   redirectTo?: string;
 }
 
-export function RoleGuard({ require: required, children, redirectTo = "/" }: Props) {
+export function RoleGuard({ require: required, children, redirectTo }: Props) {
   const { user, openAuth, bootstrapping } = useAuth();
   const navigate = useNavigate();
   const allowed = canAny(user, required);
+  const fallback = redirectTo ?? homePathFor(user);
 
   useEffect(() => {
     // Đang đối chiếu phiên với BE thì chưa kết luận gì. Bỏ qua bước này thì mỗi
@@ -40,9 +41,9 @@ export function RoleGuard({ require: required, children, redirectTo = "/" }: Pro
     }
     if (!allowed) {
       toast.error("Bạn không có quyền truy cập trang này");
-      navigate({ to: redirectTo });
+      navigate({ to: fallback });
     }
-  }, [user, allowed, bootstrapping, navigate, openAuth, redirectTo]);
+  }, [user, allowed, bootstrapping, navigate, openAuth, fallback]);
 
   if (bootstrapping) {
     return (

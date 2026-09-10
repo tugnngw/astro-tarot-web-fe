@@ -156,11 +156,11 @@ export const ROLE_LABEL: Record<Role, string> = {
 
 /** Mô tả ngắn dùng ở màn quản lý, để người chọn vai trò biết mình đang trao gì. */
 export const ROLE_DESCRIPTION: Record<Role, string> = {
-  guest: "Chưa đăng nhập. Xem được trang chủ, cửa hàng và danh sách Reader.",
-  user: "Khách đã đăng ký: mua hàng, đặt lịch, xem bài, nộp hồ sơ làm Reader.",
-  staff: "Hỗ trợ khách và nhận booking với vai trò Reader.",
-  manager: "Quản lý nhân sự và duyệt hồ sơ Reader. Không đụng sản phẩm, đơn hàng.",
-  admin: "Toàn quyền, gồm sản phẩm, đơn hàng và phân quyền tài khoản.",
+  guest: "Chưa đăng nhập. Trang chủ là trang giới thiệu (/).",
+  user: "Thành viên: trang chủ /home — mua hàng, đặt lịch, xem bài, nộp hồ sơ Reader.",
+  staff: "Nhân viên: trang chủ /staff — hỗ trợ khách và nhận booking Reader.",
+  manager: "Quản lý: trang chủ /manager — nhân sự và duyệt hồ sơ Reader.",
+  admin: "Quản trị: trang chủ /admin — toàn quyền tài khoản, tiền, sản phẩm.",
 };
 
 /** Màu chip theo vai trò — dùng chung để một vai trò luôn có một màu. */
@@ -174,14 +174,34 @@ export const ROLE_BADGE_CLASS: Record<Role, string> = {
 
 // ---------- Điều hướng ----------
 //
-// Cố ý không có bảng "trang chủ theo vai trò": đăng nhập xong người dùng ở lại
-// đúng trang họ đang đọc dở. Nhân viên vào khu vực của mình qua link trên
-// header (WORKSPACE_NAV) khi họ muốn, chứ không bị đá sang đó.
-
+// Mỗi vai trò có một trang chủ riêng. Đăng nhập xong (từ luồng auth-only) hoặc
+// bấm "Trang chủ" trên header thì về đúng khu của mình — không nhét admin vào
+// hub thành viên rồi bắt họ tự tìm /admin.
+//
 // `as const` để giữ kiểu literal của `to`: TanStack Router nhờ đó bắt được
 // đường dẫn gõ sai ngay lúc biên dịch. Khai báo `to: string` là mất kiểm tra đó.
 
-/** Ba trụ cột của sản phẩm — khách chưa đăng nhập cũng thấy đủ. */
+/** Trang chủ theo vai trò. Khách chưa đăng nhập → trang giới thiệu. */
+export type HomePath = "/" | "/home" | "/staff" | "/manager" | "/admin";
+
+export function homePathFor(principal: Principal | null): HomePath {
+  if (!principal) return "/";
+  switch (principal.role) {
+    case "admin":
+      return "/admin";
+    case "manager":
+      return "/manager";
+    case "staff":
+      return "/staff";
+    case "user":
+      return "/home";
+    default:
+      return "/";
+  }
+}
+
+/** Ba trụ cột của sản phẩm — khách chưa đăng nhập cũng thấy đủ.
+ *  "Trang chủ" trên nav được Header đổi `to` theo `homePathFor`. */
 export const PUBLIC_NAV = [
   { to: "/", label: "Trang chủ" },
   { to: "/tarot", label: "Tarot AI" },
@@ -189,7 +209,8 @@ export const PUBLIC_NAV = [
   { to: "/shop", label: "Shop" },
 ] as const;
 
-/** Link khu vực làm việc, chỉ hiện với người có quyền tương ứng. */
+/** Link khu vực làm việc, chỉ hiện với người có quyền tương ứng.
+ *  Không lặp lại trang chủ của chính họ (đã nằm ở "Trang chủ"). */
 export const WORKSPACE_NAV = [
   { to: "/staff", label: "Bàn làm việc", permission: "SUPPORT_VIEW" },
   { to: "/manager", label: "Quản lý", permission: "STAFF_VIEW" },
@@ -205,5 +226,8 @@ export type WorkspaceNavItem = (typeof WORKSPACE_NAV)[number];
 export function workspaceNavFor(
   principal: Principal | null,
 ): WorkspaceNavItem[] {
-  return WORKSPACE_NAV.filter((item) => can(principal, item.permission));
+  const home = homePathFor(principal);
+  return WORKSPACE_NAV.filter(
+    (item) => can(principal, item.permission) && item.to !== home,
+  );
 }

@@ -14,7 +14,7 @@ import { TarotWheel } from "@/components/TarotWheel";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "ASTROTAROT — Tử vi · Tarot AI · Cộng đồng Reader" },
+      { title: "ASTROTAROT — Giới thiệu · Tử vi · Tarot AI · Cộng đồng Reader" },
       {
         name: "description",
         content:
