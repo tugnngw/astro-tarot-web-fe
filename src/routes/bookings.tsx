@@ -1,6 +1,7 @@
 // Lịch hẹn của Thành viên — phía khách của trụ cột 2.
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Header } from "@/components/Header";
 import { RoleGuard } from "@/components/RoleGuard";
 import { BookingList } from "@/features/booking/components/BookingList";
@@ -9,6 +10,9 @@ import { BOOKING_STATUS_LABEL, type BookingStatus } from "@/api/booking";
 
 export const Route = createFileRoute("/bookings")({
   head: () => ({ meta: [{ title: "Lịch hẹn của tôi — ASTROTAROT" }] }),
+  validateSearch: (search: Record<string, unknown>) => ({
+    payment: typeof search.payment === "string" ? search.payment : undefined,
+  }),
   component: () => (
     <RoleGuard require={["USER_BASIC"]}>
       <MyBookingsPage />
@@ -26,7 +30,17 @@ const FILTERS: Array<{ key: string; label: string }> = [
 
 function MyBookingsPage() {
   const [status, setStatus] = useState("");
+  const { payment } = Route.useSearch();
   const query = useMyBookings({ status: status || undefined, page: 0, size: 50 });
+
+  useEffect(() => {
+    if (payment === "success") {
+      toast.success("Đã quay lại từ PayOS — trạng thái sẽ cập nhật sau khi nhận tiền");
+      void query.refetch();
+    } else if (payment === "cancel") {
+      toast.message("Bạn đã huỷ thanh toán trên PayOS");
+    }
+  }, [payment]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="relative min-h-screen">

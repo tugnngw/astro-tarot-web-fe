@@ -270,6 +270,17 @@ export interface AdminStats {
     clicksLast30Days: number;
     clicksTotal: number;
   };
+  /** Token tiêu thụ của Tarot AI (ai_usage_logs). Có thể thiếu nếu BE cũ. */
+  ai?: {
+    totalCalls: number;
+    callsLast30Days: number;
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
+    tokensLast30Days: number;
+    estimatedCostUsd: number;
+    tokensByModel: Record<string, number>;
+  };
 }
 
 export function getAdminStats() {

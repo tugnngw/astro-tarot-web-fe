@@ -14,6 +14,8 @@ import {
   MousePointerClick,
   Package,
   AlertCircle,
+  Sparkles,
+  Bot,
 } from "lucide-react";
 import {
   Bar,
@@ -68,14 +70,39 @@ function nf(n: number) {
   return new Intl.NumberFormat("vi-VN").format(n);
 }
 
+function usd(n: number) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 4,
+  }).format(n);
+}
+
+/** BE cũ chưa có khối `ai` thì coi như 0 — tránh vỡ trang khi lệch phiên bản. */
+function aiStats(s: AdminStats): AdminStats["ai"] {
+  return (
+    s.ai ?? {
+      totalCalls: 0,
+      callsLast30Days: 0,
+      promptTokens: 0,
+      completionTokens: 0,
+      totalTokens: 0,
+      tokensLast30Days: 0,
+      estimatedCostUsd: 0,
+      tokensByModel: {},
+    }
+  );
+}
+
 export function AdminOverview() {
   const query = useAdminStats();
 
   if (query.isLoading) {
     return (
       <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-5">
-          {Array.from({ length: 5 }).map((_, i) => (
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-6">
+          {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="glass h-28 animate-pulse rounded-2xl" />
           ))}
         </div>
@@ -106,6 +133,7 @@ export function AdminOverview() {
   }
 
   const s = query.data;
+  const ai = aiStats(s);
 
   const kpis = [
     {
@@ -140,11 +168,17 @@ export function AdminOverview() {
       value: s.shop.clicksLast30Days,
       hint: `${nf(s.shop.clicksTotal)} tổng cộng`,
     },
+    {
+      icon: Sparkles,
+      label: "Token Tarot AI",
+      value: ai.totalTokens,
+      hint: `${nf(ai.tokensLast30Days)} trong 30 ngày · ~${usd(ai.estimatedCostUsd)}`,
+    },
   ];
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-5">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-6">
         {kpis.map((k) => {
           const Icon = k.icon;
           return (
@@ -176,6 +210,11 @@ export function AdminOverview() {
       <div className="grid gap-4 lg:grid-cols-2">
         <ReaderChart readers={s.readers} />
         <ShopChart shop={s.shop} />
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <AiTokenBreakdownChart ai={ai} />
+        <AiModelChart ai={ai} />
       </div>
     </div>
   );
@@ -509,6 +548,199 @@ function ShopChart({ shop }: { shop: AdminStats["shop"] }) {
           </Bar>
         </BarChart>
       </ChartContainer>
+    </section>
+  );
+}
+
+const MODEL_COLORS = ["#d4a84b", "#38bdf8", "#34d399", "#a78bfa", "#fb7185", "#fbbf24"];
+
+function AiTokenBreakdownChart({ ai }: { ai: AdminStats["ai"] }) {
+  const data = [
+    {
+      key: "prompt",
+      label: "Prompt (vào)",
+      count: Number(ai.promptTokens),
+      fill: "#38bdf8",
+    },
+    {
+      key: "completion",
+      label: "Completion (ra)",
+      count: Number(ai.completionTokens),
+      fill: "#34d399",
+    },
+    {
+      key: "total",
+      label: "Tổng token",
+      count: Number(ai.totalTokens),
+      fill: "#d4a84b",
+    },
+    {
+      key: "last30",
+      label: "30 ngày gần đây",
+      count: Number(ai.tokensLast30Days),
+      fill: "#a78bfa",
+    },
+  ];
+
+  const config = {
+    count: { label: "Token", color: "#d4a84b" },
+  } satisfies ChartConfig;
+
+  return (
+    <section className="glass rounded-2xl p-5">
+      <div className="flex items-center gap-2">
+        <Sparkles className="h-4 w-4 text-gold" />
+        <h2 className="font-display text-lg">Token Tarot AI</h2>
+      </div>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Rê chuột vào cột để xem số token. Chi phí ước lượng:{" "}
+        <span className="text-gold">{usd(ai.estimatedCostUsd)}</span> ·{" "}
+        {nf(ai.totalCalls)} lượt gọi ({nf(ai.callsLast30Days)} trong 30 ngày).
+      </p>
+
+      {ai.totalTokens === 0 && ai.totalCalls === 0 ? (
+        <p className="mt-8 text-center text-sm text-muted-foreground">
+          Chưa ghi nhận lượt gọi Tarot AI nào.
+        </p>
+      ) : (
+        <ChartContainer config={config} className="mt-4 aspect-auto h-[260px] w-full">
+          <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+            <CartesianGrid vertical={false} strokeDasharray="3 3" />
+            <XAxis
+              dataKey="label"
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              interval={0}
+              tick={{ fontSize: 11 }}
+            />
+            <YAxis
+              allowDecimals={false}
+              tickLine={false}
+              axisLine={false}
+              width={48}
+              tick={{ fontSize: 11 }}
+            />
+            <ChartTooltip
+              cursor={{ fill: "oklch(0.75 0.12 85 / 0.12)" }}
+              content={
+                <ChartTooltipContent
+                  formatter={(value, _name, item) => {
+                    const n = Number(value) || 0;
+                    const row = item?.payload as
+                      | { label?: string; key?: string }
+                      | undefined;
+                    return (
+                      <div className="flex min-w-[11rem] flex-col gap-0.5">
+                        <span className="font-medium text-foreground">
+                          {row?.label ?? "Token"}
+                        </span>
+                        <span className="font-mono tabular-nums text-gold">
+                          {nf(n)} token
+                        </span>
+                        {row?.key === "total" && (
+                          <span className="text-muted-foreground">
+                            Chi phí ước lượng: {usd(ai.estimatedCostUsd)}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  }}
+                />
+              }
+            />
+            <Bar dataKey="count" radius={[6, 6, 0, 0]} maxBarSize={48}>
+              {data.map((d) => (
+                <Cell key={d.key} fill={d.fill} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ChartContainer>
+      )}
+    </section>
+  );
+}
+
+function AiModelChart({ ai }: { ai: AdminStats["ai"] }) {
+  const entries = Object.entries(ai.tokensByModel ?? {});
+  const data = entries.map(([model, tokens], i) => ({
+    key: model,
+    name: model,
+    value: Number(tokens) || 0,
+    fill: MODEL_COLORS[i % MODEL_COLORS.length],
+  }));
+  const total = data.reduce((s, d) => s + d.value, 0);
+
+  const config = {
+    value: { label: "Token" },
+    ...Object.fromEntries(
+      data.map((d) => [d.key, { label: d.name, color: d.fill }]),
+    ),
+  } satisfies ChartConfig;
+
+  return (
+    <section className="glass rounded-2xl p-5">
+      <div className="flex items-center gap-2">
+        <Bot className="h-4 w-4 text-gold" />
+        <h2 className="font-display text-lg">Token theo model AI</h2>
+      </div>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Rê chuột vào từng phần để xem model và số token đã tiêu thụ.
+      </p>
+
+      {data.length === 0 || total === 0 ? (
+        <p className="mt-8 text-center text-sm text-muted-foreground">
+          Chưa có phân bổ theo model.
+        </p>
+      ) : (
+        <ChartContainer
+          config={config}
+          className="mx-auto mt-2 aspect-square max-h-[280px] w-full"
+        >
+          <PieChart>
+            <ChartTooltip
+              cursor={false}
+              content={
+                <ChartTooltipContent
+                  hideLabel
+                  formatter={(value, _name, item) => {
+                    const n = Number(value) || 0;
+                    const pct = total > 0 ? Math.round((n / total) * 100) : 0;
+                    const label =
+                      (item?.payload as { name?: string } | undefined)?.name ??
+                      String(_name);
+                    return (
+                      <div className="flex w-full flex-col gap-0.5">
+                        <span className="font-medium text-foreground">{label}</span>
+                        <span className="font-mono tabular-nums text-gold">
+                          {nf(n)} token · {pct}%
+                        </span>
+                      </div>
+                    );
+                  }}
+                />
+              }
+            />
+            <Pie
+              data={data}
+              dataKey="value"
+              nameKey="name"
+              innerRadius={58}
+              outerRadius={96}
+              strokeWidth={2}
+              stroke="oklch(0.16 0.02 280)"
+            >
+              {data.map((d) => (
+                <Cell key={d.key} fill={d.fill} className="outline-none" />
+              ))}
+            </Pie>
+            <ChartLegend
+              content={<ChartLegendContent nameKey="key" />}
+              className="-translate-y-1 flex-wrap gap-2"
+            />
+          </PieChart>
+        </ChartContainer>
+      )}
     </section>
   );
 }

@@ -14,12 +14,17 @@ export interface PaymentInstruction {
   transactionId: string;
   bookingId: string;
   amount: number;
+  /** BANK_TRANSFER hoặc PAYOS */
+  paymentMethod?: "BANK_TRANSFER" | "PAYOS" | string;
   /** Khách gõ đúng chuỗi này vào nội dung chuyển khoản. */
   referenceCode: string;
   bankName: string;
   bankAccountNumber: string;
   bankAccountHolder: string;
   transferContent: string;
+  /** Link PayOS — mở tab mới khi có. */
+  checkoutUrl?: string | null;
+  qrCode?: string | null;
   status: TransactionStatus;
 }
 
