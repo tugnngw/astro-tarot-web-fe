@@ -1,0 +1,49 @@
+# Kiểm tra mỗi lần đẩy code: build được thì mới cho merge.
+#
+# Cố ý KHÔNG deploy từ đây. Vercel deploy bằng `vercel deploy --prod` và cần
+# token riêng; nhét token vào repo dùng chung của nhóm là trao quyền deploy
+# production cho bất kỳ ai đọc được secrets.
+#
+# Cũng cố ý KHÔNG chạy `tsc --noEmit`: các thư mục src/features/{admin,dashboard,
+# tarot} còn mã cũ không dùng tới nhưng vẫn lỗi kiểu, nên bật lên là CI đỏ vĩnh
+# viễn và mọi người sẽ quen với việc bỏ qua nó — tệ hơn là không có CI. Dọn xong
+# đám đó thì thêm bước typecheck vào đây.
+name: CI
+
+on:
+  push:
+    branches: [main, develop, "feat/**", "feature/**"]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  build:
+    name: Build và lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cài Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      # npm ci chứ không phải npm install: cài đúng theo package-lock.json,
+      # nên bản dựng ở CI giống hệt bản dựng ở máy.
+      - name: Cài phụ thuộc
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          # Build cần biến này để nhúng URL backend. Đây là URL công khai,
+          # không phải bí mật — trang nào cũng lộ nó trong bundle.
+          VITE_API_BASE_URL: https://astra-tarot-api.onrender.com
+
+      # Lint không chặn merge: repo còn nhiều cảnh báo cũ, để `continue-on-error`
+      # cho tới khi dọn xong, nhưng vẫn in ra để thấy tình hình.
+      - name: Lint
+        run: npm run lint
+        continue-on-error: true
