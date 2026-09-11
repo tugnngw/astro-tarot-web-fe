@@ -25,6 +25,7 @@ import {
 } from "@/features/money/queries";
 import { PAGE_SIZE, PagedList, Pagination } from "@/components/Pagination";
 import { formatVND } from "@/lib/mock-data";
+import { useRowBusy } from "@/lib/row-busy";
 
 // ============================================================
 // Đối soát thanh toán
@@ -49,7 +50,9 @@ export function PaymentQueue() {
   const [rejecting, setRejecting] = useState<string | null>(null);
   const [reason, setReason] = useState("");
 
-  const busy = confirm.isPending || reject.isPending;
+  // Khoá đúng dòng đang chạy, không khoá cả bảng: xác nhận giao dịch A không
+  // liên quan gì tới giao dịch B. Xem @/lib/row-busy.
+  const dong = useRowBusy();
   const items = query.data?.content ?? [];
 
   return (
@@ -123,10 +126,10 @@ export function PaymentQueue() {
                 <div className="mt-3 flex flex-wrap gap-2">
                   <button
                     type="button"
-                    disabled={busy}
+                    disabled={dong.ban(t.id)}
                     onClick={() =>
                       void run(
-                        () => confirm.mutateAsync(t.id),
+                        () => dong.chay(t.id, () => confirm.mutateAsync(t.id)),
                         "Đã xác nhận thanh toán",
                       )
                     }
@@ -137,7 +140,7 @@ export function PaymentQueue() {
                   </button>
                   <button
                     type="button"
-                    disabled={busy}
+                    disabled={dong.ban(t.id)}
                     onClick={() => {
                       setRejecting(rejecting === t.id ? null : t.id);
                       setReason("");
@@ -160,16 +163,18 @@ export function PaymentQueue() {
                   onConfirm={async () => {
                     const ok = await run(
                       () =>
-                        reject.mutateAsync({
-                          id: t.id,
-                          reason: reason.trim() || undefined,
-                        }),
+                        dong.chay(t.id, () =>
+                          reject.mutateAsync({
+                            id: t.id,
+                            reason: reason.trim() || undefined,
+                          }),
+                        ),
                       "Đã đánh dấu không đối soát được",
                     );
                     if (ok) setRejecting(null);
                   }}
                   confirmLabel="Xác nhận"
-                  busy={busy}
+                  busy={dong.ban(t.id)}
                 />
               )}
             </li>
@@ -210,7 +215,7 @@ export function PayoutQueue() {
   const [rejecting, setRejecting] = useState<string | null>(null);
   const [reason, setReason] = useState("");
 
-  const busy = approve.isPending || reject.isPending || markPaid.isPending;
+  const dong = useRowBusy();
   const items = query.data?.content ?? [];
 
   return (
@@ -284,10 +289,11 @@ export function PayoutQueue() {
                   <>
                     <button
                       type="button"
-                      disabled={busy}
+                      disabled={dong.ban(p.id)}
                       onClick={() =>
                         void run(
-                          () => approve.mutateAsync(p.id),
+                          () =>
+                            dong.chay(p.id, () => approve.mutateAsync(p.id)),
                           "Đã duyệt lệnh rút",
                         )
                       }
@@ -297,7 +303,7 @@ export function PayoutQueue() {
                     </button>
                     <button
                       type="button"
-                      disabled={busy}
+                      disabled={dong.ban(p.id)}
                       onClick={() => {
                         setRejecting(rejecting === p.id ? null : p.id);
                         setReason("");
@@ -325,10 +331,10 @@ export function PayoutQueue() {
                 {p.status === "APPROVED" && (
                   <button
                     type="button"
-                    disabled={busy}
+                    disabled={dong.ban(p.id)}
                     onClick={() =>
                       void run(
-                        () => markPaid.mutateAsync(p.id),
+                        () => dong.chay(p.id, () => markPaid.mutateAsync(p.id)),
                         "Đã ghi nhận chuyển khoản",
                       )
                     }
@@ -348,16 +354,18 @@ export function PayoutQueue() {
                   onConfirm={async () => {
                     const ok = await run(
                       () =>
-                        reject.mutateAsync({
-                          id: p.id,
-                          reason: reason.trim() || undefined,
-                        }),
+                        dong.chay(p.id, () =>
+                          reject.mutateAsync({
+                            id: p.id,
+                            reason: reason.trim() || undefined,
+                          }),
+                        ),
                       "Đã từ chối, tiền quay lại số dư của Reader",
                     );
                     if (ok) setRejecting(null);
                   }}
                   confirmLabel="Từ chối"
-                  busy={busy}
+                  busy={dong.ban(p.id)}
                 />
               )}
             </li>
@@ -395,6 +403,7 @@ export function ReportQueue() {
   const [decision, setDecision] = useState<ReportStatus>("RESOLVED");
   /** Chuỗi chứ không phải số: ô trống và số 0 là hai ý khác nhau khi đang gõ. */
   const [penalty, setPenalty] = useState("");
+  const dongBaoCao = useRowBusy();
 
   const items = query.data?.content ?? [];
 
@@ -563,19 +572,21 @@ export function ReportQueue() {
                         </button>
                         <button
                           type="button"
-                          disabled={handle.isPending}
+                          disabled={dongBaoCao.ban(r.id)}
                           onClick={async () => {
                             const ok = await run(
                               () =>
-                                handle.mutateAsync({
-                                  id: r.id,
-                                  status: decision,
-                                  note: note.trim() || undefined,
-                                  penaltyAmount:
-                                    decision === "RESOLVED"
-                                      ? Number(penalty || 0)
-                                      : 0,
-                                }),
+                                dongBaoCao.chay(r.id, () =>
+                                  handle.mutateAsync({
+                                    id: r.id,
+                                    status: decision,
+                                    note: note.trim() || undefined,
+                                    penaltyAmount:
+                                      decision === "RESOLVED"
+                                        ? Number(penalty || 0)
+                                        : 0,
+                                  }),
+                                ),
                               "Đã ghi kết luận",
                             );
                             if (ok) setHandling(null);

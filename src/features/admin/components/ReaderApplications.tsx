@@ -8,6 +8,7 @@ import {
 import type { ReaderApplication } from "@/api/admin";
 
 import { Pagination, PagedList, PAGE_SIZE } from "@/components/Pagination";
+import { useRowBusy } from "@/lib/row-busy";
 /**
  * Hàng chờ hồ sơ xin làm Reader. Duyệt xong người nộp sẽ thành STAFF ở BE.
  *
@@ -25,6 +26,7 @@ export function ReaderApplications() {
   // BE trả cả danh sách một lượt (số hồ sơ chờ vốn nhỏ), nên cắt trang ngay
   // tại đây thay vì thêm tham số phân trang cho một endpoint chưa cần tới.
   const [page, setPage] = useState(0);
+  const dong = useRowBusy();
   const totalPages = Math.max(1, Math.ceil(applications.length / PAGE_SIZE));
   const trangHienTai = Math.min(page, totalPages - 1);
   const trangNay = applications.slice(
@@ -39,7 +41,9 @@ export function ReaderApplications() {
       return;
     }
     try {
-      await review.mutateAsync({ applicationId: id, action: "APPROVED" });
+      await dong.chay(id, () =>
+        review.mutateAsync({ applicationId: id, action: "APPROVED" }),
+      );
       toast.success("Đã duyệt — người này giờ là Nhân viên");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Không duyệt được hồ sơ");
@@ -50,11 +54,13 @@ export function ReaderApplications() {
     const id = idOf(app);
     if (!id) return;
     try {
-      await review.mutateAsync({
-        applicationId: id,
-        action: "REJECTED",
-        rejectionReason: reason.trim() || undefined,
-      });
+      await dong.chay(id, () =>
+        review.mutateAsync({
+          applicationId: id,
+          action: "REJECTED",
+          rejectionReason: reason.trim() || undefined,
+        }),
+      );
       toast.success("Đã từ chối hồ sơ");
       setRejecting(null);
       setReason("");
@@ -137,7 +143,7 @@ export function ReaderApplications() {
                   <div className="flex gap-2">
                     <button
                       type="button"
-                      disabled={review.isPending}
+                      disabled={dong.ban(id)}
                       onClick={() => void approve(app)}
                       className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/40 px-3.5 py-1.5 text-xs text-emerald-300 transition hover:bg-emerald-400/10 disabled:opacity-40"
                     >
@@ -146,7 +152,7 @@ export function ReaderApplications() {
                     </button>
                     <button
                       type="button"
-                      disabled={review.isPending}
+                      disabled={dong.ban(id)}
                       onClick={() => {
                         setRejecting(rejecting === id ? null : id);
                         setReason("");
@@ -205,7 +211,7 @@ export function ReaderApplications() {
                       </button>
                       <button
                         type="button"
-                        disabled={review.isPending}
+                        disabled={dong.ban(id)}
                         onClick={() => void reject(app)}
                         className="rounded-full bg-destructive px-3.5 py-1.5 text-xs text-destructive-foreground transition hover:opacity-90 disabled:opacity-40"
                       >

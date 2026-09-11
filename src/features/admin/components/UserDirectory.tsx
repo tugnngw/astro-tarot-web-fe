@@ -25,6 +25,7 @@ import {
 import { ROLE_DESCRIPTION, toAppRole, type AccountRole } from "@/lib/roles";
 
 import { ListError, useTaiLau, SlowHint } from "@/components/ListError";
+import { useRowBusy } from "@/lib/row-busy";
 const PAGE_SIZE = 20;
 
 const STATUS_CLASS: Record<AccountStatus, string> = {
@@ -91,8 +92,11 @@ export function UserDirectory({
 
   const users = query.data?.content ?? [];
   const totalPages = query.data?.totalPages ?? 0;
-  const busy =
-    changeRole.isPending || changeStatus.isPending || changeRoleBulk.isPending;
+  // `busy` chỉ còn dùng cho thanh thao tác hàng loạt — nó tác động lên nhiều
+  // hàng cùng lúc nên khoá cả bảng là đúng. Còn nút của TỪNG hàng thì hỏi
+  // `dong.ban(u.id)`: khoá tài khoản A không liên quan gì tới tài khoản B.
+  const busy = changeRoleBulk.isPending;
+  const dong = useRowBusy();
 
   // Chỉ những hàng BE cho phép sửa mới được chọn — nếu không, thao tác hàng
   // loạt sẽ bị rollback toàn bộ chỉ vì lỡ tick một tài khoản ngoài tầm.
@@ -125,7 +129,9 @@ export function UserDirectory({
   async function handleRole(user: ManagedUser, next: AccountRole) {
     if (next === user.role) return;
     try {
-      await changeRole.mutateAsync({ userId: user.id, role: next });
+      await dong.chay(user.id, () =>
+        changeRole.mutateAsync({ userId: user.id, role: next }),
+      );
       toast.success(`${user.fullName} giờ là ${ROLE_LABEL_SHORT[next]}`);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Không đổi được vai trò");
@@ -134,7 +140,9 @@ export function UserDirectory({
 
   async function handleStatus(user: ManagedUser, next: AccountStatus) {
     try {
-      await changeStatus.mutateAsync({ userId: user.id, status: next });
+      await dong.chay(user.id, () =>
+        changeStatus.mutateAsync({ userId: user.id, status: next }),
+      );
       toast.success(
         next === "ACTIVE"
           ? `Đã mở khoá ${user.fullName}`
@@ -382,7 +390,7 @@ export function UserDirectory({
                         <select
                           aria-label={`Vai trò của ${u.fullName}`}
                           value={u.role}
-                          disabled={busy}
+                          disabled={dong.ban(u.id)}
                           onChange={(e) =>
                             void handleRole(u, e.target.value as AccountRole)
                           }
@@ -427,7 +435,7 @@ export function UserDirectory({
                         u.status === "BANNED" ? (
                           <button
                             type="button"
-                            disabled={busy}
+                            disabled={dong.ban(u.id)}
                             onClick={() => void handleStatus(u, "ACTIVE")}
                             className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/40 px-3 py-1 text-xs text-emerald-300 transition hover:bg-emerald-400/10 disabled:opacity-40"
                           >
@@ -440,7 +448,7 @@ export function UserDirectory({
                         ) : (
                           <button
                             type="button"
-                            disabled={busy}
+                            disabled={dong.ban(u.id)}
                             onClick={() => void handleStatus(u, "BANNED")}
                             className="inline-flex items-center gap-1.5 rounded-full border border-destructive/40 px-3 py-1 text-xs text-destructive transition hover:bg-destructive/10 disabled:opacity-40"
                           >

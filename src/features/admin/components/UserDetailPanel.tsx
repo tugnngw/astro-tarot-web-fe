@@ -47,7 +47,12 @@ export function UserDetailPanel({
   const remove = useDeleteUser();
 
   const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState({ fullName: "", phone: "", city: "", address: "" });
+  const [form, setForm] = useState({
+    fullName: "",
+    phone: "",
+    city: "",
+    address: "",
+  });
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const user = query.data;
@@ -116,7 +121,9 @@ export function UserDetailPanel({
         <header className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-gold/20 bg-card/95 px-5 py-4 backdrop-blur">
           <div className="min-w-0">
             <h2 className="truncate font-display text-lg">
-              {query.isPending ? "Đang tải…" : (user?.fullName ?? "Không tìm thấy")}
+              {query.isPending
+                ? "Đang tải…"
+                : (user?.fullName ?? "Không tìm thấy")}
             </h2>
             {user && (
               <p className="truncate text-xs text-muted-foreground">
@@ -138,7 +145,10 @@ export function UserDetailPanel({
         {query.isPending ? (
           <div className="space-y-3 p-5" aria-busy="true">
             {Array.from({ length: 5 }, (_, i) => (
-              <div key={i} className="h-14 animate-pulse rounded-xl bg-mystic/10" />
+              <div
+                key={i}
+                className="h-14 animate-pulse rounded-xl bg-mystic/10"
+              />
             ))}
           </div>
         ) : query.isError || !user ? (
@@ -170,7 +180,9 @@ export function UserDetailPanel({
                   {ACCOUNT_STATUS_LABEL[user.status]}
                 </span>
                 {!user.emailVerified && (
-                  <span className="text-xs text-amber-300">chưa xác minh email</span>
+                  <span className="text-xs text-amber-300">
+                    chưa xác minh email
+                  </span>
                 )}
               </div>
             </div>
@@ -181,7 +193,10 @@ export function UserDetailPanel({
                 Hoạt động
               </h3>
               <dl className="grid grid-cols-3 gap-2">
-                <Stat label="Phiên đang mở" value={String(user.activeSessions)} />
+                <Stat
+                  label="Phiên đang mở"
+                  value={String(user.activeSessions)}
+                />
                 <Stat label="Đơn hàng" value={String(user.orderCount)} />
                 <Stat label="Đã chi" value={formatVND(user.totalSpent)} />
               </dl>
@@ -217,16 +232,36 @@ export function UserDetailPanel({
                   onSubmit={async (e) => {
                     e.preventDefault();
                     await run(
-                      () => updateInfo.mutateAsync({ userId: user.id, payload: form }),
+                      () =>
+                        updateInfo.mutateAsync({
+                          userId: user.id,
+                          payload: form,
+                        }),
                       "Đã cập nhật thông tin",
                     );
                     setEditing(false);
                   }}
                 >
-                  <Field label="Họ tên" value={form.fullName} onChange={(v) => setForm((f) => ({ ...f, fullName: v }))} />
-                  <Field label="Số điện thoại" value={form.phone} onChange={(v) => setForm((f) => ({ ...f, phone: v }))} />
-                  <Field label="Thành phố" value={form.city} onChange={(v) => setForm((f) => ({ ...f, city: v }))} />
-                  <Field label="Địa chỉ" value={form.address} onChange={(v) => setForm((f) => ({ ...f, address: v }))} />
+                  <Field
+                    label="Họ tên"
+                    value={form.fullName}
+                    onChange={(v) => setForm((f) => ({ ...f, fullName: v }))}
+                  />
+                  <Field
+                    label="Số điện thoại"
+                    value={form.phone}
+                    onChange={(v) => setForm((f) => ({ ...f, phone: v }))}
+                  />
+                  <Field
+                    label="Thành phố"
+                    value={form.city}
+                    onChange={(v) => setForm((f) => ({ ...f, city: v }))}
+                  />
+                  <Field
+                    label="Địa chỉ"
+                    value={form.address}
+                    onChange={(v) => setForm((f) => ({ ...f, address: v }))}
+                  />
                   <div className="flex justify-end gap-2 pt-1">
                     <button
                       type="button"
@@ -251,8 +286,14 @@ export function UserDetailPanel({
                   <Row label="Thành phố" value={user.city} />
                   <Row label="Địa chỉ" value={user.address} />
                   <Row label="Đăng nhập bằng" value={user.authProvider} />
-                  <Row label="Đăng nhập gần nhất" value={formatDateTime(user.lastLoginAt)} />
-                  <Row label="Tham gia" value={formatDateTime(user.createdAt)} />
+                  <Row
+                    label="Đăng nhập gần nhất"
+                    value={formatDateTime(user.lastLoginAt)}
+                  />
+                  <Row
+                    label="Tham gia"
+                    value={formatDateTime(user.createdAt)}
+                  />
                 </dl>
               )}
             </section>
@@ -286,7 +327,12 @@ export function UserDetailPanel({
                     label="Gửi liên kết đặt lại mật khẩu"
                     hint="Không ai đặt mật khẩu hộ người khác — họ tự đặt qua email."
                     disabled={busy || !user.email}
-                    onClick={() => run(() => reset.mutateAsync(user.id), "Đã gửi liên kết đặt lại mật khẩu")}
+                    onClick={() =>
+                      run(
+                        () => reset.mutateAsync(user.id),
+                        "Đã gửi liên kết đặt lại mật khẩu",
+                      )
+                    }
                   />
                   {!user.emailVerified && (
                     <Action
@@ -294,7 +340,12 @@ export function UserDetailPanel({
                       label="Gửi lại mail xác minh"
                       hint="Tài khoản chưa xác minh thì chưa đăng nhập được."
                       disabled={busy}
-                      onClick={() => run(() => resend.mutateAsync(user.id), "Đã gửi lại mail xác minh")}
+                      onClick={() =>
+                        run(
+                          () => resend.mutateAsync(user.id),
+                          "Đã gửi lại mail xác minh",
+                        )
+                      }
                     />
                   )}
                   <Action
@@ -302,7 +353,12 @@ export function UserDetailPanel({
                     label="Buộc đăng xuất mọi thiết bị"
                     hint={`Đang có ${user.activeSessions} phiên mở.`}
                     disabled={busy || user.activeSessions === 0}
-                    onClick={() => run(() => revoke.mutateAsync(user.id), "Đã thu hồi mọi phiên")}
+                    onClick={() =>
+                      run(
+                        () => revoke.mutateAsync(user.id),
+                        "Đã thu hồi mọi phiên",
+                      )
+                    }
                   />
 
                   {can("USERS_MANAGE") && (
@@ -310,9 +366,13 @@ export function UserDetailPanel({
                       {confirmDelete ? (
                         <>
                           <p className="text-xs leading-relaxed text-muted-foreground">
-                            Xoá mềm <strong className="text-foreground">{user.fullName}</strong>.
-                            Đơn hàng và lịch sử của họ vẫn giữ nguyên, nhưng tài khoản sẽ biến mất
-                            khỏi mọi danh sách và không đăng nhập được nữa.
+                            Xoá mềm{" "}
+                            <strong className="text-foreground">
+                              {user.fullName}
+                            </strong>
+                            . Đơn hàng và lịch sử của họ vẫn giữ nguyên, nhưng
+                            tài khoản sẽ biến mất khỏi mọi danh sách và không
+                            đăng nhập được nữa.
                           </p>
                           <div className="mt-3 flex justify-end gap-2">
                             <button
@@ -326,7 +386,10 @@ export function UserDetailPanel({
                               type="button"
                               disabled={busy}
                               onClick={async () => {
-                                await run(() => remove.mutateAsync(user.id), "Đã xoá tài khoản");
+                                await run(
+                                  () => remove.mutateAsync(user.id),
+                                  "Đã xoá tài khoản",
+                                );
                                 onClose();
                               }}
                               className="rounded-full bg-destructive px-3.5 py-1.5 text-xs text-destructive-foreground disabled:opacity-40"
@@ -353,8 +416,8 @@ export function UserDetailPanel({
 
             {!user.editable && (
               <p className="text-xs text-muted-foreground">
-                Bạn không sửa được tài khoản này — hoặc đây là chính bạn, hoặc vai trò
-                của họ nằm ngoài phạm vi của bạn.
+                Bạn không sửa được tài khoản này — hoặc đây là chính bạn, hoặc
+                vai trò của họ nằm ngoài phạm vi của bạn.
               </p>
             )}
           </div>
@@ -362,7 +425,10 @@ export function UserDetailPanel({
 
         {busy && (
           <div className="pointer-events-none absolute inset-0 grid place-items-center bg-background/40">
-            <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-gold" />
+            <Loader2
+              aria-hidden="true"
+              className="h-6 w-6 animate-spin text-gold"
+            />
             <span className="sr-only">Đang xử lý</span>
           </div>
         )}
@@ -374,13 +440,21 @@ export function UserDetailPanel({
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg border border-gold/20 px-2.5 py-2">
-      <dt className="text-[10px] uppercase tracking-[0.1em] text-muted-foreground">{label}</dt>
+      <dt className="text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+        {label}
+      </dt>
       <dd className="mt-0.5 font-display text-base text-gold">{value}</dd>
     </div>
   );
 }
 
-function Row({ label, value }: { label: string; value: string | null | undefined }) {
+function Row({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | null | undefined;
+}) {
   return (
     <div className="flex gap-3">
       <dt className="w-36 shrink-0 text-xs text-muted-foreground">{label}</dt>
