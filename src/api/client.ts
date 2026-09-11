@@ -82,6 +82,44 @@ async function refreshAccessToken(): Promise<string | null> {
   return refreshing;
 }
 
+// ---------- Chịu đựng lúc máy chủ chập chờn ----------
+//
+// Backend chạy trên gói free của Render: không ai gọi trong 15 phút thì máy bị
+// tắt, và lần gọi kế tiếp phải chờ nó khởi động lại — thường 50 giây trở lên.
+// Trong khoảng đó cổng vào Render hoặc giữ kết nối chờ, hoặc trả thẳng 502/503
+// kèm một trang HTML. Danh sách nào gặp đúng nhịp đó là hỏng, và trước đây
+// người dùng chỉ nhận được ba chữ "Invalid JSON".
+//
+// Chặn trên của một lần gọi. Đặt rộng vì chờ máy chủ dậy là chuyện bình thường
+// ở đây, không phải sự cố; mốc này chỉ để một kết nối chết hẳn không treo mãi.
+const HAN_GIO_MS = 45_000;
+
+/** Các mã cho biết "thử lại lát nữa có thể được", khác hẳn 4xx. */
+function laLoiTamThoi(status: number) {
+  return status === 0 || status === 408 || status === 429 || status >= 502;
+}
+
+const nghi = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/**
+ * Khoảng nghỉ giữa các lần thử, tính bằng mili giây.
+ *
+ * Giãn dần tới ~19 giây tổng cộng — đủ để đi hết một lần khởi động lại của
+ * Render mà không nện liên tiếp vào máy chủ đang bận khởi động.
+ */
+const NHIP_THU_LAI = [2_000, 5_000, 12_000];
+
+/** Gộp hạn giờ với signal của caller (nếu có). */
+function hanGio(
+  signal: AbortSignal | null | undefined,
+): AbortSignal | undefined {
+  if (typeof AbortSignal === "undefined" || !AbortSignal.timeout)
+    return signal ?? undefined;
+  const het = AbortSignal.timeout(HAN_GIO_MS);
+  if (!signal) return het;
+  return AbortSignal.any ? AbortSignal.any([signal, het]) : signal;
+}
+
 /** Hàm fetch chính. Auto retry 1 lần nếu refresh thành công. */
 export async function apiFetch<T>(
   path: string,
@@ -103,7 +141,49 @@ export async function apiFetch<T>(
     if (t) headers.set("Authorization", `Bearer ${t}`);
   }
 
-  const res = await fetch(`${API_BASE}${path}`, { ...init, headers });
+  // Chỉ thử lại phương thức an toàn. Gọi lại một POST có thể đặt hai lịch hẹn
+  // hoặc trừ tiền hai lần — hỏng theo cách tệ hơn nhiều so với một thông báo lỗi.
+  const method = (init.method ?? "GET").toUpperCase();
+  const thuLaiDuoc = method === "GET" || method === "HEAD";
+  const soLanThu = thuLaiDuoc ? NHIP_THU_LAI.length + 1 : 1;
+
+  let res: Response | null = null;
+  let loiCuoi: ApiError | null = null;
+
+  for (let lan = 0; lan < soLanThu; lan++) {
+    if (lan > 0) await nghi(NHIP_THU_LAI[lan - 1]);
+
+    try {
+      res = await fetch(`${API_BASE}${path}`, {
+        ...init,
+        headers,
+        signal: hanGio(init.signal),
+      });
+      loiCuoi = null;
+    } catch (e) {
+      // Mất mạng, DNS hỏng, quá hạn giờ, hoặc máy chủ chưa nhận kết nối.
+      // Status 0 để tầng trên phân biệt "chưa tới được server" với "server
+      // trả lỗi" — hai chuyện cần xử lý khác nhau.
+      res = null;
+      const quaHan = e instanceof DOMException && e.name === "TimeoutError";
+      loiCuoi = new ApiError(
+        0,
+        quaHan ? "TIMEOUT" : "NETWORK",
+        quaHan
+          ? "Máy chủ phản hồi quá chậm. Thử lại giúp tôi nhé."
+          : "Không kết nối được máy chủ. Kiểm tra mạng rồi thử lại.",
+      );
+      // Caller chủ động huỷ thì tôn trọng, đừng thử lại.
+      if (init.signal?.aborted) throw loiCuoi;
+      continue;
+    }
+
+    if (thuLaiDuoc && laLoiTamThoi(res.status) && lan < soLanThu - 1) continue;
+    break;
+  }
+
+  if (!res)
+    throw loiCuoi ?? new ApiError(0, "NETWORK", "Không gọi được máy chủ.");
 
   // Refresh & retry on 401
   if (res.status === 401 && auth && retry) {
@@ -112,10 +192,23 @@ export async function apiFetch<T>(
     tokenStore.clear();
   }
 
-  const envelope = (await res.json().catch(() => ({
-    data: null,
-    error: { code: "PARSE", message: "Invalid JSON" },
-  }))) as ApiEnvelope<T>;
+  // Thân phản hồi không phải JSON — gần như luôn là trang lỗi HTML của cổng
+  // vào Render khi backend đang khởi động lại (gói free tắt máy sau 15 phút
+  // không ai dùng). Thông báo cũ ghi trần trụi "Invalid JSON", một câu không
+  // nói gì với người dùng và cũng chẳng gợi ý là chờ một lát sẽ được.
+  let envelope: ApiEnvelope<T>;
+  try {
+    envelope = (await res.json()) as ApiEnvelope<T>;
+  } catch {
+    const dangKhoiDong = res.status === 0 || res.status >= 502;
+    throw new ApiError(
+      res.status,
+      dangKhoiDong ? "SERVER_WAKING" : "PARSE",
+      dangKhoiDong
+        ? "Máy chủ vừa khởi động lại và chưa sẵn sàng. Chờ khoảng một phút rồi thử lại."
+        : `Máy chủ trả về dữ liệu không đọc được (HTTP ${res.status}).`,
+    );
+  }
 
   // BE trả về error trong object
   if (!res.ok || envelope.error) {

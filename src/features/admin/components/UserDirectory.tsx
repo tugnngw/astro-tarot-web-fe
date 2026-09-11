@@ -1,6 +1,5 @@
 import { useEffect, useId, useState } from "react";
 import {
-  AlertCircle,
   Lock,
   Search,
   ShieldCheck,
@@ -18,9 +17,14 @@ import {
 } from "@/features/admin/queries";
 import { UserDetailPanel } from "@/features/admin/components/UserDetailPanel";
 import { CreateUserDialog } from "@/features/admin/components/CreateUserDialog";
-import { ACCOUNT_STATUS_LABEL, type AccountStatus, type ManagedUser } from "@/api/admin";
+import {
+  ACCOUNT_STATUS_LABEL,
+  type AccountStatus,
+  type ManagedUser,
+} from "@/api/admin";
 import { ROLE_DESCRIPTION, toAppRole, type AccountRole } from "@/lib/roles";
 
+import { ListError, useTaiLau, SlowHint } from "@/components/ListError";
 const PAGE_SIZE = 20;
 
 const STATUS_CLASS: Record<AccountStatus, string> = {
@@ -77,18 +81,24 @@ export function UserDirectory({
     size: PAGE_SIZE,
   });
 
+  // Lần tải đầu sau khi máy chủ ngủ dậy mất khoảng một phút; báo cho người
+  // dùng biết thay vì để họ nhìn khung xương xám nhấp nháy trong im lặng.
+  const taiLau = useTaiLau(query.isPending);
+
   const changeRole = useUpdateUserRole();
   const changeRoleBulk = useUpdateRoleBulk();
   const changeStatus = useUpdateUserStatus();
 
   const users = query.data?.content ?? [];
   const totalPages = query.data?.totalPages ?? 0;
-  const busy = changeRole.isPending || changeStatus.isPending || changeRoleBulk.isPending;
+  const busy =
+    changeRole.isPending || changeStatus.isPending || changeRoleBulk.isPending;
 
   // Chỉ những hàng BE cho phép sửa mới được chọn — nếu không, thao tác hàng
   // loạt sẽ bị rollback toàn bộ chỉ vì lỡ tick một tài khoản ngoài tầm.
   const selectableIds = users.filter((u) => u.editable).map((u) => u.id);
-  const allSelected = selectableIds.length > 0 && selectableIds.every((id) => selected.has(id));
+  const allSelected =
+    selectableIds.length > 0 && selectableIds.every((id) => selected.has(id));
 
   function toggle(id: string) {
     setSelected((prev) => {
@@ -106,7 +116,9 @@ export function UserDirectory({
       toast.success(`Đã đổi vai trò cho ${ids.length} tài khoản`);
       setSelected(new Set());
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Không đổi được vai trò hàng loạt");
+      toast.error(
+        e instanceof Error ? e.message : "Không đổi được vai trò hàng loạt",
+      );
     }
   }
 
@@ -212,7 +224,8 @@ export function UserDirectory({
       {selected.size > 0 && (
         <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-gold/40 bg-gold/5 px-4 py-3">
           <span className="text-sm">
-            Đã chọn <strong className="text-gold">{selected.size}</strong> tài khoản
+            Đã chọn <strong className="text-gold">{selected.size}</strong> tài
+            khoản
           </span>
           <label className="flex items-center gap-2 text-sm text-muted-foreground">
             Đổi tất cả thành
@@ -221,7 +234,8 @@ export function UserDirectory({
               defaultValue=""
               disabled={busy}
               onChange={(e) => {
-                if (e.target.value) void applyBulkRole(e.target.value as AccountRole);
+                if (e.target.value)
+                  void applyBulkRole(e.target.value as AccountRole);
                 e.target.value = "";
               }}
               className="rounded-full border border-gold/40 bg-input/70 px-3 py-1 text-xs text-foreground outline-none focus:border-gold disabled:opacity-50"
@@ -247,21 +261,11 @@ export function UserDirectory({
       {/* Bảng */}
       <div aria-live="polite" aria-busy={query.isFetching} className="mt-5">
         {query.isError ? (
-          <div className="flex flex-col items-center py-12 text-center">
-            <AlertCircle className="h-8 w-8 text-destructive/70" />
-            <p className="mt-3 text-sm text-muted-foreground">
-              {query.error instanceof Error
-                ? query.error.message
-                : "Không tải được danh sách tài khoản"}
-            </p>
-            <button
-              type="button"
-              onClick={() => void query.refetch()}
-              className="mt-4 rounded-full border border-gold/50 px-4 py-1.5 text-sm text-gold transition hover:bg-gold/10"
-            >
-              Thử lại
-            </button>
-          </div>
+          <ListError
+            error={query.error}
+            onRetry={() => void query.refetch()}
+            title="Không tải được danh sách tài khoản"
+          />
         ) : query.isPending ? (
           <div className="space-y-2">
             {Array.from({ length: 5 }, (_, i) => (
@@ -271,6 +275,7 @@ export function UserDirectory({
                 aria-hidden="true"
               />
             ))}
+            <SlowHint show={taiLau} />
           </div>
         ) : users.length === 0 ? (
           <p className="py-12 text-center text-sm text-muted-foreground">
@@ -302,10 +307,18 @@ export function UserDirectory({
                       className="h-3.5 w-3.5 accent-[var(--gold)]"
                     />
                   </th>
-                  <th scope="col" className="py-2 pr-3 font-normal">Tài khoản</th>
-                  <th scope="col" className="py-2 pr-3 font-normal">Vai trò</th>
-                  <th scope="col" className="py-2 pr-3 font-normal">Trạng thái</th>
-                  <th scope="col" className="py-2 pr-3 font-normal">Tham gia</th>
+                  <th scope="col" className="py-2 pr-3 font-normal">
+                    Tài khoản
+                  </th>
+                  <th scope="col" className="py-2 pr-3 font-normal">
+                    Vai trò
+                  </th>
+                  <th scope="col" className="py-2 pr-3 font-normal">
+                    Trạng thái
+                  </th>
+                  <th scope="col" className="py-2 pr-3 font-normal">
+                    Tham gia
+                  </th>
                   <th scope="col" className="py-2 font-normal">
                     <span className="sr-only">Thao tác</span>
                   </th>
@@ -378,25 +391,30 @@ export function UserDirectory({
                           {/* Vai trò hiện tại luôn có mặt, kể cả khi nằm ngoài
                               phạm vi được gán — nếu không, select sẽ hiện sai
                               vai trò của người đó. */}
-                          {[...new Set<AccountRole>([u.role, ...assignableRoles])].map(
-                            (r) => (
-                              <option
-                                key={r}
-                                value={r}
-                                disabled={!assignableRoles.includes(r)}
-                                title={ROLE_DESCRIPTION[toAppRole(r)]}
-                              >
-                                {ROLE_LABEL_SHORT[r]}
-                              </option>
-                            ),
-                          )}
+                          {[
+                            ...new Set<AccountRole>([
+                              u.role,
+                              ...assignableRoles,
+                            ]),
+                          ].map((r) => (
+                            <option
+                              key={r}
+                              value={r}
+                              disabled={!assignableRoles.includes(r)}
+                              title={ROLE_DESCRIPTION[toAppRole(r)]}
+                            >
+                              {ROLE_LABEL_SHORT[r]}
+                            </option>
+                          ))}
                         </select>
                       ) : (
                         <RoleBadge role={u.role} />
                       )}
                     </td>
 
-                    <td className={`py-3 pr-3 text-xs ${STATUS_CLASS[u.status]}`}>
+                    <td
+                      className={`py-3 pr-3 text-xs ${STATUS_CLASS[u.status]}`}
+                    >
                       {ACCOUNT_STATUS_LABEL[u.status]}
                     </td>
 
@@ -413,7 +431,10 @@ export function UserDirectory({
                             onClick={() => void handleStatus(u, "ACTIVE")}
                             className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/40 px-3 py-1 text-xs text-emerald-300 transition hover:bg-emerald-400/10 disabled:opacity-40"
                           >
-                            <Unlock aria-hidden="true" className="h-3.5 w-3.5" />
+                            <Unlock
+                              aria-hidden="true"
+                              className="h-3.5 w-3.5"
+                            />
                             Mở khoá
                           </button>
                         ) : (
@@ -473,7 +494,10 @@ export function UserDirectory({
       )}
 
       <p className="mt-5 flex items-start gap-2 text-xs text-muted-foreground">
-        <ShieldCheck aria-hidden="true" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gold/70" />
+        <ShieldCheck
+          aria-hidden="true"
+          className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gold/70"
+        />
         Đổi vai trò hoặc khoá tài khoản sẽ thu hồi mọi phiên đăng nhập của người
         đó — quyền nằm trong token đã cấp, không thu hồi thì token cũ vẫn dùng
         được tới khi hết hạn.

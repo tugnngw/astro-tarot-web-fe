@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { AlertCircle, CalendarX, Check, Flag, Landmark, Star, X } from "lucide-react";
+import {
+  CalendarX,
+  Check,
+  Flag,
+  Landmark,
+  Star,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 import {
   BOOKING_STATUS_LABEL,
@@ -18,6 +25,7 @@ import { ReportDialog } from "@/features/money/components/ReportDialog";
 import { useCreatePaymentIntent } from "@/features/money/queries";
 import type { PaymentInstruction } from "@/api/money";
 
+import { ListError, useTaiLau, SlowHint } from "@/components/ListError";
 const STATUS_CLASS: Record<BookingStatus, string> = {
   PENDING: "border-amber-400/40 text-amber-300",
   CONFIRMED: "border-sky-400/40 text-sky-300",
@@ -55,14 +63,20 @@ export function BookingList({
   const [cancelling, setCancelling] = useState<string | null>(null);
   const [reason, setReason] = useState("");
   const [reviewing, setReviewing] = useState<string | null>(null);
-  const [instruction, setInstruction] = useState<PaymentInstruction | null>(null);
+  const [instruction, setInstruction] = useState<PaymentInstruction | null>(
+    null,
+  );
   const [reporting, setReporting] = useState<Booking | null>(null);
   const pay = useCreatePaymentIntent();
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
 
   const busy =
-    confirm.isPending || complete.isPending || cancel.isPending || review.isPending || pay.isPending;
+    confirm.isPending ||
+    complete.isPending ||
+    cancel.isPending ||
+    review.isPending ||
+    pay.isPending;
 
   async function run(fn: () => Promise<unknown>, ok: string) {
     try {
@@ -77,19 +91,12 @@ export function BookingList({
 
   if (isError) {
     return (
-      <div className="glass flex flex-col items-center rounded-2xl px-6 py-12 text-center">
-        <AlertCircle className="h-8 w-8 text-destructive/70" />
-        <p className="mt-3 text-sm text-muted-foreground">
-          {error instanceof Error ? error.message : "Không tải được lịch hẹn"}
-        </p>
-        <button
-          type="button"
-          onClick={onRetry}
-          className="mt-4 rounded-full border border-gold/50 px-4 py-1.5 text-sm text-gold transition hover:bg-gold/10"
-        >
-          Thử lại
-        </button>
-      </div>
+      <ListError
+        error={error}
+        onRetry={onRetry}
+        title="Không tải được lịch hẹn"
+        className="glass rounded-2xl px-6 py-12"
+      />
     );
   }
 
@@ -97,7 +104,11 @@ export function BookingList({
     return (
       <div className="space-y-3" aria-busy="true">
         {Array.from({ length: 3 }, (_, i) => (
-          <div key={i} className="glass h-32 animate-pulse rounded-2xl" aria-hidden="true" />
+          <div
+            key={i}
+            className="glass h-32 animate-pulse rounded-2xl"
+            aria-hidden="true"
+          />
         ))}
       </div>
     );
@@ -127,7 +138,11 @@ export function BookingList({
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="flex min-w-0 items-center gap-3">
                 {avatar ? (
-                  <img src={avatar} alt="" className="h-11 w-11 rounded-full object-cover ring-1 ring-gold/30" />
+                  <img
+                    src={avatar}
+                    alt=""
+                    className="h-11 w-11 rounded-full object-cover ring-1 ring-gold/30"
+                  />
                 ) : (
                   <span
                     aria-hidden="true"
@@ -139,7 +154,8 @@ export function BookingList({
                 <div className="min-w-0">
                   <h3 className="truncate font-display text-lg">{other}</h3>
                   <p className="text-xs text-muted-foreground">
-                    {formatRange(b.startTime, b.endTime)} · {b.durationMinutes} phút
+                    {formatRange(b.startTime, b.endTime)} · {b.durationMinutes}{" "}
+                    phút
                   </p>
                 </div>
               </div>
@@ -150,13 +166,16 @@ export function BookingList({
                 >
                   {BOOKING_STATUS_LABEL[b.status]}
                 </span>
-                <span className="font-display text-lg text-gold">{formatVND(b.totalAmount)}</span>
+                <span className="font-display text-lg text-gold">
+                  {formatVND(b.totalAmount)}
+                </span>
               </div>
             </div>
 
             {b.cancelReason && (
               <p className="mt-3 rounded-lg border border-destructive/25 px-3 py-2 text-xs text-muted-foreground">
-                <span className="text-destructive">Lý do huỷ:</span> {b.cancelReason}
+                <span className="text-destructive">Lý do huỷ:</span>{" "}
+                {b.cancelReason}
               </p>
             )}
 
@@ -166,7 +185,9 @@ export function BookingList({
                 <button
                   type="button"
                   disabled={busy}
-                  onClick={() => void run(() => confirm.mutateAsync(b.id), "Đã nhận lịch")}
+                  onClick={() =>
+                    void run(() => confirm.mutateAsync(b.id), "Đã nhận lịch")
+                  }
                   className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/40 px-3.5 py-1.5 text-xs text-emerald-300 transition hover:bg-emerald-400/10 disabled:opacity-40"
                 >
                   <Check aria-hidden="true" className="h-3.5 w-3.5" /> Nhận lịch
@@ -177,7 +198,12 @@ export function BookingList({
                 <button
                   type="button"
                   disabled={busy}
-                  onClick={() => void run(() => complete.mutateAsync(b.id), "Đã hoàn tất buổi xem")}
+                  onClick={() =>
+                    void run(
+                      () => complete.mutateAsync(b.id),
+                      "Đã hoàn tất buổi xem",
+                    )
+                  }
                   className="rounded-full border border-gold/50 px-3.5 py-1.5 text-xs text-gold transition hover:bg-gold/10 disabled:opacity-40"
                 >
                   Đánh dấu hoàn tất
@@ -199,26 +225,34 @@ export function BookingList({
                 </button>
               )}
 
-              {side === "customer" && b.paymentStatus === "UNPAID" && b.status !== "CANCELLED" && (
-                <button
-                  type="button"
-                  disabled={busy}
-                  onClick={async () => {
-                    try {
-                      setInstruction(await pay.mutateAsync(b.id));
-                    } catch (e) {
-                      toast.error(e instanceof Error ? e.message : "Không tạo được lệnh thanh toán");
-                    }
-                  }}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-gold px-3.5 py-1.5 text-xs font-medium text-primary-foreground glow-gold transition disabled:opacity-40"
-                >
-                  <Landmark aria-hidden="true" className="h-3.5 w-3.5" /> Thanh toán
-                </button>
-              )}
+              {side === "customer" &&
+                b.paymentStatus === "UNPAID" &&
+                b.status !== "CANCELLED" && (
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={async () => {
+                      try {
+                        setInstruction(await pay.mutateAsync(b.id));
+                      } catch (e) {
+                        toast.error(
+                          e instanceof Error
+                            ? e.message
+                            : "Không tạo được lệnh thanh toán",
+                        );
+                      }
+                    }}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-gold px-3.5 py-1.5 text-xs font-medium text-primary-foreground glow-gold transition disabled:opacity-40"
+                  >
+                    <Landmark aria-hidden="true" className="h-3.5 w-3.5" />{" "}
+                    Thanh toán
+                  </button>
+                )}
 
               {side === "customer" && b.paymentStatus === "PAID" && (
                 <span className="inline-flex items-center gap-1.5 text-xs text-emerald-300">
-                  <Check aria-hidden="true" className="h-3.5 w-3.5" /> Đã thanh toán
+                  <Check aria-hidden="true" className="h-3.5 w-3.5" /> Đã thanh
+                  toán
                 </span>
               )}
 
@@ -233,32 +267,38 @@ export function BookingList({
                 </button>
               )}
 
-              {side === "customer" && b.status === "COMPLETED" && !b.reviewed && (
-                <button
-                  type="button"
-                  disabled={busy}
-                  onClick={() => {
-                    setReviewing(reviewing === b.id ? null : b.id);
-                    setRating(5);
-                    setComment("");
-                  }}
-                  aria-expanded={reviewing === b.id}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-gold px-3.5 py-1.5 text-xs font-medium text-primary-foreground transition disabled:opacity-40"
-                >
-                  <Star aria-hidden="true" className="h-3.5 w-3.5" /> Đánh giá
-                </button>
-              )}
+              {side === "customer" &&
+                b.status === "COMPLETED" &&
+                !b.reviewed && (
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => {
+                      setReviewing(reviewing === b.id ? null : b.id);
+                      setRating(5);
+                      setComment("");
+                    }}
+                    aria-expanded={reviewing === b.id}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-gold px-3.5 py-1.5 text-xs font-medium text-primary-foreground transition disabled:opacity-40"
+                  >
+                    <Star aria-hidden="true" className="h-3.5 w-3.5" /> Đánh giá
+                  </button>
+                )}
 
               {b.status === "COMPLETED" && b.reviewed && (
                 <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Star aria-hidden="true" className="h-3.5 w-3.5 text-gold" /> Đã đánh giá
+                  <Star aria-hidden="true" className="h-3.5 w-3.5 text-gold" />{" "}
+                  Đã đánh giá
                 </span>
               )}
             </div>
 
             {cancelling === b.id && (
               <div className="mt-3 rounded-xl border border-destructive/25 p-3">
-                <label htmlFor={`reason-${b.id}`} className="text-xs text-muted-foreground">
+                <label
+                  htmlFor={`reason-${b.id}`}
+                  className="text-xs text-muted-foreground"
+                >
                   Lý do huỷ — bên kia sẽ đọc được
                 </label>
                 <textarea
@@ -282,7 +322,11 @@ export function BookingList({
                     disabled={busy}
                     onClick={async () => {
                       const ok = await run(
-                        () => cancel.mutateAsync({ id: b.id, reason: reason.trim() || undefined }),
+                        () =>
+                          cancel.mutateAsync({
+                            id: b.id,
+                            reason: reason.trim() || undefined,
+                          }),
                         "Đã huỷ lịch hẹn",
                       );
                       if (ok) setCancelling(null);
@@ -298,7 +342,9 @@ export function BookingList({
             {reviewing === b.id && (
               <div className="mt-3 rounded-xl border border-gold/25 p-3">
                 <fieldset>
-                  <legend className="text-xs text-muted-foreground">Bạn chấm mấy sao?</legend>
+                  <legend className="text-xs text-muted-foreground">
+                    Bạn chấm mấy sao?
+                  </legend>
                   <div className="mt-2 flex gap-1">
                     {[1, 2, 3, 4, 5].map((n) => (
                       <button
@@ -312,7 +358,9 @@ export function BookingList({
                         <Star
                           aria-hidden="true"
                           className={`h-6 w-6 transition ${
-                            n <= rating ? "fill-gold text-gold" : "text-muted-foreground/40"
+                            n <= rating
+                              ? "fill-gold text-gold"
+                              : "text-muted-foreground/40"
                           }`}
                         />
                       </button>
@@ -362,13 +410,20 @@ export function BookingList({
       })}
 
       {instruction && (
-        <PaymentDialog instruction={instruction} onClose={() => setInstruction(null)} />
+        <PaymentDialog
+          instruction={instruction}
+          onClose={() => setInstruction(null)}
+        />
       )}
 
       {reporting && (
         <ReportDialog
-          reportedUserId={side === "customer" ? reporting.readerUserId : reporting.customerId}
-          reportedName={side === "customer" ? reporting.readerName : reporting.customerName}
+          reportedUserId={
+            side === "customer" ? reporting.readerUserId : reporting.customerId
+          }
+          reportedName={
+            side === "customer" ? reporting.readerName : reporting.customerName
+          }
           bookingId={reporting.id}
           onClose={() => setReporting(null)}
         />
@@ -383,7 +438,10 @@ const DAY_FORMAT = new Intl.DateTimeFormat("vi-VN", {
   day: "2-digit",
   month: "2-digit",
 });
-const TIME_FORMAT = new Intl.DateTimeFormat("vi-VN", { hour: "2-digit", minute: "2-digit" });
+const TIME_FORMAT = new Intl.DateTimeFormat("vi-VN", {
+  hour: "2-digit",
+  minute: "2-digit",
+});
 
 function formatRange(startIso: string, endIso: string) {
   const start = new Date(startIso);
