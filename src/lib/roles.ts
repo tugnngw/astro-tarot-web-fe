@@ -49,6 +49,9 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
   user: ["USER_BASIC", "READER_APPLY"],
   staff: [
     "USER_BASIC",
+    // Nhân viên cũng nộp đơn được — xem chú thích cùng nội dung ở
+    // CustomUserDetails bên backend.
+    "READER_APPLY",
     "READER_MANAGE_PROFILE",
     "SUPPORT_VIEW",
     "SUPPORT_RESPOND",

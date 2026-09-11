@@ -17,6 +17,7 @@ import {
 import { toast } from "sonner";
 import { ApiError } from "@/api/client";
 import { formatVND } from "@/lib/mock-data";
+import { useAuth } from "@/lib/auth-context";
 import type { ReaderProfile } from "@/api/reader";
 import {
   useAddUnavailableDate,
@@ -24,6 +25,7 @@ import {
   useCreateAvailability,
   useDeleteAvailability,
   useDeleteUnavailableDate,
+  useMyApplication,
   useMyReaderProfile,
   useUnavailableDates,
   useUpdateReaderProfile,
@@ -52,7 +54,9 @@ function errText(e: unknown, fallback: string) {
 const toHm = (t: string) => t.slice(0, 5);
 
 export function ReaderWorkspace() {
+  const { openAuth } = useAuth();
   const profile = useMyReaderProfile();
+  const application = useMyApplication();
   const availability = useAvailability();
   const daysOff = useUnavailableDates();
 
@@ -60,8 +64,11 @@ export function ReaderWorkspace() {
     return <div className="glass h-40 animate-pulse rounded-2xl" aria-busy="true" />;
   }
 
-  // Nhân viên được cất nhắc thẳng từ trang quản lý thì chưa qua luồng nộp hồ sơ,
-  // nên chưa có ReaderProfile. Đó là trạng thái bình thường, không phải lỗi.
+  // Được quản lý đặt thẳng làm Nhân viên thì chưa qua luồng nộp đơn, nên chưa
+  // có ReaderProfile. Đó là trạng thái bình thường, không phải lỗi — và giờ có
+  // lối đi tiếp: nộp đơn ngay tại đây. Trước kia màn này chỉ bảo "nhờ quản lý
+  // tạo hồ sơ giúp" mà quản lý lại không có màn hình nào để tạo, nên ai rơi
+  // vào đây là mắc kẹt vĩnh viễn.
   if (profile.isError) {
     const notFound =
       profile.error instanceof ApiError && profile.error.status === 404;
@@ -71,11 +78,31 @@ export function ReaderWorkspace() {
         <h3 className="mt-3 font-display text-lg">
           {notFound ? "Bạn chưa có hồ sơ Reader" : "Không tải được hồ sơ Reader"}
         </h3>
-        <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-          {notFound
-            ? "Tài khoản nhân viên chỉ có hồ sơ Reader sau khi đơn xin làm Reader được duyệt. Nếu bạn được cất nhắc thẳng, hãy nhờ quản lý tạo hồ sơ giúp."
-            : errText(profile.error, "Lỗi không xác định.")}
-        </p>
+        {notFound ? (
+          <>
+            <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
+              {application.data?.status === "PENDING"
+                ? "Đơn của bạn đang chờ quản trị viên duyệt. Duyệt xong là hồ sơ Reader hiện ở đây."
+                : "Hồ sơ Reader chỉ có sau khi đơn xin làm Reader được duyệt. Nộp đơn ngay bên dưới."}
+            </p>
+            {application.data?.status !== "PENDING" && (
+              <button
+                type="button"
+                onClick={() => openAuth("reader")}
+                className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-gold px-5 py-2 text-sm font-medium text-background transition hover:bg-gold/90"
+              >
+                <Plus className="h-4 w-4" />
+                {application.data?.status === "REJECTED"
+                  ? "Nộp lại đơn"
+                  : "Nộp đơn làm Reader"}
+              </button>
+            )}
+          </>
+        ) : (
+          <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
+            {errText(profile.error, "Lỗi không xác định.")}
+          </p>
+        )}
       </section>
     );
   }

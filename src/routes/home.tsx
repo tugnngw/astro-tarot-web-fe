@@ -15,6 +15,7 @@ import { RoleBadge } from "@/components/RoleBadge";
 import { DailyCardDraw } from "@/components/DailyCardDraw";
 import { Reveal } from "@/components/Reveal";
 import { useAuth } from "@/lib/auth-context";
+import { MemberSnapshot } from "@/features/home/components/MemberSnapshot";
 import {
   homePathFor,
   type HomePath,
@@ -151,7 +152,14 @@ function UserHomePage() {
           </div>
         </Reveal>
 
-        <div className="mt-10 grid items-start gap-8 lg:grid-cols-[1.35fr_1fr]">
+        {/* Dữ liệu thật của chính người đang đăng nhập. Đặt trên lá bài ngày
+            vì đây là thứ họ vào đây để xem: buổi xem sắp tới, lần hỏi bài gần
+            đây, và lá số đang được AI dùng. */}
+        <div className="mt-8">
+          <MemberSnapshot />
+        </div>
+
+        <div className="mt-8 grid items-start gap-8 lg:grid-cols-[1.35fr_1fr]">
           <Reveal>
             <DailyCardDraw />
           </Reveal>
