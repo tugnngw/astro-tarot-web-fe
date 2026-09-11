@@ -8,6 +8,7 @@ import {
   CalendarClock,
   CalendarOff,
   Loader2,
+  MessageSquareQuote,
   Plus,
   Star,
   Trash2,
@@ -16,6 +17,9 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { ApiError } from "@/api/client";
+import { useReaderReviews } from "@/features/booking/queries";
+import { Pagination, PagedList } from "@/components/Pagination";
+import { ListError } from "@/components/ListError";
 import { formatVND } from "@/lib/mock-data";
 import { useAuth } from "@/lib/auth-context";
 import type { ReaderProfile } from "@/api/reader";
@@ -61,7 +65,9 @@ export function ReaderWorkspace() {
   const daysOff = useUnavailableDates();
 
   if (profile.isPending) {
-    return <div className="glass h-40 animate-pulse rounded-2xl" aria-busy="true" />;
+    return (
+      <div className="glass h-40 animate-pulse rounded-2xl" aria-busy="true" />
+    );
   }
 
   // Được quản lý đặt thẳng làm Nhân viên thì chưa qua luồng nộp đơn, nên chưa
@@ -76,7 +82,9 @@ export function ReaderWorkspace() {
       <section className="glass rounded-2xl px-5 py-8 text-center">
         <Star aria-hidden="true" className="mx-auto h-8 w-8 text-gold/50" />
         <h3 className="mt-3 font-display text-lg">
-          {notFound ? "Bạn chưa có hồ sơ Reader" : "Không tải được hồ sơ Reader"}
+          {notFound
+            ? "Bạn chưa có hồ sơ Reader"
+            : "Không tải được hồ sơ Reader"}
         </h3>
         {notFound ? (
           <>
@@ -146,7 +154,92 @@ export function ReaderWorkspace() {
           isError={daysOff.isError}
         />
       </div>
+
+      <DanhGiaCuaToi profile={p} />
     </div>
+  );
+}
+
+/**
+ * Đánh giá khách để lại cho chính Reader này.
+ *
+ * <p>Dữ liệu vẫn là endpoint công khai đã có, chỉ là chưa ai chỉ nó về hồ sơ
+ * của chính người đang đăng nhập: Reader muốn biết khách nói gì về mình thì
+ * phải tự mò ra trang công khai của mình mà xem. Mà uy tín chính là thứ quyết
+ * định họ có được đặt lịch tiếp hay không.
+ */
+function DanhGiaCuaToi({ profile }: { profile: ReaderProfile }) {
+  const [page, setPage] = useState(0);
+  const q = useReaderReviews(profile.id, page);
+  const rows = q.data?.content ?? [];
+
+  return (
+    <section className="glass rounded-2xl p-5">
+      <h3 className="flex items-center gap-2 font-display text-lg">
+        <MessageSquareQuote aria-hidden="true" className="h-5 w-5 text-gold" />
+        Khách nói gì về bạn
+        {profile.rating != null && (
+          <span className="ml-1 text-sm font-normal text-gold">
+            {profile.rating.toFixed(1)} ★
+          </span>
+        )}
+      </h3>
+
+      {q.isError ? (
+        <ListError error={q.error} onRetry={() => void q.refetch()} />
+      ) : q.isPending ? (
+        <div className="mt-4 space-y-2" aria-busy="true">
+          {Array.from({ length: 2 }, (_, i) => (
+            <div
+              key={i}
+              className="h-16 animate-pulse rounded-xl bg-mystic/10"
+            />
+          ))}
+        </div>
+      ) : rows.length === 0 ? (
+        <p className="py-6 text-center text-sm text-muted-foreground">
+          Chưa có đánh giá nào. Khách để lại đánh giá sau khi buổi xem hoàn tất.
+        </p>
+      ) : (
+        <>
+          <PagedList>
+            <ul className="mt-4 space-y-2">
+              {rows.map((r) => (
+                <li
+                  key={r.id}
+                  className="rounded-xl border border-white/5 px-4 py-3"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="truncate text-sm text-foreground">
+                      {r.authorName}
+                    </span>
+                    <span className="shrink-0 text-xs text-gold">
+                      {"★".repeat(r.rating)}
+                      <span className="text-muted-foreground">
+                        {"★".repeat(5 - r.rating)}
+                      </span>
+                    </span>
+                  </div>
+                  {r.comment && (
+                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                      {r.comment}
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </PagedList>
+          <Pagination
+            page={page}
+            totalPages={q.data?.totalPages ?? 1}
+            totalElements={q.data?.totalElements ?? 0}
+            onChange={setPage}
+            busy={q.isFetching}
+            unit="đánh giá"
+          />
+        </>
+      )}
+    </section>
   );
 }
 
@@ -307,7 +400,12 @@ function AvailabilityManager({
   isPending,
   isError,
 }: {
-  slots: { id: string; dayOfWeek: number; startTime: string; endTime: string }[];
+  slots: {
+    id: string;
+    dayOfWeek: number;
+    startTime: string;
+    endTime: string;
+  }[];
   isPending: boolean;
   isError: boolean;
 }) {
@@ -426,7 +524,8 @@ function AvailabilityManager({
                             disabled={remove.isPending}
                             onClick={() =>
                               remove.mutate(s.id, {
-                                onSuccess: () => toast.success("Đã xoá khung giờ"),
+                                onSuccess: () =>
+                                  toast.success("Đã xoá khung giờ"),
                                 onError: (e) =>
                                   toast.error(errText(e, "Không xoá được.")),
                               })
@@ -544,7 +643,9 @@ function DaysOffManager({
         ) : (
           <ul className="space-y-2">
             {[...dates]
-              .sort((a, b) => a.unavailableDate.localeCompare(b.unavailableDate))
+              .sort((a, b) =>
+                a.unavailableDate.localeCompare(b.unavailableDate),
+              )
               .map((d) => (
                 <li
                   key={d.id}
@@ -572,7 +673,8 @@ function DaysOffManager({
                     onClick={() =>
                       remove.mutate(d.id, {
                         onSuccess: () => toast.success("Đã bỏ ngày nghỉ"),
-                        onError: (e) => toast.error(errText(e, "Không xoá được.")),
+                        onError: (e) =>
+                          toast.error(errText(e, "Không xoá được.")),
                       })
                     }
                     className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-muted-foreground transition hover:bg-destructive/15 hover:text-destructive disabled:opacity-50"
