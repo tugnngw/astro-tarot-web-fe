@@ -153,7 +153,27 @@ function RootComponent() {
           <Outlet />
           <AuthModal />
           <BecomeReaderModal />
-          <Toaster position="top-center" theme="dark" richColors />
+          {/*
+            Góc dưới bên phải, không phải giữa trên cùng: vị trí cũ đè đúng
+            thanh điều hướng, che mất menu ngay lúc người dùng vừa thao tác
+            xong và hay cần bấm tiếp.
+
+            2,5 giây thay cho 4 giây mặc định — đủ đọc một câu ngắn. Riêng
+            toast lỗi thì nơi gọi tự đặt thời gian dài hơn nếu cần.
+          */}
+          <Toaster
+            position="bottom-right"
+            theme="dark"
+            richColors
+            duration={2500}
+            toastOptions={{
+              classNames: {
+                toast: "!text-xs !py-2.5 !px-3",
+                title: "!text-xs !font-medium",
+                description: "!text-[11px]",
+              },
+            }}
+          />
         </CartProvider>
       </AuthProvider>
     </QueryClientProvider>
