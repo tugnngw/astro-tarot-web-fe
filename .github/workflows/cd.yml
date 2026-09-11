@@ -1,5 +1,14 @@
 # Deploy production khi có code mới trên main.
-# Nếu chưa gắn secret VERCEL_DEPLOY_HOOK thì bỏ qua (exit 0) — không làm đỏ pipeline.
+#
+# Vercel KHÔNG dùng Deploy Hook được: hook của Vercel bắt buộc dự án phải nối
+# với repo Git, mà dự án này deploy bằng CLI nên chưa nối — trang Settings →
+# Git ghi thẳng "This Project is not connected to a Git repository".
+#
+# Nên ở đây gọi CLI với token thay vì hook. Chỉ VERCEL_TOKEN là bí mật;
+# hai ID bên dưới không phải bí mật (chúng nằm trong .vercel/project.json ở
+# máy dev, chỉ là file đó bị gitignore nên phải ghi lại ở đây).
+#
+# Chưa gắn VERCEL_TOKEN thì bỏ qua (exit 0) — không làm đỏ pipeline.
 name: CD
 
 on:
@@ -10,21 +19,30 @@ jobs:
   deploy:
     name: Deploy lên Vercel
     runs-on: ubuntu-latest
+    env:
+      VERCEL_ORG_ID: team_4hiptCgvaQ4fb4bGWEaR7L9T
+      VERCEL_PROJECT_ID: prj_BrxA3sVmDmR7c6dhJJNlVH0nBfSy
+
     steps:
-      - name: Gọi Deploy Hook (nếu có)
+      - uses: actions/checkout@v4
+
+      # Node 24 như CI và như máy dev: package-lock.json do npm 11 sinh ra,
+      # npm 10 của Node 20 giải cây phụ thuộc khác và báo thiếu lru-cache.
+      - name: Cài Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Deploy
         env:
-          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
-          if [ -z "$HOOK" ]; then
-            echo "Chưa có secret VERCEL_DEPLOY_HOOK — bỏ qua deploy."
-            echo "Gắn hook: Vercel → Project → Settings → Git → Deploy Hooks (nhánh main)"
-            echo "rồi dán URL vào GitHub → Settings → Secrets → Actions."
+          if [ -z "$VERCEL_TOKEN" ]; then
+            echo "Chưa có secret VERCEL_TOKEN — bỏ qua deploy."
+            echo "Tạo token: https://vercel.com/account/tokens"
+            echo "rồi dán vào GitHub → Settings → Secrets → Actions."
             exit 0
           fi
-          code=$(curl -sS -o /tmp/hook-body -w "%{http_code}" -X POST "$HOOK")
-          echo "HTTP $code"
-          cat /tmp/hook-body || true
-          case "$code" in
-            2*) echo "Đã xếp hàng deploy production trên Vercel." ;;
-            *) echo "::error::Deploy Hook trả $code"; exit 1 ;;
-          esac
+          # Vercel tự dựng bằng biến môi trường khai trong Project Settings
+          # (VITE_API_BASE_URL nằm ở đó), nên không build sẵn ở đây.
+          npx --yes vercel@latest deploy --prod --yes --token "$VERCEL_TOKEN"
