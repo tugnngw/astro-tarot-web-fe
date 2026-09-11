@@ -84,7 +84,11 @@ async function refreshAccessToken(): Promise<KetQuaLamMoi> {
   refreshing = fetch(`${API_BASE}/auth/refresh`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ refresh_token: refresh }),
+    // camelCase, khớp với AuthResponse và với auth.ts. Bản trước gửi
+    // `refresh_token`, và backend trả thẳng 400 "Refresh token is required" —
+    // nghĩa là làm mới token CHƯA BAO GIỜ chạy, mọi người dùng đều bị đăng
+    // xuất cứng đúng 15 phút sau khi đăng nhập.
+    body: JSON.stringify({ refreshToken: refresh }),
     signal: hanGio(null),
   })
     .then(async (r): Promise<KetQuaLamMoi> => {
@@ -95,14 +99,20 @@ async function refreshAccessToken(): Promise<KetQuaLamMoi> {
       }
       if (!r.ok) return { ok: false, phienHong: false };
 
+      // Cũng là camelCase. Bản trước đọc `access_token`/`refresh_token`, hai
+      // trường không tồn tại trong phản hồi — nên kể cả khi lời gọi thành
+      // công, nó vẫn lưu `undefined` vào chỗ token. Sai ở cả hai chiều của
+      // cùng một hàm.
       const env = (await r.json().catch(() => null)) as ApiEnvelope<{
-        access_token: string;
-        refresh_token: string;
+        accessToken: string;
+        refreshToken: string;
       }> | null;
-      if (!env?.data) return { ok: false, phienHong: false };
+      if (!env?.data?.accessToken || !env.data.refreshToken) {
+        return { ok: false, phienHong: false };
+      }
 
-      tokenStore.set(env.data.access_token, env.data.refresh_token);
-      return { ok: true, token: env.data.access_token };
+      tokenStore.set(env.data.accessToken, env.data.refreshToken);
+      return { ok: true, token: env.data.accessToken };
     })
     .catch((): KetQuaLamMoi => ({ ok: false, phienHong: false }))
     .finally(() => {
