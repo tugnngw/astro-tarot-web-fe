@@ -34,6 +34,13 @@ export interface Booking {
   cancelReason: string | null;
   /** Đã đánh giá chưa — quyết định hiện nút "Đánh giá" hay điểm đã chấm. */
   reviewed: boolean;
+  /**
+   * Ghi chú Reader viết sau buổi xem — cả khách lẫn Reader đều đọc được.
+   * Với đề tài Tarot thì đây là sản phẩm: trước khi có nó, khách trả tiền
+   * xong là buổi xem không để lại gì ngoài một dòng trạng thái.
+   */
+  readerNote: string | null;
+  readerNoteAt: string | null;
   createdAt: string;
 }
 
@@ -80,7 +87,11 @@ export const BOOKING_STATUS_LABEL: Record<BookingStatus, string> = {
 
 // ---------- Công khai ----------
 
-export function getSlots(readerProfileId: string, date: string, duration: number) {
+export function getSlots(
+  readerProfileId: string,
+  date: string,
+  duration: number,
+) {
   const params = new URLSearchParams({ date, duration: String(duration) });
   return apiFetch<Slot[]>(
     `/api/v1/readers/${readerProfileId}/slots?${params}`,
@@ -110,7 +121,10 @@ export function getNextAvailableDate(
 }
 
 export function getReaderReviews(readerProfileId: string, page = 0, size = 10) {
-  const params = new URLSearchParams({ page: String(page), size: String(size) });
+  const params = new URLSearchParams({
+    page: String(page),
+    size: String(size),
+  });
   return apiFetch<ReviewPage>(
     `/api/v1/readers/${readerProfileId}/reviews?${params}`,
     {},
@@ -131,7 +145,9 @@ export function createBooking(payload: {
   });
 }
 
-export function getMyBookings(query: { status?: string; page?: number; size?: number } = {}) {
+export function getMyBookings(
+  query: { status?: string; page?: number; size?: number } = {},
+) {
   const params = new URLSearchParams();
   if (query.status) params.set("status", query.status);
   if (query.page !== undefined) params.set("page", String(query.page));
@@ -140,7 +156,9 @@ export function getMyBookings(query: { status?: string; page?: number; size?: nu
   return apiFetch<BookingPage>(`/api/v1/bookings/me${qs ? `?${qs}` : ""}`);
 }
 
-export function getReaderBookings(query: { status?: string; page?: number; size?: number } = {}) {
+export function getReaderBookings(
+  query: { status?: string; page?: number; size?: number } = {},
+) {
   const params = new URLSearchParams();
   if (query.status) params.set("status", query.status);
   if (query.page !== undefined) params.set("page", String(query.page));
@@ -150,11 +168,23 @@ export function getReaderBookings(query: { status?: string; page?: number; size?
 }
 
 export function confirmBooking(id: string) {
-  return apiFetch<Booking>(`/api/v1/bookings/${id}/confirm`, { method: "PATCH" });
+  return apiFetch<Booking>(`/api/v1/bookings/${id}/confirm`, {
+    method: "PATCH",
+  });
 }
 
 export function completeBooking(id: string) {
-  return apiFetch<Booking>(`/api/v1/bookings/${id}/complete`, { method: "PATCH" });
+  return apiFetch<Booking>(`/api/v1/bookings/${id}/complete`, {
+    method: "PATCH",
+  });
+}
+
+/** Reader lưu ghi chú buổi xem. Chuỗi rỗng là xoá. */
+export function saveReaderNote(id: string, note: string) {
+  return apiFetch<Booking>(`/api/v1/bookings/${id}/note`, {
+    method: "PATCH",
+    body: JSON.stringify({ note }),
+  });
 }
 
 export function cancelBooking(id: string, reason?: string) {

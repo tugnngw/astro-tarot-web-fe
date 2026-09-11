@@ -29,7 +29,12 @@ export const notificationKeys = {
 
 // ---------- Khung giờ và đánh giá (công khai) ----------
 
-export function useSlots(readerProfileId: string, date: string, duration: number, enabled = true) {
+export function useSlots(
+  readerProfileId: string,
+  date: string,
+  duration: number,
+  enabled = true,
+) {
   return useQuery({
     queryKey: bookingKeys.slots(readerProfileId, date, duration),
     queryFn: () => bookingApi.getSlots(readerProfileId, date, duration),
@@ -64,7 +69,10 @@ export function useReaderReviews(readerProfileId: string, page = 0) {
 
 // ---------- Lịch hẹn ----------
 
-export function useMyBookings(query: { status?: string; page?: number; size?: number }, enabled = true) {
+export function useMyBookings(
+  query: { status?: string; page?: number; size?: number },
+  enabled = true,
+) {
   return useQuery({
     queryKey: bookingKeys.mine(query),
     queryFn: () => bookingApi.getMyBookings(query),
@@ -73,7 +81,10 @@ export function useMyBookings(query: { status?: string; page?: number; size?: nu
   });
 }
 
-export function useReaderBookings(query: { status?: string; page?: number; size?: number }, enabled = true) {
+export function useReaderBookings(
+  query: { status?: string; page?: number; size?: number },
+  enabled = true,
+) {
   return useQuery({
     queryKey: bookingKeys.reader(query),
     queryFn: () => bookingApi.getReaderBookings(query),
@@ -87,7 +98,9 @@ export function useReaderBookings(query: { status?: string; page?: number; size?
  * trạng thái một lịch hẹn luôn sinh một thông báo cho bên kia, và người vừa
  * thao tác thường cũng là người nhận (khi bên kia huỷ).
  */
-function useBookingMutation<TArgs, TResult>(fn: (args: TArgs) => Promise<TResult>) {
+function useBookingMutation<TArgs, TResult>(
+  fn: (args: TArgs) => Promise<TResult>,
+) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: fn,
@@ -110,6 +123,12 @@ export function useCompleteBooking() {
   return useBookingMutation(bookingApi.completeBooking);
 }
 
+export function useSaveReaderNote() {
+  return useBookingMutation(({ id, note }: { id: string; note: string }) =>
+    bookingApi.saveReaderNote(id, note),
+  );
+}
+
 export function useCancelBooking() {
   return useBookingMutation(({ id, reason }: { id: string; reason?: string }) =>
     bookingApi.cancelBooking(id, reason),
@@ -118,8 +137,15 @@ export function useCancelBooking() {
 
 export function useReviewBooking() {
   return useBookingMutation(
-    ({ id, rating, comment }: { id: string; rating: number; comment?: string }) =>
-      bookingApi.reviewBooking(id, rating, comment),
+    ({
+      id,
+      rating,
+      comment,
+    }: {
+      id: string;
+      rating: number;
+      comment?: string;
+    }) => bookingApi.reviewBooking(id, rating, comment),
   );
 }
 
@@ -150,7 +176,8 @@ export function useMarkNotificationRead() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: notificationApi.markRead,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: notificationKeys.all }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: notificationKeys.all }),
   });
 }
 
@@ -158,6 +185,7 @@ export function useMarkAllNotificationsRead() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: notificationApi.markAllRead,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: notificationKeys.all }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: notificationKeys.all }),
   });
 }

@@ -4,6 +4,7 @@ import {
   Check,
   Flag,
   Landmark,
+  NotebookPen,
   Star,
   X,
 } from "lucide-react";
@@ -18,6 +19,7 @@ import {
   useCompleteBooking,
   useConfirmBooking,
   useReviewBooking,
+  useSaveReaderNote,
 } from "@/features/booking/queries";
 import { formatVND } from "@/lib/mock-data";
 import { PaymentDialog } from "@/features/money/components/PaymentDialog";
@@ -25,7 +27,12 @@ import { ReportDialog } from "@/features/money/components/ReportDialog";
 import { useCreatePaymentIntent } from "@/features/money/queries";
 import type { PaymentInstruction } from "@/api/money";
 
-import { ListError, useTaiLau, SlowHint } from "@/components/ListError";
+import {
+  ListError,
+  useTaiLau,
+  SlowHint,
+  thongDiepLoi,
+} from "@/components/ListError";
 const STATUS_CLASS: Record<BookingStatus, string> = {
   PENDING: "border-amber-400/40 text-amber-300",
   CONFIRMED: "border-sky-400/40 text-sky-300",
@@ -405,6 +412,7 @@ export function BookingList({
                 </div>
               </div>
             )}
+            <GhiChuBuoiXem booking={b} side={side} />
           </article>
         );
       })}
@@ -448,4 +456,121 @@ function formatRange(startIso: string, endIso: string) {
   const end = new Date(endIso);
   if (Number.isNaN(start.getTime())) return "—";
   return `${DAY_FORMAT.format(start)}, ${TIME_FORMAT.format(start)}–${TIME_FORMAT.format(end)}`;
+}
+
+/**
+ * Ghi chú buổi xem.
+ *
+ * <p>Reader viết, khách đọc. Trước khi có nó, một buổi xem đã trả tiền không
+ * để lại gì trong hệ thống ngoài dòng trạng thái COMPLETED: khách không có gì
+ * để đọc lại sau một tuần, Reader không có gì để nhớ mình đã nói gì với ai.
+ * Với đề tài Tarot thì đó chính là phần sản phẩm bị thiếu — lịch sử trải bài
+ * chỉ lưu phần AI, tức phần miễn phí.
+ */
+function GhiChuBuoiXem({
+  booking: b,
+  side,
+}: {
+  booking: Booking;
+  side: "customer" | "reader";
+}) {
+  const luu = useSaveReaderNote();
+  const [mo, setMo] = useState(false);
+  const [nhap, setNhap] = useState(b.readerNote ?? "");
+
+  // Chỉ ghi được sau giờ hẹn: ghi chú là bản tường thuật một buổi đã diễn ra.
+  // Backend chặn lần nữa, đây chỉ để không bày ra một cái nút chắc chắn lỗi.
+  const daQuaGio = new Date(b.startTime).getTime() < Date.now();
+  const readerGhiDuoc =
+    side === "reader" && daQuaGio && b.status !== "CANCELLED";
+
+  if (!b.readerNote && !readerGhiDuoc) return null;
+
+  if (side === "customer") {
+    return (
+      <div className="mt-3 rounded-xl border border-gold/25 bg-gold/5 p-4">
+        <p className="flex items-center gap-1.5 text-xs text-gold">
+          <NotebookPen aria-hidden="true" className="h-3.5 w-3.5" />
+          Ghi chú từ {b.readerName}
+        </p>
+        <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">
+          {b.readerNote}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-3">
+      {!mo ? (
+        <button
+          type="button"
+          onClick={() => {
+            setNhap(b.readerNote ?? "");
+            setMo(true);
+          }}
+          className="inline-flex items-center gap-1.5 rounded-full border border-gold/40 px-3.5 py-1.5 text-xs text-gold transition hover:bg-gold/10"
+        >
+          <NotebookPen aria-hidden="true" className="h-3.5 w-3.5" />
+          {b.readerNote ? "Sửa ghi chú buổi xem" : "Viết ghi chú buổi xem"}
+        </button>
+      ) : (
+        <div className="rounded-xl border border-gold/25 p-3">
+          <label
+            htmlFor={`note-${b.id}`}
+            className="text-xs text-muted-foreground"
+          >
+            Khách sẽ đọc được câu này, nên viết cho họ — lá bài nào, ý chính,
+            điều nên để ý tới.
+          </label>
+          <textarea
+            id={`note-${b.id}`}
+            value={nhap}
+            onChange={(e) => setNhap(e.target.value)}
+            rows={5}
+            maxLength={4000}
+            className="mt-2 w-full rounded-lg border border-gold/25 bg-input/70 px-3 py-2 text-sm leading-relaxed outline-none focus:border-gold"
+          />
+          <div className="mt-2 flex items-center justify-between gap-2">
+            <span className="text-[11px] text-muted-foreground">
+              {nhap.length}/4000
+            </span>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setMo(false)}
+                className="rounded-full border border-mystic/50 px-3.5 py-1.5 text-xs"
+              >
+                Để sau
+              </button>
+              <button
+                type="button"
+                disabled={luu.isPending}
+                onClick={async () => {
+                  try {
+                    await luu.mutateAsync({ id: b.id, note: nhap.trim() });
+                    toast.success(
+                      nhap.trim() ? "Đã lưu ghi chú" : "Đã xoá ghi chú",
+                    );
+                    setMo(false);
+                  } catch (e) {
+                    toast.error(thongDiepLoi(e, "Không lưu được ghi chú"));
+                  }
+                }}
+                className="rounded-full bg-gold px-4 py-1.5 text-xs font-medium text-primary-foreground disabled:opacity-40"
+              >
+                Lưu ghi chú
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {b.readerNote && !mo && (
+        <p className="mt-2 whitespace-pre-wrap rounded-xl border border-white/5 px-4 py-3 text-sm leading-relaxed text-muted-foreground">
+          {b.readerNote}
+        </p>
+      )}
+    </div>
+  );
 }
