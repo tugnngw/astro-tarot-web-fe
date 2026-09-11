@@ -9,6 +9,7 @@ import { WorkspaceShell } from "@/components/WorkspaceShell";
 import { UserDirectory } from "@/features/admin/components/UserDirectory";
 import { ReaderApplications } from "@/features/admin/components/ReaderApplications";
 import { ReportQueue } from "@/features/money/components/AdminMoneyTables";
+import { CatalogManager } from "@/features/shop/components/CatalogManager";
 import { StaffSupportQueue } from "@/features/support/components/StaffSupportQueue";
 
 export const Route = createFileRoute("/manager")({
@@ -59,6 +60,14 @@ function ManagerWorkspace() {
               assignableRoles={["USER", "STAFF"]}
             />
           ),
+        },
+        {
+          // Gian hàng về tay Quản lý: chọn bán gì và viết mô tả là việc vận
+          // hành, không phải việc tài chính. Quản trị viên vẫn giữ nguyên tab
+          // này ở khu của mình — trao thêm cho Quản lý chứ không lấy đi của ai.
+          key: "catalog",
+          label: "Gian hàng",
+          render: () => <CatalogManager />,
         },
       ]}
     />

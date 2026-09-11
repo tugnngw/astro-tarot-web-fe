@@ -2,7 +2,12 @@
 // TIỀN — React Query hooks
 // ============================================================
 
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import * as moneyApi from "@/api/money";
 import { notificationKeys, bookingKeys } from "@/features/booking/queries";
 
@@ -21,7 +26,9 @@ export const moneyKeys = {
  * Nên invalidate rộng thay vì cố đoán đúng một khoá — đoán sai thì người dùng
  * nhìn số cũ và tưởng thao tác không ăn.
  */
-function useMoneyMutation<TArgs, TResult>(fn: (args: TArgs) => Promise<TResult>) {
+function useMoneyMutation<TArgs, TResult>(
+  fn: (args: TArgs) => Promise<TResult>,
+) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: fn,
@@ -64,7 +71,10 @@ export function useCreatePayout() {
 
 // ---------- Đối soát và duyệt chi (quản trị viên) ----------
 
-export function usePayments(query: { status?: string; page?: number; size?: number }, enabled = true) {
+export function usePayments(
+  query: { status?: string; page?: number; size?: number },
+  enabled = true,
+) {
   return useQuery({
     queryKey: moneyKeys.payments(query),
     queryFn: () => moneyApi.getPayments(query),
@@ -83,7 +93,10 @@ export function useRejectPayment() {
   );
 }
 
-export function usePayouts(query: { status?: string; page?: number; size?: number }, enabled = true) {
+export function usePayouts(
+  query: { status?: string; page?: number; size?: number },
+  enabled = true,
+) {
   return useQuery({
     queryKey: moneyKeys.payouts(query),
     queryFn: () => moneyApi.getPayouts(query),
@@ -108,7 +121,10 @@ export function useMarkPayoutPaid() {
 
 // ---------- Báo cáo vi phạm ----------
 
-export function useReports(query: { status?: string; page?: number; size?: number }, enabled = true) {
+export function useReports(
+  query: { status?: string; page?: number; size?: number },
+  enabled = true,
+) {
   return useQuery({
     queryKey: moneyKeys.reports(query),
     queryFn: () => moneyApi.getReports(query),
@@ -123,7 +139,17 @@ export function useCreateReport() {
 
 export function useHandleReport() {
   return useMoneyMutation(
-    ({ id, status, note }: { id: string; status: moneyApi.ReportStatus; note?: string }) =>
-      moneyApi.handleReport(id, status, note),
+    ({
+      id,
+      status,
+      note,
+      penaltyAmount,
+    }: {
+      id: string;
+      status: moneyApi.ReportStatus;
+      note?: string;
+      /** Chỉ có tác dụng khi status là RESOLVED; BE cũng chặn lần nữa. */
+      penaltyAmount?: number;
+    }) => moneyApi.handleReport(id, status, note, penaltyAmount),
   );
 }

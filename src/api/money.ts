@@ -89,6 +89,69 @@ export interface EscrowSummary {
   totalEarned: number;
   totalWithdrawn: number;
   minimumPayout: number;
+  /**
+   * Tiền phạt chưa thu được vì lúc xử lý vi phạm số dư không đủ.
+   * Sẽ tự trừ vào các buổi xem sau, nên phải bày ra chứ không giấu.
+   */
+  penaltyOwed?: number;
+}
+
+/** Một dòng sổ cái ký quỹ. */
+export interface EscrowTransaction {
+  id: string;
+  kind: EscrowTxnKind;
+  /** Luôn dương — hướng tiền nằm ở `kind`. */
+  amount: number;
+  balanceAfter: number;
+  pendingAfter: number;
+  bookingId: string | null;
+  note: string | null;
+  createdAt: string;
+}
+
+export type EscrowTxnKind =
+  | "HOLD"
+  | "RELEASE"
+  | "REFUND"
+  | "PENALTY"
+  | "PENALTY_DEBT"
+  | "DEBT_COLLECTED"
+  | "PAYOUT_RESERVE"
+  | "PAYOUT_RETURN"
+  | "PAYOUT_SETTLE";
+
+export const ESCROW_KIND_LABEL: Record<EscrowTxnKind, string> = {
+  HOLD: "Khách đã trả, đang giữ",
+  RELEASE: "Nhận từ buổi xem",
+  REFUND: "Hoàn lại cho khách",
+  PENALTY: "Trừ do vi phạm",
+  PENALTY_DEBT: "Ghi nợ tiền phạt",
+  DEBT_COLLECTED: "Thu tiền phạt còn nợ",
+  PAYOUT_RESERVE: "Giữ chỗ để rút",
+  PAYOUT_RETURN: "Hoàn lại do từ chối rút",
+  PAYOUT_SETTLE: "Đã chuyển khoản",
+};
+
+/**
+ * Dòng này làm số dư rút được TĂNG hay GIẢM?
+ *
+ * Dùng để tô màu và đặt dấu. `null` nghĩa là chỉ động tới phần đang giữ, không
+ * đổi số dư rút được — gộp nó vào nhóm "giảm" sẽ khiến sổ nói sai.
+ */
+export function huongTien(kind: EscrowTxnKind): "tang" | "giam" | null {
+  switch (kind) {
+    case "RELEASE":
+    case "PAYOUT_RETURN":
+      return "tang";
+    case "PENALTY":
+    case "DEBT_COLLECTED":
+    case "PAYOUT_RESERVE":
+      return "giam";
+    default:
+      // HOLD/REFUND chỉ đổi phần đang giữ; PAYOUT_SETTLE và PENALTY_DEBT chỉ
+      // ghi nhận, tiền đã trừ từ bước trước.
+      return null;
+  }
 }
 
 export interface Payout {
@@ -100,6 +163,13 @@ export interface Payout {
   /** Chỉ bốn số cuối — màn quản trị hay mở trên máy dùng chung. */
   bankAccountMasked: string | null;
   accountHolder: string | null;
+  /** Mã BIN ngân hàng theo chuẩn VietQR. Rỗng với lệnh rút tạo trước đây. */
+  bankBin: string | null;
+  /**
+   * Chuỗi EMV để vẽ mã QR chuyển khoản.
+   * BE chỉ trả cho người có quyền duyệt chi, và chỉ khi lệnh còn phải chi.
+   */
+  qrPayload?: string | null;
   status: PayoutStatus;
   rejectReason: string | null;
   requestedAt: string | null;
@@ -122,11 +192,19 @@ export function createPayout(payload: {
   bankName: string;
   bankAccount: string;
   accountHolder: string;
+  /** Mã BIN 6 chữ số — thiếu thì người duyệt phải gõ tay số tài khoản. */
+  bankBin?: string;
 }) {
   return apiFetch<Payout>("/api/v1/me/payouts", {
     method: "POST",
     body: JSON.stringify(payload),
   });
+}
+
+export function getMyEscrowLedger(page = 0, size = PAGE_SIZE) {
+  return apiFetch<Paged<EscrowTransaction>>(
+    `/api/v1/me/escrow/transactions?page=${page}&size=${size}`,
+  );
 }
 
 export function getMyPayouts(page = 0, size = PAGE_SIZE) {
@@ -175,6 +253,8 @@ export interface Report {
   reportType: string;
   description: string | null;
   status: ReportStatus;
+  /** Tiền đã trừ của người bị báo cáo. 0 = chỉ nhắc nhở. */
+  penaltyAmount?: number;
   handledByName: string | null;
   handledAt: string | null;
   resolutionNote: string | null;
@@ -219,10 +299,19 @@ export function handleReport(
   id: string,
   status: ReportStatus,
   resolutionNote?: string,
+  /**
+   * Tiền phạt, chỉ có tác dụng khi kết luận là RESOLVED.
+   * Để trống hoặc 0 là nhắc nhở suông — vẫn là một kết luận hợp lệ.
+   */
+  penaltyAmount?: number,
 ) {
   return apiFetch<Report>(`/api/v1/admin/reports/${id}/handle`, {
     method: "PATCH",
-    body: JSON.stringify({ status, resolutionNote: resolutionNote ?? null }),
+    body: JSON.stringify({
+      status,
+      resolutionNote: resolutionNote ?? null,
+      penaltyAmount: penaltyAmount ?? 0,
+    }),
   });
 }
 

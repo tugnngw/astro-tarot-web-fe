@@ -71,6 +71,13 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "ADMIN_READERS_VIEW",
     "ADMIN_READERS_REVIEW",
     "REPORT_REVIEW",
+    // Gian hàng là các liên kết tiếp thị: việc ở đây là chọn bán gì, viết mô
+    // tả, xếp danh mục — công việc vận hành chứ không phải công việc tài
+    // chính, nên nó thuộc Quản lý. Cố ý không trao cho Nhân viên: Nhân viên
+    // chính là Reader đang tư vấn, để họ tự chọn sản phẩm đẩy lên trước mặt
+    // khách của mình là đặt họ vào thế xung đột lợi ích. Tiền (ORDERS_MANAGE,
+    // PAYMENTS_MANAGE) vẫn là việc của Quản trị viên.
+    "CATALOG_MANAGE",
   ],
   admin: [
     "USER_BASIC",

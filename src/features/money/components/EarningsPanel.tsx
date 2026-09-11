@@ -8,6 +8,8 @@ import {
   useMyPayouts,
 } from "@/features/money/queries";
 import { formatVND } from "@/lib/mock-data";
+import { DANH_SACH_NGAN_HANG, timNganHang } from "@/lib/banks";
+import { SoCaiKyQuy } from "./EscrowLedger";
 
 import { Pagination, PagedList } from "@/components/Pagination";
 const STATUS_CLASS: Record<PayoutStatus, string> = {
@@ -31,9 +33,11 @@ export function EarningsPanel() {
   const create = useCreatePayout();
 
   const [open, setOpen] = useState(false);
+  // Giữ mã BIN chứ không giữ tên ngân hàng: tên suy ra được từ mã, còn mã thì
+  // không suy ra được từ tên ("VCB" và "Vietcombank" là cùng một nơi).
   const [form, setForm] = useState({
     amount: "",
-    bankName: "",
+    bankBin: "",
     bankAccount: "",
     accountHolder: "",
   });
@@ -48,15 +52,23 @@ export function EarningsPanel() {
       return;
     }
     try {
+      const nganHang = timNganHang(form.bankBin);
+      if (!nganHang) {
+        toast.error("Chọn ngân hàng trong danh sách");
+        return;
+      }
       await create.mutateAsync({
         amount,
-        bankName: form.bankName.trim(),
+        // Tên ngân hàng suy ra từ mã BIN chứ không cho gõ tay: gõ tay thì
+        // "VCB" và "Vietcombank" thành hai ngân hàng khác nhau trong mắt máy.
+        bankName: nganHang.ten,
+        bankBin: nganHang.bin,
         bankAccount: form.bankAccount.trim(),
         accountHolder: form.accountHolder.trim(),
       });
       toast.success("Đã gửi lệnh rút, chờ quản trị viên duyệt");
       setOpen(false);
-      setForm({ amount: "", bankName: "", bankAccount: "", accountHolder: "" });
+      setForm({ amount: "", bankBin: "", bankAccount: "", accountHolder: "" });
     } catch (err) {
       toast.error(
         err instanceof Error ? err.message : "Không gửi được lệnh rút",
@@ -128,6 +140,14 @@ export function EarningsPanel() {
               </div>
             </dl>
 
+            {(e!.penaltyOwed ?? 0) > 0 && (
+              <p className="mt-3 rounded-xl border border-destructive/40 bg-destructive/5 px-4 py-3 text-xs text-destructive">
+                Bạn đang nợ {formatVND(e!.penaltyOwed!)} tiền phạt vi phạm. Số
+                này sẽ tự trừ vào các buổi xem tới, nên thu nhập mấy lần sau sẽ
+                thấp hơn cho tới khi trừ hết.
+              </p>
+            )}
+
             <button
               type="button"
               onClick={() => setOpen((v) => !v)}
@@ -165,11 +185,23 @@ export function EarningsPanel() {
               }
               inputMode="numeric"
             />
-            <Field
-              label="Ngân hàng"
-              value={form.bankName}
-              onChange={(v) => setForm((f) => ({ ...f, bankName: v }))}
-            />
+            <label className="block">
+              <span className="text-xs text-muted-foreground">Ngân hàng</span>
+              <select
+                value={form.bankBin}
+                onChange={(ev) =>
+                  setForm((f) => ({ ...f, bankBin: ev.target.value }))
+                }
+                className="mt-1 w-full rounded-lg border border-white/10 bg-background/60 px-3 py-2 text-sm outline-none transition focus:border-gold/60"
+              >
+                <option value="">— Chọn ngân hàng —</option>
+                {DANH_SACH_NGAN_HANG.map((n) => (
+                  <option key={n.bin} value={n.bin}>
+                    {n.ten} — {n.tenDayDu}
+                  </option>
+                ))}
+              </select>
+            </label>
             <Field
               label="Số tài khoản"
               value={form.bankAccount}
@@ -264,6 +296,8 @@ export function EarningsPanel() {
           />
         )}
       </section>
+
+      <SoCaiKyQuy />
     </div>
   );
 }
