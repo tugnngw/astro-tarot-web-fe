@@ -216,7 +216,9 @@ export function AdminOverview() {
               <div className="flex items-center justify-between">
                 <span
                   className={`rounded-lg p-2 ${
-                    k.alert ? "bg-amber-400/15 text-amber-300" : "bg-gold/10 text-gold"
+                    k.alert
+                      ? "bg-amber-400/15 text-amber-300"
+                      : "bg-gold/10 text-gold"
                   }`}
                 >
                   <Icon className="h-4 w-4" />
@@ -226,7 +228,9 @@ export function AdminOverview() {
                 {nf(k.value)}
               </div>
               <div className="mt-1.5 text-sm text-foreground/80">{k.label}</div>
-              <div className="mt-0.5 text-xs text-muted-foreground">{k.hint}</div>
+              <div className="mt-0.5 text-xs text-muted-foreground">
+                {k.hint}
+              </div>
             </div>
           );
         })}
@@ -278,7 +282,11 @@ function RevenueSummary({
       icon: Wallet,
       label: "Doanh thu gộp",
       value: vnd(r.grossRevenue),
-      hint: nf(r.successfulPayments) + " giao dịch · " + vnd(r.grossRevenueLast30Days) + " trong 30 ngày",
+      hint:
+        nf(r.successfulPayments) +
+        " giao dịch · " +
+        vnd(r.grossRevenueLast30Days) +
+        " trong 30 ngày",
       negative: false,
     },
     {
@@ -338,7 +346,9 @@ function RevenueSummary({
                 {c.value}
               </div>
               <div className="mt-1.5 text-sm text-foreground/80">{c.label}</div>
-              <div className="mt-0.5 text-xs text-muted-foreground">{c.hint}</div>
+              <div className="mt-0.5 text-xs text-muted-foreground">
+                {c.hint}
+              </div>
             </div>
           );
         })}
@@ -374,8 +384,14 @@ function RevenueMonthChart({
           Chưa có giao dịch thành công nào.
         </p>
       ) : (
-        <ChartContainer config={config} className="mt-4 aspect-auto h-[260px] w-full">
-          <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+        <ChartContainer
+          config={config}
+          className="mt-4 aspect-auto h-[260px] w-full"
+        >
+          <BarChart
+            data={data}
+            margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+          >
             <ChartTooltip
               content={
                 <ChartTooltipContent
@@ -387,7 +403,11 @@ function RevenueMonthChart({
                 />
               }
             />
-            <Bar dataKey="count" fill="var(--color-count)" radius={[6, 6, 0, 0]} />
+            <Bar
+              dataKey="count"
+              fill="var(--color-count)"
+              radius={[6, 6, 0, 0]}
+            />
           </BarChart>
         </ChartContainer>
       )}
@@ -402,7 +422,12 @@ function ProfitBreakdownChart({
   revenue: NonNullable<AdminStats["revenue"]>;
 }) {
   const data = [
-    { key: "reader", label: "Reader nhận", count: r.readerShare, fill: "#38bdf8" },
+    {
+      key: "reader",
+      label: "Reader nhận",
+      count: r.readerShare,
+      fill: "#38bdf8",
+    },
     {
       key: "fee",
       label: "Phí nền tảng " + r.platformFeePercent + "%",
@@ -420,12 +445,16 @@ function ProfitBreakdownChart({
     <section className="glass rounded-2xl p-5">
       <h2 className="font-display text-lg">Tiền đi về đâu</h2>
       <p className="mt-1 text-xs text-muted-foreground">
-        Phần lớn doanh thu là của Reader — phần nền tảng giữ lại mới là nguồn bù chi phí.
+        Phần lớn doanh thu là của Reader — phần nền tảng giữ lại mới là nguồn bù
+        chi phí.
       </p>
       {data.length === 0 ? (
         <p className="mt-6 text-sm text-muted-foreground">Chưa có số liệu.</p>
       ) : (
-        <ChartContainer config={config} className="mt-4 aspect-auto h-[260px] w-full">
+        <ChartContainer
+          config={config}
+          className="mt-4 aspect-auto h-[260px] w-full"
+        >
           <PieChart>
             <ChartTooltip
               content={
@@ -439,7 +468,13 @@ function ProfitBreakdownChart({
                 />
               }
             />
-            <Pie data={data} dataKey="count" nameKey="label" innerRadius={55} outerRadius={95}>
+            <Pie
+              data={data}
+              dataKey="count"
+              nameKey="label"
+              innerRadius={55}
+              outerRadius={95}
+            >
               {data.map((d) => (
                 <Cell key={d.key} fill={d.fill} />
               ))}
@@ -455,7 +490,9 @@ function ProfitBreakdownChart({
 /** "2026-09" -> "T9/26". Truc X ngan de khong chong chu. */
 function monthLabel(ym: string) {
   const parts = ym.split("-");
-  return parts.length === 2 ? "T" + Number(parts[1]) + "/" + parts[0].slice(2) : ym;
+  return parts.length === 2
+    ? "T" + Number(parts[1]) + "/" + parts[0].slice(2)
+    : ym;
 }
 
 function RoleChart({ users }: { users: AdminStats["users"] }) {
@@ -490,7 +527,10 @@ function RoleChart({ users }: { users: AdminStats["users"] }) {
           Chưa có tài khoản nào.
         </p>
       ) : (
-        <ChartContainer config={config} className="mx-auto mt-2 aspect-square max-h-[280px] w-full">
+        <ChartContainer
+          config={config}
+          className="mx-auto mt-2 aspect-square max-h-[280px] w-full"
+        >
           <PieChart>
             <ChartTooltip
               cursor={false}
@@ -572,8 +612,14 @@ function BookingChart({ bookings }: { bookings: AdminStats["bookings"] }) {
           Chưa có lượt đặt lịch nào.
         </p>
       ) : (
-        <ChartContainer config={config} className="mt-4 aspect-auto h-[260px] w-full">
-          <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+        <ChartContainer
+          config={config}
+          className="mt-4 aspect-auto h-[260px] w-full"
+        >
+          <BarChart
+            data={data}
+            margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+          >
             <CartesianGrid vertical={false} strokeDasharray="3 3" />
             <XAxis
               dataKey="label"
@@ -599,11 +645,13 @@ function BookingChart({ bookings }: { bookings: AdminStats["bookings"] }) {
                     const n = Number(value) || 0;
                     const pct = total > 0 ? Math.round((n / total) * 100) : 0;
                     const label =
-                      (item?.payload as { label?: string } | undefined)?.label ??
-                      "Lượt";
+                      (item?.payload as { label?: string } | undefined)
+                        ?.label ?? "Lượt";
                     return (
                       <div className="flex w-full flex-col gap-0.5">
-                        <span className="font-medium text-foreground">{label}</span>
+                        <span className="font-medium text-foreground">
+                          {label}
+                        </span>
                         <span className="font-mono tabular-nums text-muted-foreground">
                           {nf(n)} lượt · {pct}% tổng
                         </span>
@@ -655,7 +703,10 @@ function ReaderChart({ readers }: { readers: AdminStats["readers"] }) {
         Rê chuột vào cột để xem chi tiết từng nhóm.
       </p>
 
-      <ChartContainer config={config} className="mt-4 aspect-auto h-[240px] w-full">
+      <ChartContainer
+        config={config}
+        className="mt-4 aspect-auto h-[240px] w-full"
+      >
         <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
           <CartesianGrid vertical={false} strokeDasharray="3 3" />
           <XAxis
@@ -740,7 +791,10 @@ function ShopChart({ shop }: { shop: AdminStats["shop"] }) {
         Rê chuột vào cột để xem số liệu từng chỉ số.
       </p>
 
-      <ChartContainer config={config} className="mt-4 aspect-auto h-[240px] w-full">
+      <ChartContainer
+        config={config}
+        className="mt-4 aspect-auto h-[240px] w-full"
+      >
         <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
           <CartesianGrid vertical={false} strokeDasharray="3 3" />
           <XAxis
@@ -769,7 +823,9 @@ function ShopChart({ shop }: { shop: AdminStats["shop"] }) {
                     "Chỉ số";
                   return (
                     <div className="flex w-full flex-col gap-0.5">
-                      <span className="font-medium text-foreground">{label}</span>
+                      <span className="font-medium text-foreground">
+                        {label}
+                      </span>
                       <span className="font-mono tabular-nums text-muted-foreground">
                         {nf(n)}
                       </span>
@@ -790,7 +846,14 @@ function ShopChart({ shop }: { shop: AdminStats["shop"] }) {
   );
 }
 
-const MODEL_COLORS = ["#d4a84b", "#38bdf8", "#34d399", "#a78bfa", "#fb7185", "#fbbf24"];
+const MODEL_COLORS = [
+  "#d4a84b",
+  "#38bdf8",
+  "#34d399",
+  "#a78bfa",
+  "#fb7185",
+  "#fbbf24",
+];
 
 function AiTokenBreakdownChart({ ai }: { ai: NonNullable<AdminStats["ai"]> }) {
   const data = [
@@ -841,8 +904,14 @@ function AiTokenBreakdownChart({ ai }: { ai: NonNullable<AdminStats["ai"]> }) {
           Chưa ghi nhận lượt gọi Tarot AI nào.
         </p>
       ) : (
-        <ChartContainer config={config} className="mt-4 aspect-auto h-[260px] w-full">
-          <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+        <ChartContainer
+          config={config}
+          className="mt-4 aspect-auto h-[260px] w-full"
+        >
+          <BarChart
+            data={data}
+            margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+          >
             <CartesianGrid vertical={false} strokeDasharray="3 3" />
             <XAxis
               dataKey="label"
@@ -949,7 +1018,9 @@ function AiModelChart({ ai }: { ai: NonNullable<AdminStats["ai"]> }) {
                       String(_name);
                     return (
                       <div className="flex w-full flex-col gap-0.5">
-                        <span className="font-medium text-foreground">{label}</span>
+                        <span className="font-medium text-foreground">
+                          {label}
+                        </span>
                         <span className="font-mono tabular-nums text-gold">
                           {nf(n)} token · {pct}%
                         </span>

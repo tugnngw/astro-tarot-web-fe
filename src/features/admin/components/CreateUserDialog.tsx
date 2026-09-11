@@ -61,7 +61,9 @@ export function CreateUserDialog({
       );
       onClose();
     } catch (e2) {
-      toast.error(e2 instanceof Error ? e2.message : "Không tạo được tài khoản");
+      toast.error(
+        e2 instanceof Error ? e2.message : "Không tạo được tài khoản",
+      );
     }
   }
 
@@ -92,8 +94,8 @@ export function CreateUserDialog({
           Tạo tài khoản
         </h2>
         <p className="mt-1 text-xs text-muted-foreground">
-          Dùng khi cần lập tài khoản cho đồng nghiệp mà không bắt họ tự đăng ký rồi
-          mới cất nhắc.
+          Dùng khi cần lập tài khoản cho đồng nghiệp mà không bắt họ tự đăng ký
+          rồi mới cất nhắc.
         </p>
 
         <form onSubmit={submit} noValidate className="mt-5 space-y-4">
@@ -102,31 +104,45 @@ export function CreateUserDialog({
             <input
               type="email"
               value={form.email}
-              onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, email: e.target.value }))
+              }
               aria-invalid={Boolean(errors.email)}
               className="mt-1 w-full rounded-lg border border-gold/25 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
             />
-            {errors.email && <span className="mt-1 block text-xs text-destructive">{errors.email}</span>}
+            {errors.email && (
+              <span className="mt-1 block text-xs text-destructive">
+                {errors.email}
+              </span>
+            )}
           </label>
 
           <label className="block">
             <span className="text-xs text-muted-foreground">Họ tên</span>
             <input
               value={form.fullName}
-              onChange={(e) => setForm((f) => ({ ...f, fullName: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, fullName: e.target.value }))
+              }
               aria-invalid={Boolean(errors.fullName)}
               className="mt-1 w-full rounded-lg border border-gold/25 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
             />
             {errors.fullName && (
-              <span className="mt-1 block text-xs text-destructive">{errors.fullName}</span>
+              <span className="mt-1 block text-xs text-destructive">
+                {errors.fullName}
+              </span>
             )}
           </label>
 
           <label className="block">
-            <span className="text-xs text-muted-foreground">Số điện thoại (tuỳ chọn)</span>
+            <span className="text-xs text-muted-foreground">
+              Số điện thoại (tuỳ chọn)
+            </span>
             <input
               value={form.phone}
-              onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, phone: e.target.value }))
+              }
               className="mt-1 w-full rounded-lg border border-gold/25 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
             />
           </label>
@@ -135,7 +151,9 @@ export function CreateUserDialog({
             <span className="text-xs text-muted-foreground">Vai trò</span>
             <select
               value={form.role}
-              onChange={(e) => setForm((f) => ({ ...f, role: e.target.value as AccountRole }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, role: e.target.value as AccountRole }))
+              }
               className="mt-1 w-full rounded-lg border border-gold/25 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
             >
               {assignableRoles.map((r) => (
@@ -153,12 +171,17 @@ export function CreateUserDialog({
             <input
               type="checkbox"
               checked={form.markEmailVerified}
-              onChange={(e) => setForm((f) => ({ ...f, markEmailVerified: e.target.checked }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, markEmailVerified: e.target.checked }))
+              }
               className="mt-1 h-4 w-4 accent-[var(--gold)]"
             />
             <span className="text-xs leading-relaxed text-muted-foreground">
-              <span className="text-foreground">Đánh dấu email đã xác minh</span> — dùng khi
-              bạn ngồi cạnh người đó. Họ vẫn nhận liên kết để tự đặt mật khẩu.
+              <span className="text-foreground">
+                Đánh dấu email đã xác minh
+              </span>{" "}
+              — dùng khi bạn ngồi cạnh người đó. Họ vẫn nhận liên kết để tự đặt
+              mật khẩu.
               <br />
               Bỏ trống thì họ nhận mail xác minh như người tự đăng ký.
             </span>

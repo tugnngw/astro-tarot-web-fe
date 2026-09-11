@@ -17,7 +17,11 @@ const PAGE_SIZE = 30;
 export function ActivityLogTable() {
   const [action, setAction] = useState("");
   const [page, setPage] = useState(0);
-  const query = useActivityLogs({ action: action || undefined, page, size: PAGE_SIZE });
+  const query = useActivityLogs({
+    action: action || undefined,
+    page,
+    size: PAGE_SIZE,
+  });
 
   const logs = query.data?.content ?? [];
   const totalPages = query.data?.totalPages ?? 0;
@@ -28,9 +32,9 @@ export function ActivityLogTable() {
         <div>
           <h2 className="font-display text-xl">Nhật ký hệ thống</h2>
           <p className="mt-1 max-w-xl text-sm text-muted-foreground">
-            Mọi thao tác đổi vai trò, khoá tài khoản và gửi lại mật khẩu đều được
-            ghi lại kèm người thực hiện. Nhật ký chỉ đọc — không sửa, không xoá
-            được từ giao diện.
+            Mọi thao tác đổi vai trò, khoá tài khoản và gửi lại mật khẩu đều
+            được ghi lại kèm người thực hiện. Nhật ký chỉ đọc — không sửa, không
+            xoá được từ giao diện.
           </p>
         </div>
         <select
@@ -56,21 +60,30 @@ export function ActivityLogTable() {
           <div className="flex flex-col items-center py-12 text-center">
             <AlertCircle className="h-8 w-8 text-destructive/70" />
             <p className="mt-3 text-sm text-muted-foreground">
-              {query.error instanceof Error ? query.error.message : "Không tải được nhật ký"}
+              {query.error instanceof Error
+                ? query.error.message
+                : "Không tải được nhật ký"}
             </p>
           </div>
         ) : query.isPending ? (
           <div className="space-y-2">
             {Array.from({ length: 6 }, (_, i) => (
-              <div key={i} className="h-12 animate-pulse rounded-xl bg-mystic/10" aria-hidden="true" />
+              <div
+                key={i}
+                className="h-12 animate-pulse rounded-xl bg-mystic/10"
+                aria-hidden="true"
+              />
             ))}
           </div>
         ) : logs.length === 0 ? (
           <div className="flex flex-col items-center py-14 text-center">
             <ScrollText aria-hidden="true" className="h-9 w-9 text-gold/50" />
-            <h3 className="mt-3 font-display text-lg">Chưa có thao tác nào được ghi</h3>
+            <h3 className="mt-3 font-display text-lg">
+              Chưa có thao tác nào được ghi
+            </h3>
             <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-              Nhật ký bắt đầu ghi từ lần đổi vai trò hoặc khoá tài khoản đầu tiên.
+              Nhật ký bắt đầu ghi từ lần đổi vai trò hoặc khoá tài khoản đầu
+              tiên.
             </p>
           </div>
         ) : (
@@ -78,23 +91,40 @@ export function ActivityLogTable() {
             <table className="w-full min-w-[700px] border-collapse text-sm">
               <thead>
                 <tr className="border-b border-gold/15 text-left text-xs uppercase tracking-[0.15em] text-muted-foreground">
-                  <th scope="col" className="py-2 pr-3 font-normal">Thời điểm</th>
-                  <th scope="col" className="py-2 pr-3 font-normal">Người thực hiện</th>
-                  <th scope="col" className="py-2 pr-3 font-normal">Hành động</th>
-                  <th scope="col" className="py-2 font-normal">Thay đổi</th>
+                  <th scope="col" className="py-2 pr-3 font-normal">
+                    Thời điểm
+                  </th>
+                  <th scope="col" className="py-2 pr-3 font-normal">
+                    Người thực hiện
+                  </th>
+                  <th scope="col" className="py-2 pr-3 font-normal">
+                    Hành động
+                  </th>
+                  <th scope="col" className="py-2 font-normal">
+                    Thay đổi
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {logs.map((l) => (
-                  <tr key={l.id} className="border-b border-white/5 align-top last:border-0">
+                  <tr
+                    key={l.id}
+                    className="border-b border-white/5 align-top last:border-0"
+                  >
                     <td className="whitespace-nowrap py-3 pr-3 text-xs tabular-nums text-muted-foreground">
                       {formatDateTime(l.createdAt)}
                     </td>
                     <td className="py-3 pr-3">
-                      <span className="block text-foreground">{l.actorName}</span>
-                      {l.actorRole && <RoleBadge role={l.actorRole} className="mt-1" />}
+                      <span className="block text-foreground">
+                        {l.actorName}
+                      </span>
+                      {l.actorRole && (
+                        <RoleBadge role={l.actorRole} className="mt-1" />
+                      )}
                     </td>
-                    <td className="py-3 pr-3">{ACTION_LABEL[l.action] ?? l.action}</td>
+                    <td className="py-3 pr-3">
+                      {ACTION_LABEL[l.action] ?? l.action}
+                    </td>
                     <td className="py-3 text-xs text-muted-foreground">
                       <Changes log={l} />
                     </td>
@@ -107,7 +137,10 @@ export function ActivityLogTable() {
       </div>
 
       {totalPages > 1 && (
-        <nav className="mt-6 flex items-center justify-center gap-3" aria-label="Phân trang nhật ký">
+        <nav
+          className="mt-6 flex items-center justify-center gap-3"
+          aria-label="Phân trang nhật ký"
+        >
           <button
             type="button"
             disabled={page === 0}
@@ -153,11 +186,16 @@ function Changes({ log }: { log: ActivityLog }) {
   }
 
   const entries = Object.entries(parsed as Record<string, unknown>);
-  if (entries.length === 2 && "from" in (parsed as object) && "to" in (parsed as object)) {
+  if (
+    entries.length === 2 &&
+    "from" in (parsed as object) &&
+    "to" in (parsed as object)
+  ) {
     const o = parsed as { from: unknown; to: unknown };
     return (
       <span className="whitespace-nowrap">
-        <code>{String(o.from)}</code> → <code className="text-gold">{String(o.to)}</code>
+        <code>{String(o.from)}</code> →{" "}
+        <code className="text-gold">{String(o.to)}</code>
       </span>
     );
   }
@@ -169,7 +207,8 @@ function Changes({ log }: { log: ActivityLog }) {
           <span className="text-muted-foreground/70">{k}:</span>{" "}
           {isFromTo(v) ? (
             <>
-              <code>{String(v.from)}</code> → <code className="text-gold">{String(v.to)}</code>
+              <code>{String(v.from)}</code> →{" "}
+              <code className="text-gold">{String(v.to)}</code>
             </>
           ) : (
             <code>{String(v)}</code>
