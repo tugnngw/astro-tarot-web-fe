@@ -22,6 +22,7 @@ export function Pagination({
   onChange,
   busy = false,
   unit = "mục",
+  pageSize = PAGE_SIZE,
 }: {
   /** Trang hiện tại, đếm từ 0 như BE. */
   page: number;
@@ -32,11 +33,13 @@ export function Pagination({
   busy?: boolean;
   /** Danh từ đếm, ví dụ "giao dịch", "lịch hẹn". */
   unit?: string;
+  /** Lưới thẻ cần nhiều mục hơn bảng dòng, nên cho phép khai khác mặc định. */
+  pageSize?: number;
 }) {
   // Một trang thì không có gì để đi tới — nhưng vẫn hiện tổng số, vì đó là
   // thông tin người dùng cần dù có phân trang hay không.
-  const from = totalElements === 0 ? 0 : page * PAGE_SIZE + 1;
-  const to = Math.min((page + 1) * PAGE_SIZE, totalElements);
+  const from = totalElements === 0 ? 0 : page * pageSize + 1;
+  const to = Math.min((page + 1) * pageSize, totalElements);
 
   return (
     <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-white/5 pt-3">

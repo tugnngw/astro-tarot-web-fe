@@ -6,6 +6,7 @@
 
 import { apiFetch } from "./client";
 
+import { PAGE_SIZE } from "@/components/Pagination";
 // ---------- Thanh toán ----------
 
 export type TransactionStatus = "PENDING" | "SUCCESS" | "FAILED" | "CANCELLED";
@@ -55,12 +56,18 @@ export function createPaymentIntent(bookingId: string) {
   });
 }
 
-export function getPayments(query: { status?: string; page?: number; size?: number } = {}) {
-  return apiFetch<Paged<PaymentTransaction>>(`/api/v1/admin/payments${qs(query)}`);
+export function getPayments(
+  query: { status?: string; page?: number; size?: number } = {},
+) {
+  return apiFetch<Paged<PaymentTransaction>>(
+    `/api/v1/admin/payments${qs(query)}`,
+  );
 }
 
 export function confirmPayment(id: string) {
-  return apiFetch<PaymentTransaction>(`/api/v1/admin/payments/${id}/confirm`, { method: "PATCH" });
+  return apiFetch<PaymentTransaction>(`/api/v1/admin/payments/${id}/confirm`, {
+    method: "PATCH",
+  });
 }
 
 export function rejectPayment(id: string, reason?: string) {
@@ -122,16 +129,22 @@ export function createPayout(payload: {
   });
 }
 
-export function getMyPayouts(page = 0, size = 20) {
-  return apiFetch<Paged<Payout>>(`/api/v1/me/payouts?page=${page}&size=${size}`);
+export function getMyPayouts(page = 0, size = PAGE_SIZE) {
+  return apiFetch<Paged<Payout>>(
+    `/api/v1/me/payouts?page=${page}&size=${size}`,
+  );
 }
 
-export function getPayouts(query: { status?: string; page?: number; size?: number } = {}) {
+export function getPayouts(
+  query: { status?: string; page?: number; size?: number } = {},
+) {
   return apiFetch<Paged<Payout>>(`/api/v1/admin/payouts${qs(query)}`);
 }
 
 export function approvePayout(id: string) {
-  return apiFetch<Payout>(`/api/v1/admin/payouts/${id}/approve`, { method: "PATCH" });
+  return apiFetch<Payout>(`/api/v1/admin/payouts/${id}/approve`, {
+    method: "PATCH",
+  });
 }
 
 export function rejectPayout(id: string, reason?: string) {
@@ -142,7 +155,9 @@ export function rejectPayout(id: string, reason?: string) {
 }
 
 export function markPayoutPaid(id: string) {
-  return apiFetch<Payout>(`/api/v1/admin/payouts/${id}/paid`, { method: "PATCH" });
+  return apiFetch<Payout>(`/api/v1/admin/payouts/${id}/paid`, {
+    method: "PATCH",
+  });
 }
 
 // ---------- Báo cáo vi phạm ----------
@@ -194,11 +209,17 @@ export function createReport(payload: {
   });
 }
 
-export function getReports(query: { status?: string; page?: number; size?: number } = {}) {
+export function getReports(
+  query: { status?: string; page?: number; size?: number } = {},
+) {
   return apiFetch<Paged<Report>>(`/api/v1/admin/reports${qs(query)}`);
 }
 
-export function handleReport(id: string, status: ReportStatus, resolutionNote?: string) {
+export function handleReport(
+  id: string,
+  status: ReportStatus,
+  resolutionNote?: string,
+) {
   return apiFetch<Report>(`/api/v1/admin/reports/${id}/handle`, {
     method: "PATCH",
     body: JSON.stringify({ status, resolutionNote: resolutionNote ?? null }),
