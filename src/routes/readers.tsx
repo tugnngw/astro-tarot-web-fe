@@ -5,12 +5,13 @@
 // và mức giá bịa ra ở đó. Nay đọc từ GET /api/v1/readers.
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { AlertCircle, Search, Star, UserSearch } from "lucide-react";
+import { Search, Star, UserSearch } from "lucide-react";
 import { Header } from "@/components/Header";
 import { useReaders } from "@/features/readers/queries";
 import { formatVND } from "@/lib/mock-data";
 import type { ReaderProfile } from "@/api/reader";
 
+import { ListError, useTaiLau, SlowHint } from "@/components/ListError";
 export const Route = createFileRoute("/readers")({
   head: () => ({
     meta: [
@@ -50,8 +51,8 @@ function ReadersPage() {
           Kết nối với <span className="text-gradient-gold">Reader thật</span>
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          Mỗi Reader ở đây đều đã qua duyệt hồ sơ. Chọn khung giờ trống, đặt lịch,
-          và đánh giá sau khi buổi xem hoàn tất.
+          Mỗi Reader ở đây đều đã qua duyệt hồ sơ. Chọn khung giờ trống, đặt
+          lịch, và đánh giá sau khi buổi xem hoàn tất.
         </p>
 
         <div className="relative mt-6 max-w-md">
@@ -74,29 +75,28 @@ function ReadersPage() {
 
         <div className="mt-8" aria-live="polite" aria-busy={query.isFetching}>
           {query.isError ? (
-            <div className="glass flex flex-col items-center rounded-2xl px-6 py-14 text-center">
-              <AlertCircle className="h-9 w-9 text-destructive/70" />
-              <h2 className="mt-3 font-display text-lg">Không tải được danh sách Reader</h2>
-              <p className="mt-2 text-sm text-muted-foreground">
-                {query.error instanceof Error ? query.error.message : "Lỗi không xác định."}
-              </p>
-              <button
-                type="button"
-                onClick={() => void query.refetch()}
-                className="mt-4 rounded-full border border-gold/50 px-5 py-2 text-sm text-gold transition hover:bg-gold/10"
-              >
-                Thử lại
-              </button>
-            </div>
+            <ListError
+              error={query.error}
+              onRetry={() => void query.refetch()}
+              title="Không tải được danh sách Reader"
+              className="glass rounded-2xl px-6 py-14"
+            />
           ) : query.isPending ? (
             <div className="grid gap-5 md:grid-cols-2">
               {Array.from({ length: 4 }, (_, i) => (
-                <div key={i} className="glass h-52 animate-pulse rounded-2xl" aria-hidden="true" />
+                <div
+                  key={i}
+                  className="glass h-52 animate-pulse rounded-2xl"
+                  aria-hidden="true"
+                />
               ))}
             </div>
           ) : readers.length === 0 ? (
             <div className="glass flex flex-col items-center rounded-2xl px-6 py-16 text-center">
-              <UserSearch aria-hidden="true" className="h-10 w-10 text-gold/50" />
+              <UserSearch
+                aria-hidden="true"
+                className="h-10 w-10 text-gold/50"
+              />
               <h2 className="mt-4 font-display text-xl">
                 {keyword ? "Không có Reader nào khớp" : "Chưa có Reader nào"}
               </h2>
@@ -122,7 +122,8 @@ function ReadersPage() {
 function ReaderCard({ reader }: { reader: ReaderProfile }) {
   const name = reader.fullName ?? `@${reader.username}`;
   const specialties = reader.specialties ?? [];
-  const cheapest = reader.pricePer15m ?? reader.pricePer30m ?? reader.pricePer60m;
+  const cheapest =
+    reader.pricePer15m ?? reader.pricePer30m ?? reader.pricePer60m;
 
   return (
     <article className="card-hover glass flex flex-col rounded-2xl p-6">
@@ -153,18 +154,27 @@ function ReaderCard({ reader }: { reader: ReaderProfile }) {
             </Link>
           </h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            {reader.yearsExperience ? `${reader.yearsExperience} năm kinh nghiệm` : "Reader mới"}
+            {reader.yearsExperience
+              ? `${reader.yearsExperience} năm kinh nghiệm`
+              : "Reader mới"}
             {reader.isAvailable === false && (
               <span className="ml-2 text-amber-300">tạm ngưng nhận lịch</span>
             )}
           </p>
           <p className="mt-1 flex items-center gap-1.5 text-xs">
-            <Star aria-hidden="true" className="h-3.5 w-3.5 fill-gold text-gold" />
+            <Star
+              aria-hidden="true"
+              className="h-3.5 w-3.5 fill-gold text-gold"
+            />
             <span className="text-gold">
-              {reader.totalReviews ? Number(reader.rating ?? 0).toFixed(1) : "Chưa có"}
+              {reader.totalReviews
+                ? Number(reader.rating ?? 0).toFixed(1)
+                : "Chưa có"}
             </span>
             <span className="text-muted-foreground">
-              {reader.totalReviews ? `(${reader.totalReviews} đánh giá)` : "đánh giá"}
+              {reader.totalReviews
+                ? `(${reader.totalReviews} đánh giá)`
+                : "đánh giá"}
             </span>
           </p>
         </div>
@@ -172,7 +182,9 @@ function ReaderCard({ reader }: { reader: ReaderProfile }) {
         {cheapest != null && (
           <div className="shrink-0 text-right">
             <div className="text-[11px] text-muted-foreground">chỉ từ</div>
-            <div className="font-display text-xl text-gold">{formatVND(cheapest)}</div>
+            <div className="font-display text-xl text-gold">
+              {formatVND(cheapest)}
+            </div>
           </div>
         )}
       </div>
