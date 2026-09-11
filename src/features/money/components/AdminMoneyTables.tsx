@@ -20,6 +20,7 @@ import {
   useRejectPayout,
   useReports,
 } from "@/features/money/queries";
+import { PAGE_SIZE, PagedList, Pagination } from "@/components/Pagination";
 import { formatVND } from "@/lib/mock-data";
 
 // ============================================================
@@ -34,7 +35,8 @@ import { formatVND } from "@/lib/mock-data";
  */
 export function PaymentQueue() {
   const [status, setStatus] = useState("PENDING");
-  const query = usePayments({ status: status || undefined, page: 0, size: 50 });
+  const [page, setPage] = useState(0);
+  const query = usePayments({ status: status || undefined, page, size: PAGE_SIZE });
   const confirm = useConfirmPayment();
   const reject = useRejectPayment();
   const [rejecting, setRejecting] = useState<string | null>(null);
@@ -56,12 +58,16 @@ export function PaymentQueue() {
         </div>
         <StatusFilter
           value={status}
-          onChange={setStatus}
+          onChange={(v) => {
+            setStatus(v);
+            setPage(0);
+          }}
           labels={TRANSACTION_STATUS_LABEL as Record<string, string>}
         />
       </div>
 
       <Body
+        resetKey={status}
         query={query}
         emptyTitle="Không có giao dịch nào"
         emptyHint="Khi khách tạo lệnh chuyển khoản, giao dịch sẽ xuất hiện ở đây."
@@ -148,6 +154,15 @@ export function PaymentQueue() {
           ))}
         </ul>
       </Body>
+
+      <Pagination
+        page={page}
+        totalPages={query.data?.totalPages ?? 0}
+        totalElements={query.data?.totalElements ?? 0}
+        onChange={setPage}
+        busy={query.isFetching}
+        unit="giao dịch"
+      />
     </section>
   );
 }
@@ -158,7 +173,8 @@ export function PaymentQueue() {
 
 export function PayoutQueue() {
   const [status, setStatus] = useState("PENDING");
-  const query = usePayouts({ status: status || undefined, page: 0, size: 50 });
+  const [page, setPage] = useState(0);
+  const query = usePayouts({ status: status || undefined, page, size: PAGE_SIZE });
   const approve = useApprovePayout();
   const reject = useRejectPayout();
   const markPaid = useMarkPayoutPaid();
@@ -182,12 +198,16 @@ export function PayoutQueue() {
         </div>
         <StatusFilter
           value={status}
-          onChange={setStatus}
+          onChange={(v) => {
+            setStatus(v);
+            setPage(0);
+          }}
           labels={PAYOUT_STATUS_LABEL as Record<string, string>}
         />
       </div>
 
       <Body
+        resetKey={status}
         query={query}
         emptyTitle="Không có lệnh rút nào"
         emptyHint="Reader gửi lệnh rút từ tab Thu nhập ở bàn làm việc."
@@ -284,6 +304,15 @@ export function PayoutQueue() {
           ))}
         </ul>
       </Body>
+
+      <Pagination
+        page={page}
+        totalPages={query.data?.totalPages ?? 0}
+        totalElements={query.data?.totalElements ?? 0}
+        onChange={setPage}
+        busy={query.isFetching}
+        unit="yêu cầu rút"
+      />
     </section>
   );
 }
@@ -294,7 +323,8 @@ export function PayoutQueue() {
 
 export function ReportQueue() {
   const [status, setStatus] = useState("PENDING");
-  const query = useReports({ status: status || undefined, page: 0, size: 50 });
+  const [page, setPage] = useState(0);
+  const query = useReports({ status: status || undefined, page, size: PAGE_SIZE });
   const handle = useHandleReport();
   const [handling, setHandling] = useState<string | null>(null);
   const [note, setNote] = useState("");
@@ -315,12 +345,16 @@ export function ReportQueue() {
         </div>
         <StatusFilter
           value={status}
-          onChange={setStatus}
+          onChange={(v) => {
+            setStatus(v);
+            setPage(0);
+          }}
           labels={REPORT_STATUS_LABEL as Record<string, string>}
         />
       </div>
 
       <Body
+        resetKey={status}
         query={query}
         emptyTitle="Không có báo cáo nào"
         emptyHint="Khách gửi báo cáo từ trang Lịch hẹn của tôi sau khi buổi xem hoàn tất."
@@ -446,6 +480,15 @@ export function ReportQueue() {
           ))}
         </ul>
       </Body>
+
+      <Pagination
+        page={page}
+        totalPages={query.data?.totalPages ?? 0}
+        totalElements={query.data?.totalElements ?? 0}
+        onChange={setPage}
+        busy={query.isFetching}
+        unit="báo cáo"
+      />
     </section>
   );
 }
@@ -505,46 +548,61 @@ function Badge({ label, tone }: { label: string; tone: "ok" | "warn" | "bad" }) 
   );
 }
 
+/**
+ * Khung chung cho ba bảng: lỗi / đang tải / rỗng / có dữ liệu.
+ *
+ * Bọc trong PagedList để mọi trang cao bằng nhau — trang cuối ít dòng hơn vẫn
+ * chiếm đúng khoảng đó, nên nút "Trang sau" không chạy lên khỏi chỗ vừa bấm.
+ */
 function Body({
   query,
   emptyTitle,
   emptyHint,
+  resetKey,
   children,
 }: {
   query: { isPending: boolean; isError: boolean; error: unknown; data?: { content: unknown[] } };
   emptyTitle: string;
   emptyHint: string;
+  /** Đổi bộ lọc thì quên chiều cao đã nhớ. */
+  resetKey?: string | number;
   children: React.ReactNode;
 }) {
   if (query.isError) {
     return (
+      <PagedList resetKey={resetKey}>
       <div className="flex flex-col items-center py-12 text-center">
         <AlertCircle className="h-8 w-8 text-destructive/70" />
         <p className="mt-3 text-sm text-muted-foreground">
           {query.error instanceof Error ? query.error.message : "Không tải được dữ liệu"}
         </p>
       </div>
+      </PagedList>
     );
   }
   if (query.isPending) {
     return (
-      <div className="mt-4 space-y-2" aria-busy="true">
-        {Array.from({ length: 3 }, (_, i) => (
-          <div key={i} className="h-20 animate-pulse rounded-xl bg-mystic/10" aria-hidden="true" />
-        ))}
-      </div>
+      <PagedList resetKey={resetKey}>
+        <div className="mt-4 space-y-2" aria-busy="true">
+          {Array.from({ length: 4 }, (_, i) => (
+            <div key={i} className="h-20 animate-pulse rounded-xl bg-mystic/10" aria-hidden="true" />
+          ))}
+        </div>
+      </PagedList>
     );
   }
   if ((query.data?.content.length ?? 0) === 0) {
     return (
+      <PagedList resetKey={resetKey}>
       <div className="flex flex-col items-center py-14 text-center">
         <Inbox aria-hidden="true" className="h-9 w-9 text-gold/50" />
         <h3 className="mt-3 font-display text-lg">{emptyTitle}</h3>
         <p className="mt-2 max-w-sm text-sm text-muted-foreground">{emptyHint}</p>
       </div>
+      </PagedList>
     );
   }
-  return <>{children}</>;
+  return <PagedList resetKey={resetKey}>{children}</PagedList>;
 }
 
 function InlineReason({

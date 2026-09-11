@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { PAGE_SIZE, PagedList, Pagination } from "@/components/Pagination";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertCircle,
@@ -58,15 +59,21 @@ export function CatalogManager() {
   const [debounced, setDebounced] = useState("");
   const [editing, setEditing] = useState<Product | null>(null);
   const [creating, setCreating] = useState(false);
+  const [page, setPage] = useState(0);
 
   useEffect(() => {
-    const t = setTimeout(() => setDebounced(keyword.trim()), 350);
+    const t = setTimeout(() => {
+      setDebounced(keyword.trim());
+      // Gõ thêm một chữ thì kết quả thu hẹp lại; đang ở trang 4 mà không về
+      // trang 1 là nhìn vào một trang rỗng.
+      setPage(0);
+    }, 350);
     return () => clearTimeout(t);
   }, [keyword]);
 
   const query = useQuery({
-    queryKey: catalogKeys.products({ keyword: debounced }),
-    queryFn: () => getAdminProducts({ keyword: debounced || undefined, page: 0, size: 100 }),
+    queryKey: catalogKeys.products({ keyword: debounced, page }),
+    queryFn: () => getAdminProducts({ keyword: debounced || undefined, page, size: PAGE_SIZE }),
     placeholderData: keepPreviousData,
   });
 
@@ -169,12 +176,15 @@ export function CatalogManager() {
               </p>
             </div>
           ) : query.isPending ? (
-            <div className="space-y-2" aria-busy="true">
-              {Array.from({ length: 5 }, (_, i) => (
-                <div key={i} className="h-16 animate-pulse rounded-xl bg-mystic/10" />
-              ))}
-            </div>
+            <PagedList resetKey={debounced}>
+              <div className="space-y-2" aria-busy="true">
+                {Array.from({ length: 5 }, (_, i) => (
+                  <div key={i} className="h-16 animate-pulse rounded-xl bg-mystic/10" />
+                ))}
+              </div>
+            </PagedList>
           ) : (
+            <PagedList resetKey={debounced}>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[820px] border-collapse text-sm">
                 <thead>
@@ -266,8 +276,18 @@ export function CatalogManager() {
                 </tbody>
               </table>
             </div>
+            </PagedList>
           )}
         </div>
+
+        <Pagination
+          page={page}
+          totalPages={query.data?.totalPages ?? 0}
+          totalElements={query.data?.totalElements ?? 0}
+          onChange={setPage}
+          busy={query.isFetching}
+          unit="sản phẩm"
+        />
 
         <p className="mt-4 flex items-start gap-2 text-xs text-muted-foreground">
           <Eye aria-hidden="true" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gold/70" />

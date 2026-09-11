@@ -11,6 +11,7 @@ import { WorkspaceShell } from "@/components/WorkspaceShell";
 import { ReaderWorkspace } from "@/features/readers/components/ReaderWorkspace";
 import { useAuth } from "@/lib/auth-context";
 import { BookingList } from "@/features/booking/components/BookingList";
+import { PAGE_SIZE, PagedList, Pagination } from "@/components/Pagination";
 import { StaffSupportQueue } from "@/features/support/components/StaffSupportQueue";
 import { useReaderBookings } from "@/features/booking/queries";
 import { BOOKING_STATUS_LABEL, type BookingStatus } from "@/api/booking";
@@ -73,7 +74,8 @@ function StaffWorkspace() {
  */
 function ReaderBookings() {
   const [status, setStatus] = useState("");
-  const query = useReaderBookings({ status: status || undefined, page: 0, size: 50 });
+  const [page, setPage] = useState(0);
+  const query = useReaderBookings({ status: status || undefined, page, size: PAGE_SIZE });
 
   const filters = [
     { key: "", label: "Tất cả" },
@@ -90,7 +92,10 @@ function ReaderBookings() {
           <button
             key={f.key || "all"}
             type="button"
-            onClick={() => setStatus(f.key)}
+            onClick={() => {
+              setStatus(f.key);
+              setPage(0);
+            }}
             aria-pressed={status === f.key}
             className={
               status === f.key
@@ -104,13 +109,23 @@ function ReaderBookings() {
       </div>
 
       <div aria-live="polite" aria-busy={query.isFetching}>
-        <BookingList
-          bookings={query.data?.content ?? []}
-          side="reader"
-          isPending={query.isPending}
-          isError={query.isError}
-          error={query.error}
-          onRetry={() => void query.refetch()}
+        <PagedList resetKey={status}>
+          <BookingList
+            bookings={query.data?.content ?? []}
+            side="reader"
+            isPending={query.isPending}
+            isError={query.isError}
+            error={query.error}
+            onRetry={() => void query.refetch()}
+          />
+        </PagedList>
+        <Pagination
+          page={page}
+          totalPages={query.data?.totalPages ?? 0}
+          totalElements={query.data?.totalElements ?? 0}
+          onChange={setPage}
+          busy={query.isFetching}
+          unit="lịch hẹn"
         />
       </div>
     </div>

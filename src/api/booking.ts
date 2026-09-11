@@ -89,6 +89,26 @@ export function getSlots(readerProfileId: string, date: string, duration: number
   );
 }
 
+/**
+ * Ngày gần nhất Reader còn khung trống. null = trong khoảng dò không còn ngày nào.
+ *
+ * Cần vì khung đã qua giờ bị loại: xem vào buổi tối thì hôm nay luôn trống
+ * trơn, và trang mặc định chọn hôm nay nên Reader trông như không nhận khách.
+ */
+export function getNextAvailableDate(
+  readerProfileId: string,
+  duration: number,
+  from?: string,
+) {
+  const params = new URLSearchParams({ duration: String(duration) });
+  if (from) params.set("from", from);
+  return apiFetch<string | null>(
+    `/api/v1/readers/${readerProfileId}/slots/next-available?${params}`,
+    {},
+    { auth: false },
+  );
+}
+
 export function getReaderReviews(readerProfileId: string, page = 0, size = 10) {
   const params = new URLSearchParams({ page: String(page), size: String(size) });
   return apiFetch<ReviewPage>(
