@@ -14,7 +14,13 @@
 // ============================================================
 
 /** Vai trò dùng trong giao diện. `guest` = chưa đăng nhập, không có trong DB. */
-export const APP_ROLES = ["guest", "user", "staff", "manager", "admin"] as const;
+export const APP_ROLES = [
+  "guest",
+  "user",
+  "staff",
+  "manager",
+  "admin",
+] as const;
 export type Role = (typeof APP_ROLES)[number];
 
 /** Vai trò có thật trong bảng users của BE. */
@@ -204,7 +210,11 @@ export function homePathFor(principal: Principal | null): HomePath {
 }
 
 /** Ba trụ cột của sản phẩm — khách chưa đăng nhập cũng thấy đủ.
- *  "Trang chủ" trên nav được Header đổi `to` theo `homePathFor`. */
+ *
+ *  "Trang chủ" trỏ thẳng vào "/" cho MỌI người, kể cả nhân viên và quản trị.
+ *  Trước đây Header đổi đích của nó theo `homePathFor`, nên một tài khoản Nhân
+ *  viên bấm "Trang chủ" lại rơi vào Bàn làm việc — cái nhãn nói một đằng, nơi
+ *  đến một nẻo, mà trang họ vừa rời đi lại chính là trang giới thiệu. */
 export const PUBLIC_NAV = [
   { to: "/", label: "Trang chủ" },
   { to: "/tarot", label: "Tarot AI" },
@@ -212,8 +222,7 @@ export const PUBLIC_NAV = [
   { to: "/shop", label: "Shop" },
 ] as const;
 
-/** Link khu vực làm việc, chỉ hiện với người có quyền tương ứng.
- *  Không lặp lại trang chủ của chính họ (đã nằm ở "Trang chủ"). */
+/** Link khu vực làm việc, chỉ hiện với người có quyền tương ứng. */
 export const WORKSPACE_NAV = [
   { to: "/staff", label: "Bàn làm việc", permission: "SUPPORT_VIEW" },
   { to: "/manager", label: "Quản lý", permission: "STAFF_VIEW" },
@@ -229,8 +238,10 @@ export type WorkspaceNavItem = (typeof WORKSPACE_NAV)[number];
 export function workspaceNavFor(
   principal: Principal | null,
 ): WorkspaceNavItem[] {
-  const home = homePathFor(principal);
-  return WORKSPACE_NAV.filter(
-    (item) => can(principal, item.permission) && item.to !== home,
-  );
+  // Trước đây có thêm điều kiện `item.to !== homePathFor(principal)`: khu làm
+  // việc của chính mình bị bỏ khỏi danh sách, vì coi như "Trang chủ" đã dẫn
+  // tới đó rồi. Hệ quả là tài khoản Nhân viên không thấy chữ "Bàn làm việc" ở
+  // bất kỳ đâu — lối vào duy nhất là một cái nhãn ghi "Trang chủ". Ai cũng
+  // thấy đúng khu của mình, gọi đúng tên của nó.
+  return WORKSPACE_NAV.filter((item) => can(principal, item.permission));
 }

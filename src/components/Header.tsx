@@ -11,10 +11,11 @@ import {
   Star,
   Menu,
   X,
+  LayoutDashboard,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { avatarUrl } from "@/api/profile";
-import { PUBLIC_NAV, homePathFor, workspaceNavFor } from "@/lib/roles";
+import { PUBLIC_NAV, can, workspaceNavFor } from "@/lib/roles";
 import { RoleBadge } from "./RoleBadge";
 import { NotificationBell } from "./NotificationBell";
 import { LogoutConfirm } from "./LogoutConfirm";
@@ -26,7 +27,12 @@ export function Header() {
   // Link khu vực làm việc suy ra từ QUYỀN, không phải từ tên vai trò: thêm một
   // vai trò mới thì chỉ sửa bảng ở @/lib/roles, không phải sửa header.
   const workspaceLinks = workspaceNavFor(user);
-  const homeTo = homePathFor(user);
+  // "Không gian của tôi" (/home) nằm trong menu tài khoản chứ không trên thanh
+  // nav: với quản trị viên thanh nav đã có ba khu làm việc, thêm một mục nữa
+  // là tràn. Nhưng mọi người đã đăng nhập đều phải có lối vào — trước đây
+  // thành viên thường tới đó qua nhãn "Trang chủ", nên khi nhãn ấy trả về
+  // đúng nghĩa thì /home mất lối vào nếu không bù chỗ này.
+  const coKhongGianThanhVien = can(user, "USER_BASIC");
   const [open, setOpen] = useState(false);
   const [logoutOpen, setLogoutOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -63,7 +69,7 @@ export function Header() {
           {/* min-w-0 + truncate: ở 375px, wordmark + giỏ + avatar + nút menu
               cộng lại rộng hơn màn hình và đẩy cả trang cuộn ngang. Cho phép
               phần thương hiệu co lại thay vì làm tràn layout. */}
-          <Link to={homeTo} className="flex min-w-0 items-center gap-2">
+          <Link to="/" className="flex min-w-0 items-center gap-2">
             <img
               src={logo}
               alt=""
@@ -74,13 +80,16 @@ export function Header() {
             </span>
           </Link>
 
-          <nav className="hidden items-center gap-7 text-sm md:flex">
+          {/* Hiện thanh ngang từ 1024px chứ không phải 768px: quản trị viên có
+              tới bảy mục (bốn công khai + ba khu làm việc), ở khổ tablet là
+              tràn ra ngoài. Dưới ngưỡng đó dùng menu thu gọn, vốn đã liệt kê
+              đủ cả hai nhóm. */}
+          <nav className="hidden items-center gap-5 text-sm lg:flex xl:gap-7">
             {PUBLIC_NAV.map((l) => {
-              const to = l.to === "/" ? homeTo : l.to;
               return (
                 <Link
                   key={l.label}
-                  to={to}
+                  to={l.to}
                   className="text-muted-foreground transition hover:text-gold"
                   activeProps={{ className: "text-gold" }}
                   activeOptions={{ exact: true }}
@@ -149,6 +158,18 @@ export function Header() {
                       <RoleBadge role={user.role} className="mt-2" />
                     </div>
                     {[
+                      ...(coKhongGianThanhVien
+                        ? [
+                            {
+                              ic: LayoutDashboard,
+                              l: "Không gian của tôi",
+                              a: () => {
+                                setOpen(false);
+                                navigate({ to: "/home" });
+                              },
+                            },
+                          ]
+                        : []),
                       {
                         ic: UserIcon,
                         l: "Hồ sơ cá nhân",
@@ -247,7 +268,7 @@ export function Header() {
               onClick={() => setMobileOpen((v) => !v)}
               aria-label={mobileOpen ? "Đóng menu" : "Mở menu"}
               aria-expanded={mobileOpen}
-              className="grid h-9 w-9 place-items-center rounded-full border border-gold/40 bg-card/60 text-gold transition hover:border-gold md:hidden"
+              className="grid h-9 w-9 place-items-center rounded-full border border-gold/40 bg-card/60 text-gold transition hover:border-gold lg:hidden"
             >
               {mobileOpen ? (
                 <X className="h-4 w-4" />
@@ -259,14 +280,13 @@ export function Header() {
         </div>
 
         {mobileOpen && (
-          <nav className="border-t border-gold/20 px-4 py-3 md:hidden">
+          <nav className="border-t border-gold/20 px-4 py-3 lg:hidden">
             <div className="flex flex-col">
               {PUBLIC_NAV.map((l) => {
-                const to = l.to === "/" ? homeTo : l.to;
                 return (
                   <Link
                     key={l.label}
-                    to={to}
+                    to={l.to}
                     onClick={() => setMobileOpen(false)}
                     className="rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition hover:bg-gold/10 hover:text-gold"
                     activeProps={{ className: "text-gold" }}
