@@ -120,6 +120,28 @@ function hanGio(
   return AbortSignal.any ? AbortSignal.any([signal, het]) : signal;
 }
 
+/**
+ * Access token đã quá hạn chưa?
+ *
+ * Đọc trường `exp` ngay trong token thay vì hỏi máy chủ: rẻ, và câu trả lời
+ * chắc chắn đúng vì chính máy chủ đã ký con số đó.
+ */
+function tokenDaHetHan(): boolean {
+  const t = tokenStore.getAccess();
+  if (!t) return false;
+  try {
+    const phan = t.split(".")[1];
+    const payload = JSON.parse(
+      atob(phan.replace(/-/g, "+").replace(/_/g, "/")),
+    ) as { exp?: number };
+    if (!payload.exp) return false;
+    return payload.exp * 1000 <= Date.now();
+  } catch {
+    // Token dị dạng thì coi như chưa hết hạn: để máy chủ phán, đừng tự suy.
+    return false;
+  }
+}
+
 /** Hàm fetch chính. Auto retry 1 lần nếu refresh thành công. */
 export async function apiFetch<T>(
   path: string,
@@ -185,8 +207,19 @@ export async function apiFetch<T>(
   if (!res)
     throw loiCuoi ?? new ApiError(0, "NETWORK", "Không gọi được máy chủ.");
 
-  // Refresh & retry on 401
-  if (res.status === 401 && auth && retry) {
+  // Làm mới token khi hết hạn.
+  //
+  // Xét cả 403 chứ không chỉ 401, vì backend từng trả 403 cho token hết hạn —
+  // Spring Security không khai authenticationEntryPoint thì mặc định của nó là
+  // 403 cho cả "chưa đăng nhập". Đã bắt tận tay trên production: token hết hạn
+  // 56 giây, GET /api/v1/me trả 403 thân rỗng, và vì chỉ bắt 401 nên giao diện
+  // không hề thử làm mới — mọi danh sách chết cho tới khi đăng nhập lại.
+  //
+  // Backend đã sửa để trả 401. Giữ nhánh 403 ở đây làm lớp thứ hai, nhưng CÓ
+  // ĐIỀU KIỆN: chỉ khi token thật sự hết hạn. Làm mới trên mọi 403 thì một lần
+  // từ chối quyền chính đáng cũng kéo theo một vòng refresh vô nghĩa.
+  const hetHan = res.status === 403 && auth && tokenDaHetHan();
+  if ((res.status === 401 || hetHan) && auth && retry) {
     const newToken = await refreshAccessToken();
     if (newToken) return apiFetch<T>(path, init, { auth, retry: false });
     tokenStore.clear();
