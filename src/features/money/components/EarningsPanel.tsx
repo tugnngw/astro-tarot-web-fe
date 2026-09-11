@@ -2,9 +2,14 @@ import { useState } from "react";
 import { AlertCircle, Banknote, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { PAYOUT_STATUS_LABEL, type PayoutStatus } from "@/api/money";
-import { useCreatePayout, useMyEscrow, useMyPayouts } from "@/features/money/queries";
+import {
+  useCreatePayout,
+  useMyEscrow,
+  useMyPayouts,
+} from "@/features/money/queries";
 import { formatVND } from "@/lib/mock-data";
 
+import { Pagination, PagedList } from "@/components/Pagination";
 const STATUS_CLASS: Record<PayoutStatus, string> = {
   PENDING: "border-amber-400/40 text-amber-300",
   APPROVED: "border-sky-400/40 text-sky-300",
@@ -21,11 +26,17 @@ const STATUS_CLASS: Record<PayoutStatus, string> = {
  */
 export function EarningsPanel() {
   const escrow = useMyEscrow();
-  const payouts = useMyPayouts(0);
+  const [payoutPage, setPayoutPage] = useState(0);
+  const payouts = useMyPayouts(payoutPage);
   const create = useCreatePayout();
 
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ amount: "", bankName: "", bankAccount: "", accountHolder: "" });
+  const [form, setForm] = useState({
+    amount: "",
+    bankName: "",
+    bankAccount: "",
+    accountHolder: "",
+  });
 
   const e = escrow.data;
 
@@ -47,7 +58,9 @@ export function EarningsPanel() {
       setOpen(false);
       setForm({ amount: "", bankName: "", bankAccount: "", accountHolder: "" });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Không gửi được lệnh rút");
+      toast.error(
+        err instanceof Error ? err.message : "Không gửi được lệnh rút",
+      );
     }
   }
 
@@ -56,7 +69,9 @@ export function EarningsPanel() {
       <section className="glass flex flex-col items-center rounded-2xl px-6 py-12 text-center">
         <AlertCircle className="h-8 w-8 text-destructive/70" />
         <p className="mt-3 text-sm text-muted-foreground">
-          {escrow.error instanceof Error ? escrow.error.message : "Không tải được ký quỹ"}
+          {escrow.error instanceof Error
+            ? escrow.error.message
+            : "Không tải được ký quỹ"}
         </p>
       </section>
     );
@@ -82,7 +97,9 @@ export function EarningsPanel() {
                 <dt className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
                   Rút được
                 </dt>
-                <dd className="mt-1 font-display text-2xl text-gold">{formatVND(e!.balance)}</dd>
+                <dd className="mt-1 font-display text-2xl text-gold">
+                  {formatVND(e!.balance)}
+                </dd>
                 <p className="mt-1 text-[11px] text-muted-foreground">
                   Đã trừ phí nền tảng, dùng được ngay.
                 </p>
@@ -128,19 +145,24 @@ export function EarningsPanel() {
             </button>
             {e!.balance < e!.minimumPayout && (
               <p className="mt-2 text-xs text-muted-foreground">
-                Mức rút tối thiểu là {formatVND(e!.minimumPayout)} — dưới mức đó thì phí
-                chuyển khoản ăn gần hết số tiền.
+                Mức rút tối thiểu là {formatVND(e!.minimumPayout)} — dưới mức đó
+                thì phí chuyển khoản ăn gần hết số tiền.
               </p>
             )}
           </>
         )}
 
         {open && (
-          <form onSubmit={submit} className="mt-4 space-y-3 rounded-xl border border-gold/25 p-4">
+          <form
+            onSubmit={submit}
+            className="mt-4 space-y-3 rounded-xl border border-gold/25 p-4"
+          >
             <Field
               label={`Số tiền (tối đa ${formatVND(e?.balance ?? 0)})`}
               value={form.amount}
-              onChange={(v) => setForm((f) => ({ ...f, amount: v.replace(/[^0-9]/g, "") }))}
+              onChange={(v) =>
+                setForm((f) => ({ ...f, amount: v.replace(/[^0-9]/g, "") }))
+              }
               inputMode="numeric"
             />
             <Field
@@ -159,7 +181,8 @@ export function EarningsPanel() {
               onChange={(v) => setForm((f) => ({ ...f, accountHolder: v }))}
             />
             <p className="text-[11px] text-muted-foreground">
-              Số dư bị trừ ngay khi gửi lệnh. Nếu bị từ chối, tiền quay lại số dư.
+              Số dư bị trừ ngay khi gửi lệnh. Nếu bị từ chối, tiền quay lại số
+              dư.
             </p>
             <div className="flex justify-end gap-2">
               <button
@@ -186,7 +209,10 @@ export function EarningsPanel() {
         {payouts.isPending ? (
           <div className="mt-4 space-y-2" aria-busy="true">
             {Array.from({ length: 2 }, (_, i) => (
-              <div key={i} className="h-14 animate-pulse rounded-xl bg-mystic/10" />
+              <div
+                key={i}
+                className="h-14 animate-pulse rounded-xl bg-mystic/10"
+              />
             ))}
           </div>
         ) : (payouts.data?.content.length ?? 0) === 0 ? (
@@ -194,27 +220,48 @@ export function EarningsPanel() {
             Bạn chưa rút lần nào.
           </p>
         ) : (
-          <ul className="mt-4 space-y-2">
-            {payouts.data!.content.map((p) => (
-              <li
-                key={p.id}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/5 px-4 py-3"
-              >
-                <div className="min-w-0">
-                  <p className="font-display text-lg text-gold">{formatVND(p.amount)}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {p.bankName} · {p.bankAccountMasked}
-                  </p>
-                  {p.rejectReason && (
-                    <p className="mt-1 text-xs text-destructive">{p.rejectReason}</p>
-                  )}
-                </div>
-                <span className={`rounded-full border px-2.5 py-0.5 text-[11px] ${STATUS_CLASS[p.status]}`}>
-                  {PAYOUT_STATUS_LABEL[p.status]}
-                </span>
-              </li>
-            ))}
-          </ul>
+          <PagedList>
+            <ul className="mt-4 space-y-2">
+              {payouts.data!.content.map((p) => (
+                <li
+                  key={p.id}
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/5 px-4 py-3"
+                >
+                  <div className="min-w-0">
+                    <p className="font-display text-lg text-gold">
+                      {formatVND(p.amount)}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {p.bankName} · {p.bankAccountMasked}
+                    </p>
+                    {p.rejectReason && (
+                      <p className="mt-1 text-xs text-destructive">
+                        {p.rejectReason}
+                      </p>
+                    )}
+                  </div>
+                  <span
+                    className={`rounded-full border px-2.5 py-0.5 text-[11px] ${STATUS_CLASS[p.status]}`}
+                  >
+                    {PAYOUT_STATUS_LABEL[p.status]}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </PagedList>
+        )}
+
+        {/* Hiện cả khi chỉ có một trang: dòng "1–6 trên 6 lệnh rút" là thông
+            tin Reader cần, không phụ thuộc việc có sang trang được hay không. */}
+        {!payouts.isPending && (
+          <Pagination
+            page={payoutPage}
+            totalPages={payouts.data?.totalPages ?? 1}
+            totalElements={payouts.data?.totalElements ?? 0}
+            onChange={setPayoutPage}
+            busy={payouts.isFetching}
+            unit="lệnh rút"
+          />
         )}
       </section>
     </div>

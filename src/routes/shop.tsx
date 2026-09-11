@@ -12,6 +12,7 @@ import {
 import { useCategories, useProducts } from "@/features/shop/queries";
 import type { Product } from "@/api/shop";
 
+import { Pagination } from "@/components/Pagination";
 export const Route = createFileRoute("/shop")({
   head: () => ({
     meta: [
@@ -129,7 +130,7 @@ function ShopPage() {
           {productsQuery.isError ? (
             <ErrorState onRetry={() => void productsQuery.refetch()} />
           ) : productsQuery.isPending ? (
-            <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {Array.from({ length: 6 }, (_, i) => (
                 <div
                   key={i}
@@ -148,7 +149,7 @@ function ShopPage() {
             />
           ) : (
             <div
-              className={`mt-6 grid gap-5 transition-opacity sm:grid-cols-2 lg:grid-cols-3 ${
+              className={`mt-6 grid gap-4 transition-opacity sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${
                 isRefreshing ? "opacity-60" : "opacity-100"
               }`}
             >
@@ -159,33 +160,17 @@ function ShopPage() {
           )}
         </div>
 
-        {/* Phân trang */}
-        {totalPages > 1 && (
-          <nav
-            className="mt-10 flex items-center justify-center gap-3"
-            aria-label="Phân trang"
-          >
-            <button
-              type="button"
-              disabled={page === 0}
-              onClick={() => setPage((p) => Math.max(0, p - 1))}
-              className="rounded-full border border-gold/40 px-4 py-2 text-sm text-gold transition hover:bg-gold/10 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              Trước
-            </button>
-            <span className="text-sm text-muted-foreground">
-              Trang {page + 1} / {totalPages}
-            </span>
-            <button
-              type="button"
-              disabled={page >= totalPages - 1}
-              onClick={() => setPage((p) => p + 1)}
-              className="rounded-full border border-gold/40 px-4 py-2 text-sm text-gold transition hover:bg-gold/10 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              Sau
-            </button>
-          </nav>
-        )}
+        {/* Phân trang — dùng khối chung để mọi danh sách trong ứng dụng
+            trông và hoạt động giống nhau. */}
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          totalElements={totalElements}
+          pageSize={PAGE_SIZE}
+          onChange={setPage}
+          busy={isRefreshing}
+          unit="sản phẩm"
+        />
       </main>
     </div>
   );
@@ -289,14 +274,14 @@ export function ProductCard({ product }: { product: Product }) {
           params={{ slug: product.slug }}
           tabIndex={-1}
           aria-hidden="true"
-          className="block aspect-[4/3] overflow-hidden bg-mystic/10"
+          className="block aspect-[5/4] overflow-hidden bg-mystic/10"
         >
           {product.imageUrl ? (
             <img
               src={product.imageUrl}
               alt=""
               loading="lazy"
-              className="h-full w-full object-contain p-3 transition-transform duration-500 group-hover:scale-105"
+              className="h-full w-full object-contain p-2.5 transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
             <ProductArtwork
@@ -316,13 +301,13 @@ export function ProductCard({ product }: { product: Product }) {
         )}
       </div>
 
-      <div className="flex flex-1 flex-col p-5">
+      <div className="flex flex-1 flex-col p-4">
         {product.categoryName && (
           <span className="text-[11px] uppercase tracking-[0.2em] text-gold/70">
             {product.categoryName}
           </span>
         )}
-        <h2 className="mt-1 font-display text-lg leading-snug">
+        <h2 className="mt-1 font-display text-base leading-snug">
           <Link
             to="/shop/$slug"
             params={{ slug: product.slug }}
@@ -332,8 +317,8 @@ export function ProductCard({ product }: { product: Product }) {
           </Link>
         </h2>
 
-        <div className="mt-3 flex items-baseline gap-2">
-          <span className="font-display text-xl text-gold">
+        <div className="mt-2 flex items-baseline gap-2">
+          <span className="font-display text-lg text-gold">
             {formatVND(product.price)}
           </span>
           {discount !== null && product.compareAtPrice && (
@@ -343,7 +328,7 @@ export function ProductCard({ product }: { product: Product }) {
           )}
         </div>
 
-        <div className="mt-auto pt-4">
+        <div className="mt-auto pt-3">
           <BuyOnPlatformButton product={product} />
         </div>
       </div>

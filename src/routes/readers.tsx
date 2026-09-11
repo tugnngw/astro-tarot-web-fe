@@ -4,7 +4,7 @@
 // đã xong nên rất dễ bị bỏ quên, mà người dùng thật thì tin vào những cái tên
 // và mức giá bịa ra ở đó. Nay đọc từ GET /api/v1/readers.
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search, Star, UserSearch } from "lucide-react";
 import { Header } from "@/components/Header";
 import { useReaders } from "@/features/readers/queries";
@@ -12,6 +12,7 @@ import { formatVND } from "@/lib/mock-data";
 import type { ReaderProfile } from "@/api/reader";
 
 import { ListError, useTaiLau, SlowHint } from "@/components/ListError";
+import { Pagination, PagedList } from "@/components/Pagination";
 export const Route = createFileRoute("/readers")({
   head: () => ({
     meta: [
@@ -25,9 +26,13 @@ export const Route = createFileRoute("/readers")({
   component: ReadersPage,
 });
 
+/** Số Reader mỗi trang. Lưới hai cột nên lấy số chẵn. */
+const READERS_PER_PAGE = 8;
+
 function ReadersPage() {
   const query = useReaders();
   const [keyword, setKeyword] = useState("");
+  const [page, setPage] = useState(0);
 
   const readers = useMemo(() => {
     const all = query.data ?? [];
@@ -41,6 +46,18 @@ function ReadersPage() {
         .some((field) => String(field).toLowerCase().includes(kw)),
     );
   }, [query.data, keyword]);
+
+  // Lọc xong mà vẫn đứng ở trang 5 thì màn hình trống trơn — về đầu.
+  useEffect(() => {
+    setPage(0);
+  }, [keyword]);
+
+  const totalPages = Math.max(1, Math.ceil(readers.length / READERS_PER_PAGE));
+  const trangHienTai = Math.min(page, totalPages - 1);
+  const readersTrangNay = readers.slice(
+    trangHienTai * READERS_PER_PAGE,
+    (trangHienTai + 1) * READERS_PER_PAGE,
+  );
 
   return (
     <div className="relative min-h-screen">
@@ -107,11 +124,25 @@ function ReadersPage() {
               </p>
             </div>
           ) : (
-            <div className="grid gap-5 md:grid-cols-2">
-              {readers.map((r) => (
-                <ReaderCard key={r.id} reader={r} />
-              ))}
-            </div>
+            <>
+              {/* PagedList giữ chiều cao: trang cuối ít thẻ hơn thì cả khối
+                  không tụt lên, nút "Trang sau" đứng yên dưới ngón tay. */}
+              <PagedList resetKey={keyword}>
+                <div className="grid gap-5 md:grid-cols-2">
+                  {readersTrangNay.map((r) => (
+                    <ReaderCard key={r.id} reader={r} />
+                  ))}
+                </div>
+              </PagedList>
+              <Pagination
+                page={trangHienTai}
+                totalPages={totalPages}
+                totalElements={readers.length}
+                pageSize={READERS_PER_PAGE}
+                onChange={setPage}
+                unit="Reader"
+              />
+            </>
           )}
         </div>
       </main>
