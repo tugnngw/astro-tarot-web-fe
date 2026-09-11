@@ -15,8 +15,8 @@ export function PaymentDialog({
   onClose: () => void;
 }) {
   const [copied, setCopied] = useState<string | null>(null);
-  const isPayOs = Boolean(instruction.checkoutUrl)
-    || instruction.paymentMethod === "PAYOS";
+  const isPayOs =
+    Boolean(instruction.checkoutUrl) || instruction.paymentMethod === "PAYOS";
 
   async function copy(value: string, field: string) {
     try {
@@ -54,7 +54,10 @@ export function PaymentDialog({
           <X aria-hidden="true" className="h-4 w-4" />
         </button>
 
-        <h2 id="pay-title" className="flex items-center gap-2 font-display text-xl">
+        <h2
+          id="pay-title"
+          className="flex items-center gap-2 font-display text-xl"
+        >
           <Landmark aria-hidden="true" className="h-5 w-5 text-gold" />
           {isPayOs ? "Thanh toán PayOS" : "Chuyển khoản"}
         </h2>
@@ -102,7 +105,10 @@ export function PaymentDialog({
                 onCopy={() => copy(instruction.bankAccountNumber, "account")}
                 copied={copied === "account"}
               />
-              <Field label="Chủ tài khoản" value={instruction.bankAccountHolder} />
+              <Field
+                label="Chủ tài khoản"
+                value={instruction.bankAccountHolder}
+              />
             </>
           )}
         </dl>
@@ -139,9 +145,9 @@ export function PaymentDialog({
 
         {!isPayOs && (
           <p className="mt-5 text-[11px] leading-relaxed text-muted-foreground">
-            Ghi thiếu hoặc sai nội dung thì khoản tiền không khớp được với lịch hẹn
-            của bạn và sẽ phải xử lý tay. Trạng thái thanh toán hiện ở trang Lịch
-            hẹn của tôi.
+            Ghi thiếu hoặc sai nội dung thì khoản tiền không khớp được với lịch
+            hẹn của bạn và sẽ phải xử lý tay. Trạng thái thanh toán hiện ở trang
+            Lịch hẹn của tôi.
           </p>
         )}
       </div>
@@ -167,7 +173,9 @@ function Field({
   return (
     <div className="flex items-center justify-between gap-3 rounded-xl border border-gold/20 px-3 py-2">
       <div className="min-w-0">
-        <dt className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">{label}</dt>
+        <dt className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+          {label}
+        </dt>
         <dd
           className={`mt-0.5 break-all ${big ? "font-display text-lg text-gold" : "text-sm"} ${
             mono ? "font-mono tracking-wide" : ""

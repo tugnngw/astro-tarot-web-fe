@@ -64,22 +64,31 @@ export function ReportDialog({
           <X aria-hidden="true" className="h-4 w-4" />
         </button>
 
-        <h2 id="report-title" className="flex items-center gap-2 font-display text-xl">
+        <h2
+          id="report-title"
+          className="flex items-center gap-2 font-display text-xl"
+        >
           <Flag aria-hidden="true" className="h-5 w-5 text-destructive" />
           Báo cáo {reportedName}
         </h2>
         <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-          Người bị báo cáo <strong className="text-foreground">không biết ai đã báo</strong>.
-          Chỉ đội ngũ xử lý đọc được nội dung này, và bạn sẽ nhận thông báo khi
-          có kết luận.
+          Người bị báo cáo{" "}
+          <strong className="text-foreground">không biết ai đã báo</strong>. Chỉ
+          đội ngũ xử lý đọc được nội dung này, và bạn sẽ nhận thông báo khi có
+          kết luận.
         </p>
 
         <form onSubmit={submit} className="mt-5 space-y-4">
           <fieldset>
-            <legend className="text-xs text-muted-foreground">Chuyện gì đã xảy ra?</legend>
+            <legend className="text-xs text-muted-foreground">
+              Chuyện gì đã xảy ra?
+            </legend>
             <div className="mt-2 space-y-1.5">
               {REPORT_TYPES.map((t) => (
-                <label key={t.value} className="flex items-center gap-2.5 text-sm">
+                <label
+                  key={t.value}
+                  className="flex items-center gap-2.5 text-sm"
+                >
                   <input
                     type="radio"
                     name="reportType"
@@ -95,7 +104,9 @@ export function ReportDialog({
           </fieldset>
 
           <label className="block">
-            <span className="text-xs text-muted-foreground">Mô tả thêm (không bắt buộc)</span>
+            <span className="text-xs text-muted-foreground">
+              Mô tả thêm (không bắt buộc)
+            </span>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}

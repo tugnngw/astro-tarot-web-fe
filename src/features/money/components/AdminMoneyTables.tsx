@@ -1,10 +1,13 @@
 import { useState } from "react";
-import { AlertCircle, Check, Inbox, X } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
+import { timNganHang } from "@/lib/banks";
+import { AlertCircle, Check, Inbox, QrCode, X } from "lucide-react";
 import { toast } from "sonner";
 import {
   PAYOUT_STATUS_LABEL,
   REPORT_STATUS_LABEL,
   TRANSACTION_STATUS_LABEL,
+  type Payout,
   type PayoutStatus,
   type ReportStatus,
   type TransactionStatus,
@@ -36,7 +39,11 @@ import { formatVND } from "@/lib/mock-data";
 export function PaymentQueue() {
   const [status, setStatus] = useState("PENDING");
   const [page, setPage] = useState(0);
-  const query = usePayments({ status: status || undefined, page, size: PAGE_SIZE });
+  const query = usePayments({
+    status: status || undefined,
+    page,
+    size: PAGE_SIZE,
+  });
   const confirm = useConfirmPayment();
   const reject = useRejectPayment();
   const [rejecting, setRejecting] = useState<string | null>(null);
@@ -51,9 +58,9 @@ export function PaymentQueue() {
         <div>
           <h2 className="font-display text-xl">Đối soát thanh toán</h2>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-            Mở sao kê ngân hàng, tìm khoản có nội dung khớp mã tham chiếu, rồi xác
-            nhận. Xác nhận xong tiền vào ký quỹ của Reader và chỉ nhả khi buổi xem
-            hoàn tất.
+            Mở sao kê ngân hàng, tìm khoản có nội dung khớp mã tham chiếu, rồi
+            xác nhận. Xác nhận xong tiền vào ký quỹ của Reader và chỉ nhả khi
+            buổi xem hoàn tất.
           </p>
         </div>
         <StatusFilter
@@ -83,16 +90,22 @@ export function PaymentQueue() {
                   <p className="mt-1 text-sm">
                     {t.payerName}
                     {t.readerName && (
-                      <span className="text-muted-foreground"> → {t.readerName}</span>
+                      <span className="text-muted-foreground">
+                        {" "}
+                        → {t.readerName}
+                      </span>
                     )}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {formatDateTime(t.createdAt)}
-                    {t.bookingStartTime && ` · buổi xem ${formatDateTime(t.bookingStartTime)}`}
+                    {t.bookingStartTime &&
+                      ` · buổi xem ${formatDateTime(t.bookingStartTime)}`}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="font-display text-lg text-gold">{formatVND(t.amount)}</p>
+                  <p className="font-display text-lg text-gold">
+                    {formatVND(t.amount)}
+                  </p>
                   <Badge
                     label={TRANSACTION_STATUS_LABEL[t.status]}
                     tone={
@@ -112,11 +125,15 @@ export function PaymentQueue() {
                     type="button"
                     disabled={busy}
                     onClick={() =>
-                      void run(() => confirm.mutateAsync(t.id), "Đã xác nhận thanh toán")
+                      void run(
+                        () => confirm.mutateAsync(t.id),
+                        "Đã xác nhận thanh toán",
+                      )
                     }
                     className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/40 px-3.5 py-1.5 text-xs text-emerald-300 transition hover:bg-emerald-400/10 disabled:opacity-40"
                   >
-                    <Check aria-hidden="true" className="h-3.5 w-3.5" /> Đã nhận tiền
+                    <Check aria-hidden="true" className="h-3.5 w-3.5" /> Đã nhận
+                    tiền
                   </button>
                   <button
                     type="button"
@@ -128,7 +145,8 @@ export function PaymentQueue() {
                     aria-expanded={rejecting === t.id}
                     className="inline-flex items-center gap-1.5 rounded-full border border-destructive/40 px-3.5 py-1.5 text-xs text-destructive transition hover:bg-destructive/10 disabled:opacity-40"
                   >
-                    <X aria-hidden="true" className="h-3.5 w-3.5" /> Không tìm thấy
+                    <X aria-hidden="true" className="h-3.5 w-3.5" /> Không tìm
+                    thấy
                   </button>
                 </div>
               )}
@@ -141,7 +159,11 @@ export function PaymentQueue() {
                   onCancel={() => setRejecting(null)}
                   onConfirm={async () => {
                     const ok = await run(
-                      () => reject.mutateAsync({ id: t.id, reason: reason.trim() || undefined }),
+                      () =>
+                        reject.mutateAsync({
+                          id: t.id,
+                          reason: reason.trim() || undefined,
+                        }),
                       "Đã đánh dấu không đối soát được",
                     );
                     if (ok) setRejecting(null);
@@ -172,9 +194,16 @@ export function PaymentQueue() {
 // ============================================================
 
 export function PayoutQueue() {
+  // Mã QR mở theo từng lệnh chứ không mở hết một lượt: quét nhầm lệnh bên
+  // cạnh là chuyển nhầm tiền, và trên màn hình chỉ nên có đúng một mã.
+  const [showQr, setShowQr] = useState<string | null>(null);
   const [status, setStatus] = useState("PENDING");
   const [page, setPage] = useState(0);
-  const query = usePayouts({ status: status || undefined, page, size: PAGE_SIZE });
+  const query = usePayouts({
+    status: status || undefined,
+    page,
+    size: PAGE_SIZE,
+  });
   const approve = useApprovePayout();
   const reject = useRejectPayout();
   const markPaid = useMarkPayoutPaid();
@@ -190,10 +219,11 @@ export function PayoutQueue() {
         <div>
           <h2 className="font-display text-xl">Lệnh rút tiền</h2>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-            Hai bước tách riêng có chủ ý: <strong className="text-foreground">Duyệt</strong> là
-            đồng ý chi, <strong className="text-foreground">Đã chuyển</strong> là xác nhận tiền
-            đã thật sự rời tài khoản. Gộp lại thì hệ thống nói đã chi trong khi kế
-            toán chưa bấm nút.
+            Hai bước tách riêng có chủ ý:{" "}
+            <strong className="text-foreground">Duyệt</strong> là đồng ý chi,{" "}
+            <strong className="text-foreground">Đã chuyển</strong> là xác nhận
+            tiền đã thật sự rời tài khoản. Gộp lại thì hệ thống nói đã chi trong
+            khi kế toán chưa bấm nút.
           </p>
         </div>
         <StatusFilter
@@ -225,11 +255,15 @@ export function PayoutQueue() {
                     Gửi lúc {formatDateTime(p.requestedAt)}
                   </p>
                   {p.rejectReason && (
-                    <p className="mt-1 text-xs text-destructive">{p.rejectReason}</p>
+                    <p className="mt-1 text-xs text-destructive">
+                      {p.rejectReason}
+                    </p>
                   )}
                 </div>
                 <div className="text-right">
-                  <p className="font-display text-lg text-gold">{formatVND(p.amount)}</p>
+                  <p className="font-display text-lg text-gold">
+                    {formatVND(p.amount)}
+                  </p>
                   <Badge
                     label={PAYOUT_STATUS_LABEL[p.status]}
                     tone={
@@ -243,13 +277,20 @@ export function PayoutQueue() {
                 </div>
               </div>
 
+              {showQr === p.id && p.qrPayload && <MaQrChuyenKhoan payout={p} />}
+
               <div className="mt-3 flex flex-wrap gap-2">
                 {p.status === "PENDING" && (
                   <>
                     <button
                       type="button"
                       disabled={busy}
-                      onClick={() => void run(() => approve.mutateAsync(p.id), "Đã duyệt lệnh rút")}
+                      onClick={() =>
+                        void run(
+                          () => approve.mutateAsync(p.id),
+                          "Đã duyệt lệnh rút",
+                        )
+                      }
                       className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/40 px-3.5 py-1.5 text-xs text-emerald-300 transition hover:bg-emerald-400/10 disabled:opacity-40"
                     >
                       <Check aria-hidden="true" className="h-3.5 w-3.5" /> Duyệt
@@ -269,12 +310,27 @@ export function PayoutQueue() {
                   </>
                 )}
 
+                {p.qrPayload && (
+                  <button
+                    type="button"
+                    onClick={() => setShowQr(showQr === p.id ? null : p.id)}
+                    aria-expanded={showQr === p.id}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-gold/40 px-3.5 py-1.5 text-xs text-gold transition hover:bg-gold/10"
+                  >
+                    <QrCode aria-hidden="true" className="h-3.5 w-3.5" />
+                    {showQr === p.id ? "Ẩn mã QR" : "Mã QR chuyển khoản"}
+                  </button>
+                )}
+
                 {p.status === "APPROVED" && (
                   <button
                     type="button"
                     disabled={busy}
                     onClick={() =>
-                      void run(() => markPaid.mutateAsync(p.id), "Đã ghi nhận chuyển khoản")
+                      void run(
+                        () => markPaid.mutateAsync(p.id),
+                        "Đã ghi nhận chuyển khoản",
+                      )
                     }
                     className="rounded-full bg-gold px-4 py-1.5 text-xs font-medium text-primary-foreground disabled:opacity-40"
                   >
@@ -291,7 +347,11 @@ export function PayoutQueue() {
                   onCancel={() => setRejecting(null)}
                   onConfirm={async () => {
                     const ok = await run(
-                      () => reject.mutateAsync({ id: p.id, reason: reason.trim() || undefined }),
+                      () =>
+                        reject.mutateAsync({
+                          id: p.id,
+                          reason: reason.trim() || undefined,
+                        }),
                       "Đã từ chối, tiền quay lại số dư của Reader",
                     );
                     if (ok) setRejecting(null);
@@ -324,11 +384,17 @@ export function PayoutQueue() {
 export function ReportQueue() {
   const [status, setStatus] = useState("PENDING");
   const [page, setPage] = useState(0);
-  const query = useReports({ status: status || undefined, page, size: PAGE_SIZE });
+  const query = useReports({
+    status: status || undefined,
+    page,
+    size: PAGE_SIZE,
+  });
   const handle = useHandleReport();
   const [handling, setHandling] = useState<string | null>(null);
   const [note, setNote] = useState("");
   const [decision, setDecision] = useState<ReportStatus>("RESOLVED");
+  /** Chuỗi chứ không phải số: ô trống và số 0 là hai ý khác nhau khi đang gõ. */
+  const [penalty, setPenalty] = useState("");
 
   const items = query.data?.content ?? [];
 
@@ -338,9 +404,9 @@ export function ReportQueue() {
         <div>
           <h2 className="font-display text-xl">Báo cáo vi phạm</h2>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-            Người bị báo cáo không biết ai đã báo — đừng nhắc tên người tố cáo trong
-            kết luận. Chỉ người tố nhận thông báo; xử lý người vi phạm (nhắc nhở,
-            khoá tài khoản) làm riêng ở màn Tài khoản.
+            Người bị báo cáo không biết ai đã báo — đừng nhắc tên người tố cáo
+            trong kết luận. Chỉ người tố nhận thông báo; xử lý người vi phạm
+            (nhắc nhở, khoá tài khoản) làm riêng ở màn Tài khoản.
           </p>
         </div>
         <StatusFilter
@@ -367,7 +433,9 @@ export function ReportQueue() {
                   <p className="text-sm">
                     <span className="text-muted-foreground">Bị báo cáo:</span>{" "}
                     <span className="text-foreground">{r.reportedName}</span>{" "}
-                    <span className="text-xs text-muted-foreground">({r.reportedRole})</span>
+                    <span className="text-xs text-muted-foreground">
+                      ({r.reportedRole})
+                    </span>
                   </p>
                   <p className="text-xs text-muted-foreground">
                     Người báo: {r.reporterName} · {formatDateTime(r.createdAt)}
@@ -380,9 +448,15 @@ export function ReportQueue() {
                       {r.description}
                     </p>
                   )}
+                  {(r.penaltyAmount ?? 0) > 0 && (
+                    <p className="mt-2 inline-block rounded-lg border border-destructive/30 px-3 py-1 text-xs text-destructive">
+                      Đã phạt {formatVND(r.penaltyAmount!)}
+                    </p>
+                  )}
                   {r.resolutionNote && (
                     <p className="mt-2 rounded-lg border border-emerald-400/20 px-3 py-2 text-xs text-muted-foreground">
-                      <span className="text-emerald-300">Kết luận:</span> {r.resolutionNote}
+                      <span className="text-emerald-300">Kết luận:</span>{" "}
+                      {r.resolutionNote}
                       {r.handledByName && ` — ${r.handledByName}`}
                     </p>
                   )}
@@ -406,6 +480,7 @@ export function ReportQueue() {
                     onClick={() => {
                       setHandling(handling === r.id ? null : r.id);
                       setNote("");
+                      setPenalty("");
                       setDecision("RESOLVED");
                     }}
                     aria-expanded={handling === r.id}
@@ -417,9 +492,17 @@ export function ReportQueue() {
                   {handling === r.id && (
                     <div className="mt-3 rounded-xl border border-gold/25 p-3">
                       <fieldset>
-                        <legend className="text-xs text-muted-foreground">Kết luận</legend>
+                        <legend className="text-xs text-muted-foreground">
+                          Kết luận
+                        </legend>
                         <div className="mt-2 flex flex-wrap gap-2">
-                          {(["REVIEWED", "RESOLVED", "REJECTED"] as ReportStatus[]).map((s) => (
+                          {(
+                            [
+                              "REVIEWED",
+                              "RESOLVED",
+                              "REJECTED",
+                            ] as ReportStatus[]
+                          ).map((s) => (
                             <button
                               key={s}
                               type="button"
@@ -444,6 +527,32 @@ export function ReportQueue() {
                         placeholder="Người báo cáo sẽ đọc được câu này."
                         className="mt-3 w-full rounded-lg border border-gold/25 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
                       />
+
+                      {/* Chỉ hiện với "Đã xử lý": đó là kết luận DUY NHẤT xác
+                          nhận có vi phạm. "Đã xem" mới là đã đọc qua, "Bác bỏ"
+                          là bác đơn tố cáo — trừ tiền ở hai chỗ đó là trừ của
+                          người chưa bị kết luận sai. Backend cũng chặn lần nữa. */}
+                      {decision === "RESOLVED" && (
+                        <label className="mt-3 block">
+                          <span className="text-xs text-muted-foreground">
+                            Tiền phạt (đồng) — để trống là chỉ nhắc nhở
+                          </span>
+                          <input
+                            value={penalty}
+                            onChange={(e) =>
+                              setPenalty(e.target.value.replace(/[^0-9]/g, ""))
+                            }
+                            inputMode="numeric"
+                            placeholder="0"
+                            className="mt-1 w-full rounded-lg border border-destructive/30 bg-input/70 px-3 py-2 text-sm outline-none focus:border-destructive"
+                          />
+                          <span className="mt-1 block text-[11px] text-muted-foreground">
+                            Trừ thẳng vào số dư rút được của {r.reportedName}.
+                            Không đủ thì phần thiếu ghi nợ và trừ dần vào các
+                            buổi xem sau. Người bị phạt nhận được thông báo.
+                          </span>
+                        </label>
+                      )}
                       <div className="mt-3 flex justify-end gap-2">
                         <button
                           type="button"
@@ -462,6 +571,10 @@ export function ReportQueue() {
                                   id: r.id,
                                   status: decision,
                                   note: note.trim() || undefined,
+                                  penaltyAmount:
+                                    decision === "RESOLVED"
+                                      ? Number(penalty || 0)
+                                      : 0,
                                 }),
                               "Đã ghi kết luận",
                             );
@@ -534,7 +647,13 @@ function StatusFilter({
   );
 }
 
-function Badge({ label, tone }: { label: string; tone: "ok" | "warn" | "bad" }) {
+function Badge({
+  label,
+  tone,
+}: {
+  label: string;
+  tone: "ok" | "warn" | "bad";
+}) {
   const cls =
     tone === "ok"
       ? "border-emerald-400/40 text-emerald-300"
@@ -542,7 +661,9 @@ function Badge({ label, tone }: { label: string; tone: "ok" | "warn" | "bad" }) 
         ? "border-amber-400/40 text-amber-300"
         : "border-destructive/40 text-destructive";
   return (
-    <span className={`mt-1 inline-block rounded-full border px-2.5 py-0.5 text-[11px] ${cls}`}>
+    <span
+      className={`mt-1 inline-block rounded-full border px-2.5 py-0.5 text-[11px] ${cls}`}
+    >
       {label}
     </span>
   );
@@ -561,7 +682,12 @@ function Body({
   resetKey,
   children,
 }: {
-  query: { isPending: boolean; isError: boolean; error: unknown; data?: { content: unknown[] } };
+  query: {
+    isPending: boolean;
+    isError: boolean;
+    error: unknown;
+    data?: { content: unknown[] };
+  };
   emptyTitle: string;
   emptyHint: string;
   /** Đổi bộ lọc thì quên chiều cao đã nhớ. */
@@ -571,12 +697,14 @@ function Body({
   if (query.isError) {
     return (
       <PagedList resetKey={resetKey}>
-      <div className="flex flex-col items-center py-12 text-center">
-        <AlertCircle className="h-8 w-8 text-destructive/70" />
-        <p className="mt-3 text-sm text-muted-foreground">
-          {query.error instanceof Error ? query.error.message : "Không tải được dữ liệu"}
-        </p>
-      </div>
+        <div className="flex flex-col items-center py-12 text-center">
+          <AlertCircle className="h-8 w-8 text-destructive/70" />
+          <p className="mt-3 text-sm text-muted-foreground">
+            {query.error instanceof Error
+              ? query.error.message
+              : "Không tải được dữ liệu"}
+          </p>
+        </div>
       </PagedList>
     );
   }
@@ -585,7 +713,11 @@ function Body({
       <PagedList resetKey={resetKey}>
         <div className="mt-4 space-y-2" aria-busy="true">
           {Array.from({ length: 4 }, (_, i) => (
-            <div key={i} className="h-20 animate-pulse rounded-xl bg-mystic/10" aria-hidden="true" />
+            <div
+              key={i}
+              className="h-20 animate-pulse rounded-xl bg-mystic/10"
+              aria-hidden="true"
+            />
           ))}
         </div>
       </PagedList>
@@ -594,11 +726,13 @@ function Body({
   if ((query.data?.content.length ?? 0) === 0) {
     return (
       <PagedList resetKey={resetKey}>
-      <div className="flex flex-col items-center py-14 text-center">
-        <Inbox aria-hidden="true" className="h-9 w-9 text-gold/50" />
-        <h3 className="mt-3 font-display text-lg">{emptyTitle}</h3>
-        <p className="mt-2 max-w-sm text-sm text-muted-foreground">{emptyHint}</p>
-      </div>
+        <div className="flex flex-col items-center py-14 text-center">
+          <Inbox aria-hidden="true" className="h-9 w-9 text-gold/50" />
+          <h3 className="mt-3 font-display text-lg">{emptyTitle}</h3>
+          <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+            {emptyHint}
+          </p>
+        </div>
       </PagedList>
     );
   }
@@ -667,4 +801,39 @@ function formatDateTime(iso: string | null) {
   if (!iso) return "—";
   const d = new Date(iso);
   return Number.isNaN(d.getTime()) ? "—" : DATE_TIME_FORMAT.format(d);
+}
+
+/**
+ * Mã QR chuyển khoản cho một lệnh rút.
+ *
+ * <p>Chuỗi EMV do backend dựng theo chuẩn VietQR; ở đây chỉ vẽ nó ra. Không
+ * gọi dịch vụ sinh ảnh bên ngoài: đưa số tài khoản và số tiền của người khác
+ * sang một máy chủ thứ ba chỉ để lấy một tấm ảnh là cái giá không đáng trả.
+ */
+function MaQrChuyenKhoan({ payout }: { payout: Payout }) {
+  const nganHang = timNganHang(payout.bankBin);
+  return (
+    <div className="mt-3 flex flex-wrap items-center gap-4 rounded-xl border border-gold/25 bg-gold/5 p-4">
+      {/* Nền trắng bắt buộc: máy quét cần tương phản, và giao diện này nền tối. */}
+      <div className="rounded-lg bg-white p-2">
+        <QRCodeSVG value={payout.qrPayload!} size={148} level="M" />
+      </div>
+      <div className="min-w-0 text-xs">
+        <p className="text-sm text-foreground">
+          {nganHang?.ten ?? payout.bankName} · {payout.accountHolder}
+        </p>
+        <p className="mt-0.5 text-muted-foreground">
+          {nganHang?.tenDayDu ?? ""}
+        </p>
+        <p className="mt-2 font-display text-lg text-gold">
+          {formatVND(payout.amount)}
+        </p>
+        <p className="mt-2 max-w-xs text-muted-foreground">
+          Mở ứng dụng ngân hàng và quét. Số tiền và tài khoản nhận đã ghim sẵn
+          trong mã, không phải gõ lại. Chuyển xong nhớ bấm "Đã chuyển tiền" — mã
+          này không tự biết.
+        </p>
+      </div>
+    </div>
+  );
 }
