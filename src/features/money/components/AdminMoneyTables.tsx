@@ -317,6 +317,17 @@ export function PayoutQueue() {
                   </>
                 )}
 
+                {/* Lệnh rút tạo trước khi có cột bank_bin thì không dựng được
+                    mã QR. Nói thẳng ra, vì nút biến mất không lời giải thích
+                    trông như tính năng bị hỏng chứ không như dữ liệu bị thiếu. */}
+                {!p.qrPayload &&
+                  (p.status === "PENDING" || p.status === "APPROVED") && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 px-3.5 py-1.5 text-xs text-muted-foreground">
+                      Không có mã QR — lệnh rút này tạo trước khi hệ thống lưu
+                      mã ngân hàng. Chuyển khoản tay theo thông tin bên trên.
+                    </span>
+                  )}
+
                 {p.qrPayload && (
                   <button
                     type="button"
