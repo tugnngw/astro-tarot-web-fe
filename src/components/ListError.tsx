@@ -21,6 +21,7 @@ export function thongDiepLoi(
   if (error instanceof ApiError) {
     switch (error.status) {
       case 0:
+        if (error.code === "REFRESH_TAM_HONG") return error.message;
         return error.code === "TIMEOUT"
           ? "Máy chủ phản hồi quá chậm. Bấm thử lại giúp tôi nhé."
           : "Không kết nối được máy chủ. Kiểm tra mạng rồi thử lại.";

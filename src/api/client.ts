@@ -54,31 +54,61 @@ export class ApiError extends Error {
   }
 }
 
-// ---------- refresh-token guard: tránh gọi /refresh song song ----------
-let refreshing: Promise<string | null> | null = null;
-async function refreshAccessToken(): Promise<string | null> {
+// ---------- Làm mới token ----------
+//
+// Phân biệt hai kiểu thất bại, vì hậu quả của chúng khác hẳn nhau:
+//
+//   - Refresh token KHÔNG còn hợp lệ (401/403 từ /auth/refresh). Phiên chấm
+//     dứt thật, phải xoá token và mời đăng nhập lại.
+//   - Gọi được nhưng HỎNG TẠM THỜI: mất mạng, quá hạn giờ, hoặc máy chủ đang
+//     khởi động lại. Phiên vẫn còn nguyên giá trị.
+//
+// Bản trước gộp cả hai thành `null`, và tầng gọi thấy null là xoá sạch token.
+// Hệ quả: MỖI LẦN deploy backend là đăng xuất toàn bộ người dùng đang mở
+// trang — refresh token sống bảy ngày mà bị vứt đi vì một khoảng gián đoạn
+// vài chục giây. Đã bắt tận tay: phiên quản trị viên chết ngay sau khi tôi
+// deploy, trong khi token còn hạn tới sáu ngày rưỡi.
+type KetQuaLamMoi =
+  | { ok: true; token: string }
+  /** `phienHong` = refresh token thật sự không dùng được nữa. */
+  | { ok: false; phienHong: boolean };
+
+let refreshing: Promise<KetQuaLamMoi> | null = null;
+
+async function refreshAccessToken(): Promise<KetQuaLamMoi> {
   if (refreshing) return refreshing;
+
   const refresh = tokenStore.getRefresh();
-  if (!refresh) return null;
+  if (!refresh) return { ok: false, phienHong: true };
+
   refreshing = fetch(`${API_BASE}/auth/refresh`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ refresh_token: refresh }),
+    signal: hanGio(null),
   })
-    .then(async (r) => {
-      if (!r.ok) return null;
-      const env = (await r.json()) as ApiEnvelope<{
+    .then(async (r): Promise<KetQuaLamMoi> => {
+      // Chỉ 401/403 mới là "token này không dùng được nữa". 5xx là máy chủ
+      // đang có chuyện, không phải phán quyết về phiên của người dùng.
+      if (r.status === 401 || r.status === 403) {
+        return { ok: false, phienHong: true };
+      }
+      if (!r.ok) return { ok: false, phienHong: false };
+
+      const env = (await r.json().catch(() => null)) as ApiEnvelope<{
         access_token: string;
         refresh_token: string;
-      }>;
-      if (!env.data) return null;
+      }> | null;
+      if (!env?.data) return { ok: false, phienHong: false };
+
       tokenStore.set(env.data.access_token, env.data.refresh_token);
-      return env.data.access_token;
+      return { ok: true, token: env.data.access_token };
     })
-    .catch(() => null)
+    .catch((): KetQuaLamMoi => ({ ok: false, phienHong: false }))
     .finally(() => {
       refreshing = null;
     });
+
   return refreshing;
 }
 
@@ -220,9 +250,21 @@ export async function apiFetch<T>(
   // từ chối quyền chính đáng cũng kéo theo một vòng refresh vô nghĩa.
   const hetHan = res.status === 403 && auth && tokenDaHetHan();
   if ((res.status === 401 || hetHan) && auth && retry) {
-    const newToken = await refreshAccessToken();
-    if (newToken) return apiFetch<T>(path, init, { auth, retry: false });
-    tokenStore.clear();
+    const lamMoi = await refreshAccessToken();
+    if (lamMoi.ok) return apiFetch<T>(path, init, { auth, retry: false });
+
+    // Chỉ xoá phiên khi refresh token thật sự không còn dùng được. Hỏng tạm
+    // thời thì giữ nguyên: người dùng thử lại sau vài giây là vào được, thay
+    // vì bị đá ra màn đăng nhập vì một lần máy chủ khởi động lại.
+    if (lamMoi.phienHong) {
+      tokenStore.clear();
+    } else {
+      throw new ApiError(
+        0,
+        "REFRESH_TAM_HONG",
+        "Không làm mới được phiên vì máy chủ đang bận. Thử lại sau giây lát.",
+      );
+    }
   }
 
   // Thân phản hồi không phải JSON — gần như luôn là trang lỗi HTML của cổng
