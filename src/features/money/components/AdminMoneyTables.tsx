@@ -26,6 +26,7 @@ import {
 import { PAGE_SIZE, PagedList, Pagination } from "@/components/Pagination";
 import { formatVND } from "@/lib/mock-data";
 import { useRowBusy } from "@/lib/row-busy";
+import { ListError } from "@/components/ListError";
 
 // ============================================================
 // Đối soát thanh toán
@@ -697,6 +698,8 @@ function Body({
     isPending: boolean;
     isError: boolean;
     error: unknown;
+    /** Để nút "Thử lại" của khối lỗi chung gọi được. */
+    refetch: () => unknown;
     data?: { content: unknown[] };
   };
   emptyTitle: string;
@@ -708,14 +711,10 @@ function Body({
   if (query.isError) {
     return (
       <PagedList resetKey={resetKey}>
-        <div className="flex flex-col items-center py-12 text-center">
-          <AlertCircle className="h-8 w-8 text-destructive/70" />
-          <p className="mt-3 text-sm text-muted-foreground">
-            {query.error instanceof Error
-              ? query.error.message
-              : "Không tải được dữ liệu"}
-          </p>
-        </div>
+        {/* Dùng khối lỗi chung để câu thông báo được dịch sang tiếng người:
+            màn này từng hiện "Máy chủ trả về dữ liệu không đọc được (HTTP
+            403)" trong khi nguyên nhân thật chỉ là token hết hạn. */}
+        <ListError error={query.error} onRetry={() => void query.refetch()} />
       </PagedList>
     );
   }
