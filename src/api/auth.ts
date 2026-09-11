@@ -27,6 +27,7 @@ interface AuthResponseRaw {
   fullName: string;
   role: "USER" | "STAFF" | "MANAGER" | "ADMIN";
   /** BE cũ chưa có trường này, nên để optional và có đường lùi ở auth-context. */
+  avatar?: string | null;
   permissions?: string[];
   accessToken: string;
   refreshToken: string;
@@ -42,7 +43,10 @@ function toAuthResult(data: AuthResponseRaw): AuthResult {
       full_name: data.fullName,
       role: data.role,
       phone: null,
-      avatar: null,
+      // Trước đây gán cứng null: đăng nhập xong header luôn hiện hình người
+      // xám cho tới khi có lời gọi /api/v1/me nào đó ghi đè. Người dùng thấy
+      // là "đổi ảnh xong, đăng nhập phiên khác lại mất ảnh".
+      avatar: data.avatar ?? null,
       status: "ACTIVE",
       // Đăng nhập được nghĩa là đã xác minh — BE chặn tài khoản chưa xác minh.
       email_verified: true,
