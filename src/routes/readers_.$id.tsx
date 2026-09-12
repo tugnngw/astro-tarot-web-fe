@@ -30,6 +30,7 @@ import {
   Pagination,
   useCoTrangVuaManHinh,
 } from "@/components/Pagination";
+import { ViDateInput } from "@/components/ViDateInput";
 export const Route = createFileRoute("/readers_/$id")({
   head: () => ({ meta: [{ title: "Hồ sơ Reader — ASTROTAROT" }] }),
   component: ReaderProfilePage,
@@ -364,18 +365,18 @@ function ReaderProfilePage() {
 
                 <label className="mt-4 block">
                   <span className="text-xs text-muted-foreground">Ngày</span>
-                  <input
-                    type="date"
+                  <ViDateInput
+                    aria-label="Ngày đặt lịch"
                     value={date}
                     min={toDateInput(new Date())}
                     max={toDateInput(
                       new Date(Date.now() + DAYS_AHEAD * 86400000),
                     )}
-                    onChange={(e) => {
-                      setDate(e.target.value);
+                    onChange={(next) => {
+                      setDate(next);
                       setPicked(null);
                     }}
-                    className="mt-1 w-full rounded-lg border border-gold/25 bg-input/70 px-3 py-2 text-sm text-foreground outline-none focus:border-gold"
+                    className="mt-1 w-full rounded-lg border border-gold/25 bg-input/70 px-3 py-2 text-sm outline-none"
                   />
                 </label>
 
