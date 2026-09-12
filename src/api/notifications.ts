@@ -70,5 +70,10 @@ export function notificationLink(n: Notification): string | null {
     return n.type === "REVIEW_RECEIVED" ? "/staff" : "/bookings";
   }
   if (n.type.startsWith("READER_APPLICATION_")) return "/profile";
+  if (n.type === "SUPPORT_REPLY") return "/support";
+  if (n.type === "SUPPORT_MESSAGE") return "/staff";
+  if (n.type.startsWith("PAYMENT_") || n.type.startsWith("PAYOUT_")) {
+    return "/bookings";
+  }
   return null;
 }

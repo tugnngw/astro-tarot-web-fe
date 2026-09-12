@@ -8,8 +8,13 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import * as bookingApi from "@/api/booking";
 import * as notificationApi from "@/api/notifications";
+import {
+  isRealtimeConnected,
+  subscribeRealtimeStatus,
+} from "@/lib/realtime";
 
 export const bookingKeys = {
   all: ["booking"] as const,
@@ -156,13 +161,15 @@ export function useReviewBooking() {
 // ---------- Thông báo ----------
 
 export function useUnreadCount(enabled: boolean) {
+  const [wsConnected, setWsConnected] = useState(isRealtimeConnected);
+  useEffect(() => subscribeRealtimeStatus(setWsConnected), []);
+
   return useQuery({
     queryKey: notificationKeys.unread(),
     queryFn: notificationApi.getUnreadCount,
     enabled,
-    // Hỏi lại mỗi phút thay vì mở WebSocket: chuông trễ một phút thì chấp nhận
-    // được, còn dựng kênh realtime cho mỗi tab là cái giá quá lớn cho một con số.
-    refetchInterval: 60_000,
+    // Có STOMP thì badge cập nhật từ event; mất kết nối thì hỏi lại mỗi phút.
+    refetchInterval: wsConnected ? false : 60_000,
     staleTime: 30_000,
   });
 }

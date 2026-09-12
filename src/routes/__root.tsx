@@ -9,11 +9,13 @@ import {
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 import { Toaster } from "sonner";
+import { Analytics } from "@vercel/analytics/react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AuthProvider } from "@/lib/auth-context";
 import { CartProvider } from "@/lib/cart-context";
+import { RealtimeProvider } from "@/features/realtime/RealtimeProvider";
 import { StarrySky } from "@/components/StarrySky";
 import { AuthModal } from "@/components/AuthModal";
 import { BecomeReaderModal } from "@/components/BecomeReaderModal";
@@ -148,33 +150,37 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <CartProvider>
-          <StarrySky />
-          <Outlet />
-          <AuthModal />
-          <BecomeReaderModal />
-          {/*
-            Góc dưới bên phải, không phải giữa trên cùng: vị trí cũ đè đúng
-            thanh điều hướng, che mất menu ngay lúc người dùng vừa thao tác
-            xong và hay cần bấm tiếp.
+        <RealtimeProvider>
+          <CartProvider>
+            <StarrySky />
+            <Outlet />
+            <AuthModal />
+            <BecomeReaderModal />
+            {/*
+              Góc dưới bên phải, không phải giữa trên cùng: vị trí cũ đè đúng
+              thanh điều hướng, che mất menu ngay lúc người dùng vừa thao tác
+              xong và hay cần bấm tiếp.
 
-            2,5 giây thay cho 4 giây mặc định — đủ đọc một câu ngắn. Riêng
-            toast lỗi thì nơi gọi tự đặt thời gian dài hơn nếu cần.
-          */}
-          <Toaster
-            position="bottom-right"
-            theme="dark"
-            richColors
-            duration={2500}
-            toastOptions={{
-              classNames: {
-                toast: "!text-xs !py-2.5 !px-3",
-                title: "!text-xs !font-medium",
-                description: "!text-[11px]",
-              },
-            }}
-          />
-        </CartProvider>
+              2,5 giây thay cho 4 giây mặc định — đủ đọc một câu ngắn. Riêng
+              toast lỗi thì nơi gọi tự đặt thời gian dài hơn nếu cần.
+            */}
+            <Toaster
+              position="bottom-right"
+              theme="dark"
+              richColors
+              duration={2500}
+              toastOptions={{
+                classNames: {
+                  toast: "!text-xs !py-2.5 !px-3",
+                  title: "!text-xs !font-medium",
+                  description: "!text-[11px]",
+                },
+              }}
+            />
+            {/* React/Vite — không dùng @vercel/analytics/next (đúng cho Next.js). */}
+            <Analytics />
+          </CartProvider>
+        </RealtimeProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

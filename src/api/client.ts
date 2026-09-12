@@ -122,6 +122,19 @@ async function refreshAccessToken(): Promise<KetQuaLamMoi> {
   return refreshing;
 }
 
+/**
+ * Access token còn hạn, hoặc làm mới rồi trả về. Dùng cho STOMP CONNECT /
+ * reconnect — không phụ thuộc vào một lần gọi REST cụ thể.
+ */
+export async function ensureAccessToken(): Promise<string | null> {
+  const current = tokenStore.getAccess();
+  if (current && !tokenDaHetHan()) return current;
+  if (!tokenStore.getRefresh()) return current;
+  const lamMoi = await refreshAccessToken();
+  if (lamMoi.ok) return lamMoi.token;
+  return tokenStore.getAccess();
+}
+
 // ---------- Chịu đựng lúc máy chủ chập chờn ----------
 //
 // Backend chạy trên gói free của Render: không ai gọi trong 15 phút thì máy bị
