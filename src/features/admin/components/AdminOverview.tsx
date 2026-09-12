@@ -105,6 +105,26 @@ const WHITE_LABEL_STYLE = {
   strokeWidth: 3,
 };
 
+/** Chữ trục X/Y — sáng hơn muted mặc định để đọc được trên nền tối. */
+const AXIS_TICK = { fontSize: 11, fill: "oklch(0.78 0.02 85)" };
+
+/**
+ * Lưới ngang rõ trên nền tối.
+ *
+ * ChartContainer có CSS làm mờ stroke mặc định #ccc (~border/50). Đặt stroke
+ * vàng nhạt tường minh thì selector đó không khớp — đường chỉ số hiện rõ.
+ */
+function BarGrid() {
+  return (
+    <CartesianGrid
+      vertical={false}
+      strokeDasharray="3 5"
+      stroke="oklch(0.78 0.08 85 / 0.45)"
+      strokeWidth={1}
+    />
+  );
+}
+
 /**
  * Chữ số trắng giữa lát bánh — bỏ qua lát quá nhỏ để khỏi chồng chữ.
  * Dùng chung mọi Pie trong file này.
@@ -484,21 +504,21 @@ function RevenueMonthChart({
             data={data}
             margin={{ top: 24, right: 8, left: 4, bottom: 4 }}
           >
-            <CartesianGrid vertical={false} strokeDasharray="3 3" />
+            <BarGrid />
             <XAxis
               dataKey="label"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
               interval={0}
-              tick={{ fontSize: 10, fill: "oklch(0.7 0.02 280)" }}
+              tick={{ fontSize: 10, fill: AXIS_TICK.fill }}
             />
             <YAxis
               tickLine={false}
-              axisLine={false}
+              axisLine={{ stroke: "oklch(0.78 0.08 85 / 0.35)" }}
               width={44}
               tickFormatter={vndTruc}
-              tick={{ fontSize: 10, fill: "oklch(0.7 0.02 280)" }}
+              tick={{ fontSize: 10, fill: AXIS_TICK.fill }}
             />
             <ChartTooltip
               cursor={{ fill: "oklch(0.75 0.12 85 / 0.12)" }}
@@ -826,21 +846,21 @@ function BookingChart({ bookings }: { bookings: AdminStats["bookings"] }) {
             data={data}
             margin={{ top: 24, right: 8, left: 0, bottom: 0 }}
           >
-            <CartesianGrid vertical={false} strokeDasharray="3 3" />
+            <BarGrid />
             <XAxis
               dataKey="label"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
               interval={0}
-              tick={{ fontSize: 11 }}
+              tick={AXIS_TICK}
             />
             <YAxis
               allowDecimals={false}
               tickLine={false}
-              axisLine={false}
+              axisLine={{ stroke: "oklch(0.78 0.08 85 / 0.35)" }}
               width={36}
-              tick={{ fontSize: 11 }}
+              tick={AXIS_TICK}
             />
             <ChartTooltip
               cursor={{ fill: "oklch(0.75 0.12 85 / 0.12)" }}
@@ -915,20 +935,20 @@ function ReaderChart({ readers }: { readers: AdminStats["readers"] }) {
         className="mt-4 aspect-auto h-[240px] w-full"
       >
         <BarChart data={data} margin={{ top: 24, right: 8, left: 0, bottom: 0 }}>
-          <CartesianGrid vertical={false} strokeDasharray="3 3" />
+          <BarGrid />
           <XAxis
             dataKey="label"
             tickLine={false}
             axisLine={false}
             tickMargin={8}
-            tick={{ fontSize: 11 }}
+            tick={AXIS_TICK}
           />
           <YAxis
             allowDecimals={false}
             tickLine={false}
-            axisLine={false}
+            axisLine={{ stroke: "oklch(0.78 0.08 85 / 0.35)" }}
             width={36}
-            tick={{ fontSize: 11 }}
+            tick={AXIS_TICK}
           />
           <ChartTooltip
             cursor={{ fill: "oklch(0.75 0.12 85 / 0.12)" }}
@@ -1004,21 +1024,21 @@ function ShopChart({ shop }: { shop: AdminStats["shop"] }) {
         className="mt-4 aspect-auto h-[240px] w-full"
       >
         <BarChart data={data} margin={{ top: 24, right: 8, left: 0, bottom: 0 }}>
-          <CartesianGrid vertical={false} strokeDasharray="3 3" />
+          <BarGrid />
           <XAxis
             dataKey="label"
             tickLine={false}
             axisLine={false}
             tickMargin={8}
             interval={0}
-            tick={{ fontSize: 11 }}
+            tick={AXIS_TICK}
           />
           <YAxis
             allowDecimals={false}
             tickLine={false}
-            axisLine={false}
+            axisLine={{ stroke: "oklch(0.78 0.08 85 / 0.35)" }}
             width={40}
-            tick={{ fontSize: 11 }}
+            tick={AXIS_TICK}
           />
           <ChartTooltip
             cursor={{ fill: "oklch(0.75 0.12 85 / 0.12)" }}
@@ -1121,21 +1141,21 @@ function AiTokenBreakdownChart({ ai }: { ai: NonNullable<AdminStats["ai"]> }) {
             data={data}
             margin={{ top: 24, right: 8, left: 0, bottom: 0 }}
           >
-            <CartesianGrid vertical={false} strokeDasharray="3 3" />
+            <BarGrid />
             <XAxis
               dataKey="label"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
               interval={0}
-              tick={{ fontSize: 11 }}
+              tick={AXIS_TICK}
             />
             <YAxis
               allowDecimals={false}
               tickLine={false}
-              axisLine={false}
+              axisLine={{ stroke: "oklch(0.78 0.08 85 / 0.35)" }}
               width={48}
-              tick={{ fontSize: 11 }}
+              tick={AXIS_TICK}
             />
             <ChartTooltip
               cursor={{ fill: "oklch(0.75 0.12 85 / 0.12)" }}
