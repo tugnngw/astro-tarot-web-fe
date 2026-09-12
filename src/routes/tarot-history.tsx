@@ -4,7 +4,7 @@
 // endpoint. Giờ BE trả GET /api/ai-readings (lượt của chính mình, mới nhất
 // trước); trang này liệt kê, và mở một lượt ra thì tải lại lời giải AI đã lưu.
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { History, Sparkles, ChevronDown, ChevronUp, Plus } from "lucide-react";
@@ -16,7 +16,12 @@ import {
   type ReadingMessage,
 } from "@/api/tarot";
 
-import { PAGE_SIZE, PagedList, Pagination } from "@/components/Pagination";
+import {
+  PAGE_SIZE,
+  PagedList,
+  Pagination,
+  useCoTrangVuaManHinh,
+} from "@/components/Pagination";
 export const Route = createFileRoute("/tarot-history")({
   head: () => ({ meta: [{ title: "Lịch sử trải bài — ASTROTAROT" }] }),
   component: () => (
@@ -38,9 +43,13 @@ function fmt(iso: string) {
 
 function TarotHistoryPage() {
   const [page, setPage] = useState(0);
+  // Cỡ trang theo màn hình thật: một trang vừa một màn, khỏi cuộn
+  // xuống mới bấm được sang trang.
+  const listRef = useRef<HTMLDivElement>(null);
+  const coTrang = useCoTrangVuaManHinh(listRef);
   const query = useQuery({
-    queryKey: ["tarot", "history", page],
-    queryFn: () => getReadingHistory(page, PAGE_SIZE),
+    queryKey: ["tarot", "history", page, coTrang],
+    queryFn: () => getReadingHistory(page, coTrang),
     placeholderData: keepPreviousData,
   });
 
@@ -96,7 +105,7 @@ function TarotHistoryPage() {
               </Link>
             </div>
           ) : (
-            <PagedList>
+            <PagedList pageSize={coTrang} listRef={listRef}>
               <ul className="space-y-3">
                 {rows.map((r) => (
                   <HistoryItem
@@ -117,6 +126,7 @@ function TarotHistoryPage() {
           totalPages={totalPages}
           totalElements={totalElements}
           onChange={setPage}
+          pageSize={coTrang}
           busy={query.isFetching}
           unit="lần trải bài"
         />

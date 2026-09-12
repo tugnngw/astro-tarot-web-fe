@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useState, useRef } from "react";
 import {
   Lock,
   Search,
@@ -26,7 +26,11 @@ import { ROLE_DESCRIPTION, toAppRole, type AccountRole } from "@/lib/roles";
 
 import { ListError, useTaiLau, SlowHint } from "@/components/ListError";
 import { useRowBusy } from "@/lib/row-busy";
-import { PAGE_SIZE, PagedList, Pagination } from "@/components/Pagination";
+import {
+  PagedList,
+  Pagination,
+  useCoTrangVuaManHinh,
+} from "@/components/Pagination";
 
 const STATUS_CLASS: Record<AccountStatus, string> = {
   PENDING: "text-amber-300",
@@ -58,6 +62,11 @@ export function UserDirectory({
   const [role, setRole] = useState("");
   const [status, setStatus] = useState("");
   const [page, setPage] = useState(0);
+
+  // Cỡ trang tính theo màn hình thật, để một trang vừa đúng một màn và không
+  // phải cuộn xuống mới bấm được sang trang.
+  const listRef = useRef<HTMLDivElement>(null);
+  const coTrang = useCoTrangVuaManHinh(listRef);
   const [detailId, setDetailId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   // Chọn nhiều để đổi vai trò hàng loạt. Giữ theo id chứ không theo chỉ số
@@ -79,7 +88,7 @@ export function UserDirectory({
     status: status || undefined,
     keyword: debounced || undefined,
     page,
-    size: PAGE_SIZE,
+    size: coTrang,
   });
 
   // Lần tải đầu sau khi máy chủ ngủ dậy mất khoảng một phút; báo cho người
@@ -293,7 +302,7 @@ export function UserDirectory({
           // Bảng rộng hơn màn hình hẹp: cho nó cuộn ngang trong khung của mình
           // thay vì đẩy cả trang cuộn ngang.
           <div className="overflow-x-auto">
-            <PagedList>
+            <PagedList pageSize={coTrang} listRef={listRef}>
               <table className="w-full min-w-[760px] border-collapse text-sm">
                 <thead>
                   <tr className="border-b border-gold/15 text-left text-xs uppercase tracking-[0.15em] text-muted-foreground">
@@ -483,6 +492,7 @@ export function UserDirectory({
         page={page}
         totalPages={totalPages}
         totalElements={query.data?.totalElements ?? 0}
+        pageSize={coTrang}
         onChange={setPage}
         busy={query.isFetching}
         unit="tài khoản"

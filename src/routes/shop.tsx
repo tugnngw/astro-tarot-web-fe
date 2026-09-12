@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState, useRef } from "react";
 import { Search, PackageX, AlertCircle } from "lucide-react";
 import { Header } from "@/components/Header";
 import { formatVND } from "@/lib/mock-data";
@@ -12,7 +12,12 @@ import {
 import { useCategories, useProducts } from "@/features/shop/queries";
 import type { Product } from "@/api/shop";
 
-import { PAGE_SIZE, PagedList, Pagination } from "@/components/Pagination";
+import {
+  PAGE_SIZE,
+  PagedList,
+  Pagination,
+  useCoTrangVuaManHinh,
+} from "@/components/Pagination";
 export const Route = createFileRoute("/shop")({
   head: () => ({
     meta: [
@@ -32,6 +37,10 @@ function ShopPage() {
   const [category, setCategory] = useState("");
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(0);
+  // Cỡ trang theo màn hình thật: một trang vừa một màn, khỏi cuộn
+  // xuống mới bấm được sang trang.
+  const listRef = useRef<HTMLDivElement>(null);
+  const coTrang = useCoTrangVuaManHinh(listRef, { buoc: 4 });
 
   // Gõ tới đâu tìm tới đó, nhưng chờ 350ms để không bắn request mỗi phím.
   const [debouncedKeyword, setDebouncedKeyword] = useState("");
@@ -50,7 +59,7 @@ function ShopPage() {
     category: category || undefined,
     keyword: debouncedKeyword || undefined,
     page,
-    size: PAGE_SIZE,
+    size: coTrang,
   });
 
   const categories = categoriesQuery.data ?? [];
@@ -146,7 +155,7 @@ function ShopPage() {
               }}
             />
           ) : (
-            <PagedList pageSize={PAGE_SIZE}>
+            <PagedList pageSize={coTrang} listRef={listRef}>
               <div
                 className={`mt-6 grid gap-4 transition-opacity sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${
                   isRefreshing ? "opacity-60" : "opacity-100"
@@ -166,8 +175,8 @@ function ShopPage() {
           page={page}
           totalPages={totalPages}
           totalElements={totalElements}
-          pageSize={PAGE_SIZE}
           onChange={setPage}
+          pageSize={coTrang}
           busy={isRefreshing}
           unit="sản phẩm"
         />

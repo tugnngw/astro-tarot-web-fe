@@ -5,7 +5,7 @@
 // Một khoản phạt vi phạm, một lần hoàn tiền cho khách, hay một lệnh rút đang
 // giữ chỗ — cả ba đều làm số dư tụt mà không để lại dấu vết nào nhìn thấy
 // được. Sổ cái là chỗ duy nhất nói ra điều đó.
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { ArrowDownLeft, ArrowUpRight, Minus, ScrollText } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -15,7 +15,11 @@ import {
   type EscrowTransaction,
 } from "@/api/money";
 import { formatVND } from "@/lib/mock-data";
-import { Pagination, PagedList } from "@/components/Pagination";
+import {
+  Pagination,
+  PagedList,
+  useCoTrangVuaManHinh,
+} from "@/components/Pagination";
 import { ListError } from "@/components/ListError";
 import { keepPreviousData } from "@tanstack/react-query";
 
@@ -34,9 +38,13 @@ function fmtLuc(iso: string) {
 
 export function SoCaiKyQuy() {
   const [page, setPage] = useState(0);
+  // Cỡ trang theo màn hình thật: một trang vừa một màn, khỏi cuộn
+  // xuống mới bấm được sang trang.
+  const listRef = useRef<HTMLDivElement>(null);
+  const coTrang = useCoTrangVuaManHinh(listRef);
   const q = useQuery({
-    queryKey: ["money", "escrow-ledger", page] as const,
-    queryFn: () => getMyEscrowLedger(page),
+    queryKey: ["money", "escrow-ledger", page, coTrang] as const,
+    queryFn: () => getMyEscrowLedger(page, coTrang),
     placeholderData: keepPreviousData,
   });
 
@@ -75,7 +83,7 @@ export function SoCaiKyQuy() {
         </p>
       ) : (
         <>
-          <PagedList>
+          <PagedList pageSize={coTrang} listRef={listRef}>
             <ul className="mt-4 space-y-2">
               {rows.map((t) => (
                 <DongSo key={t.id} t={t} />
@@ -87,6 +95,7 @@ export function SoCaiKyQuy() {
             totalPages={q.data?.totalPages ?? 1}
             totalElements={q.data?.totalElements ?? 0}
             onChange={setPage}
+            pageSize={coTrang}
             busy={q.isFetching}
             unit="khoản"
           />

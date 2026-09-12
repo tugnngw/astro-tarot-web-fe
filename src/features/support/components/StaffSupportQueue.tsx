@@ -3,13 +3,17 @@
 // Danh sách bên trái, luồng trao đổi bên phải khi chọn — cùng lối master–detail
 // với các màn quản trị khác. Trước đây ô này là NotWiredYet vì backend chưa có
 // bảng ticket; giờ đã có /api/v1/support.
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { ArrowLeft, Inbox, MessagesSquare } from "lucide-react";
 import { useSupportQueue } from "@/features/support/queries";
 import { TICKET_STATUS_LABEL, type TicketStatus } from "@/api/support";
 import { TicketThread } from "./TicketThread";
 
-import { PagedList, Pagination } from "@/components/Pagination";
+import {
+  PagedList,
+  Pagination,
+  useCoTrangVuaManHinh,
+} from "@/components/Pagination";
 const FILTERS: { key: TicketStatus | ""; label: string }[] = [
   { key: "", label: "Tất cả" },
   { key: "OPEN", label: "Đang chờ" },
@@ -37,8 +41,12 @@ function fmt(iso: string) {
 export function StaffSupportQueue() {
   const [status, setStatus] = useState<TicketStatus | "">("");
   const [page, setPage] = useState(0);
+  // Cỡ trang theo màn hình thật: một trang vừa một màn, khỏi cuộn
+  // xuống mới bấm được sang trang.
+  const listRef = useRef<HTMLDivElement>(null);
+  const coTrang = useCoTrangVuaManHinh(listRef);
   const [selected, setSelected] = useState<string | null>(null);
-  const query = useSupportQueue(status, page);
+  const query = useSupportQueue(status, page, coTrang);
 
   const rows = query.data?.content ?? [];
   const totalPages = query.data?.totalPages ?? 0;
@@ -111,7 +119,7 @@ export function StaffSupportQueue() {
             <p className="text-sm">Không có yêu cầu nào ở mục này.</p>
           </div>
         ) : (
-          <PagedList>
+          <PagedList pageSize={coTrang} listRef={listRef}>
             <ul className="divide-y divide-gold/10">
               {rows.map((t) => (
                 <li key={t.id}>
@@ -147,6 +155,7 @@ export function StaffSupportQueue() {
         totalPages={totalPages}
         totalElements={query.data?.totalElements ?? 0}
         onChange={setPage}
+        pageSize={coTrang}
         busy={query.isFetching}
         unit="yêu cầu"
       />

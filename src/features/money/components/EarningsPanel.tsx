@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { AlertCircle, Banknote, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { PAYOUT_STATUS_LABEL, type PayoutStatus } from "@/api/money";
@@ -11,7 +11,11 @@ import { formatVND } from "@/lib/mock-data";
 import { DANH_SACH_NGAN_HANG, timNganHang } from "@/lib/banks";
 import { SoCaiKyQuy } from "./EscrowLedger";
 
-import { Pagination, PagedList } from "@/components/Pagination";
+import {
+  Pagination,
+  PagedList,
+  useCoTrangVuaManHinh,
+} from "@/components/Pagination";
 const STATUS_CLASS: Record<PayoutStatus, string> = {
   PENDING: "border-amber-400/40 text-amber-300",
   APPROVED: "border-sky-400/40 text-sky-300",
@@ -29,7 +33,11 @@ const STATUS_CLASS: Record<PayoutStatus, string> = {
 export function EarningsPanel() {
   const escrow = useMyEscrow();
   const [payoutPage, setPayoutPage] = useState(0);
-  const payouts = useMyPayouts(payoutPage);
+  // Cỡ trang theo màn hình thật: một trang vừa một màn, khỏi cuộn
+  // xuống mới bấm được sang trang.
+  const listRef = useRef<HTMLDivElement>(null);
+  const coTrang = useCoTrangVuaManHinh(listRef);
+  const payouts = useMyPayouts(payoutPage, true, coTrang);
   const create = useCreatePayout();
 
   const [open, setOpen] = useState(false);
@@ -252,7 +260,7 @@ export function EarningsPanel() {
             Bạn chưa rút lần nào.
           </p>
         ) : (
-          <PagedList>
+          <PagedList pageSize={coTrang} listRef={listRef}>
             <ul className="mt-4 space-y-2">
               {payouts.data!.content.map((p) => (
                 <li
@@ -291,6 +299,7 @@ export function EarningsPanel() {
             totalPages={payouts.data?.totalPages ?? 1}
             totalElements={payouts.data?.totalElements ?? 0}
             onChange={setPayoutPage}
+            pageSize={coTrang}
             busy={payouts.isFetching}
             unit="lệnh rút"
           />
