@@ -24,7 +24,7 @@ export function RoleBadge({
 
   return (
     <span
-      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-medium ${ROLE_BADGE_CLASS[appRole]} ${className}`}
+      className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium leading-none ${ROLE_BADGE_CLASS[appRole]} ${className}`}
     >
       {ROLE_LABEL[appRole]}
     </span>

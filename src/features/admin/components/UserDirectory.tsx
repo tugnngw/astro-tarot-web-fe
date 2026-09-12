@@ -10,6 +10,13 @@ import {
 import { toast } from "sonner";
 import { RoleBadge } from "@/components/RoleBadge";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   useManagedUsers,
   useUpdateRoleBulk,
   useUpdateUserRole,
@@ -31,6 +38,19 @@ import {
   Pagination,
   useCoTrangVuaManHinh,
 } from "@/components/Pagination";
+
+/** Trigger pill khớp kích thước RoleBadge / nút Khoá trong bảng. */
+const roleSelectTriggerClass =
+  "h-auto w-auto min-w-[7.5rem] gap-1.5 rounded-full border-gold/30 bg-input/70 px-3 py-1 text-xs text-foreground shadow-none focus:ring-1 focus:ring-gold/40 data-[state=open]:border-gold";
+
+const roleSelectContentClass =
+  "rounded-xl border border-gold/25 bg-card text-foreground shadow-xl";
+
+const roleSelectItemClass =
+  "cursor-pointer rounded-lg py-2 pl-3 pr-8 text-xs focus:bg-gold/15 focus:text-gold data-[state=checked]:bg-gold/10 data-[state=checked]:text-gold";
+
+const filterSelectTriggerClass =
+  "h-auto w-auto min-w-[9rem] gap-1.5 rounded-full border-gold/30 bg-input/70 px-4 py-2 text-sm text-foreground shadow-none focus:ring-1 focus:ring-gold/40 data-[state=open]:border-gold";
 
 const STATUS_CLASS: Record<AccountStatus, string> = {
   PENDING: "text-amber-300",
@@ -209,31 +229,52 @@ export function UserDirectory({
             className="w-full rounded-full border border-gold/30 bg-input/70 py-2 pl-10 pr-4 text-sm text-foreground outline-none transition focus:border-gold focus-visible:ring-2 focus-visible:ring-gold/40"
           />
         </div>
-        <select
-          aria-label="Lọc theo vai trò"
-          value={role}
-          onChange={(e) => setRole(e.target.value)}
-          className="rounded-full border border-gold/30 bg-input/70 px-4 py-2 text-sm text-foreground outline-none focus:border-gold"
+        <Select value={role || "__all__"} onValueChange={(v) => setRole(v === "__all__" ? "" : v)}>
+          <SelectTrigger
+            aria-label="Lọc theo vai trò"
+            className={filterSelectTriggerClass}
+          >
+            <SelectValue placeholder="Mọi vai trò" />
+          </SelectTrigger>
+          <SelectContent className={roleSelectContentClass}>
+            <SelectItem value="__all__" className={roleSelectItemClass}>
+              Mọi vai trò
+            </SelectItem>
+            <SelectItem value="USER" className={roleSelectItemClass}>
+              Thành viên
+            </SelectItem>
+            <SelectItem value="STAFF" className={roleSelectItemClass}>
+              Nhân viên
+            </SelectItem>
+            <SelectItem value="MANAGER" className={roleSelectItemClass}>
+              Quản lý
+            </SelectItem>
+            <SelectItem value="ADMIN" className={roleSelectItemClass}>
+              Quản trị viên
+            </SelectItem>
+          </SelectContent>
+        </Select>
+        <Select
+          value={status || "__all__"}
+          onValueChange={(v) => setStatus(v === "__all__" ? "" : v)}
         >
-          <option value="">Mọi vai trò</option>
-          <option value="USER">Thành viên</option>
-          <option value="STAFF">Nhân viên</option>
-          <option value="MANAGER">Quản lý</option>
-          <option value="ADMIN">Quản trị viên</option>
-        </select>
-        <select
-          aria-label="Lọc theo trạng thái"
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-          className="rounded-full border border-gold/30 bg-input/70 px-4 py-2 text-sm text-foreground outline-none focus:border-gold"
-        >
-          <option value="">Mọi trạng thái</option>
-          {(Object.keys(ACCOUNT_STATUS_LABEL) as AccountStatus[]).map((s) => (
-            <option key={s} value={s}>
-              {ACCOUNT_STATUS_LABEL[s]}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger
+            aria-label="Lọc theo trạng thái"
+            className={filterSelectTriggerClass}
+          >
+            <SelectValue placeholder="Mọi trạng thái" />
+          </SelectTrigger>
+          <SelectContent className={roleSelectContentClass}>
+            <SelectItem value="__all__" className={roleSelectItemClass}>
+              Mọi trạng thái
+            </SelectItem>
+            {(Object.keys(ACCOUNT_STATUS_LABEL) as AccountStatus[]).map((s) => (
+              <SelectItem key={s} value={s} className={roleSelectItemClass}>
+                {ACCOUNT_STATUS_LABEL[s]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Thanh thao tác hàng loạt. Chỉ hiện khi đã chọn — một thanh trống
@@ -246,24 +287,30 @@ export function UserDirectory({
           </span>
           <label className="flex items-center gap-2 text-sm text-muted-foreground">
             Đổi tất cả thành
-            <select
-              aria-label="Vai trò áp dụng cho các tài khoản đã chọn"
-              defaultValue=""
+            <Select
               disabled={busy}
-              onChange={(e) => {
-                if (e.target.value)
-                  void applyBulkRole(e.target.value as AccountRole);
-                e.target.value = "";
+              onValueChange={(v) => {
+                if (v) void applyBulkRole(v as AccountRole);
               }}
-              className="rounded-full border border-gold/40 bg-input/70 px-3 py-1 text-xs text-foreground outline-none focus:border-gold disabled:opacity-50"
             >
-              <option value="">Chọn vai trò…</option>
-              {assignableRoles.map((r) => (
-                <option key={r} value={r}>
-                  {ROLE_LABEL_SHORT[r]}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger
+                aria-label="Vai trò áp dụng cho các tài khoản đã chọn"
+                className={roleSelectTriggerClass}
+              >
+                <SelectValue placeholder="Chọn vai trò…" />
+              </SelectTrigger>
+              <SelectContent className={roleSelectContentClass}>
+                {assignableRoles.map((r) => (
+                  <SelectItem
+                    key={r}
+                    value={r}
+                    className={roleSelectItemClass}
+                  >
+                    {ROLE_LABEL_SHORT[r]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </label>
           <button
             type="button"
@@ -397,34 +444,41 @@ export function UserDirectory({
 
                       <td className="py-3 pr-3">
                         {u.editable ? (
-                          <select
-                            aria-label={`Vai trò của ${u.fullName}`}
+                          <Select
                             value={u.role}
                             disabled={dong.ban(u.id)}
-                            onChange={(e) =>
-                              void handleRole(u, e.target.value as AccountRole)
+                            onValueChange={(v) =>
+                              void handleRole(u, v as AccountRole)
                             }
-                            className="rounded-full border border-gold/30 bg-input/70 px-3 py-1 text-xs text-foreground outline-none focus:border-gold disabled:opacity-50"
                           >
-                            {/* Vai trò hiện tại luôn có mặt, kể cả khi nằm ngoài
-                                phạm vi được gán — nếu không, select sẽ hiện sai
-                                vai trò của người đó. */}
-                            {[
-                              ...new Set<AccountRole>([
-                                u.role,
-                                ...assignableRoles,
-                              ]),
-                            ].map((r) => (
-                              <option
-                                key={r}
-                                value={r}
-                                disabled={!assignableRoles.includes(r)}
-                                title={ROLE_DESCRIPTION[toAppRole(r)]}
-                              >
-                                {ROLE_LABEL_SHORT[r]}
-                              </option>
-                            ))}
-                          </select>
+                            <SelectTrigger
+                              aria-label={`Vai trò của ${u.fullName}`}
+                              className={roleSelectTriggerClass}
+                            >
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className={roleSelectContentClass}>
+                              {/* Vai trò hiện tại luôn có mặt, kể cả khi nằm
+                                  ngoài phạm vi được gán — nếu không, select sẽ
+                                  hiện sai vai trò của người đó. */}
+                              {[
+                                ...new Set<AccountRole>([
+                                  u.role,
+                                  ...assignableRoles,
+                                ]),
+                              ].map((r) => (
+                                <SelectItem
+                                  key={r}
+                                  value={r}
+                                  disabled={!assignableRoles.includes(r)}
+                                  title={ROLE_DESCRIPTION[toAppRole(r)]}
+                                  className={roleSelectItemClass}
+                                >
+                                  {ROLE_LABEL_SHORT[r]}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         ) : (
                           <RoleBadge role={u.role} />
                         )}

@@ -16,11 +16,32 @@ import {
 import { useAuth } from "@/lib/auth-context";
 import { avatarUrl } from "@/api/profile";
 import { PUBLIC_NAV, can, workspaceNavFor } from "@/lib/roles";
+import { cn } from "@/lib/utils";
 import { RoleBadge } from "./RoleBadge";
 import { NotificationBell } from "./NotificationBell";
 import { LogoutConfirm } from "./LogoutConfirm";
 import { ScrollProgress } from "./ScrollProgress";
 import logo from "@/assets/logo-astrotarot.png";
+
+/** Class chung cho mục nav: muted khi chưa chọn, vàng + gạch chân khi active/hover. */
+function navLinkClass(active: boolean) {
+  return cn(
+    "relative py-1 text-sm transition-colors duration-200",
+    "after:pointer-events-none after:absolute after:inset-x-0 after:-bottom-0.5 after:h-[2px] after:origin-center after:rounded-full after:bg-gold after:transition-transform after:duration-200",
+    active
+      ? "text-gold after:scale-x-100"
+      : "text-muted-foreground after:scale-x-0 hover:text-gold hover:after:scale-x-100",
+  );
+}
+
+function mobileNavLinkClass(active: boolean) {
+  return cn(
+    "rounded-lg px-3 py-2.5 text-sm transition-colors duration-200",
+    active
+      ? "bg-gold/15 text-gold"
+      : "text-muted-foreground hover:bg-gold/10 hover:text-gold",
+  );
+}
 
 export function Header() {
   const { user, openAuth } = useAuth();
@@ -84,30 +105,32 @@ export function Header() {
               tới bảy mục (bốn công khai + ba khu làm việc), ở khổ tablet là
               tràn ra ngoài. Dưới ngưỡng đó dùng menu thu gọn, vốn đã liệt kê
               đủ cả hai nhóm. */}
-          <nav className="hidden items-center gap-5 text-sm lg:flex xl:gap-7">
+          <nav className="hidden items-center gap-5 lg:flex xl:gap-7">
             {PUBLIC_NAV.map((l) => {
+              const active =
+                l.to === "/"
+                  ? pathname === "/"
+                  : pathname === l.to || pathname.startsWith(`${l.to}/`);
               return (
                 <Link
                   key={l.label}
                   to={l.to}
-                  className="text-muted-foreground transition hover:text-gold"
-                  activeProps={{ className: "text-gold" }}
-                  activeOptions={{ exact: true }}
+                  className={navLinkClass(active)}
+                  activeOptions={{ exact: l.to === "/" }}
                 >
                   {l.label}
                 </Link>
               );
             })}
-            {workspaceLinks.map((l) => (
-              <Link
-                key={l.to}
-                to={l.to}
-                className="text-gold transition hover:underline"
-                activeProps={{ className: "underline" }}
-              >
-                {l.label}
-              </Link>
-            ))}
+            {workspaceLinks.map((l) => {
+              const active =
+                pathname === l.to || pathname.startsWith(`${l.to}/`);
+              return (
+                <Link key={l.to} to={l.to} className={navLinkClass(active)}>
+                  {l.label}
+                </Link>
+              );
+            })}
           </nav>
 
           <div className="flex shrink-0 items-center gap-2 sm:gap-3">
@@ -283,14 +306,17 @@ export function Header() {
           <nav className="border-t border-gold/20 px-4 py-3 lg:hidden">
             <div className="flex flex-col">
               {PUBLIC_NAV.map((l) => {
+                const active =
+                  l.to === "/"
+                    ? pathname === "/"
+                    : pathname === l.to || pathname.startsWith(`${l.to}/`);
                 return (
                   <Link
                     key={l.label}
                     to={l.to}
                     onClick={() => setMobileOpen(false)}
-                    className="rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition hover:bg-gold/10 hover:text-gold"
-                    activeProps={{ className: "text-gold" }}
-                    activeOptions={{ exact: true }}
+                    className={mobileNavLinkClass(active)}
+                    activeOptions={{ exact: l.to === "/" }}
                   >
                     {l.label}
                   </Link>
@@ -300,21 +326,28 @@ export function Header() {
                 <Link
                   to="/bookings"
                   onClick={() => setMobileOpen(false)}
-                  className="rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition hover:bg-gold/10 hover:text-gold"
+                  className={mobileNavLinkClass(
+                    pathname === "/bookings" ||
+                      pathname.startsWith("/bookings/"),
+                  )}
                 >
                   Lịch hẹn của tôi
                 </Link>
               )}
-              {workspaceLinks.map((l) => (
-                <Link
-                  key={l.to}
-                  to={l.to}
-                  onClick={() => setMobileOpen(false)}
-                  className="rounded-lg px-3 py-2.5 text-sm text-gold"
-                >
-                  {l.label}
-                </Link>
-              ))}
+              {workspaceLinks.map((l) => {
+                const active =
+                  pathname === l.to || pathname.startsWith(`${l.to}/`);
+                return (
+                  <Link
+                    key={l.to}
+                    to={l.to}
+                    onClick={() => setMobileOpen(false)}
+                    className={mobileNavLinkClass(active)}
+                  >
+                    {l.label}
+                  </Link>
+                );
+              })}
               {!user && (
                 <button
                   onClick={() => {
