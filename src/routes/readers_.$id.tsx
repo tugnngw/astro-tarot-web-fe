@@ -8,12 +8,19 @@ import { useEffect, useState, useRef } from "react";
 import {
   AlertCircle,
   ArrowLeft,
+  Calendar as CalendarIcon,
   CalendarClock,
   Clock,
   Star,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Header } from "@/components/Header";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { useAuth } from "@/lib/auth-context";
 import { useReader } from "@/features/readers/queries";
 import {
@@ -362,22 +369,43 @@ function ReaderProfilePage() {
                   </div>
                 </fieldset>
 
-                <label className="mt-4 block">
+                <div className="mt-4">
                   <span className="text-xs text-muted-foreground">Ngày</span>
-                  <input
-                    type="date"
-                    value={date}
-                    min={toDateInput(new Date())}
-                    max={toDateInput(
-                      new Date(Date.now() + DAYS_AHEAD * 86400000),
-                    )}
-                    onChange={(e) => {
-                      setDate(e.target.value);
-                      setPicked(null);
-                    }}
-                    className="mt-1 w-full rounded-lg border border-gold/25 bg-input/70 px-3 py-2 text-sm text-foreground outline-none focus:border-gold"
-                  />
-                </label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button
+                        type="button"
+                        className="mt-1 flex w-full items-center justify-between rounded-lg border border-gold/25 bg-input/70 px-3 py-2 text-sm text-foreground outline-none transition hover:border-gold/60 focus:border-gold"
+                      >
+                        <span>{formatDateInput(date)}</span>
+                        <CalendarIcon
+                          aria-hidden="true"
+                          className="h-4 w-4 shrink-0 text-muted-foreground"
+                        />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={parseDateInput(date)}
+                        onSelect={(d) => {
+                          if (!d) return;
+                          setDate(toDateInput(d));
+                          setPicked(null);
+                        }}
+                        disabled={(d) => {
+                          const min = new Date();
+                          min.setHours(0, 0, 0, 0);
+                          const max = new Date(
+                            Date.now() + DAYS_AHEAD * 86400000,
+                          );
+                          max.setHours(23, 59, 59, 999);
+                          return d < min || d > max;
+                        }}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
 
                 <div
                   className="mt-4"
@@ -544,6 +572,16 @@ function formatDayLabel(iso: string) {
 function toDateInput(d: Date) {
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+/** "yyyy-mm-dd" → Date theo giờ địa phương (tránh lệch ngày do UTC). */
+function parseDateInput(iso: string) {
+  return new Date(iso + "T00:00:00");
+}
+
+/** Hiển thị cố định DD/MM/YYYY (vi-VN). */
+function formatDateInput(iso: string) {
+  return DATE_FORMAT.format(parseDateInput(iso));
 }
 
 /** Định dạng cố định vi-VN: để mặc định thì máy chủ và trình duyệt ra khác nhau. */
