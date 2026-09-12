@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useId, useMemo, useState, useRef } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { Search, PackageX, AlertCircle } from "lucide-react";
 import { Header } from "@/components/Header";
 import { formatVND } from "@/lib/mock-data";
@@ -12,12 +12,7 @@ import {
 import { useCategories, useProducts } from "@/features/shop/queries";
 import type { Product } from "@/api/shop";
 
-import {
-  PAGE_SIZE,
-  PagedList,
-  Pagination,
-  useCoTrangVuaManHinh,
-} from "@/components/Pagination";
+import { PAGE_SIZE, PagedList, Pagination } from "@/components/Pagination";
 export const Route = createFileRoute("/shop")({
   head: () => ({
     meta: [
@@ -37,10 +32,15 @@ function ShopPage() {
   const [category, setCategory] = useState("");
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(0);
-  // Cỡ trang theo màn hình thật: một trang vừa một màn, khỏi cuộn
-  // xuống mới bấm được sang trang.
-  const listRef = useRef<HTMLDivElement>(null);
-  const coTrang = useCoTrangVuaManHinh(listRef, { buoc: 4 });
+  // Shop CỐ Ý không dùng cỡ trang theo màn hình như các bảng khác.
+  //
+  // Thẻ sản phẩm cao hơn dòng bảng nhiều, nên tính theo màn hình chỉ ra ba món
+  // một trang — duyệt hàng mà mỗi trang ba món thì bấm sang trang nhiều hơn là
+  // xem. Ở đây cuộn một chút dễ chịu hơn.
+  //
+  // 12 vì nó chia hết cho mọi số cột đang dùng (2, 3, 4), nên hàng cuối
+  // không bao giờ lẻ. Thêm breakpoint 5 cột thì phải đổi con số này.
+  const COT_MOI_TRANG = 12;
 
   // Gõ tới đâu tìm tới đó, nhưng chờ 350ms để không bắn request mỗi phím.
   const [debouncedKeyword, setDebouncedKeyword] = useState("");
@@ -59,7 +59,7 @@ function ShopPage() {
     category: category || undefined,
     keyword: debouncedKeyword || undefined,
     page,
-    size: coTrang,
+    size: COT_MOI_TRANG,
   });
 
   const categories = categoriesQuery.data ?? [];
@@ -137,7 +137,7 @@ function ShopPage() {
           {productsQuery.isError ? (
             <ErrorState onRetry={() => void productsQuery.refetch()} />
           ) : productsQuery.isPending ? (
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="mt-6 grid gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
               {Array.from({ length: 6 }, (_, i) => (
                 <div
                   key={i}
@@ -155,9 +155,9 @@ function ShopPage() {
               }}
             />
           ) : (
-            <PagedList pageSize={coTrang} listRef={listRef}>
+            <PagedList pageSize={COT_MOI_TRANG}>
               <div
-                className={`mt-6 grid gap-4 transition-opacity sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${
+                className={`mt-6 grid gap-3 transition-opacity sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 ${
                   isRefreshing ? "opacity-60" : "opacity-100"
                 }`}
               >
@@ -176,7 +176,7 @@ function ShopPage() {
           totalPages={totalPages}
           totalElements={totalElements}
           onChange={setPage}
-          pageSize={coTrang}
+          pageSize={COT_MOI_TRANG}
           busy={isRefreshing}
           unit="sản phẩm"
         />
@@ -283,14 +283,14 @@ export function ProductCard({ product }: { product: Product }) {
           params={{ slug: product.slug }}
           tabIndex={-1}
           aria-hidden="true"
-          className="block aspect-[5/4] overflow-hidden bg-mystic/10"
+          className="block aspect-[3/2] overflow-hidden bg-mystic/10"
         >
           {product.imageUrl ? (
             <img
               src={product.imageUrl}
               alt=""
               loading="lazy"
-              className="h-full w-full object-contain p-2.5 transition-transform duration-500 group-hover:scale-105"
+              className="h-full w-full object-contain p-2 transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
             <ProductArtwork
@@ -310,13 +310,13 @@ export function ProductCard({ product }: { product: Product }) {
         )}
       </div>
 
-      <div className="flex flex-1 flex-col p-4">
+      <div className="flex flex-1 flex-col p-3">
         {product.categoryName && (
           <span className="text-[11px] uppercase tracking-[0.2em] text-gold/70">
             {product.categoryName}
           </span>
         )}
-        <h2 className="mt-1 font-display text-base leading-snug">
+        <h2 className="mt-0.5 font-display text-sm leading-snug">
           <Link
             to="/shop/$slug"
             params={{ slug: product.slug }}
@@ -326,8 +326,8 @@ export function ProductCard({ product }: { product: Product }) {
           </Link>
         </h2>
 
-        <div className="mt-2 flex items-baseline gap-2">
-          <span className="font-display text-lg text-gold">
+        <div className="mt-1.5 flex items-baseline gap-2">
+          <span className="font-display text-base text-gold">
             {formatVND(product.price)}
           </span>
           {discount !== null && product.compareAtPrice && (
@@ -337,7 +337,7 @@ export function ProductCard({ product }: { product: Product }) {
           )}
         </div>
 
-        <div className="mt-auto pt-3">
+        <div className="mt-auto pt-2.5">
           <BuyOnPlatformButton product={product} />
         </div>
       </div>
