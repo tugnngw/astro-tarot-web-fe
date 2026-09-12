@@ -143,6 +143,16 @@ export function PagedList({
   const inner = listRef ?? rieng;
   const [minHeight, setMinHeight] = useState(0);
 
+  // Đổi cỡ trang thì quên chỗ đã chừa.
+  //
+  // Chỗ chừa là "chiều cao của một trang đầy", nên nó gắn với cỡ trang. Cỡ
+  // trang co lại từ 10 xuống 7 mà vẫn giữ chỗ của 10 dòng thì dưới danh sách
+  // hở ra ba dòng trống, và thanh phân trang bị đẩy khỏi màn hình — đúng thứ
+  // mà cỡ trang động sinh ra để tránh.
+  useLayoutEffect(() => {
+    setMinHeight(0);
+  }, [pageSize]);
+
   useLayoutEffect(() => {
     const el = inner.current;
     if (!el) return;
