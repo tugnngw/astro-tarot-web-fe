@@ -233,19 +233,15 @@ export function useCoTrangVuaManHinh(
 ) {
   const [coTrang, setCoTrang] = useState(PAGE_SIZE);
   const [nhip, setNhip] = useState(0);
+  // Khoá sau lần đo thành công đầu tiên. Đổi vai trò / mở select làm cao dòng
+  // lệch vài px → floor(còn lại / cao) nhảy 10→11 nếu đo lại mỗi lần vẽ.
+  const daDo = useRef(false);
 
-  // Đo lại sau MỖI lần vẽ, không phải một lần lúc mount.
-  //
-  // Bản đầu chỉ chạy khi mount và trả về đúng giá trị mặc định: lúc đó danh
-  // sách còn đang tải, chưa có dòng nào để đo chiều cao, nên hàm thoát sớm và
-  // không bao giờ chạy lại. Đo được trên production: màn 900px mà vẫn cắt 10
-  // dòng thay vì 7.
-  //
-  // Chạy mỗi lần vẽ không gây vòng lặp vì chỉ gọi setCoTrang khi con số thật
-  // sự đổi — giống cách PagedList đo chiều cao.
   useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
+    // Đã có số ổn định: chỉ đo lại khi cửa sổ đổi cỡ (nhip tăng → daDo = false).
+    if (daDo.current) return;
 
     const dong = layMotDong(el);
     if (!dong) return;
@@ -259,6 +255,7 @@ export function useCoTrangVuaManHinh(
     n = Math.min(toiDa, Math.max(toiThieu, n));
 
     setCoTrang((truoc) => (truoc === n ? truoc : n));
+    daDo.current = true;
   });
 
   // Đổi kích thước cửa sổ thì thúc một nhịp để đo lại, nhưng chờ người dùng
@@ -267,7 +264,10 @@ export function useCoTrangVuaManHinh(
     let hen: ReturnType<typeof setTimeout>;
     const khiDoiCo = () => {
       clearTimeout(hen);
-      hen = setTimeout(() => setNhip((n) => n + 1), 250);
+      hen = setTimeout(() => {
+        daDo.current = false;
+        setNhip((n) => n + 1);
+      }, 250);
     };
     window.addEventListener("resize", khiDoiCo);
     return () => {
