@@ -37,7 +37,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const isLoggedIn = Boolean(user);
 
-  const cartQuery = useCartQuery(isLoggedIn);
+  const cartQuery = useCartQuery(false); // Shop = affiliate Shopee — tắt giỏ legacy
   const addMutation = useAddToCart();
   const updateMutation = useUpdateCartItem();
   const removeMutation = useRemoveCartItem();

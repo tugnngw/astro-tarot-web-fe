@@ -323,6 +323,17 @@ export interface AdminStats {
     pendingPayments: number;
     revenueByMonth: Record<string, number>;
   };
+  /** Slide Traction / EXE201 — một khối số liệu Pitch. */
+  traction?: {
+    registeredUsers: number;
+    successfulPayments: number;
+    completedBookings: number;
+    reviewsCount: number;
+    feedbackCount: number;
+    feedbackGoalMet: boolean;
+    affiliateClicks30d: number;
+    marketingEventsLast30Days: Record<string, number>;
+  };
 }
 
 export function getAdminStats() {

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { PLATFORM_LABEL, trackAffiliateClick, type Product } from "@/api/shop";
+import { trackCta } from "@/lib/track";
 
 /**
  * Nút mua hàng — mở sản phẩm trên sàn liên kết.
@@ -40,6 +41,7 @@ export function BuyOnPlatformButton({
 
   async function open() {
     setBusy(true);
+    trackCta("cta_shopee_click", { slug: product.slug });
     // Mở tab trống trước, điền địa chỉ sau khi có link. Nếu đợi fetch xong mới
     // gọi window.open thì trình duyệt coi đó là popup tự phát và chặn.
     const tab = window.open("", "_blank", "noopener,noreferrer");

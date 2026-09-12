@@ -143,10 +143,12 @@ export function CatalogManager() {
                 {formatVND(stats.data!.estimatedCommission)}
               </span>{" "}
               — tính theo giá × tỉ lệ × lượt bấm. Đây{" "}
-              <strong className="text-foreground">không phải</strong> doanh thu:
-              mình chỉ đếm được người bấm sang, không biết ai mua. Số thật nằm ở
-              báo cáo đối tác của sàn.
+              <strong className="text-foreground">không phải</strong> doanh thu
+              nền tảng: mình chỉ đếm được người bấm sang, không biết ai mua.
+              Số thật nằm ở báo cáo đối tác Shopee Affiliate — ghi vào ô dưới
+              khi có để Pitch/EXE201.
             </p>
+            <ShopeeCommissionNote />
           </>
         )}
       </section>
@@ -779,6 +781,29 @@ function Field({
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
         className="mt-1 w-full rounded-lg border border-gold/25 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
+      />
+    </label>
+  );
+}
+
+function ShopeeCommissionNote() {
+  const KEY = "astrotarot_shopee_commission_note";
+  const [note, setNote] = useState(() => {
+    if (typeof window === "undefined") return "";
+    return localStorage.getItem(KEY) ?? "";
+  });
+  return (
+    <label className="mt-3 block text-xs text-muted-foreground">
+      Hoa hồng Shopee thật (ghi tay từ báo cáo đối tác — chỉ lưu trên máy bạn):
+      <textarea
+        value={note}
+        onChange={(e) => {
+          setNote(e.target.value);
+          localStorage.setItem(KEY, e.target.value);
+        }}
+        rows={2}
+        placeholder="VD: Tháng 9/2026 — hoa hồng đã duyệt 125.000đ (screenshot báo cáo Shopee)"
+        className="mt-1 w-full rounded-lg border border-gold/25 bg-input/70 px-3 py-2 text-sm text-foreground outline-none focus:border-gold"
       />
     </label>
   );

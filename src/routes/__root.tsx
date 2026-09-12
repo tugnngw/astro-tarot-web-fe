@@ -19,6 +19,16 @@ import { RealtimeProvider } from "@/features/realtime/RealtimeProvider";
 import { StarrySky } from "@/components/StarrySky";
 import { AuthModal } from "@/components/AuthModal";
 import { BecomeReaderModal } from "@/components/BecomeReaderModal";
+import { BackendWarmBanner } from "@/components/BackendWarmBanner";
+import { FeedbackPrompt } from "@/components/FeedbackPrompt";
+import { captureUtmFromUrl } from "@/lib/utm";
+
+function UtmCapture() {
+  useEffect(() => {
+    captureUtmFromUrl();
+  }, []);
+  return null;
+}
 
 function NotFoundComponent() {
   return (
@@ -101,12 +111,24 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
             "Trải bài Tarot AI cá nhân hoá & đặt lịch với Reader chuyên nghiệp.",
         },
         { property: "og:type", content: "website" },
-        { name: "twitter:card", content: "summary" },
+        {
+          property: "og:url",
+          content: "https://astro-tarot-web-fe.vercel.app/",
+        },
+        {
+          property: "og:image",
+          content: "https://astro-tarot-web-fe.vercel.app/favicon.png",
+        },
+        { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:title", content: "ASTROTAROT — Khám phá vận mệnh" },
         {
           name: "twitter:description",
           content:
             "Trải bài Tarot AI cá nhân hoá & đặt lịch với Reader chuyên nghiệp.",
+        },
+        {
+          name: "twitter:image",
+          content: "https://astro-tarot-web-fe.vercel.app/favicon.png",
         },
       ],
       links: [
@@ -152,10 +174,13 @@ function RootComponent() {
       <AuthProvider>
         <RealtimeProvider>
           <CartProvider>
+            <UtmCapture />
+            <BackendWarmBanner />
             <StarrySky />
             <Outlet />
             <AuthModal />
             <BecomeReaderModal />
+            <FeedbackPrompt />
             {/*
               Góc dưới bên phải, không phải giữa trên cùng: vị trí cũ đè đúng
               thanh điều hướng, che mất menu ngay lúc người dùng vừa thao tác

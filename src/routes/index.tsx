@@ -10,6 +10,7 @@ import { WhatYouCanDo } from "@/components/WhatYouCanDo";
 import { FaqSection } from "@/components/FaqSection";
 import { useAuth } from "@/lib/auth-context";
 import { TarotWheel } from "@/components/TarotWheel";
+import { trackCta } from "@/lib/track";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -124,12 +125,14 @@ function Landing() {
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Link
                 to="/tarot"
+                onClick={() => trackCta("cta_tarot_draw")}
                 className="pointer-events-auto rounded-full bg-gold px-7 py-3 font-medium text-primary-foreground glow-gold transition hover:scale-105"
               >
                 ✦ Trải bài miễn phí
               </Link>
               <Link
                 to="/readers"
+                onClick={() => trackCta("cta_book_reader")}
                 className="pointer-events-auto rounded-full border border-gold/60 px-7 py-3 font-medium text-gold transition hover:bg-gold/10"
               >
                 Đặt lịch Reader
@@ -228,12 +231,14 @@ function Landing() {
               <div className="mt-7 flex flex-wrap justify-center gap-3">
                 <Link
                   to="/tarot"
+                  onClick={() => trackCta("cta_tarot_draw")}
                   className="rounded-full bg-gold px-7 py-3 font-medium text-primary-foreground glow-gold transition hover:scale-105"
                 >
                   ✦ Trải bài miễn phí
                 </Link>
                 <Link
                   to="/readers"
+                  onClick={() => trackCta("cta_book_reader")}
                   className="rounded-full border border-gold/60 px-7 py-3 font-medium text-gold transition hover:bg-gold/10"
                 >
                   Đặt lịch Reader

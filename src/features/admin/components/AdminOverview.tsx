@@ -18,6 +18,7 @@ import {
   Bot,
   Wallet,
   TrendingUp,
+  Target,
 } from "lucide-react";
 import {
   Bar,
@@ -232,6 +233,22 @@ function aiStats(s: AdminStats): NonNullable<AdminStats["ai"]> {
   );
 }
 
+/** BE cũ chưa có khối `traction` thì coi như 0. */
+function tractionStats(s: AdminStats): NonNullable<AdminStats["traction"]> {
+  return (
+    s.traction ?? {
+      registeredUsers: s.users.total,
+      successfulPayments: s.revenue?.successfulPayments ?? 0,
+      completedBookings: s.bookings.byStatus.COMPLETED ?? 0,
+      reviewsCount: 0,
+      feedbackCount: 0,
+      feedbackGoalMet: false,
+      affiliateClicks30d: s.shop.clicksLast30Days,
+      marketingEventsLast30Days: {},
+    }
+  );
+}
+
 export function AdminOverview() {
   const query = useAdminStats();
 
@@ -271,6 +288,7 @@ export function AdminOverview() {
 
   const s = query.data;
   const ai = aiStats(s);
+  const traction = tractionStats(s);
 
   const kpis = [
     {
@@ -315,6 +333,8 @@ export function AdminOverview() {
 
   return (
     <div className="space-y-6">
+      <TractionStrip traction={traction} />
+
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-6">
         {kpis.map((k) => {
           const Icon = k.icon;
@@ -365,6 +385,76 @@ export function AdminOverview() {
         <AiModelChart ai={ai} />
       </div>
     </div>
+  );
+}
+
+// ------------------------------------------------------------
+// Traction (Pitch / EXE201)
+// ------------------------------------------------------------
+
+function TractionStrip({
+  traction: t,
+}: {
+  traction: NonNullable<AdminStats["traction"]>;
+}) {
+  const items = [
+    { label: "Người dùng", value: nf(t.registeredUsers) },
+    { label: "Thanh toán SUCCESS", value: nf(t.successfulPayments) },
+    { label: "Buổi hoàn tất", value: nf(t.completedBookings) },
+    { label: "Đánh giá Reader", value: nf(t.reviewsCount) },
+    {
+      label: "Phản hồi khảo sát",
+      value: `${nf(t.feedbackCount)}/20`,
+      ok: t.feedbackGoalMet,
+    },
+    { label: "Affiliate 30 ngày", value: nf(t.affiliateClicks30d) },
+  ];
+  const eventEntries = Object.entries(t.marketingEventsLast30Days ?? {});
+
+  return (
+    <section className="glass rounded-2xl border border-gold/25 p-5">
+      <div className="flex flex-wrap items-center gap-2">
+        <Target className="h-4 w-4 text-gold" />
+        <h2 className="font-display text-lg">Traction — chụp cho Pitch</h2>
+        {t.feedbackGoalMet ? (
+          <span className="rounded-full border border-emerald-400/40 px-2 py-0.5 text-[11px] text-emerald-300">
+            Đủ ≥20 phản hồi
+          </span>
+        ) : (
+          <span className="rounded-full border border-amber-400/40 px-2 py-0.5 text-[11px] text-amber-200">
+            Còn thiếu phản hồi khảo sát
+          </span>
+        )}
+      </div>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Một khối số liệu cho slide EXE201. Doanh thu biểu đồ bên dưới vẫn gồm
+        seed demo để test — khi nộp OC3 hãy dùng giao dịch PayOS thật và ghi
+        rõ.
+      </p>
+      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        {items.map((it) => (
+          <div
+            key={it.label}
+            className="rounded-xl border border-gold/15 bg-mystic/5 px-3 py-3"
+          >
+            <div
+              className={`font-display text-2xl leading-none ${
+                it.ok ? "text-emerald-300" : ""
+              }`}
+            >
+              {it.value}
+            </div>
+            <div className="mt-1 text-xs text-muted-foreground">{it.label}</div>
+          </div>
+        ))}
+      </div>
+      {eventEntries.length > 0 && (
+        <p className="mt-3 text-xs text-muted-foreground">
+          CTA 30 ngày:{" "}
+          {eventEntries.map(([k, v]) => `${k}=${v}`).join(" · ")}
+        </p>
+      )}
+    </section>
   );
 }
 
