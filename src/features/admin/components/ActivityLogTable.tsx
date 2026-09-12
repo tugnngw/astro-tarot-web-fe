@@ -3,6 +3,7 @@ import { AlertCircle, ScrollText } from "lucide-react";
 import { RoleBadge } from "@/components/RoleBadge";
 import { ACTION_LABEL, type ActivityLog } from "@/api/admin";
 import { useActivityLogs } from "@/features/admin/queries";
+import { PagedList, Pagination } from "@/components/Pagination";
 import {
   Select,
   SelectContent,
@@ -11,7 +12,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { PAGE_SIZE } from "@/components/Pagination";
+/** Nhật ký hệ thống — cố định 6 dòng/trang, tách khỏi nhảy layout khi sang trang. */
+const ACTIVITY_PAGE_SIZE = 6;
+
 /**
  * Nhật ký thao tác quản trị.
  *
@@ -26,11 +29,12 @@ export function ActivityLogTable() {
   const query = useActivityLogs({
     action: action || undefined,
     page,
-    size: PAGE_SIZE,
+    size: ACTIVITY_PAGE_SIZE,
   });
 
   const logs = query.data?.content ?? [];
   const totalPages = query.data?.totalPages ?? 0;
+  const totalElements = query.data?.totalElements ?? 0;
 
   return (
     <section className="glass rounded-2xl p-5">
@@ -76,113 +80,119 @@ export function ActivityLogTable() {
         </Select>
       </div>
 
-      <div aria-live="polite" aria-busy={query.isFetching} className="mt-5">
+      <div
+        aria-live="polite"
+        aria-busy={query.isFetching}
+        className="mt-5"
+      >
         {query.isError ? (
-          <div className="flex flex-col items-center py-12 text-center">
-            <AlertCircle className="h-8 w-8 text-destructive/70" />
-            <p className="mt-3 text-sm text-muted-foreground">
-              {query.error instanceof Error
-                ? query.error.message
-                : "Không tải được nhật ký"}
-            </p>
-          </div>
+          <PagedList pageSize={ACTIVITY_PAGE_SIZE}>
+            <div className="flex flex-col items-center py-12 text-center">
+              <AlertCircle className="h-8 w-8 text-destructive/70" />
+              <p className="mt-3 text-sm text-muted-foreground">
+                {query.error instanceof Error
+                  ? query.error.message
+                  : "Không tải được nhật ký"}
+              </p>
+            </div>
+          </PagedList>
         ) : query.isPending ? (
-          <div className="space-y-2">
-            {Array.from({ length: 6 }, (_, i) => (
-              <div
-                key={i}
-                className="h-12 animate-pulse rounded-xl bg-mystic/10"
-                aria-hidden="true"
-              />
-            ))}
-          </div>
+          <PagedList pageSize={ACTIVITY_PAGE_SIZE}>
+            <div className="space-y-2" aria-busy="true">
+              {Array.from({ length: ACTIVITY_PAGE_SIZE }, (_, i) => (
+                <div
+                  key={i}
+                  className="h-16 animate-pulse rounded-xl bg-mystic/10"
+                  aria-hidden="true"
+                />
+              ))}
+            </div>
+          </PagedList>
         ) : logs.length === 0 ? (
-          <div className="flex flex-col items-center py-14 text-center">
-            <ScrollText aria-hidden="true" className="h-9 w-9 text-gold/50" />
-            <h3 className="mt-3 font-display text-lg">
-              Chưa có thao tác nào được ghi
-            </h3>
-            <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-              Nhật ký bắt đầu ghi từ lần đổi vai trò hoặc khoá tài khoản đầu
-              tiên.
-            </p>
-          </div>
+          <PagedList pageSize={ACTIVITY_PAGE_SIZE}>
+            <div className="flex flex-col items-center py-14 text-center">
+              <ScrollText aria-hidden="true" className="h-9 w-9 text-gold/50" />
+              <h3 className="mt-3 font-display text-lg">
+                Chưa có thao tác nào được ghi
+              </h3>
+              <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+                Nhật ký bắt đầu ghi từ lần đổi vai trò hoặc khoá tài khoản đầu
+                tiên.
+              </p>
+            </div>
+          </PagedList>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[700px] border-collapse text-sm">
-              <thead>
-                <tr className="border-b border-gold/15 text-left text-xs uppercase tracking-[0.15em] text-muted-foreground">
-                  <th scope="col" className="py-2 pr-3 font-normal">
-                    Thời điểm
-                  </th>
-                  <th scope="col" className="py-2 pr-3 font-normal">
-                    Người thực hiện
-                  </th>
-                  <th scope="col" className="py-2 pr-3 font-normal">
-                    Hành động
-                  </th>
-                  <th scope="col" className="py-2 font-normal">
-                    Thay đổi
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {logs.map((l) => (
-                  <tr
-                    key={l.id}
-                    className="border-b border-white/5 align-top last:border-0"
-                  >
-                    <td className="whitespace-nowrap py-3 pr-3 text-xs tabular-nums text-muted-foreground">
-                      {formatDateTime(l.createdAt)}
-                    </td>
-                    <td className="py-3 pr-3">
-                      <span className="block text-foreground">
-                        {l.actorName}
-                      </span>
-                      {l.actorRole && (
-                        <RoleBadge role={l.actorRole} className="mt-1" />
-                      )}
-                    </td>
-                    <td className="py-3 pr-3">
-                      {ACTION_LABEL[l.action] ?? l.action}
-                    </td>
-                    <td className="py-3 text-xs text-muted-foreground">
-                      <Changes log={l} />
-                    </td>
+          // key theo bộ lọc: đổi lọc thì đo lại chiều cao, tránh giữ min-height cũ.
+          <PagedList key={action || "all"} pageSize={ACTIVITY_PAGE_SIZE}>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[700px] table-fixed border-collapse text-sm">
+                <colgroup>
+                  <col className="w-[7.5rem]" />
+                  <col className="w-[11rem]" />
+                  <col className="w-[10rem]" />
+                  <col />
+                </colgroup>
+                <thead>
+                  <tr className="border-b border-gold/15 text-left text-xs uppercase tracking-[0.15em] text-muted-foreground">
+                    <th scope="col" className="py-2 pr-3 font-normal">
+                      Thời điểm
+                    </th>
+                    <th scope="col" className="py-2 pr-3 font-normal">
+                      Người thực hiện
+                    </th>
+                    <th scope="col" className="py-2 pr-3 font-normal">
+                      Hành động
+                    </th>
+                    <th scope="col" className="py-2 font-normal">
+                      Thay đổi
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {logs.map((l) => (
+                    <tr
+                      key={l.id}
+                      className="h-16 border-b border-white/5 last:border-0"
+                    >
+                      <td className="whitespace-nowrap py-2 pr-3 align-middle text-xs tabular-nums text-muted-foreground">
+                        {formatDateTime(l.createdAt)}
+                      </td>
+                      <td className="py-2 pr-3 align-middle">
+                        <span className="block truncate text-foreground">
+                          {l.actorName}
+                        </span>
+                        {l.actorRole && (
+                          <RoleBadge role={l.actorRole} className="mt-1" />
+                        )}
+                      </td>
+                      <td className="py-2 pr-3 align-middle">
+                        <span className="line-clamp-2">
+                          {ACTION_LABEL[l.action] ?? l.action}
+                        </span>
+                      </td>
+                      <td className="py-2 align-middle text-xs text-muted-foreground">
+                        <div className="line-clamp-2 overflow-hidden">
+                          <Changes log={l} />
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </PagedList>
         )}
       </div>
 
-      {totalPages > 1 && (
-        <nav
-          className="mt-6 flex items-center justify-center gap-3"
-          aria-label="Phân trang nhật ký"
-        >
-          <button
-            type="button"
-            disabled={page === 0}
-            onClick={() => setPage((p) => Math.max(0, p - 1))}
-            className="rounded-full border border-gold/40 px-4 py-1.5 text-sm text-gold transition hover:bg-gold/10 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            Trước
-          </button>
-          <span className="text-sm text-muted-foreground">
-            Trang {page + 1} / {totalPages}
-          </span>
-          <button
-            type="button"
-            disabled={page >= totalPages - 1}
-            onClick={() => setPage((p) => p + 1)}
-            className="rounded-full border border-gold/40 px-4 py-1.5 text-sm text-gold transition hover:bg-gold/10 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            Sau
-          </button>
-        </nav>
-      )}
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        totalElements={totalElements}
+        onChange={setPage}
+        busy={query.isFetching}
+        unit="hoạt động"
+        pageSize={ACTIVITY_PAGE_SIZE}
+      />
     </section>
   );
 }
@@ -191,7 +201,8 @@ export function ActivityLogTable() {
  * Cột "thay đổi" đọc từ JSON thô mà BE ghi.
  *
  * Dạng {from, to} là đổi một giá trị — hiện thành mũi tên. Còn lại thì liệt kê
- * khoá và giá trị. JSON hỏng thì hiện nguyên văn chứ không làm sập cả bảng.
+ * khoá và giá trị trên một dòng (tránh hàng cao thấp khác nhau làm nhảy layout).
+ * JSON hỏng thì hiện nguyên văn chứ không làm sập cả bảng.
  */
 function Changes({ log }: { log: ActivityLog }) {
   if (!log.changes) return <span>—</span>;
@@ -222,9 +233,10 @@ function Changes({ log }: { log: ActivityLog }) {
   }
 
   return (
-    <ul className="space-y-0.5">
-      {entries.map(([k, v]) => (
-        <li key={k}>
+    <span className="break-words">
+      {entries.map(([k, v], i) => (
+        <span key={k}>
+          {i > 0 ? " · " : null}
           <span className="text-muted-foreground/70">{k}:</span>{" "}
           {isFromTo(v) ? (
             <>
@@ -234,9 +246,9 @@ function Changes({ log }: { log: ActivityLog }) {
           ) : (
             <code>{String(v)}</code>
           )}
-        </li>
+        </span>
       ))}
-    </ul>
+    </span>
   );
 }
 

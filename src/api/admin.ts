@@ -241,6 +241,15 @@ export const ACTION_LABEL: Record<string, string> = {
   USER_SESSIONS_REVOKE: "Buộc đăng xuất",
   USER_PASSWORD_RESET_SENT: "Gửi link đặt lại mật khẩu",
   USER_VERIFICATION_RESENT: "Gửi lại mail xác minh",
+  PAYMENT_CONFIRM: "Xác nhận thanh toán",
+  PAYMENT_REJECT: "Từ chối thanh toán",
+  PAYOUT_APPROVE: "Duyệt lệnh rút",
+  PAYOUT_REJECT: "Từ chối lệnh rút",
+  PAYOUT_PAID: "Đánh dấu đã chi",
+  REPORT_HANDLE: "Xử lý báo cáo",
+  PRODUCT_CREATE: "Thêm sản phẩm",
+  PRODUCT_UPDATE: "Sửa sản phẩm",
+  PRODUCT_SET_ACTIVE: "Bật/tắt sản phẩm",
 };
 
 export function getActivityLogs(

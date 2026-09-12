@@ -24,6 +24,7 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
+  LabelList,
   Pie,
   PieChart,
   XAxis,
@@ -96,6 +97,14 @@ function vndTruc(n: number) {
   return String(n);
 }
 
+const WHITE_LABEL_STYLE = {
+  fontSize: 12,
+  fontWeight: 600,
+  paintOrder: "stroke" as const,
+  stroke: "rgba(0,0,0,0.45)",
+  strokeWidth: 3,
+};
+
 /**
  * Chữ số trắng giữa lát bánh — bỏ qua lát quá nhỏ để khỏi chồng chữ.
  * Dùng chung mọi Pie trong file này.
@@ -132,15 +141,37 @@ function pieWhiteLabel(props: {
       fill="#ffffff"
       textAnchor="middle"
       dominantBaseline="central"
-      style={{
-        fontSize: 12,
-        fontWeight: 600,
-        paintOrder: "stroke",
-        stroke: "rgba(0,0,0,0.45)",
-        strokeWidth: 3,
-      }}
+      style={WHITE_LABEL_STYLE}
     >
       {format(value)}
+    </text>
+  );
+}
+
+/**
+ * Số trắng trên đỉnh cột — cùng style với pie; bỏ cột = 0.
+ * Dùng với <LabelList content={...} /> trên mọi BarChart.
+ */
+function barWhiteLabel(props: {
+  x?: number;
+  y?: number;
+  width?: number;
+  value?: number | string;
+  format?: (n: number) => string;
+}) {
+  const { x = 0, y = 0, width = 0, value, format = nf } = props;
+  const n = Number(value) || 0;
+  if (n <= 0) return null;
+  return (
+    <text
+      x={x + width / 2}
+      y={y - 6}
+      fill="#ffffff"
+      textAnchor="middle"
+      dominantBaseline="auto"
+      style={WHITE_LABEL_STYLE}
+    >
+      {format(n)}
     </text>
   );
 }
@@ -419,11 +450,7 @@ function RevenueMonthChart({
 }: {
   revenue: NonNullable<AdminStats["revenue"]>;
 }) {
-  const data = Object.entries(r.revenueByMonth).map(([month, total]) => ({
-    key: month,
-    label: monthLabel(month),
-    count: Number(total),
-  }));
+  const data = last12MonthsRevenue(r.revenueByMonth);
   const tong = data.reduce((s, d) => s + d.count, 0);
 
   const config = {
@@ -444,7 +471,7 @@ function RevenueMonthChart({
         ) : null}
         .
       </p>
-      {data.length === 0 ? (
+      {tong === 0 ? (
         <p className="mt-6 text-sm text-muted-foreground">
           Chưa có giao dịch thành công nào.
         </p>
@@ -455,7 +482,7 @@ function RevenueMonthChart({
         >
           <BarChart
             data={data}
-            margin={{ top: 12, right: 8, left: 4, bottom: 4 }}
+            margin={{ top: 24, right: 8, left: 4, bottom: 4 }}
           >
             <CartesianGrid vertical={false} strokeDasharray="3 3" />
             <XAxis
@@ -499,7 +526,12 @@ function RevenueMonthChart({
               fill="var(--color-count)"
               radius={[6, 6, 0, 0]}
               maxBarSize={36}
-            />
+            >
+              <LabelList
+                dataKey="count"
+                content={(p) => barWhiteLabel({ ...p, format: vndTruc })}
+              />
+            </Bar>
           </BarChart>
         </ChartContainer>
       )}
@@ -651,6 +683,22 @@ function monthLabel(ym: string) {
     : ym;
 }
 
+/** Luôn đủ 12 tháng gần nhất — tháng không có giao dịch vẫn hiện cột 0. */
+function last12MonthsRevenue(byMonth: Record<string, number>) {
+  const out: { key: string; label: string; count: number }[] = [];
+  const now = new Date();
+  for (let i = 11; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    out.push({
+      key,
+      label: monthLabel(key),
+      count: Number(byMonth[key] ?? 0),
+    });
+  }
+  return out;
+}
+
 function RoleChart({ users }: { users: AdminStats["users"] }) {
   const order = ["USER", "STAFF", "MANAGER", "ADMIN"] as const;
   const data = order.map((role) => ({
@@ -776,7 +824,7 @@ function BookingChart({ bookings }: { bookings: AdminStats["bookings"] }) {
         >
           <BarChart
             data={data}
-            margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+            margin={{ top: 24, right: 8, left: 0, bottom: 0 }}
           >
             <CartesianGrid vertical={false} strokeDasharray="3 3" />
             <XAxis
@@ -823,6 +871,7 @@ function BookingChart({ bookings }: { bookings: AdminStats["bookings"] }) {
               {data.map((d) => (
                 <Cell key={d.key} fill={d.fill} className="outline-none" />
               ))}
+              <LabelList dataKey="count" content={barWhiteLabel} />
             </Bar>
           </BarChart>
         </ChartContainer>
@@ -865,7 +914,7 @@ function ReaderChart({ readers }: { readers: AdminStats["readers"] }) {
         config={config}
         className="mt-4 aspect-auto h-[240px] w-full"
       >
-        <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+        <BarChart data={data} margin={{ top: 24, right: 8, left: 0, bottom: 0 }}>
           <CartesianGrid vertical={false} strokeDasharray="3 3" />
           <XAxis
             dataKey="label"
@@ -906,6 +955,7 @@ function ReaderChart({ readers }: { readers: AdminStats["readers"] }) {
             {data.map((d) => (
               <Cell key={d.key} fill={d.fill} />
             ))}
+            <LabelList dataKey="count" content={barWhiteLabel} />
           </Bar>
         </BarChart>
       </ChartContainer>
@@ -953,7 +1003,7 @@ function ShopChart({ shop }: { shop: AdminStats["shop"] }) {
         config={config}
         className="mt-4 aspect-auto h-[240px] w-full"
       >
-        <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+        <BarChart data={data} margin={{ top: 24, right: 8, left: 0, bottom: 0 }}>
           <CartesianGrid vertical={false} strokeDasharray="3 3" />
           <XAxis
             dataKey="label"
@@ -997,6 +1047,7 @@ function ShopChart({ shop }: { shop: AdminStats["shop"] }) {
             {data.map((d) => (
               <Cell key={d.key} fill={d.fill} />
             ))}
+            <LabelList dataKey="count" content={barWhiteLabel} />
           </Bar>
         </BarChart>
       </ChartContainer>
@@ -1068,7 +1119,7 @@ function AiTokenBreakdownChart({ ai }: { ai: NonNullable<AdminStats["ai"]> }) {
         >
           <BarChart
             data={data}
-            margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+            margin={{ top: 24, right: 8, left: 0, bottom: 0 }}
           >
             <CartesianGrid vertical={false} strokeDasharray="3 3" />
             <XAxis
@@ -1118,6 +1169,7 @@ function AiTokenBreakdownChart({ ai }: { ai: NonNullable<AdminStats["ai"]> }) {
               {data.map((d) => (
                 <Cell key={d.key} fill={d.fill} />
               ))}
+              <LabelList dataKey="count" content={barWhiteLabel} />
             </Bar>
           </BarChart>
         </ChartContainer>
