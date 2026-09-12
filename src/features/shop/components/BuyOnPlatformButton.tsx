@@ -35,7 +35,8 @@ export function BuyOnPlatformButton({
     );
   }
 
-  const platform = PLATFORM_LABEL[product.affiliatePlatform ?? "OTHER"] ?? "sàn liên kết";
+  const platform =
+    PLATFORM_LABEL[product.affiliatePlatform ?? "OTHER"] ?? "sàn liên kết";
 
   async function open() {
     setBusy(true);
@@ -79,7 +80,11 @@ export function BuyOnPlatformButton({
  * quyền biết mình đang bấm vào link có hoa hồng, và chính sách của các sàn
  * liên kết đều yêu cầu nói rõ điều này.
  */
-export function AffiliateDisclosure({ className = "" }: { className?: string }) {
+export function AffiliateDisclosure({
+  className = "",
+}: {
+  className?: string;
+}) {
   return (
     <p className={`text-xs leading-relaxed text-muted-foreground ${className}`}>
       Đây là các liên kết tiếp thị. Bạn mua hàng trên sàn với giá không đổi;

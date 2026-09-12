@@ -56,7 +56,9 @@ export function ConfirmDialog({
         >
           {destructive ? "⚠" : "✦"}
         </div>
-        <h3 className="mt-4 font-display text-2xl text-gradient-gold">{title}</h3>
+        <h3 className="mt-4 font-display text-2xl text-gradient-gold">
+          {title}
+        </h3>
         {description && (
           <p className="mt-2 text-sm text-muted-foreground">{description}</p>
         )}

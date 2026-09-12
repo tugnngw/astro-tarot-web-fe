@@ -91,7 +91,9 @@ export function replyTicket(ticketId: string, body: string) {
 
 // ---------- Nhân viên ----------
 
-export function getSupportQueue(query: { status?: TicketStatus; page?: number; size?: number } = {}) {
+export function getSupportQueue(
+  query: { status?: TicketStatus; page?: number; size?: number } = {},
+) {
   const params = new URLSearchParams();
   if (query.status) params.set("status", query.status);
   if (query.page !== undefined) params.set("page", String(query.page));

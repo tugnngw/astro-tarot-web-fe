@@ -99,9 +99,8 @@ function Facedown({
 
       {/* Lá của ngày: cho người dùng một lý do quay lại vào hôm sau. */}
       <p className="mt-6 text-center text-xs text-muted-foreground">
-        Lá của hôm nay là{" "}
-        <span className="text-gold">{today.nameVi}</span> — rút để xem lá của
-        riêng bạn.
+        Lá của hôm nay là <span className="text-gold">{today.nameVi}</span> —
+        rút để xem lá của riêng bạn.
       </p>
     </>
   );
@@ -145,13 +144,7 @@ function CardBackArt() {
   );
 }
 
-function Revealed({
-  card,
-  onReset,
-}: {
-  card: TarotCard;
-  onReset: () => void;
-}) {
+function Revealed({ card, onReset }: { card: TarotCard; onReset: () => void }) {
   return (
     <div className="mt-4 flex flex-col gap-5 sm:flex-row sm:items-start">
       <img

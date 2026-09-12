@@ -78,7 +78,6 @@ export function PaymentQueue() {
       </div>
 
       <Body
-        resetKey={status}
         query={query}
         emptyTitle="Không có giao dịch nào"
         emptyHint="Khi khách tạo lệnh chuyển khoản, giao dịch sẽ xuất hiện ở đây."
@@ -243,7 +242,6 @@ export function PayoutQueue() {
       </div>
 
       <Body
-        resetKey={status}
         query={query}
         emptyTitle="Không có lệnh rút nào"
         emptyHint="Reader gửi lệnh rút từ tab Thu nhập ở bàn làm việc."
@@ -441,7 +439,6 @@ export function ReportQueue() {
       </div>
 
       <Body
-        resetKey={status}
         query={query}
         emptyTitle="Không có báo cáo nào"
         emptyHint="Khách gửi báo cáo từ trang Lịch hẹn của tôi sau khi buổi xem hoàn tất."
@@ -702,7 +699,6 @@ function Body({
   query,
   emptyTitle,
   emptyHint,
-  resetKey,
   children,
 }: {
   query: {
@@ -716,12 +712,11 @@ function Body({
   emptyTitle: string;
   emptyHint: string;
   /** Đổi bộ lọc thì quên chiều cao đã nhớ. */
-  resetKey?: string | number;
   children: React.ReactNode;
 }) {
   if (query.isError) {
     return (
-      <PagedList resetKey={resetKey}>
+      <PagedList>
         {/* Dùng khối lỗi chung để câu thông báo được dịch sang tiếng người:
             màn này từng hiện "Máy chủ trả về dữ liệu không đọc được (HTTP
             403)" trong khi nguyên nhân thật chỉ là token hết hạn. */}
@@ -731,7 +726,7 @@ function Body({
   }
   if (query.isPending) {
     return (
-      <PagedList resetKey={resetKey}>
+      <PagedList>
         <div className="mt-4 space-y-2" aria-busy="true">
           {Array.from({ length: 4 }, (_, i) => (
             <div
@@ -746,7 +741,7 @@ function Body({
   }
   if ((query.data?.content.length ?? 0) === 0) {
     return (
-      <PagedList resetKey={resetKey}>
+      <PagedList>
         <div className="flex flex-col items-center py-14 text-center">
           <Inbox aria-hidden="true" className="h-9 w-9 text-gold/50" />
           <h3 className="mt-3 font-display text-lg">{emptyTitle}</h3>
@@ -757,7 +752,7 @@ function Body({
       </PagedList>
     );
   }
-  return <PagedList resetKey={resetKey}>{children}</PagedList>;
+  return <PagedList>{children}</PagedList>;
 }
 
 function InlineReason({

@@ -9,6 +9,7 @@ import { useSupportQueue } from "@/features/support/queries";
 import { TICKET_STATUS_LABEL, type TicketStatus } from "@/api/support";
 import { TicketThread } from "./TicketThread";
 
+import { PagedList, Pagination } from "@/components/Pagination";
 const FILTERS: { key: TicketStatus | ""; label: string }[] = [
   { key: "", label: "Tất cả" },
   { key: "OPEN", label: "Đang chờ" },
@@ -65,8 +66,8 @@ export function StaffSupportQueue() {
         <h2 className="font-display text-xl">Hàng chờ hỗ trợ</h2>
       </div>
       <p className="mt-1 text-sm text-muted-foreground">
-        Yêu cầu của khách, mới nhất trước. Trả lời một lần là ticket tự chuyển sang
-        chờ khách phản hồi.
+        Yêu cầu của khách, mới nhất trước. Trả lời một lần là ticket tự chuyển
+        sang chờ khách phản hồi.
       </p>
 
       {/* Lọc theo trạng thái */}
@@ -98,7 +99,10 @@ export function StaffSupportQueue() {
         {query.isLoading ? (
           <div className="space-y-2">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="h-16 animate-pulse rounded-xl bg-mystic/10" />
+              <div
+                key={i}
+                className="h-16 animate-pulse rounded-xl bg-mystic/10"
+              />
             ))}
           </div>
         ) : rows.length === 0 ? (
@@ -107,58 +111,45 @@ export function StaffSupportQueue() {
             <p className="text-sm">Không có yêu cầu nào ở mục này.</p>
           </div>
         ) : (
-          <ul className="divide-y divide-gold/10">
-            {rows.map((t) => (
-              <li key={t.id}>
-                <button
-                  type="button"
-                  onClick={() => setSelected(t.id)}
-                  className="flex w-full items-center gap-3 py-3 text-left transition hover:bg-mystic/5"
-                >
-                  <span
-                    className={`mt-1 h-2 w-2 shrink-0 rounded-full ${STATUS_DOT[t.status]}`}
-                    aria-hidden
-                  />
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate font-medium">{t.subject}</div>
-                    <div className="mt-0.5 text-xs text-muted-foreground">
-                      {t.requesterName} · {t.messageCount} tin · {fmt(t.updatedAt)}
+          <PagedList>
+            <ul className="divide-y divide-gold/10">
+              {rows.map((t) => (
+                <li key={t.id}>
+                  <button
+                    type="button"
+                    onClick={() => setSelected(t.id)}
+                    className="flex w-full items-center gap-3 py-3 text-left transition hover:bg-mystic/5"
+                  >
+                    <span
+                      className={`mt-1 h-2 w-2 shrink-0 rounded-full ${STATUS_DOT[t.status]}`}
+                      aria-hidden
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate font-medium">{t.subject}</div>
+                      <div className="mt-0.5 text-xs text-muted-foreground">
+                        {t.requesterName} · {t.messageCount} tin ·{" "}
+                        {fmt(t.updatedAt)}
+                      </div>
                     </div>
-                  </div>
-                  <span className="shrink-0 text-xs text-muted-foreground">
-                    {TICKET_STATUS_LABEL[t.status]}
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
+                    <span className="shrink-0 text-xs text-muted-foreground">
+                      {TICKET_STATUS_LABEL[t.status]}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </PagedList>
         )}
       </div>
 
-      {/* Phân trang */}
-      {totalPages > 1 && (
-        <div className="mt-4 flex items-center justify-center gap-3 text-sm">
-          <button
-            type="button"
-            disabled={page === 0}
-            onClick={() => setPage((p) => p - 1)}
-            className="rounded-lg px-3 py-1 text-muted-foreground hover:text-foreground disabled:opacity-40"
-          >
-            Trước
-          </button>
-          <span className="text-muted-foreground">
-            {page + 1}/{totalPages}
-          </span>
-          <button
-            type="button"
-            disabled={page >= totalPages - 1}
-            onClick={() => setPage((p) => p + 1)}
-            className="rounded-lg px-3 py-1 text-muted-foreground hover:text-foreground disabled:opacity-40"
-          >
-            Sau
-          </button>
-        </div>
-      )}
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        totalElements={query.data?.totalElements ?? 0}
+        onChange={setPage}
+        busy={query.isFetching}
+        unit="yêu cầu"
+      />
     </section>
   );
 }

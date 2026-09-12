@@ -79,7 +79,12 @@ function FrameDecor({ intensity }: { intensity: number }) {
           viewBox="0 0 40 40"
           className={`pointer-events-none absolute ${pos} ${flip} h-10 w-10`}
         >
-          <g fill="none" stroke={stroke} strokeWidth="1.1" strokeLinecap="round">
+          <g
+            fill="none"
+            stroke={stroke}
+            strokeWidth="1.1"
+            strokeLinecap="round"
+          >
             {/* Cuộn tròn ở góc */}
             <path d="M7 20 C7 12 12 7 20 7" />
             <path d="M11 20 C11 14 14 11 20 11" opacity="0.6" />

@@ -31,7 +31,9 @@ function ResetPasswordPage() {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [show, setShow] = useState(false);
-  const [errors, setErrors] = useState<{ password?: string; confirm?: string }>({});
+  const [errors, setErrors] = useState<{ password?: string; confirm?: string }>(
+    {},
+  );
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
 
@@ -72,7 +74,8 @@ function ResetPasswordPage() {
                 Liên kết không hợp lệ
               </h1>
               <p className="mt-3 text-sm text-muted-foreground">
-                Thiếu mã đặt lại mật khẩu. Hãy yêu cầu lại từ màn hình đăng nhập.
+                Thiếu mã đặt lại mật khẩu. Hãy yêu cầu lại từ màn hình đăng
+                nhập.
               </p>
               <button
                 type="button"
@@ -137,7 +140,9 @@ function ResetPasswordPage() {
                       onChange={(e) => setPassword(e.target.value)}
                       aria-invalid={Boolean(errors.password)}
                       className={`w-full rounded-lg border bg-input/60 px-4 py-3 pl-10 pr-10 text-sm outline-none transition focus:border-gold ${
-                        errors.password ? "border-destructive" : "border-gold/30"
+                        errors.password
+                          ? "border-destructive"
+                          : "border-gold/30"
                       }`}
                     />
                     <button

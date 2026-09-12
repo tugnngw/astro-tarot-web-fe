@@ -5,7 +5,13 @@
 // không bao giờ nhìn thấy gì. Nay nối thẳng vào /api/v1/bookings.
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { AlertCircle, ArrowLeft, CalendarClock, Clock, Star } from "lucide-react";
+import {
+  AlertCircle,
+  ArrowLeft,
+  CalendarClock,
+  Clock,
+  Star,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Header } from "@/components/Header";
 import { useAuth } from "@/lib/auth-context";
@@ -19,6 +25,7 @@ import {
 import { DURATIONS, type Duration, type Slot } from "@/api/booking";
 import { formatVND } from "@/lib/mock-data";
 
+import { PagedList, Pagination } from "@/components/Pagination";
 export const Route = createFileRoute("/readers_/$id")({
   head: () => ({ meta: [{ title: "Hồ sơ Reader — ASTROTAROT" }] }),
   component: ReaderProfilePage,
@@ -32,7 +39,8 @@ function ReaderProfilePage() {
   const { user, requestAuth } = useAuth();
 
   const reader = useReader(id);
-  const reviews = useReaderReviews(id);
+  const [trangDanhGia, setTrangDanhGia] = useState(0);
+  const reviews = useReaderReviews(id, trangDanhGia);
 
   const [duration, setDuration] = useState<Duration>(30);
   const [date, setDate] = useState(() => toDateInput(new Date()));
@@ -54,7 +62,9 @@ function ReaderProfilePage() {
 
   // Reader của chính mình thì không đặt lịch được — BE chặn, nên giao diện cũng
   // phải nói trước thay vì để bấm rồi nhận lỗi.
-  const isSelf = Boolean(user && reader.data?.userId && user.id === reader.data.userId);
+  const isSelf = Boolean(
+    user && reader.data?.userId && user.id === reader.data.userId,
+  );
 
   function book() {
     if (!picked) return;
@@ -82,7 +92,10 @@ function ReaderProfilePage() {
   if (reader.isPending) {
     return (
       <Shell>
-        <div className="glass h-64 animate-pulse rounded-2xl" aria-busy="true" />
+        <div
+          className="glass h-64 animate-pulse rounded-2xl"
+          aria-busy="true"
+        />
       </Shell>
     );
   }
@@ -136,7 +149,9 @@ function ReaderProfilePage() {
               <div className="min-w-0">
                 <h1 className="font-display text-3xl leading-tight">{name}</h1>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {r.yearsExperience ? `${r.yearsExperience} năm kinh nghiệm` : "Reader mới"}
+                  {r.yearsExperience
+                    ? `${r.yearsExperience} năm kinh nghiệm`
+                    : "Reader mới"}
                   {" · "}
                   {r.isAvailable === false ? (
                     <span className="text-amber-300">tạm ngưng nhận lịch</span>
@@ -145,19 +160,28 @@ function ReaderProfilePage() {
                   )}
                 </p>
                 <p className="mt-2 flex items-center gap-1.5 text-sm">
-                  <Star aria-hidden="true" className="h-4 w-4 fill-gold text-gold" />
+                  <Star
+                    aria-hidden="true"
+                    className="h-4 w-4 fill-gold text-gold"
+                  />
                   <span className="text-gold">
-                    {r.totalReviews ? Number(r.rating ?? 0).toFixed(1) : "Chưa có đánh giá"}
+                    {r.totalReviews
+                      ? Number(r.rating ?? 0).toFixed(1)
+                      : "Chưa có đánh giá"}
                   </span>
                   {Boolean(r.totalReviews) && (
-                    <span className="text-muted-foreground">({r.totalReviews} lượt)</span>
+                    <span className="text-muted-foreground">
+                      ({r.totalReviews} lượt)
+                    </span>
                   )}
                 </p>
               </div>
             </div>
 
             {r.bio && (
-              <p className="mt-5 text-sm leading-relaxed text-muted-foreground">{r.bio}</p>
+              <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
+                {r.bio}
+              </p>
             )}
 
             {specialties.length > 0 && (
@@ -175,12 +199,17 @@ function ReaderProfilePage() {
 
             <dl className="mt-6 grid gap-3 sm:grid-cols-3">
               {DURATIONS.map((d) => (
-                <div key={d} className="rounded-xl border border-gold/20 px-3 py-2">
+                <div
+                  key={d}
+                  className="rounded-xl border border-gold/20 px-3 py-2"
+                >
                   <dt className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
                     {d} phút
                   </dt>
                   <dd className="mt-1 font-display text-lg text-gold">
-                    {priceFor(r, d) != null ? formatVND(priceFor(r, d)!) : "Chưa đặt giá"}
+                    {priceFor(r, d) != null
+                      ? formatVND(priceFor(r, d)!)
+                      : "Chưa đặt giá"}
                   </dd>
                 </div>
               ))}
@@ -191,15 +220,18 @@ function ReaderProfilePage() {
           <section className="glass rounded-2xl p-6">
             <h2 className="font-display text-xl">Đánh giá từ khách</h2>
             <p className="mt-1 text-xs text-muted-foreground">
-              Chỉ người đã thực sự đặt và hoàn tất buổi xem mới viết được — mỗi buổi
-              một lần.
+              Chỉ người đã thực sự đặt và hoàn tất buổi xem mới viết được — mỗi
+              buổi một lần.
             </p>
 
             <div className="mt-4">
               {reviews.isPending ? (
                 <div className="space-y-2" aria-busy="true">
                   {Array.from({ length: 2 }, (_, i) => (
-                    <div key={i} className="h-20 animate-pulse rounded-xl bg-mystic/10" />
+                    <div
+                      key={i}
+                      className="h-20 animate-pulse rounded-xl bg-mystic/10"
+                    />
                   ))}
                 </div>
               ) : (reviews.data?.content.length ?? 0) === 0 ? (
@@ -207,34 +239,57 @@ function ReaderProfilePage() {
                   Chưa có đánh giá nào. Bạn có thể là người đầu tiên.
                 </p>
               ) : (
-                <ul className="space-y-3">
-                  {reviews.data!.content.map((rv) => (
-                    <li key={rv.id} className="rounded-xl border border-gold/15 p-4">
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="text-sm text-foreground">{rv.authorName}</span>
-                        <span className="flex shrink-0 items-center gap-0.5" aria-label={`${rv.rating} sao`}>
-                          {[1, 2, 3, 4, 5].map((n) => (
-                            <Star
-                              key={n}
-                              aria-hidden="true"
-                              className={`h-3.5 w-3.5 ${
-                                n <= rv.rating ? "fill-gold text-gold" : "text-muted-foreground/30"
-                              }`}
-                            />
-                          ))}
-                        </span>
-                      </div>
-                      {rv.comment && (
-                        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                          {rv.comment}
+                <PagedList>
+                  <ul className="space-y-3">
+                    {reviews.data!.content.map((rv) => (
+                      <li
+                        key={rv.id}
+                        className="rounded-xl border border-gold/15 p-4"
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="text-sm text-foreground">
+                            {rv.authorName}
+                          </span>
+                          <span
+                            className="flex shrink-0 items-center gap-0.5"
+                            aria-label={`${rv.rating} sao`}
+                          >
+                            {[1, 2, 3, 4, 5].map((n) => (
+                              <Star
+                                key={n}
+                                aria-hidden="true"
+                                className={`h-3.5 w-3.5 ${
+                                  n <= rv.rating
+                                    ? "fill-gold text-gold"
+                                    : "text-muted-foreground/30"
+                                }`}
+                              />
+                            ))}
+                          </span>
+                        </div>
+                        {rv.comment && (
+                          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                            {rv.comment}
+                          </p>
+                        )}
+                        <p className="mt-2 text-[11px] text-muted-foreground/70">
+                          {formatDate(rv.createdAt)}
                         </p>
-                      )}
-                      <p className="mt-2 text-[11px] text-muted-foreground/70">
-                        {formatDate(rv.createdAt)}
-                      </p>
-                    </li>
-                  ))}
-                </ul>
+                      </li>
+                    ))}
+                  </ul>
+                </PagedList>
+              )}
+
+              {!reviews.isPending && (
+                <Pagination
+                  page={trangDanhGia}
+                  totalPages={reviews.data?.totalPages ?? 1}
+                  totalElements={reviews.data?.totalElements ?? 0}
+                  onChange={setTrangDanhGia}
+                  busy={reviews.isFetching}
+                  unit="đánh giá"
+                />
               )}
             </div>
           </section>
@@ -258,13 +313,15 @@ function ReaderProfilePage() {
               </p>
             ) : r.isAvailable === false ? (
               <p className="mt-4 text-sm text-muted-foreground">
-                Reader đang tạm ngưng nhận lịch. Bạn có thể quay lại sau hoặc chọn
-                Reader khác.
+                Reader đang tạm ngưng nhận lịch. Bạn có thể quay lại sau hoặc
+                chọn Reader khác.
               </p>
             ) : (
               <>
                 <fieldset className="mt-4">
-                  <legend className="text-xs text-muted-foreground">Thời lượng</legend>
+                  <legend className="text-xs text-muted-foreground">
+                    Thời lượng
+                  </legend>
                   <div className="mt-2 flex gap-2">
                     {DURATIONS.map((d) => {
                       const unavailable = priceFor(r, d) == null;
@@ -278,7 +335,11 @@ function ReaderProfilePage() {
                             setPicked(null);
                           }}
                           aria-pressed={duration === d}
-                          title={unavailable ? "Reader chưa đặt giá cho mốc này" : undefined}
+                          title={
+                            unavailable
+                              ? "Reader chưa đặt giá cho mốc này"
+                              : undefined
+                          }
                           className={
                             duration === d
                               ? "flex-1 rounded-full border border-gold bg-gold/20 py-1.5 text-xs text-gold"
@@ -298,7 +359,9 @@ function ReaderProfilePage() {
                     type="date"
                     value={date}
                     min={toDateInput(new Date())}
-                    max={toDateInput(new Date(Date.now() + DAYS_AHEAD * 86400000))}
+                    max={toDateInput(
+                      new Date(Date.now() + DAYS_AHEAD * 86400000),
+                    )}
                     onChange={(e) => {
                       setDate(e.target.value);
                       setPicked(null);
@@ -307,21 +370,38 @@ function ReaderProfilePage() {
                   />
                 </label>
 
-                <div className="mt-4" aria-live="polite" aria-busy={slots.isFetching}>
-                  <p className="text-xs text-muted-foreground">Khung giờ còn trống</p>
+                <div
+                  className="mt-4"
+                  aria-live="polite"
+                  aria-busy={slots.isFetching}
+                >
+                  <p className="text-xs text-muted-foreground">
+                    Khung giờ còn trống
+                  </p>
                   {slots.isPending ? (
-                    <div className="mt-2 grid grid-cols-3 gap-2" aria-hidden="true">
+                    <div
+                      className="mt-2 grid grid-cols-3 gap-2"
+                      aria-hidden="true"
+                    >
                       {Array.from({ length: 6 }, (_, i) => (
-                        <div key={i} className="h-8 animate-pulse rounded-lg bg-mystic/10" />
+                        <div
+                          key={i}
+                          className="h-8 animate-pulse rounded-lg bg-mystic/10"
+                        />
                       ))}
                     </div>
                   ) : slots.isError ? (
                     <p className="mt-2 text-sm text-destructive">
-                      {slots.error instanceof Error ? slots.error.message : "Không tải được khung giờ"}
+                      {slots.error instanceof Error
+                        ? slots.error.message
+                        : "Không tải được khung giờ"}
                     </p>
                   ) : (slots.data?.length ?? 0) === 0 ? (
                     <div className="mt-2 flex items-start gap-2 text-sm text-muted-foreground">
-                      <Clock aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
+                      <Clock
+                        aria-hidden="true"
+                        className="mt-0.5 h-4 w-4 shrink-0"
+                      />
                       <div>
                         <p>
                           {date === toDateInput(new Date())
@@ -337,7 +417,8 @@ function ReaderProfilePage() {
                             }}
                             className="mt-1 text-gold underline-offset-4 hover:underline"
                           >
-                            Xem ngày trống gần nhất ({formatDayLabel(nextDay.data)})
+                            Xem ngày trống gần nhất (
+                            {formatDayLabel(nextDay.data)})
                           </button>
                         ) : (
                           <p className="mt-1">
@@ -372,7 +453,8 @@ function ReaderProfilePage() {
                 {picked && (
                   <div className="mt-4 rounded-xl border border-gold/30 bg-gold/5 p-3 text-sm">
                     <p>
-                      {formatDayTime(picked.startTime)} – {formatTime(picked.endTime)}
+                      {formatDayTime(picked.startTime)} –{" "}
+                      {formatTime(picked.endTime)}
                     </p>
                     <p className="mt-1 font-display text-xl text-gold">
                       {formatVND(picked.price)}
@@ -394,8 +476,8 @@ function ReaderProfilePage() {
                 </button>
 
                 <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
-                  Đặt xong sẽ ở trạng thái chờ Reader xác nhận. Bạn theo dõi và huỷ
-                  được ở trang{" "}
+                  Đặt xong sẽ ở trạng thái chờ Reader xác nhận. Bạn theo dõi và
+                  huỷ được ở trang{" "}
                   <Link to="/bookings" className="text-gold hover:underline">
                     Lịch hẹn của tôi
                   </Link>
@@ -419,7 +501,8 @@ function Shell({ children }: { children: React.ReactNode }) {
           to="/readers"
           className="inline-flex items-center gap-2 text-sm text-muted-foreground transition hover:text-gold"
         >
-          <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Quay lại danh sách Reader
+          <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Quay lại danh
+          sách Reader
         </Link>
         <div className="mt-6">{children}</div>
       </main>
@@ -427,7 +510,14 @@ function Shell({ children }: { children: React.ReactNode }) {
   );
 }
 
-function priceFor(r: { pricePer15m: number | null; pricePer30m: number | null; pricePer60m: number | null }, d: Duration) {
+function priceFor(
+  r: {
+    pricePer15m: number | null;
+    pricePer30m: number | null;
+    pricePer60m: number | null;
+  },
+  d: Duration,
+) {
   return d === 15 ? r.pricePer15m : d === 30 ? r.pricePer30m : r.pricePer60m;
 }
 
@@ -448,7 +538,10 @@ function toDateInput(d: Date) {
 }
 
 /** Định dạng cố định vi-VN: để mặc định thì máy chủ và trình duyệt ra khác nhau. */
-const TIME_FORMAT = new Intl.DateTimeFormat("vi-VN", { hour: "2-digit", minute: "2-digit" });
+const TIME_FORMAT = new Intl.DateTimeFormat("vi-VN", {
+  hour: "2-digit",
+  minute: "2-digit",
+});
 const DAY_TIME_FORMAT = new Intl.DateTimeFormat("vi-VN", {
   weekday: "short",
   day: "2-digit",

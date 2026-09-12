@@ -26,7 +26,7 @@ import { ROLE_DESCRIPTION, toAppRole, type AccountRole } from "@/lib/roles";
 
 import { ListError, useTaiLau, SlowHint } from "@/components/ListError";
 import { useRowBusy } from "@/lib/row-busy";
-const PAGE_SIZE = 20;
+import { PAGE_SIZE, PagedList, Pagination } from "@/components/Pagination";
 
 const STATUS_CLASS: Record<AccountStatus, string> = {
   PENDING: "text-amber-300",
@@ -293,213 +293,200 @@ export function UserDirectory({
           // Bảng rộng hơn màn hình hẹp: cho nó cuộn ngang trong khung của mình
           // thay vì đẩy cả trang cuộn ngang.
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[760px] border-collapse text-sm">
-              <thead>
-                <tr className="border-b border-gold/15 text-left text-xs uppercase tracking-[0.15em] text-muted-foreground">
-                  <th scope="col" className="w-1 py-2 pr-3">
-                    <input
-                      type="checkbox"
-                      aria-label="Chọn tất cả tài khoản sửa được trên trang này"
-                      checked={allSelected}
-                      disabled={selectableIds.length === 0}
-                      onChange={(e) =>
-                        setSelected((prev) => {
-                          const next = new Set(prev);
-                          for (const id of selectableIds) {
-                            if (e.target.checked) next.add(id);
-                            else next.delete(id);
-                          }
-                          return next;
-                        })
-                      }
-                      className="h-3.5 w-3.5 accent-[var(--gold)]"
-                    />
-                  </th>
-                  <th scope="col" className="py-2 pr-3 font-normal">
-                    Tài khoản
-                  </th>
-                  <th scope="col" className="py-2 pr-3 font-normal">
-                    Vai trò
-                  </th>
-                  <th scope="col" className="py-2 pr-3 font-normal">
-                    Trạng thái
-                  </th>
-                  <th scope="col" className="py-2 pr-3 font-normal">
-                    Tham gia
-                  </th>
-                  <th scope="col" className="py-2 font-normal">
-                    <span className="sr-only">Thao tác</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((u) => (
-                  <tr
-                    key={u.id}
-                    className="border-b border-white/5 align-middle last:border-0"
-                  >
-                    <td className="py-3 pr-3">
+            <PagedList>
+              <table className="w-full min-w-[760px] border-collapse text-sm">
+                <thead>
+                  <tr className="border-b border-gold/15 text-left text-xs uppercase tracking-[0.15em] text-muted-foreground">
+                    <th scope="col" className="w-1 py-2 pr-3">
                       <input
                         type="checkbox"
-                        aria-label={`Chọn `}
-                        checked={selected.has(u.id)}
-                        disabled={!u.editable}
-                        onChange={() => toggle(u.id)}
-                        className="h-3.5 w-3.5 accent-[var(--gold)] disabled:opacity-30"
+                        aria-label="Chọn tất cả tài khoản sửa được trên trang này"
+                        checked={allSelected}
+                        disabled={selectableIds.length === 0}
+                        onChange={(e) =>
+                          setSelected((prev) => {
+                            const next = new Set(prev);
+                            for (const id of selectableIds) {
+                              if (e.target.checked) next.add(id);
+                              else next.delete(id);
+                            }
+                            return next;
+                          })
+                        }
+                        className="h-3.5 w-3.5 accent-[var(--gold)]"
                       />
-                    </td>
+                    </th>
+                    <th scope="col" className="py-2 pr-3 font-normal">
+                      Tài khoản
+                    </th>
+                    <th scope="col" className="py-2 pr-3 font-normal">
+                      Vai trò
+                    </th>
+                    <th scope="col" className="py-2 pr-3 font-normal">
+                      Trạng thái
+                    </th>
+                    <th scope="col" className="py-2 pr-3 font-normal">
+                      Tham gia
+                    </th>
+                    <th scope="col" className="py-2 font-normal">
+                      <span className="sr-only">Thao tác</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.map((u) => (
+                    <tr
+                      key={u.id}
+                      className="border-b border-white/5 align-middle last:border-0"
+                    >
+                      <td className="py-3 pr-3">
+                        <input
+                          type="checkbox"
+                          aria-label={`Chọn `}
+                          checked={selected.has(u.id)}
+                          disabled={!u.editable}
+                          onChange={() => toggle(u.id)}
+                          className="h-3.5 w-3.5 accent-[var(--gold)] disabled:opacity-30"
+                        />
+                      </td>
 
-                    <td className="py-3 pr-3">
-                      <div className="flex items-center gap-3">
-                        {u.avatar ? (
-                          <img
-                            src={u.avatar}
-                            alt=""
-                            className="h-9 w-9 shrink-0 rounded-full object-cover ring-1 ring-gold/30"
-                          />
+                      <td className="py-3 pr-3">
+                        <div className="flex items-center gap-3">
+                          {u.avatar ? (
+                            <img
+                              src={u.avatar}
+                              alt=""
+                              className="h-9 w-9 shrink-0 rounded-full object-cover ring-1 ring-gold/30"
+                            />
+                          ) : (
+                            <span
+                              aria-hidden="true"
+                              className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-mystic/20 text-xs text-gold"
+                            >
+                              {u.fullName.charAt(0).toUpperCase()}
+                            </span>
+                          )}
+                          <div className="min-w-0">
+                            <button
+                              type="button"
+                              onClick={() => setDetailId(u.id)}
+                              className="block max-w-full truncate text-left text-foreground transition hover:text-gold"
+                            >
+                              {u.fullName}
+                            </button>
+                            <p className="truncate text-xs text-muted-foreground">
+                              {u.email ?? `@${u.username}`}
+                              {!u.emailVerified && u.email && (
+                                <span className="ml-2 text-amber-300/80">
+                                  chưa xác minh
+                                </span>
+                              )}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="py-3 pr-3">
+                        {u.editable ? (
+                          <select
+                            aria-label={`Vai trò của ${u.fullName}`}
+                            value={u.role}
+                            disabled={dong.ban(u.id)}
+                            onChange={(e) =>
+                              void handleRole(u, e.target.value as AccountRole)
+                            }
+                            className="rounded-full border border-gold/30 bg-input/70 px-3 py-1 text-xs text-foreground outline-none focus:border-gold disabled:opacity-50"
+                          >
+                            {/* Vai trò hiện tại luôn có mặt, kể cả khi nằm ngoài
+                                phạm vi được gán — nếu không, select sẽ hiện sai
+                                vai trò của người đó. */}
+                            {[
+                              ...new Set<AccountRole>([
+                                u.role,
+                                ...assignableRoles,
+                              ]),
+                            ].map((r) => (
+                              <option
+                                key={r}
+                                value={r}
+                                disabled={!assignableRoles.includes(r)}
+                                title={ROLE_DESCRIPTION[toAppRole(r)]}
+                              >
+                                {ROLE_LABEL_SHORT[r]}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          <RoleBadge role={u.role} />
+                        )}
+                      </td>
+
+                      <td
+                        className={`py-3 pr-3 text-xs ${STATUS_CLASS[u.status]}`}
+                      >
+                        {ACCOUNT_STATUS_LABEL[u.status]}
+                      </td>
+
+                      <td className="py-3 pr-3 text-xs text-muted-foreground">
+                        {formatDate(u.createdAt)}
+                      </td>
+
+                      <td className="py-3 text-right">
+                        {u.editable ? (
+                          u.status === "BANNED" ? (
+                            <button
+                              type="button"
+                              disabled={dong.ban(u.id)}
+                              onClick={() => void handleStatus(u, "ACTIVE")}
+                              className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/40 px-3 py-1 text-xs text-emerald-300 transition hover:bg-emerald-400/10 disabled:opacity-40"
+                            >
+                              <Unlock
+                                aria-hidden="true"
+                                className="h-3.5 w-3.5"
+                              />
+                              Mở khoá
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              disabled={dong.ban(u.id)}
+                              onClick={() => void handleStatus(u, "BANNED")}
+                              className="inline-flex items-center gap-1.5 rounded-full border border-destructive/40 px-3 py-1 text-xs text-destructive transition hover:bg-destructive/10 disabled:opacity-40"
+                            >
+                              <UserX
+                                aria-hidden="true"
+                                className="h-3.5 w-3.5"
+                              />
+                              Khoá
+                            </button>
+                          )
                         ) : (
                           <span
-                            aria-hidden="true"
-                            className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-mystic/20 text-xs text-gold"
+                            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground"
+                            title="Bạn không có quyền sửa tài khoản này, hoặc đây là chính bạn"
                           >
-                            {u.fullName.charAt(0).toUpperCase()}
+                            <Lock aria-hidden="true" className="h-3.5 w-3.5" />
+                            Không sửa được
                           </span>
                         )}
-                        <div className="min-w-0">
-                          <button
-                            type="button"
-                            onClick={() => setDetailId(u.id)}
-                            className="block max-w-full truncate text-left text-foreground transition hover:text-gold"
-                          >
-                            {u.fullName}
-                          </button>
-                          <p className="truncate text-xs text-muted-foreground">
-                            {u.email ?? `@${u.username}`}
-                            {!u.emailVerified && u.email && (
-                              <span className="ml-2 text-amber-300/80">
-                                chưa xác minh
-                              </span>
-                            )}
-                          </p>
-                        </div>
-                      </div>
-                    </td>
-
-                    <td className="py-3 pr-3">
-                      {u.editable ? (
-                        <select
-                          aria-label={`Vai trò của ${u.fullName}`}
-                          value={u.role}
-                          disabled={dong.ban(u.id)}
-                          onChange={(e) =>
-                            void handleRole(u, e.target.value as AccountRole)
-                          }
-                          className="rounded-full border border-gold/30 bg-input/70 px-3 py-1 text-xs text-foreground outline-none focus:border-gold disabled:opacity-50"
-                        >
-                          {/* Vai trò hiện tại luôn có mặt, kể cả khi nằm ngoài
-                              phạm vi được gán — nếu không, select sẽ hiện sai
-                              vai trò của người đó. */}
-                          {[
-                            ...new Set<AccountRole>([
-                              u.role,
-                              ...assignableRoles,
-                            ]),
-                          ].map((r) => (
-                            <option
-                              key={r}
-                              value={r}
-                              disabled={!assignableRoles.includes(r)}
-                              title={ROLE_DESCRIPTION[toAppRole(r)]}
-                            >
-                              {ROLE_LABEL_SHORT[r]}
-                            </option>
-                          ))}
-                        </select>
-                      ) : (
-                        <RoleBadge role={u.role} />
-                      )}
-                    </td>
-
-                    <td
-                      className={`py-3 pr-3 text-xs ${STATUS_CLASS[u.status]}`}
-                    >
-                      {ACCOUNT_STATUS_LABEL[u.status]}
-                    </td>
-
-                    <td className="py-3 pr-3 text-xs text-muted-foreground">
-                      {formatDate(u.createdAt)}
-                    </td>
-
-                    <td className="py-3 text-right">
-                      {u.editable ? (
-                        u.status === "BANNED" ? (
-                          <button
-                            type="button"
-                            disabled={dong.ban(u.id)}
-                            onClick={() => void handleStatus(u, "ACTIVE")}
-                            className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/40 px-3 py-1 text-xs text-emerald-300 transition hover:bg-emerald-400/10 disabled:opacity-40"
-                          >
-                            <Unlock
-                              aria-hidden="true"
-                              className="h-3.5 w-3.5"
-                            />
-                            Mở khoá
-                          </button>
-                        ) : (
-                          <button
-                            type="button"
-                            disabled={dong.ban(u.id)}
-                            onClick={() => void handleStatus(u, "BANNED")}
-                            className="inline-flex items-center gap-1.5 rounded-full border border-destructive/40 px-3 py-1 text-xs text-destructive transition hover:bg-destructive/10 disabled:opacity-40"
-                          >
-                            <UserX aria-hidden="true" className="h-3.5 w-3.5" />
-                            Khoá
-                          </button>
-                        )
-                      ) : (
-                        <span
-                          className="inline-flex items-center gap-1.5 text-xs text-muted-foreground"
-                          title="Bạn không có quyền sửa tài khoản này, hoặc đây là chính bạn"
-                        >
-                          <Lock aria-hidden="true" className="h-3.5 w-3.5" />
-                          Không sửa được
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </PagedList>
           </div>
         )}
       </div>
 
-      {totalPages > 1 && (
-        <nav
-          className="mt-6 flex items-center justify-center gap-3"
-          aria-label="Phân trang tài khoản"
-        >
-          <button
-            type="button"
-            disabled={page === 0}
-            onClick={() => setPage((p) => Math.max(0, p - 1))}
-            className="rounded-full border border-gold/40 px-4 py-1.5 text-sm text-gold transition hover:bg-gold/10 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            Trước
-          </button>
-          <span className="text-sm text-muted-foreground">
-            Trang {page + 1} / {totalPages}
-          </span>
-          <button
-            type="button"
-            disabled={page >= totalPages - 1}
-            onClick={() => setPage((p) => p + 1)}
-            className="rounded-full border border-gold/40 px-4 py-1.5 text-sm text-gold transition hover:bg-gold/10 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            Sau
-          </button>
-        </nav>
-      )}
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        totalElements={query.data?.totalElements ?? 0}
+        onChange={setPage}
+        busy={query.isFetching}
+        unit="tài khoản"
+      />
 
       <p className="mt-5 flex items-start gap-2 text-xs text-muted-foreground">
         <ShieldCheck

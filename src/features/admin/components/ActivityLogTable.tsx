@@ -4,8 +4,7 @@ import { RoleBadge } from "@/components/RoleBadge";
 import { ACTION_LABEL, type ActivityLog } from "@/api/admin";
 import { useActivityLogs } from "@/features/admin/queries";
 
-const PAGE_SIZE = 30;
-
+import { PAGE_SIZE } from "@/components/Pagination";
 /**
  * Nhật ký thao tác quản trị.
  *

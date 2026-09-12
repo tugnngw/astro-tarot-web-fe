@@ -189,3 +189,19 @@ export function useMarkAllNotificationsRead() {
       queryClient.invalidateQueries({ queryKey: notificationKeys.all }),
   });
 }
+
+/**
+ * Xoá hẳn các thông báo đã đọc.
+ *
+ * Khác "đánh dấu tất cả đã đọc": cái kia chỉ tắt chấm tròn, danh sách vẫn dài
+ * ra mãi. Tin CHƯA đọc không bị đụng tới, nên bấm nhầm cũng không mất thứ
+ * người dùng chưa kịp xem.
+ */
+export function useDeleteReadNotifications() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: notificationApi.deleteReadNotifications,
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: notificationKeys.all }),
+  });
+}

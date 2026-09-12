@@ -62,7 +62,10 @@ export function RoleGuard({ require: required, children, redirectTo }: Props) {
     return (
       <div className="grid min-h-[60vh] place-items-center px-4 text-center">
         <div>
-          <ShieldAlert aria-hidden="true" className="mx-auto h-10 w-10 text-gold/60" />
+          <ShieldAlert
+            aria-hidden="true"
+            className="mx-auto h-10 w-10 text-gold/60"
+          />
           <h1 className="mt-4 font-display text-xl">Khu vực hạn chế</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             {user

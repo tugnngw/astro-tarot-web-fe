@@ -16,7 +16,12 @@ import {
   PayoutQueue,
   ReportQueue,
 } from "@/features/money/components/AdminMoneyTables";
-import { ROLE_DESCRIPTION, APP_ROLES, ROLE_PERMISSIONS, ROLE_LABEL } from "@/lib/roles";
+import {
+  ROLE_DESCRIPTION,
+  APP_ROLES,
+  ROLE_PERMISSIONS,
+  ROLE_LABEL,
+} from "@/lib/roles";
 import { RoleBadge } from "@/components/RoleBadge";
 
 export const Route = createFileRoute("/admin")({
@@ -107,8 +112,9 @@ function PermissionMatrix() {
       <section className="glass rounded-2xl p-5">
         <h2 className="font-display text-xl">Vai trò làm được gì</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Bảng này khớp với ánh xạ ở backend (CustomUserDetails). Sửa một bên thì
-          phải sửa bên kia, nếu không giao diện sẽ hứa những thứ API từ chối.
+          Bảng này khớp với ánh xạ ở backend (CustomUserDetails). Sửa một bên
+          thì phải sửa bên kia, nếu không giao diện sẽ hứa những thứ API từ
+          chối.
         </p>
 
         <div className="mt-5 overflow-x-auto">
@@ -142,7 +148,11 @@ function PermissionMatrix() {
                     return (
                       <td key={r} className="px-2 py-2 text-center">
                         <span
-                          className={has ? "text-emerald-300" : "text-muted-foreground/30"}
+                          className={
+                            has
+                              ? "text-emerald-300"
+                              : "text-muted-foreground/30"
+                          }
                         >
                           {has ? "✓" : "—"}
                         </span>

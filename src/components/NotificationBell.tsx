@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Bell, CheckCheck } from "lucide-react";
+import { Bell, CheckCheck, Trash2 } from "lucide-react";
 import { notificationLink, type Notification } from "@/api/notifications";
 import {
+  useDeleteReadNotifications,
   useMarkAllNotificationsRead,
   useMarkNotificationRead,
   useNotifications,
@@ -26,9 +27,11 @@ export function NotificationBell() {
   const list = useNotifications(0, Boolean(user) && open);
   const markRead = useMarkNotificationRead();
   const markAll = useMarkAllNotificationsRead();
+  const xoaDaDoc = useDeleteReadNotifications();
 
   const count = unread.data?.count ?? 0;
   const items = list.data?.content ?? [];
+  const soTinDaDoc = items.filter((n) => n.read).length;
 
   useEffect(() => {
     if (!open) return;
@@ -36,7 +39,8 @@ export function NotificationBell() {
       if (e.key === "Escape") setOpen(false);
     };
     const onClick = (e: MouseEvent) => {
-      if (boxRef.current && !boxRef.current.contains(e.target as Node)) setOpen(false);
+      if (boxRef.current && !boxRef.current.contains(e.target as Node))
+        setOpen(false);
     };
     window.addEventListener("keydown", onKey);
     // mousedown chứ không click: click nổ sau khi React đã render lại, và lúc
@@ -76,26 +80,46 @@ export function NotificationBell() {
 
       {open && (
         <div className="panel-black absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-xl border border-gold/30 shadow-2xl">
-          <div className="flex items-center justify-between border-b border-gold/20 px-4 py-2.5">
+          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b border-gold/20 px-4 py-2.5">
             <span className="text-sm font-medium">Thông báo</span>
-            {count > 0 && (
-              <button
-                type="button"
-                onClick={() => markAll.mutate()}
-                disabled={markAll.isPending}
-                className="inline-flex items-center gap-1.5 text-xs text-gold hover:underline disabled:opacity-50"
-              >
-                <CheckCheck aria-hidden="true" className="h-3.5 w-3.5" />
-                Đánh dấu tất cả đã đọc
-              </button>
-            )}
+            <span className="flex items-center gap-3">
+              {count > 0 && (
+                <button
+                  type="button"
+                  onClick={() => markAll.mutate()}
+                  disabled={markAll.isPending}
+                  className="inline-flex items-center gap-1.5 text-xs text-gold hover:underline disabled:opacity-50"
+                >
+                  <CheckCheck aria-hidden="true" className="h-3.5 w-3.5" />
+                  Đánh dấu đã đọc
+                </button>
+              )}
+
+              {/* Chỉ hiện khi thật sự có tin đã đọc để xoá. Một nút luôn hiện
+                  mà bấm vào không làm gì là một nút nói dối. */}
+              {soTinDaDoc > 0 && (
+                <button
+                  type="button"
+                  onClick={() => xoaDaDoc.mutate()}
+                  disabled={xoaDaDoc.isPending}
+                  title="Xoá hẳn các thông báo đã đọc. Tin chưa đọc giữ nguyên."
+                  className="inline-flex items-center gap-1.5 text-xs text-muted-foreground transition hover:text-destructive disabled:opacity-50"
+                >
+                  <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
+                  Xoá đã đọc
+                </button>
+              )}
+            </span>
           </div>
 
           <div className="max-h-96 overflow-y-auto">
             {list.isPending ? (
               <div className="space-y-2 p-3" aria-busy="true">
                 {Array.from({ length: 3 }, (_, i) => (
-                  <div key={i} className="h-14 animate-pulse rounded-lg bg-mystic/10" />
+                  <div
+                    key={i}
+                    className="h-14 animate-pulse rounded-lg bg-mystic/10"
+                  />
                 ))}
               </div>
             ) : items.length === 0 ? (
@@ -121,7 +145,9 @@ export function NotificationBell() {
                           />
                         )}
                         <span className={n.read ? "pl-3.5" : ""}>
-                          <span className="block text-sm text-foreground">{n.title}</span>
+                          <span className="block text-sm text-foreground">
+                            {n.title}
+                          </span>
                           {n.message && (
                             <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground">
                               {n.message}

@@ -42,7 +42,10 @@ function ProfilePage() {
     return (
       <Shell>
         <Panel>
-          <UserCircle2 aria-hidden="true" className="mx-auto h-12 w-12 text-gold/60" />
+          <UserCircle2
+            aria-hidden="true"
+            className="mx-auto h-12 w-12 text-gold/60"
+          />
           <h1 className="mt-4 font-display text-2xl">Đăng nhập để xem hồ sơ</h1>
           <button
             type="button"
@@ -115,7 +118,9 @@ function Shell({ children }: { children: React.ReactNode }) {
 
 function Panel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="glass mt-8 rounded-2xl px-6 py-16 text-center">{children}</div>
+    <div className="glass mt-8 rounded-2xl px-6 py-16 text-center">
+      {children}
+    </div>
   );
 }
 
@@ -184,7 +189,10 @@ function AvatarCard({
             />
           ) : (
             <div className="grid h-28 w-28 place-items-center rounded-full border border-gold/40 bg-gold/10">
-              <UserCircle2 aria-hidden="true" className="h-14 w-14 text-gold/70" />
+              <UserCircle2
+                aria-hidden="true"
+                className="h-14 w-14 text-gold/70"
+              />
             </div>
           )}
           <button
@@ -217,11 +225,13 @@ function AvatarCard({
             </span>
             {profile.emailVerified ? (
               <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/50 px-3 py-1 text-[10px] text-emerald-400">
-                <ShieldCheck aria-hidden="true" className="h-3 w-3" /> Đã xác minh
+                <ShieldCheck aria-hidden="true" className="h-3 w-3" /> Đã xác
+                minh
               </span>
             ) : (
               <span className="inline-flex items-center gap-1 rounded-full border border-destructive/50 px-3 py-1 text-[10px] text-destructive">
-                <ShieldAlert aria-hidden="true" className="h-3 w-3" /> Chưa xác minh
+                <ShieldAlert aria-hidden="true" className="h-3 w-3" /> Chưa xác
+                minh
               </span>
             )}
           </div>
@@ -298,7 +308,10 @@ function InfoForm({
     if (!form.fullName.trim()) next.fullName = "Vui lòng nhập họ tên";
     if (form.phone && !/^0[0-9]{9}$/.test(form.phone.trim()))
       next.phone = "Số điện thoại gồm 10 chữ số và bắt đầu bằng 0";
-    if (form.dateOfBirth && form.dateOfBirth >= new Date().toISOString().slice(0, 10))
+    if (
+      form.dateOfBirth &&
+      form.dateOfBirth >= new Date().toISOString().slice(0, 10)
+    )
       next.dateOfBirth = "Ngày sinh phải ở quá khứ";
     setErrors(next);
     if (Object.keys(next).length) return;
@@ -591,7 +604,9 @@ function TextAreaField({
         <label htmlFor={id} className="text-xs text-muted-foreground">
           {label}
         </label>
-        {hint && <span className="text-[11px] text-muted-foreground">{hint}</span>}
+        {hint && (
+          <span className="text-[11px] text-muted-foreground">{hint}</span>
+        )}
       </div>
       <textarea
         id={id}

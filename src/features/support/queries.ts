@@ -1,9 +1,15 @@
 // React Query hooks cho hỗ trợ khách — dùng chung cho trang khách (/support)
 // và tab "Hỗ trợ khách" của nhân viên.
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import * as supportApi from "@/api/support";
 import type { TicketStatus } from "@/api/support";
 
+import { PAGE_SIZE } from "@/components/Pagination";
 export const supportKeys = {
   all: ["support"] as const,
   mine: (page: number) => [...supportKeys.all, "mine", page] as const,
@@ -15,7 +21,7 @@ export const supportKeys = {
 export function useMyTickets(page = 0) {
   return useQuery({
     queryKey: supportKeys.mine(page),
-    queryFn: () => supportApi.getMyTickets({ page, size: 20 }),
+    queryFn: () => supportApi.getMyTickets({ page, size: PAGE_SIZE }),
     placeholderData: keepPreviousData,
   });
 }
@@ -23,7 +29,12 @@ export function useMyTickets(page = 0) {
 export function useSupportQueue(status: TicketStatus | "", page = 0) {
   return useQuery({
     queryKey: supportKeys.queue(status, page),
-    queryFn: () => supportApi.getSupportQueue({ status: status || undefined, page, size: 20 }),
+    queryFn: () =>
+      supportApi.getSupportQueue({
+        status: status || undefined,
+        page,
+        size: 20,
+      }),
     placeholderData: keepPreviousData,
   });
 }
@@ -39,7 +50,8 @@ export function useTicket(ticketId: string | null) {
 export function useCreateTicket() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (payload: { subject: string; body: string }) => supportApi.createTicket(payload),
+    mutationFn: (payload: { subject: string; body: string }) =>
+      supportApi.createTicket(payload),
     onSuccess: () => qc.invalidateQueries({ queryKey: supportKeys.all }),
   });
 }
@@ -56,8 +68,13 @@ export function useReplyTicket() {
 export function useUpdateTicketStatus() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ ticketId, status }: { ticketId: string; status: TicketStatus }) =>
-      supportApi.updateTicketStatus(ticketId, status),
+    mutationFn: ({
+      ticketId,
+      status,
+    }: {
+      ticketId: string;
+      status: TicketStatus;
+    }) => supportApi.updateTicketStatus(ticketId, status),
     onSuccess: () => qc.invalidateQueries({ queryKey: supportKeys.all }),
   });
 }

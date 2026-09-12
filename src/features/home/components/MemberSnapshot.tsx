@@ -27,7 +27,11 @@ import { formatVND } from "@/lib/mock-data";
 function fmtWhen(iso: string) {
   const d = new Date(iso);
   return (
-    d.toLocaleDateString("vi-VN", { weekday: "short", day: "2-digit", month: "2-digit" }) +
+    d.toLocaleDateString("vi-VN", {
+      weekday: "short",
+      day: "2-digit",
+      month: "2-digit",
+    }) +
     " · " +
     d.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })
   );
@@ -37,7 +41,11 @@ function fmtDate(iso: string) {
   const d = new Date(iso);
   return Number.isNaN(d.getTime())
     ? iso
-    : d.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
+    : d.toLocaleDateString("vi-VN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
 }
 
 export function MemberSnapshot() {
@@ -67,12 +75,16 @@ function ReaderApplicationStrip() {
   return (
     <article
       className={`rounded-2xl border p-5 md:col-span-2 xl:col-span-3 ${
-        pending ? "border-gold/30 bg-gold/5" : "border-destructive/40 bg-destructive/5"
+        pending
+          ? "border-gold/30 bg-gold/5"
+          : "border-destructive/40 bg-destructive/5"
       }`}
     >
       <h3 className="flex items-center gap-2 text-sm font-medium text-foreground">
         <Star className="h-4 w-4 text-gold" />
-        {pending ? "Đơn làm Reader đang chờ duyệt" : "Đơn làm Reader chưa được duyệt"}
+        {pending
+          ? "Đơn làm Reader đang chờ duyệt"
+          : "Đơn làm Reader chưa được duyệt"}
       </h3>
       <p className="mt-1.5 text-xs text-muted-foreground">
         {pending
@@ -98,7 +110,10 @@ function UpcomingBooking() {
         b.status !== "CANCELLED" &&
         b.status !== "COMPLETED",
     )
-    .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+    .sort(
+      (a, b) =>
+        new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
+    )
     .slice(0, 2);
 
   return (
@@ -110,14 +125,23 @@ function UpcomingBooking() {
       loading={q.isPending}
     >
       {upcoming.length === 0 ? (
-        <Empty text="Bạn chưa có buổi xem nào sắp tới." to="/readers" cta="Tìm Reader" />
+        <Empty
+          text="Bạn chưa có buổi xem nào sắp tới."
+          to="/readers"
+          cta="Tìm Reader"
+        />
       ) : (
         <ul className="space-y-2.5">
           {upcoming.map((b) => (
-            <li key={b.id} className="rounded-xl border border-white/5 px-3 py-2.5">
+            <li
+              key={b.id}
+              className="rounded-xl border border-white/5 px-3 py-2.5"
+            >
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <p className="truncate text-sm text-foreground">{b.readerName}</p>
+                  <p className="truncate text-sm text-foreground">
+                    {b.readerName}
+                  </p>
                   <p className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
                     <Clock className="h-3 w-3" />
                     {fmtWhen(b.startTime)} · {b.durationMinutes} phút
@@ -128,7 +152,8 @@ function UpcomingBooking() {
                     {b.totalAmount != null ? formatVND(b.totalAmount) : ""}
                   </span>
                   <span className="mt-0.5 block text-[11px] text-muted-foreground">
-                    {BOOKING_STATUS_LABEL[b.status as BookingStatus] ?? b.status}
+                    {BOOKING_STATUS_LABEL[b.status as BookingStatus] ??
+                      b.status}
                   </span>
                 </span>
               </div>
@@ -157,15 +182,24 @@ function RecentReadings() {
       loading={q.isPending}
     >
       {rows.length === 0 ? (
-        <Empty text="Bạn chưa hỏi bài lần nào." to="/tarot" cta="Trải bài đầu tiên" />
+        <Empty
+          text="Bạn chưa hỏi bài lần nào."
+          to="/tarot"
+          cta="Trải bài đầu tiên"
+        />
       ) : (
         <ul className="space-y-2.5">
           {rows.map((r) => (
-            <li key={r.id} className="rounded-xl border border-white/5 px-3 py-2.5">
+            <li
+              key={r.id}
+              className="rounded-xl border border-white/5 px-3 py-2.5"
+            >
               <p className="truncate text-sm text-foreground">
                 {r.mainQuestion || "(không có câu hỏi)"}
               </p>
-              <p className="mt-0.5 text-xs text-muted-foreground">{fmtDate(r.createdAt)}</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                {fmtDate(r.createdAt)}
+              </p>
             </li>
           ))}
         </ul>

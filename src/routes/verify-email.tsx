@@ -81,9 +81,8 @@ function VerifyEmailPage() {
                 Xác minh thành công
               </h1>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                Tài khoản{" "}
-                <span className="text-foreground">{email}</span> đã được kích
-                hoạt. Bạn có thể đăng nhập ngay.
+                Tài khoản <span className="text-foreground">{email}</span> đã
+                được kích hoạt. Bạn có thể đăng nhập ngay.
               </p>
               <button
                 type="button"
@@ -101,7 +100,9 @@ function VerifyEmailPage() {
                 aria-hidden="true"
                 className="mx-auto h-12 w-12 text-destructive"
               />
-              <h1 className="mt-5 font-display text-2xl">Không xác minh được</h1>
+              <h1 className="mt-5 font-display text-2xl">
+                Không xác minh được
+              </h1>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                 {message}
               </p>

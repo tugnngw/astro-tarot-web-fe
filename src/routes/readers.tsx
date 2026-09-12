@@ -12,7 +12,7 @@ import { formatVND } from "@/lib/mock-data";
 import type { ReaderProfile } from "@/api/reader";
 
 import { ListError, useTaiLau, SlowHint } from "@/components/ListError";
-import { Pagination, PagedList } from "@/components/Pagination";
+import { PAGE_SIZE, Pagination, PagedList } from "@/components/Pagination";
 export const Route = createFileRoute("/readers")({
   head: () => ({
     meta: [
@@ -25,9 +25,6 @@ export const Route = createFileRoute("/readers")({
   }),
   component: ReadersPage,
 });
-
-/** Số Reader mỗi trang. Lưới hai cột nên lấy số chẵn. */
-const READERS_PER_PAGE = 8;
 
 function ReadersPage() {
   const query = useReaders();
@@ -52,11 +49,11 @@ function ReadersPage() {
     setPage(0);
   }, [keyword]);
 
-  const totalPages = Math.max(1, Math.ceil(readers.length / READERS_PER_PAGE));
+  const totalPages = Math.max(1, Math.ceil(readers.length / PAGE_SIZE));
   const trangHienTai = Math.min(page, totalPages - 1);
   const readersTrangNay = readers.slice(
-    trangHienTai * READERS_PER_PAGE,
-    (trangHienTai + 1) * READERS_PER_PAGE,
+    trangHienTai * PAGE_SIZE,
+    (trangHienTai + 1) * PAGE_SIZE,
   );
 
   return (
@@ -127,7 +124,7 @@ function ReadersPage() {
             <>
               {/* PagedList giữ chiều cao: trang cuối ít thẻ hơn thì cả khối
                   không tụt lên, nút "Trang sau" đứng yên dưới ngón tay. */}
-              <PagedList resetKey={keyword}>
+              <PagedList>
                 <div className="grid gap-5 md:grid-cols-2">
                   {readersTrangNay.map((r) => (
                     <ReaderCard key={r.id} reader={r} />
@@ -138,7 +135,7 @@ function ReadersPage() {
                 page={trangHienTai}
                 totalPages={totalPages}
                 totalElements={readers.length}
-                pageSize={READERS_PER_PAGE}
+                pageSize={PAGE_SIZE}
                 onChange={setPage}
                 unit="Reader"
               />
