@@ -3,74 +3,98 @@ import { Loader2 } from "lucide-react";
 import { API_BASE } from "@/api/client";
 
 /**
- * Banner khi Render (free) đang wake — tránh demo OC1 trông như “sập”.
- * Chỉ hiện khi /ping chậm hơn ~2.5s hoặc lỗi mạng tạm thời.
+ * Banner khi backend trên gói free của Render đang khởi động dậy.
+ *
+ * <p>Mục đích: lần gọi đầu sau khi dịch vụ ngủ mất 30–60 giây, và một trang
+ * đứng im ngần ấy lâu trông như đã sập. Nói ra thì người xem chịu chờ.
+ *
+ * <h3>Bản trước treo vĩnh viễn — hai lỗi chồng nhau</h3>
+ *
+ * <p><b>Một:</b> nó gọi `/ping`, mà endpoint đó chưa từng tồn tại ở backend —
+ * đường dẫn có trong danh sách công khai của SecurityConfig nhưng không
+ * controller nào phục vụ. Mọi lần dò đều nhận 404.
+ *
+ * <p><b>Hai:</b> nhánh `!res.ok` bật banner rồi dừng hẳn — `pingAgain()` chỉ
+ * được gọi trong khối `catch`. Nên một phản hồi "có trả lời nhưng không phải
+ * 2xx" khoá banner lại mãi mãi. Đúng thứ đã xảy ra: banner chạy số giây tăng
+ * dần trong khi máy chủ vẫn khoẻ.
+ *
+ * <p>Nguyên tắc rút ra và áp dụng ở đây: <b>không có nhánh nào được phép kết
+ * thúc ở trạng thái "đang chờ" mà không hẹn một lần thử lại.</b>
  */
 export function BackendWarmBanner() {
-  const [warming, setWarming] = useState(false);
-  const [seconds, setSeconds] = useState(0);
+  const [dangDay, setDangDay] = useState(false);
+  const [giay, setGiay] = useState(0);
 
   useEffect(() => {
     if (!API_BASE) return;
-    let cancelled = false;
-    let timer: ReturnType<typeof setInterval> | undefined;
-    const started = Date.now();
 
-    async function ping() {
-      const ctrl = new AbortController();
-      const kill = setTimeout(() => ctrl.abort(), 70_000);
+    let huy = false;
+    const batDau = Date.now();
+    let demGio: ReturnType<typeof setInterval> | undefined;
+    let henThuLai: ReturnType<typeof setTimeout> | undefined;
+
+    /** Chỉ hiện banner khi đã chờ đủ lâu để người dùng kịp thấy trang đứng im. */
+    const NGUONG_MS = 2500;
+
+    function batDauDem() {
+      if (demGio) return;
+      demGio = setInterval(() => {
+        setGiay(Math.round((Date.now() - batDau) / 1000));
+      }, 1000);
+    }
+
+    function xong() {
+      setDangDay(false);
+      if (demGio) clearInterval(demGio);
+      demGio = undefined;
+    }
+
+    async function do_() {
+      if (huy) return;
+
       try {
+        // Hạn giờ 70 giây: dài hơn cả một lần Render khởi động lại, nên hết
+        // hạn nghĩa là có chuyện khác chứ không phải đang dậy.
         const res = await fetch(`${API_BASE}/ping`, {
-          signal: ctrl.signal,
           cache: "no-store",
+          signal: AbortSignal.timeout(70_000),
         });
-        clearTimeout(kill);
-        if (cancelled) return;
-        const elapsed = Date.now() - started;
-        if (!res.ok || elapsed > 2500) {
-          setWarming(true);
-          timer = setInterval(() => {
-            setSeconds(Math.round((Date.now() - started) / 1000));
-          }, 1000);
-        }
+        if (huy) return;
+
         if (res.ok) {
-          setWarming(false);
-          if (timer) clearInterval(timer);
+          xong();
+          return;
         }
+
+        // Có trả lời nhưng không phải 2xx. KHÔNG dừng ở đây — chính chỗ này là
+        // nơi bản trước treo lại.
+        thuLai();
       } catch {
-        clearTimeout(kill);
-        if (cancelled) return;
-        setWarming(true);
-        timer = setInterval(() => {
-          setSeconds(Math.round((Date.now() - started) / 1000));
-        }, 1000);
-        // Thử lại sau khi wake
-        setTimeout(() => {
-          if (!cancelled) void pingAgain();
-        }, 3000);
+        if (huy) return;
+        thuLai();
       }
     }
 
-    async function pingAgain() {
-      try {
-        const res = await fetch(`${API_BASE}/ping`, { cache: "no-store" });
-        if (res.ok && !cancelled) {
-          setWarming(false);
-          if (timer) clearInterval(timer);
-        }
-      } catch {
-        if (!cancelled) setTimeout(() => void pingAgain(), 4000);
+    function thuLai() {
+      if (huy) return;
+      if (Date.now() - batDau > NGUONG_MS) {
+        setDangDay(true);
+        batDauDem();
       }
+      henThuLai = setTimeout(() => void do_(), 3000);
     }
 
-    void ping();
+    void do_();
+
     return () => {
-      cancelled = true;
-      if (timer) clearInterval(timer);
+      huy = true;
+      if (demGio) clearInterval(demGio);
+      if (henThuLai) clearTimeout(henThuLai);
     };
   }, []);
 
-  if (!warming) return null;
+  if (!dangDay) return null;
 
   return (
     <div
@@ -80,8 +104,8 @@ export function BackendWarmBanner() {
       <span className="inline-flex items-center justify-center gap-2">
         <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
         Máy chủ đang khởi động (gói free, ~30–60 giây)
-        {seconds > 0 ? ` · ${seconds}s` : ""}. Đừng đóng tab — demo sẽ chạy
-        tiếp khi sẵn sàng.
+        {giay > 0 ? ` · ${giay}s` : ""}. Đừng đóng tab — trang sẽ chạy tiếp khi
+        sẵn sàng.
       </span>
     </div>
   );
