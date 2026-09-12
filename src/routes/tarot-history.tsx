@@ -5,7 +5,7 @@
 // trước); trang này liệt kê, và mở một lượt ra thì tải lại lời giải AI đã lưu.
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { History, Sparkles, ChevronDown, ChevronUp, Plus } from "lucide-react";
 import { Header } from "@/components/Header";
@@ -16,6 +16,7 @@ import {
   type ReadingMessage,
 } from "@/api/tarot";
 
+import { PAGE_SIZE, PagedList, Pagination } from "@/components/Pagination";
 export const Route = createFileRoute("/tarot-history")({
   head: () => ({ meta: [{ title: "Lịch sử trải bài — ASTROTAROT" }] }),
   component: () => (
@@ -39,11 +40,13 @@ function TarotHistoryPage() {
   const [page, setPage] = useState(0);
   const query = useQuery({
     queryKey: ["tarot", "history", page],
-    queryFn: () => getReadingHistory(page, 20),
+    queryFn: () => getReadingHistory(page, PAGE_SIZE),
+    placeholderData: keepPreviousData,
   });
 
   const rows = query.data?.content ?? [];
   const totalPages = query.data?.totalPages ?? 0;
+  const totalElements = query.data?.totalElements ?? 0;
 
   return (
     <div className="relative min-h-screen">
@@ -53,7 +56,9 @@ function TarotHistoryPage() {
           <div>
             <div className="flex items-center gap-2">
               <History className="h-6 w-6 text-gold" />
-              <h1 className="font-display text-3xl sm:text-4xl">Lịch sử trải bài</h1>
+              <h1 className="font-display text-3xl sm:text-4xl">
+                Lịch sử trải bài
+              </h1>
             </div>
             <p className="mt-2 max-w-xl text-sm text-muted-foreground">
               Những lần bạn hỏi bài trước đây. Mở một lượt để xem lại lời giải.
@@ -83,40 +88,38 @@ function TarotHistoryPage() {
             <div className="glass flex flex-col items-center gap-2 rounded-2xl py-12 text-center text-muted-foreground">
               <Sparkles className="h-8 w-8 text-gold/70" />
               <p className="text-sm">Bạn chưa có lượt trải bài nào.</p>
-              <Link to="/tarot" className="mt-1 text-sm text-gold underline-offset-4 hover:underline">
+              <Link
+                to="/tarot"
+                className="mt-1 text-sm text-gold underline-offset-4 hover:underline"
+              >
                 Trải bài đầu tiên
               </Link>
             </div>
           ) : (
-            <ul className="space-y-3">
-              {rows.map((r) => (
-                <HistoryItem key={r.id} id={r.id} question={r.mainQuestion} at={r.createdAt} model={r.aiModelUsed} />
-              ))}
-            </ul>
+            <PagedList>
+              <ul className="space-y-3">
+                {rows.map((r) => (
+                  <HistoryItem
+                    key={r.id}
+                    id={r.id}
+                    question={r.mainQuestion}
+                    at={r.createdAt}
+                    model={r.aiModelUsed}
+                  />
+                ))}
+              </ul>
+            </PagedList>
           )}
         </div>
 
-        {totalPages > 1 && (
-          <div className="mt-6 flex items-center justify-center gap-3 text-sm">
-            <button
-              type="button"
-              disabled={page === 0}
-              onClick={() => setPage((p) => p - 1)}
-              className="rounded-lg px-3 py-1 text-muted-foreground hover:text-foreground disabled:opacity-40"
-            >
-              Trước
-            </button>
-            <span className="text-muted-foreground">{page + 1}/{totalPages}</span>
-            <button
-              type="button"
-              disabled={page >= totalPages - 1}
-              onClick={() => setPage((p) => p + 1)}
-              className="rounded-lg px-3 py-1 text-muted-foreground hover:text-foreground disabled:opacity-40"
-            >
-              Sau
-            </button>
-          </div>
-        )}
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          totalElements={totalElements}
+          onChange={setPage}
+          busy={query.isFetching}
+          unit="lần trải bài"
+        />
       </main>
     </div>
   );
@@ -158,7 +161,9 @@ function HistoryItem({
           🔮
         </span>
         <div className="min-w-0 flex-1">
-          <div className="truncate font-medium">{question || "(không có câu hỏi)"}</div>
+          <div className="truncate font-medium">
+            {question || "(không có câu hỏi)"}
+          </div>
           <div className="mt-0.5 text-xs text-muted-foreground">
             {fmt(at)}
             {model ? ` · ${model}` : ""}
@@ -176,11 +181,16 @@ function HistoryItem({
           {detail.isLoading ? (
             <div className="h-20 animate-pulse rounded-lg bg-mystic/10" />
           ) : aiMessages.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Không có lời giải lưu lại cho lượt này.</p>
+            <p className="text-sm text-muted-foreground">
+              Không có lời giải lưu lại cho lượt này.
+            </p>
           ) : (
             <div className="space-y-3">
               {aiMessages.map((m) => (
-                <p key={m.id} className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">
+                <p
+                  key={m.id}
+                  className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/90"
+                >
                   {m.content}
                 </p>
               ))}

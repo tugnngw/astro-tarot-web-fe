@@ -47,7 +47,13 @@ export function TopReaders({ vertical = false }: { vertical?: boolean }) {
 
   if (query.isPending) {
     return (
-      <div className={vertical ? "flex flex-col gap-3" : "grid gap-5 sm:grid-cols-2 xl:grid-cols-4"}>
+      <div
+        className={
+          vertical
+            ? "flex flex-col gap-3"
+            : "grid gap-5 sm:grid-cols-2 xl:grid-cols-4"
+        }
+      >
         {Array.from({ length: vertical ? 3 : MAX_SHOWN }, (_, i) => (
           <div
             key={i}
@@ -84,7 +90,11 @@ export function TopReaders({ vertical = false }: { vertical?: boolean }) {
     return (
       <div className="flex flex-col gap-3">
         {readers.map((r, i) => (
-          <ReaderRow key={r.id} reader={r} accent={ACCENTS[i % ACCENTS.length]} />
+          <ReaderRow
+            key={r.id}
+            reader={r}
+            accent={ACCENTS[i % ACCENTS.length]}
+          />
         ))}
       </div>
     );
@@ -93,7 +103,11 @@ export function TopReaders({ vertical = false }: { vertical?: boolean }) {
   return (
     <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
       {readers.map((r, i) => (
-        <ReaderCard key={r.id} reader={r} accent={ACCENTS[i % ACCENTS.length]} />
+        <ReaderCard
+          key={r.id}
+          reader={r}
+          accent={ACCENTS[i % ACCENTS.length]}
+        />
       ))}
     </div>
   );
@@ -108,12 +122,24 @@ function displayName(r: ReaderProfile) {
 function expertise(r: ReaderProfile) {
   const specialties = r.specialties ?? [];
   if (specialties.length > 0) return specialties.slice(0, 2).join(" · ");
-  return r.yearsExperience ? `${r.yearsExperience} năm kinh nghiệm` : "Reader mới";
+  return r.yearsExperience
+    ? `${r.yearsExperience} năm kinh nghiệm`
+    : "Reader mới";
 }
 
-function RatingBadge({ reader, className = "" }: { reader: ReaderProfile; className?: string }) {
+function RatingBadge({
+  reader,
+  className = "",
+}: {
+  reader: ReaderProfile;
+  className?: string;
+}) {
   if (!reader.totalReviews) {
-    return <span className={`text-muted-foreground ${className}`}>Chưa có đánh giá</span>;
+    return (
+      <span className={`text-muted-foreground ${className}`}>
+        Chưa có đánh giá
+      </span>
+    );
   }
   return (
     <span className={`inline-flex items-center gap-1 ${className}`}>
@@ -126,7 +152,15 @@ function RatingBadge({ reader, className = "" }: { reader: ReaderProfile; classN
   );
 }
 
-function Avatar({ reader, accent, size }: { reader: ReaderProfile; accent: Accent; size: number }) {
+function Avatar({
+  reader,
+  accent,
+  size,
+}: {
+  reader: ReaderProfile;
+  accent: Accent;
+  size: number;
+}) {
   const style = {
     background: `linear-gradient(135deg, ${accent.color}33, transparent)`,
     border: `1.5px solid ${accent.color}`,
@@ -137,17 +171,32 @@ function Avatar({ reader, accent, size }: { reader: ReaderProfile; accent: Accen
   };
   if (reader.avatar) {
     return (
-      <img src={reader.avatar} alt="" style={style} className="shrink-0 rounded-full object-cover" />
+      <img
+        src={reader.avatar}
+        alt=""
+        style={style}
+        className="shrink-0 rounded-full object-cover"
+      />
     );
   }
   return (
-    <span aria-hidden="true" style={style} className="grid shrink-0 place-items-center rounded-full text-2xl">
+    <span
+      aria-hidden="true"
+      style={style}
+      className="grid shrink-0 place-items-center rounded-full text-2xl"
+    >
       {accent.glyph}
     </span>
   );
 }
 
-function ReaderRow({ reader, accent }: { reader: ReaderProfile; accent: Accent }) {
+function ReaderRow({
+  reader,
+  accent,
+}: {
+  reader: ReaderProfile;
+  accent: Accent;
+}) {
   return (
     <article
       className="glass group relative flex items-center gap-3 overflow-hidden rounded-xl p-3 transition hover:-translate-x-0.5"
@@ -161,7 +210,9 @@ function ReaderRow({ reader, accent }: { reader: ReaderProfile; accent: Accent }
       <Avatar reader={reader} accent={accent} size={48} />
 
       <div className="relative min-w-0 flex-1">
-        <h3 className="truncate font-display text-base text-foreground">{displayName(reader)}</h3>
+        <h3 className="truncate font-display text-base text-foreground">
+          {displayName(reader)}
+        </h3>
         <p className="truncate text-[11px]" style={{ color: accent.color }}>
           {expertise(reader)}
         </p>
@@ -188,7 +239,13 @@ function ReaderRow({ reader, accent }: { reader: ReaderProfile; accent: Accent }
   );
 }
 
-function ReaderCard({ reader, accent }: { reader: ReaderProfile; accent: Accent }) {
+function ReaderCard({
+  reader,
+  accent,
+}: {
+  reader: ReaderProfile;
+  accent: Accent;
+}) {
   return (
     <article
       className="card-hover glass group relative flex flex-col overflow-hidden rounded-2xl p-5"
@@ -202,7 +259,9 @@ function ReaderCard({ reader, accent }: { reader: ReaderProfile; accent: Accent 
       <div className="relative flex items-center gap-3">
         <Avatar reader={reader} accent={accent} size={56} />
         <div className="min-w-0 flex-1">
-          <h3 className="truncate font-display text-lg text-foreground">{displayName(reader)}</h3>
+          <h3 className="truncate font-display text-lg text-foreground">
+            {displayName(reader)}
+          </h3>
           <p className="truncate text-xs" style={{ color: accent.color }}>
             {expertise(reader)}
           </p>

@@ -9,7 +9,13 @@ import type { Product } from "./shop";
 
 const BASE = "/api/v1/admin";
 
-export const PLATFORMS = ["SHOPEE", "LAZADA", "TIKI", "TIKTOK", "OTHER"] as const;
+export const PLATFORMS = [
+  "SHOPEE",
+  "LAZADA",
+  "TIKI",
+  "TIKTOK",
+  "OTHER",
+] as const;
 export type Platform = (typeof PLATFORMS)[number];
 
 export interface SaveProductPayload {
@@ -38,7 +44,9 @@ export interface AffiliateStats {
   topProducts: Product[];
 }
 
-export function getAdminProducts(query: { keyword?: string; page?: number; size?: number } = {}) {
+export function getAdminProducts(
+  query: { keyword?: string; page?: number; size?: number } = {},
+) {
   const params = new URLSearchParams();
   if (query.keyword) params.set("keyword", query.keyword);
   if (query.page !== undefined) params.set("page", String(query.page));

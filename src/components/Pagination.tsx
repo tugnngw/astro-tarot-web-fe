@@ -82,39 +82,49 @@ export function Pagination({
 }
 
 /**
- * Giữ chiều cao của vùng danh sách không tụt xuống khi sang trang.
+ * Giữ cho vùng danh sách luôn chiếm đúng chỗ của MỘT TRANG ĐẦY.
  *
- * Trang cuối thường ít dòng hơn; nếu để tự co thì cả khối tụt lên và nút
- * "Trang sau" chạy khỏi chỗ ngón tay vừa bấm.
+ * Vấn đề: trang cuối thường ít dòng hơn, nên cả khối tụt lên và nút "Trang
+ * sau" chạy khỏi chỗ ngón tay vừa bấm. Lọc lại còn hai kết quả cũng vậy.
  *
- * Cách làm: ĐO chiều cao thật của nội dung rồi nhớ mức cao nhất từng thấy, và
- * đặt mức đó làm min-height. Ban đầu tôi nhân "số dòng × chiều cao dòng ước
- * lượng" — sai ngay, vì mỗi bảng có dòng cao khác nhau (bảng đối soát đo được
- * ~600px một dòng, gấp tám lần con số tôi đoán). Đo thì không phải đoán.
+ * Cách làm: đo chiều cao lúc trên màn hình đang có ĐỦ một trang, nhớ lấy, rồi
+ * đặt làm min-height cho mọi trang sau đó. Không đoán "số dòng × chiều cao ước
+ * lượng" — mỗi bảng có dòng cao khác nhau, bảng đối soát đo được ~600px một
+ * dòng, gấp tám lần con số tôi từng đoán.
  *
- * Chỉ tăng, không giảm, nên không có vòng lặp đo–đặt–đo lại: sau lần đầu,
- * chiều cao nội dung đã bằng min-height nên không kích hoạt cập nhật nữa.
+ * Vì sao đo "một trang đầy" chứ không phải "mức cao nhất từng thấy" như bản
+ * trước: bản trước chỉ chặn được việc TỤT XUỐNG sau khi đã từng cao. Vào thẳng
+ * một trang ít dòng thì nó vẫn ngắn, rồi cao lên khi sang trang khác — vẫn là
+ * nhảy, chỉ nhảy theo chiều ngược lại.
  *
- * `resetKey` để đổi bộ lọc thì quên mức cũ — không thì lọc từ mục nhiều dòng
- * sang mục ít dòng sẽ chừa lại một khoảng trống dài không lý do.
+ * Danh sách chưa bao giờ đủ một trang (5 Reader trên tổng 5) thì giữ nguyên
+ * chiều cao thật của nó. Chừa sẵn chỗ cho mười dòng ở một danh sách chỉ có năm
+ * là để lại một mảng trống vô cớ — mà nó cũng không hề nhảy, vì số dòng không
+ * bao giờ đổi.
+ *
+ * Cách đếm dòng phải chịu được ba kiểu bố cục đang dùng trong dự án: bảng
+ * (<tbody><tr>), danh sách (<ul><li>), và lưới thẻ (<div class="grid">).
  */
 export function PagedList({
   children,
-  resetKey,
+  pageSize = PAGE_SIZE,
 }: {
   children: ReactNode;
-  /** Đổi giá trị này thì quên chiều cao đã nhớ (ví dụ khi đổi bộ lọc). */
-  resetKey?: string | number;
+  /** Số mục của một trang đầy. Lưới thẻ đếm khác bảng dòng. */
+  pageSize?: number;
 }) {
   const inner = useRef<HTMLDivElement>(null);
   const [minHeight, setMinHeight] = useState(0);
 
   useLayoutEffect(() => {
-    setMinHeight(0);
-  }, [resetKey]);
+    const el = inner.current;
+    if (!el) return;
 
-  useLayoutEffect(() => {
-    const h = inner.current?.getBoundingClientRect().height ?? 0;
+    // Chỉ ghi nhớ khi đang hiển thị đủ một trang. Trang thiếu dòng thì chiều
+    // cao của nó không nói lên điều gì về chỗ cần chừa.
+    if (demDong(el) < pageSize) return;
+
+    const h = el.getBoundingClientRect().height;
     // Ngưỡng 1px để tránh nhấp nháy vì số lẻ khi trình duyệt làm tròn.
     if (h > minHeight + 1) setMinHeight(h);
   });
@@ -124,4 +134,16 @@ export function PagedList({
       <div ref={inner}>{children}</div>
     </div>
   );
+}
+
+/**
+ * Đếm số mục đang hiển thị, bất kể bố cục.
+ *
+ * Bảng thì dòng nằm trong tbody; danh sách và lưới thì mục là con trực tiếp
+ * của phần tử bọc đầu tiên.
+ */
+function demDong(el: HTMLElement): number {
+  const tbody = el.querySelector("tbody");
+  if (tbody) return tbody.children.length;
+  return el.firstElementChild?.children.length ?? 0;
 }

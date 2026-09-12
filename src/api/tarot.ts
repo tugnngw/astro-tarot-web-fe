@@ -84,7 +84,9 @@ export interface ReadingHistoryPage {
 }
 
 export function getReadingHistory(page = 0, size = 20) {
-  return apiFetch<ReadingHistoryPage>(`/api/ai-readings?page=${page}&size=${size}`);
+  return apiFetch<ReadingHistoryPage>(
+    `/api/ai-readings?page=${page}&size=${size}`,
+  );
 }
 
 /** Tin nhắn của một lượt trải bài — dùng để xem lại lời giải AI đã lưu. */

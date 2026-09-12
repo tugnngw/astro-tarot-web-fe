@@ -20,13 +20,19 @@ export function FeaturedProducts() {
   if (isError || (!isPending && products.length === 0)) return null;
 
   return (
-    <section aria-labelledby="featured-heading" className="mx-auto w-full max-w-7xl">
+    <section
+      aria-labelledby="featured-heading"
+      className="mx-auto w-full max-w-7xl"
+    >
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-xs uppercase tracking-[0.3em] text-gold/70">
             ✦ Vật phẩm
           </p>
-          <h2 id="featured-heading" className="mt-2 font-display text-3xl sm:text-4xl">
+          <h2
+            id="featured-heading"
+            className="mt-2 font-display text-3xl sm:text-4xl"
+          >
             Bài, đá và <span className="text-gradient-gold">phụ kiện</span>
           </h2>
           <p className="mt-2 max-w-xl text-sm text-muted-foreground">
@@ -77,7 +83,9 @@ export function FeaturedProducts() {
                         className="h-full w-full"
                       />
                     )}
-                    {p.imageIsIllustrative && p.imageUrl && <IllustrativeNote />}
+                    {p.imageIsIllustrative && p.imageUrl && (
+                      <IllustrativeNote />
+                    )}
                   </div>
                   <div className="flex flex-1 flex-col p-4">
                     {p.categoryName && (

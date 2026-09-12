@@ -298,7 +298,9 @@ function Field({
     <label className="grid gap-1.5">
       <span className="text-xs text-muted-foreground">{label}</span>
       {children}
-      {hint && <span className="text-[11px] text-muted-foreground/80">{hint}</span>}
+      {hint && (
+        <span className="text-[11px] text-muted-foreground/80">{hint}</span>
+      )}
     </label>
   );
 }

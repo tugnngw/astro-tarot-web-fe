@@ -35,7 +35,10 @@ export function RelatedProducts({
   if (query.isPending || products.length === 0) return null;
 
   return (
-    <section aria-labelledby="related-products" className="mt-6 border-t border-gold/15 pt-5">
+    <section
+      aria-labelledby="related-products"
+      className="mt-6 border-t border-gold/15 pt-5"
+    >
       <h4 id="related-products" className="font-display text-base">
         {title}
       </h4>
@@ -43,7 +46,10 @@ export function RelatedProducts({
 
       <ul className="mt-3 grid gap-3 sm:grid-cols-3">
         {products.map((p) => (
-          <li key={p.id} className="flex flex-col rounded-xl border border-gold/15 p-3">
+          <li
+            key={p.id}
+            className="flex flex-col rounded-xl border border-gold/15 p-3"
+          >
             <Link
               to="/shop/$slug"
               params={{ slug: p.slug }}
@@ -76,7 +82,9 @@ export function RelatedProducts({
                 {p.name}
               </Link>
             </h5>
-            <p className="mt-1 font-display text-sm text-gold">{formatVND(p.price)}</p>
+            <p className="mt-1 font-display text-sm text-gold">
+              {formatVND(p.price)}
+            </p>
 
             <div className="mt-auto pt-2">
               <BuyOnPlatformButton product={p} className="py-1.5 text-xs" />
@@ -86,7 +94,8 @@ export function RelatedProducts({
       </ul>
 
       <p className="mt-3 text-[11px] text-muted-foreground">
-        Liên kết tiếp thị — bạn mua trên sàn với giá không đổi, ASTROTAROT nhận hoa hồng.
+        Liên kết tiếp thị — bạn mua trên sàn với giá không đổi, ASTROTAROT nhận
+        hoa hồng.
       </p>
     </section>
   );

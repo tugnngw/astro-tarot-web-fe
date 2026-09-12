@@ -117,7 +117,11 @@ function Panel({ onClose }: { onClose: () => void }) {
       onClose={onClose}
       rejected={
         app?.status === "REJECTED"
-          ? { reason: app.rejectionReason, bio: app.bio, experience: app.experience }
+          ? {
+              reason: app.rejectionReason,
+              bio: app.bio,
+              experience: app.experience,
+            }
           : null
       }
     />

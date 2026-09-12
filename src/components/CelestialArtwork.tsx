@@ -272,7 +272,14 @@ function Motif({ kind }: { kind: CelestialMotif }) {
             stroke="none"
             opacity="0.9"
           />
-          <circle cx="40" cy="16" r="1.8" fill={GOLD} stroke="none" opacity="0.7" />
+          <circle
+            cx="40"
+            cy="16"
+            r="1.8"
+            fill={GOLD}
+            stroke="none"
+            opacity="0.7"
+          />
         </>
       );
 
@@ -286,7 +293,14 @@ function Motif({ kind }: { kind: CelestialMotif }) {
           <g transform="rotate(16)">
             <rect x="8" y="-26" width="30" height="46" rx="3" opacity="0.6" />
           </g>
-          <rect x="-16" y="-30" width="32" height="52" rx="3.5" opacity="0.95" />
+          <rect
+            x="-16"
+            y="-30"
+            width="32"
+            height="52"
+            rx="3.5"
+            opacity="0.95"
+          />
           <path
             d="M0 -14 L2.6 -5.6 L11 -3 L2.6 -0.4 L0 8 L-2.6 -0.4 L-11 -3 L-2.6 -5.6 Z"
             fill={GOLD}
@@ -301,9 +315,18 @@ function Motif({ kind }: { kind: CelestialMotif }) {
       return (
         <>
           <path d="M0 22 C-8 4 -8 -12 0 -26 C8 -12 8 4 0 22 Z" opacity="0.95" />
-          <path d="M0 22 C-18 10 -26 -2 -28 -14 C-14 -10 -4 2 0 22 Z" opacity="0.7" />
-          <path d="M0 22 C18 10 26 -2 28 -14 C14 -10 4 2 0 22 Z" opacity="0.7" />
-          <path d="M0 22 C-28 16 -40 8 -44 0 C-28 -2 -10 8 0 22 Z" opacity="0.45" />
+          <path
+            d="M0 22 C-18 10 -26 -2 -28 -14 C-14 -10 -4 2 0 22 Z"
+            opacity="0.7"
+          />
+          <path
+            d="M0 22 C18 10 26 -2 28 -14 C14 -10 4 2 0 22 Z"
+            opacity="0.7"
+          />
+          <path
+            d="M0 22 C-28 16 -40 8 -44 0 C-28 -2 -10 8 0 22 Z"
+            opacity="0.45"
+          />
           <path d="M0 22 C28 16 40 8 44 0 C28 -2 10 8 0 22 Z" opacity="0.45" />
         </>
       );

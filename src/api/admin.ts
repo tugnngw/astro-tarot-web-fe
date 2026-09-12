@@ -120,7 +120,10 @@ export function reviewReaderApplication(
 
 // ---------- Chi tiết và thao tác trên một tài khoản ----------
 
-export interface ManagedUserDetail extends Omit<ManagedUser, "role" | "status"> {
+export interface ManagedUserDetail extends Omit<
+  ManagedUser,
+  "role" | "status"
+> {
   role: AccountRole;
   status: AccountStatus;
   phone: string | null;
@@ -183,15 +186,21 @@ export function updateRoleBulk(userIds: string[], role: AccountRole) {
 }
 
 export function revokeUserSessions(userId: string) {
-  return apiFetch<void>(`${BASE}/users/${userId}/sessions/revoke`, { method: "POST" });
+  return apiFetch<void>(`${BASE}/users/${userId}/sessions/revoke`, {
+    method: "POST",
+  });
 }
 
 export function sendPasswordReset(userId: string) {
-  return apiFetch<void>(`${BASE}/users/${userId}/password-reset`, { method: "POST" });
+  return apiFetch<void>(`${BASE}/users/${userId}/password-reset`, {
+    method: "POST",
+  });
 }
 
 export function resendVerification(userId: string) {
-  return apiFetch<void>(`${BASE}/users/${userId}/resend-verification`, { method: "POST" });
+  return apiFetch<void>(`${BASE}/users/${userId}/resend-verification`, {
+    method: "POST",
+  });
 }
 
 export function deleteUser(userId: string) {
@@ -234,13 +243,17 @@ export const ACTION_LABEL: Record<string, string> = {
   USER_VERIFICATION_RESENT: "Gửi lại mail xác minh",
 };
 
-export function getActivityLogs(query: { action?: string; page?: number; size?: number } = {}) {
+export function getActivityLogs(
+  query: { action?: string; page?: number; size?: number } = {},
+) {
   const params = new URLSearchParams();
   if (query.action) params.set("action", query.action);
   if (query.page !== undefined) params.set("page", String(query.page));
   if (query.size !== undefined) params.set("size", String(query.size));
   const qs = params.toString();
-  return apiFetch<ActivityLogPage>(`${BASE}/activity-logs${qs ? `?${qs}` : ""}`);
+  return apiFetch<ActivityLogPage>(
+    `${BASE}/activity-logs${qs ? `?${qs}` : ""}`,
+  );
 }
 
 // ============================================================

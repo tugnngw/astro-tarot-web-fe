@@ -35,11 +35,17 @@ function MyBookingsPage() {
   const [status, setStatus] = useState("");
   const { payment } = Route.useSearch();
   const [page, setPage] = useState(0);
-  const query = useMyBookings({ status: status || undefined, page, size: PAGE_SIZE });
+  const query = useMyBookings({
+    status: status || undefined,
+    page,
+    size: PAGE_SIZE,
+  });
 
   useEffect(() => {
     if (payment === "success") {
-      toast.success("Đã quay lại từ PayOS — trạng thái sẽ cập nhật sau khi nhận tiền");
+      toast.success(
+        "Đã quay lại từ PayOS — trạng thái sẽ cập nhật sau khi nhận tiền",
+      );
       void query.refetch();
     } else if (payment === "cancel") {
       toast.message("Bạn đã huỷ thanh toán trên PayOS");
@@ -53,10 +59,12 @@ function MyBookingsPage() {
       <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-10">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h1 className="font-display text-3xl sm:text-4xl">Lịch hẹn của tôi</h1>
+            <h1 className="font-display text-3xl sm:text-4xl">
+              Lịch hẹn của tôi
+            </h1>
             <p className="mt-2 max-w-xl text-sm text-muted-foreground">
-              Buổi xem với Reader thật. Sau khi hoàn tất bạn có thể để lại đánh giá —
-              đó là thứ giúp người sau chọn đúng Reader.
+              Buổi xem với Reader thật. Sau khi hoàn tất bạn có thể để lại đánh
+              giá — đó là thứ giúp người sau chọn đúng Reader.
             </p>
           </div>
           <Link
@@ -67,15 +75,19 @@ function MyBookingsPage() {
           </Link>
         </div>
 
-        <div className="mt-6 flex flex-wrap gap-2" role="group" aria-label="Lọc theo trạng thái">
+        <div
+          className="mt-6 flex flex-wrap gap-2"
+          role="group"
+          aria-label="Lọc theo trạng thái"
+        >
           {FILTERS.map((f) => (
             <button
               key={f.key || "all"}
               type="button"
               onClick={() => {
-              setStatus(f.key);
-              setPage(0);
-            }}
+                setStatus(f.key);
+                setPage(0);
+              }}
               aria-pressed={status === f.key}
               className={`rounded-full border px-4 py-1.5 text-xs transition focus-visible:ring-2 focus-visible:ring-gold/40 ${
                 status === f.key
@@ -89,7 +101,7 @@ function MyBookingsPage() {
         </div>
 
         <div className="mt-6" aria-live="polite" aria-busy={query.isFetching}>
-          <PagedList resetKey={status}>
+          <PagedList>
             <BookingList
               bookings={query.data?.content ?? []}
               side="customer"

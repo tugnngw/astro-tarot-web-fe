@@ -14,7 +14,9 @@ import { TarotWheel } from "@/components/TarotWheel";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "ASTROTAROT — Giới thiệu · Tử vi · Tarot AI · Cộng đồng Reader" },
+      {
+        title: "ASTROTAROT — Giới thiệu · Tử vi · Tarot AI · Cộng đồng Reader",
+      },
       {
         name: "description",
         content:
@@ -48,7 +50,6 @@ function Landing() {
       <main className="snap-container">
         {/* ─── Section 1: Hero with zodiac wheel ─── */}
         <section className="snap-section relative flex items-center justify-center overflow-hidden px-6">
-
           {/* Vòng lá bài Tarot xoay chậm.
               Trước đây là ảnh PNG bánh xe hoàng đạo — nền của nó là xanh đen
               chứ không trong suốt nên trên nền đen lộ nguyên khung chữ nhật,
@@ -185,7 +186,10 @@ function Landing() {
         </section>
 
         {/* ─── Section 4: Shop ─── */}
-        <section id="shop" className="snap-section relative flex items-center px-6">
+        <section
+          id="shop"
+          className="snap-section relative flex items-center px-6"
+        >
           <Reveal className="w-full">
             <FeaturedProducts />
           </Reveal>

@@ -29,7 +29,10 @@ export interface NotificationPage {
 }
 
 export function getNotifications(page = 0, size = 20) {
-  const params = new URLSearchParams({ page: String(page), size: String(size) });
+  const params = new URLSearchParams({
+    page: String(page),
+    size: String(size),
+  });
   return apiFetch<NotificationPage>(`${BASE}?${params}`);
 }
 
@@ -39,6 +42,16 @@ export function getUnreadCount() {
 
 export function markRead(id: string) {
   return apiFetch<void>(`${BASE}/${id}/read`, { method: "PATCH" });
+}
+
+/**
+ * Xoá hẳn các thông báo ĐÃ ĐỌC.
+ *
+ * Đánh dấu đã đọc chỉ tắt chấm tròn; danh sách vẫn dài ra mãi. Đây là đường
+ * dọn dẹp thật. Tin chưa đọc không bị đụng tới.
+ */
+export function deleteReadNotifications() {
+  return apiFetch<{ deleted: number }>(`${BASE}/read`, { method: "DELETE" });
 }
 
 export function markAllRead() {

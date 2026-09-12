@@ -5,7 +5,12 @@
 // biện và ở phạm vi BE cho phép, chứ dữ liệu thì cùng một nguồn.
 // ============================================================
 
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import * as adminApi from "@/api/admin";
 import type { AccountStatus, UserQuery } from "@/api/admin";
 import type { AccountRole } from "@/lib/roles";
@@ -47,8 +52,9 @@ function useUserMutation<TArgs>(fn: (args: TArgs) => Promise<unknown>) {
 }
 
 export function useUpdateUserRole() {
-  return useUserMutation(({ userId, role }: { userId: string; role: AccountRole }) =>
-    adminApi.updateUserRole(userId, role),
+  return useUserMutation(
+    ({ userId, role }: { userId: string; role: AccountRole }) =>
+      adminApi.updateUserRole(userId, role),
   );
 }
 
@@ -78,10 +84,13 @@ export function useReviewApplication() {
       applicationId: string;
       action: "APPROVED" | "REJECTED";
       rejectionReason?: string;
-    }) => adminApi.reviewReaderApplication(applicationId, action, rejectionReason),
+    }) =>
+      adminApi.reviewReaderApplication(applicationId, action, rejectionReason),
     onSuccess: () => {
       // Duyệt xong thì người đó thành STAFF, nên bảng tài khoản cũng đã cũ.
-      void queryClient.invalidateQueries({ queryKey: adminKeys.applications() });
+      void queryClient.invalidateQueries({
+        queryKey: adminKeys.applications(),
+      });
       void queryClient.invalidateQueries({ queryKey: adminKeys.usersAll() });
     },
   });
@@ -99,32 +108,46 @@ export function useUserDetail(userId: string | null) {
 }
 
 export function useCreateUser() {
-  return useUserMutation((payload: adminApi.CreateUserPayload) => adminApi.createUser(payload));
+  return useUserMutation((payload: adminApi.CreateUserPayload) =>
+    adminApi.createUser(payload),
+  );
 }
 
 export function useUpdateUserInfo() {
   return useUserMutation(
-    ({ userId, payload }: { userId: string; payload: adminApi.UpdateUserInfoPayload }) =>
-      adminApi.updateUserInfo(userId, payload),
+    ({
+      userId,
+      payload,
+    }: {
+      userId: string;
+      payload: adminApi.UpdateUserInfoPayload;
+    }) => adminApi.updateUserInfo(userId, payload),
   );
 }
 
 export function useUpdateRoleBulk() {
-  return useUserMutation(({ userIds, role }: { userIds: string[]; role: AccountRole }) =>
-    adminApi.updateRoleBulk(userIds, role),
+  return useUserMutation(
+    ({ userIds, role }: { userIds: string[]; role: AccountRole }) =>
+      adminApi.updateRoleBulk(userIds, role),
   );
 }
 
 export function useRevokeSessions() {
-  return useUserMutation((userId: string) => adminApi.revokeUserSessions(userId));
+  return useUserMutation((userId: string) =>
+    adminApi.revokeUserSessions(userId),
+  );
 }
 
 export function useSendPasswordReset() {
-  return useUserMutation((userId: string) => adminApi.sendPasswordReset(userId));
+  return useUserMutation((userId: string) =>
+    adminApi.sendPasswordReset(userId),
+  );
 }
 
 export function useResendVerification() {
-  return useUserMutation((userId: string) => adminApi.resendVerification(userId));
+  return useUserMutation((userId: string) =>
+    adminApi.resendVerification(userId),
+  );
 }
 
 export function useDeleteUser() {
@@ -133,7 +156,11 @@ export function useDeleteUser() {
 
 // ---------- Nhật ký hệ thống ----------
 
-export function useActivityLogs(query: { action?: string; page?: number; size?: number }) {
+export function useActivityLogs(query: {
+  action?: string;
+  page?: number;
+  size?: number;
+}) {
   return useQuery({
     queryKey: [...adminKeys.all, "activity-logs", query] as const,
     queryFn: () => adminApi.getActivityLogs(query),

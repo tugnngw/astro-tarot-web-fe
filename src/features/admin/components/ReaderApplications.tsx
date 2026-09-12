@@ -119,7 +119,7 @@ export function ReaderApplications() {
 
   return (
     <div>
-      <PagedList resetKey={trangHienTai === 0 ? "dau" : "sau"}>
+      <PagedList>
         <div className="space-y-3">
           {trangNay.map((app, index) => {
             const id = idOf(app) ?? String(index);

@@ -1,4 +1,9 @@
-import { ROLE_BADGE_CLASS, ROLE_LABEL, toAppRole, type Role } from "@/lib/roles";
+import {
+  ROLE_BADGE_CLASS,
+  ROLE_LABEL,
+  toAppRole,
+  type Role,
+} from "@/lib/roles";
 
 /**
  * Chip vai trò. Dùng chung ở mọi nơi để một vai trò luôn có đúng một màu và

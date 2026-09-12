@@ -6,14 +6,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  Loader2,
-  Pencil,
-  Plus,
-  Sparkles,
-  Star,
-  Trash2,
-} from "lucide-react";
+import { Loader2, Pencil, Plus, Sparkles, Star, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Header } from "@/components/Header";
 import { RoleGuard } from "@/components/RoleGuard";
@@ -29,6 +22,7 @@ import {
   type ProfileType,
 } from "@/api/astrology";
 
+import { PAGE_SIZE, PagedList, Pagination } from "@/components/Pagination";
 export const Route = createFileRoute("/profile_/astrology")({
   head: () => ({ meta: [{ title: "Bản đồ sao — ASTROTAROT" }] }),
   component: () => (
@@ -68,7 +62,8 @@ function AstrologyProfilesPage() {
   const [editing, setEditing] = useState<AstrologyProfile | "new" | null>(null);
   const [toDelete, setToDelete] = useState<AstrologyProfile | null>(null);
 
-  const invalidate = () => qc.invalidateQueries({ queryKey: astrologyKeys.all });
+  const invalidate = () =>
+    qc.invalidateQueries({ queryKey: astrologyKeys.all });
 
   const create = useMutation({
     mutationFn: createAstrologyProfile,
@@ -109,7 +104,17 @@ function AstrologyProfilesPage() {
       toast.error(e instanceof Error ? e.message : "Không xoá được hồ sơ."),
   });
 
-  const profiles = query.data ?? [];
+  const tatCaHoSo = query.data ?? [];
+
+  // BE trả cả mảng một lượt (số bản đồ sao của một người vốn ít), nên cắt
+  // trang ngay tại đây thay vì thêm tham số phân trang cho endpoint đó.
+  const [page, setPage] = useState(0);
+  const totalPages = Math.max(1, Math.ceil(tatCaHoSo.length / PAGE_SIZE));
+  const trangHienTai = Math.min(page, totalPages - 1);
+  const profiles = tatCaHoSo.slice(
+    trangHienTai * PAGE_SIZE,
+    (trangHienTai + 1) * PAGE_SIZE,
+  );
 
   return (
     <div className="relative min-h-screen">
@@ -123,7 +128,8 @@ function AstrologyProfilesPage() {
             </div>
             <p className="mt-2 max-w-xl text-sm text-muted-foreground">
               Ngày, giờ và nơi sinh quyết định lá số của bạn. AI đọc bài dựa
-              trên hồ sơ chính, nên sai một chi tiết ở đây là lời giải lệch theo.
+              trên hồ sơ chính, nên sai một chi tiết ở đây là lời giải lệch
+              theo.
             </p>
           </div>
           {editing === null && (
@@ -170,72 +176,95 @@ function AstrologyProfilesPage() {
               <p className="text-sm">Bạn chưa có hồ sơ chiêm tinh nào.</p>
               <p className="max-w-sm text-xs">
                 Thêm một hồ sơ ở đây, hoặc để hệ thống tự tạo khi bạn{" "}
-                <Link to="/tarot" className="text-gold underline-offset-4 hover:underline">
+                <Link
+                  to="/tarot"
+                  className="text-gold underline-offset-4 hover:underline"
+                >
                   trải bài lần đầu
                 </Link>
                 .
               </p>
             </div>
           ) : (
-            <ul className="space-y-3">
-              {profiles.map((p) => (
-                <li key={p.id} className="glass rounded-2xl p-5">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <h3 className="flex flex-wrap items-center gap-2 font-display text-xl text-gold-soft">
-                        {p.title}
-                        {p.isPrimary && (
-                          <span className="rounded-full bg-gold/20 px-2 py-0.5 text-[11px] text-gold">
-                            Hồ sơ chính
-                          </span>
-                        )}
-                        <span className="rounded-full border border-gold/25 px-2 py-0.5 text-[11px] text-gold/80">
-                          {PROFILE_TYPE_LABEL[p.profileType] ?? p.profileType}
-                        </span>
-                      </h3>
-                      <dl className="mt-3 grid gap-x-6 gap-y-1.5 text-sm sm:grid-cols-2">
-                        <Row label="Tên người được xem" value={p.targetName} />
-                        <Row label="Ngày sinh" value={fmtDate(p.birthDate)} />
-                        <Row
-                          label="Giờ sinh"
-                          value={p.birthTime ? p.birthTime.slice(0, 5) : null}
-                          fallback="Chưa biết giờ"
-                        />
-                        <Row label="Nơi sinh" value={p.birthPlace} />
-                        <Row label="Múi giờ" value={p.timezone} />
-                        <Row
-                          label="Toạ độ"
-                          value={
-                            p.latitude != null && p.longitude != null
-                              ? `${p.latitude.toFixed(4)}, ${p.longitude.toFixed(4)}`
-                              : null
-                          }
-                        />
-                      </dl>
-                    </div>
+            <>
+              <PagedList>
+                <ul className="space-y-3">
+                  {profiles.map((p) => (
+                    <li key={p.id} className="glass rounded-2xl p-5">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <h3 className="flex flex-wrap items-center gap-2 font-display text-xl text-gold-soft">
+                            {p.title}
+                            {p.isPrimary && (
+                              <span className="rounded-full bg-gold/20 px-2 py-0.5 text-[11px] text-gold">
+                                Hồ sơ chính
+                              </span>
+                            )}
+                            <span className="rounded-full border border-gold/25 px-2 py-0.5 text-[11px] text-gold/80">
+                              {PROFILE_TYPE_LABEL[p.profileType] ??
+                                p.profileType}
+                            </span>
+                          </h3>
+                          <dl className="mt-3 grid gap-x-6 gap-y-1.5 text-sm sm:grid-cols-2">
+                            <Row
+                              label="Tên người được xem"
+                              value={p.targetName}
+                            />
+                            <Row
+                              label="Ngày sinh"
+                              value={fmtDate(p.birthDate)}
+                            />
+                            <Row
+                              label="Giờ sinh"
+                              value={
+                                p.birthTime ? p.birthTime.slice(0, 5) : null
+                              }
+                              fallback="Chưa biết giờ"
+                            />
+                            <Row label="Nơi sinh" value={p.birthPlace} />
+                            <Row label="Múi giờ" value={p.timezone} />
+                            <Row
+                              label="Toạ độ"
+                              value={
+                                p.latitude != null && p.longitude != null
+                                  ? `${p.latitude.toFixed(4)}, ${p.longitude.toFixed(4)}`
+                                  : null
+                              }
+                            />
+                          </dl>
+                        </div>
 
-                    <div className="flex shrink-0 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setEditing(p)}
-                        className="inline-flex items-center gap-1.5 rounded-full border border-gold/40 px-3 py-1.5 text-sm text-gold transition hover:bg-gold/10"
-                      >
-                        <Pencil className="h-3.5 w-3.5" />
-                        Sửa
-                      </button>
-                      <button
-                        type="button"
-                        aria-label={`Xoá hồ sơ ${p.title}`}
-                        onClick={() => setToDelete(p)}
-                        className="grid h-9 w-9 place-items-center rounded-full text-muted-foreground transition hover:bg-destructive/15 hover:text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
+                        <div className="flex shrink-0 gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setEditing(p)}
+                            className="inline-flex items-center gap-1.5 rounded-full border border-gold/40 px-3 py-1.5 text-sm text-gold transition hover:bg-gold/10"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                            Sửa
+                          </button>
+                          <button
+                            type="button"
+                            aria-label={`Xoá hồ sơ ${p.title}`}
+                            onClick={() => setToDelete(p)}
+                            className="grid h-9 w-9 place-items-center rounded-full text-muted-foreground transition hover:bg-destructive/15 hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </PagedList>
+              <Pagination
+                page={trangHienTai}
+                totalPages={totalPages}
+                totalElements={tatCaHoSo.length}
+                onChange={setPage}
+                unit="bản đồ sao"
+              />
+            </>
           )}
         </div>
       </main>
@@ -271,7 +300,9 @@ function Row({
   return (
     <div className="flex gap-2">
       <dt className="shrink-0 text-muted-foreground">{label}:</dt>
-      <dd className="min-w-0 truncate text-foreground/90">{value || fallback}</dd>
+      <dd className="min-w-0 truncate text-foreground/90">
+        {value || fallback}
+      </dd>
     </div>
   );
 }

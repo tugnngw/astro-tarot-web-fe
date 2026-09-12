@@ -16,10 +16,7 @@ import { DailyCardDraw } from "@/components/DailyCardDraw";
 import { Reveal } from "@/components/Reveal";
 import { useAuth } from "@/lib/auth-context";
 import { MemberSnapshot } from "@/features/home/components/MemberSnapshot";
-import {
-  homePathFor,
-  type HomePath,
-} from "@/lib/roles";
+import { homePathFor, type HomePath } from "@/lib/roles";
 
 export const Route = createFileRoute("/home")({
   head: () => ({

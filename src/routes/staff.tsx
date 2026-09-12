@@ -75,7 +75,11 @@ function StaffWorkspace() {
 function ReaderBookings() {
   const [status, setStatus] = useState("");
   const [page, setPage] = useState(0);
-  const query = useReaderBookings({ status: status || undefined, page, size: PAGE_SIZE });
+  const query = useReaderBookings({
+    status: status || undefined,
+    page,
+    size: PAGE_SIZE,
+  });
 
   const filters = [
     { key: "", label: "Tất cả" },
@@ -87,7 +91,11 @@ function ReaderBookings() {
 
   return (
     <div>
-      <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label="Lọc theo trạng thái">
+      <div
+        className="mb-4 flex flex-wrap gap-2"
+        role="group"
+        aria-label="Lọc theo trạng thái"
+      >
         {filters.map((f) => (
           <button
             key={f.key || "all"}
@@ -109,7 +117,7 @@ function ReaderBookings() {
       </div>
 
       <div aria-live="polite" aria-busy={query.isFetching}>
-        <PagedList resetKey={status}>
+        <PagedList>
           <BookingList
             bookings={query.data?.content ?? []}
             side="reader"
@@ -131,4 +139,3 @@ function ReaderBookings() {
     </div>
   );
 }
-

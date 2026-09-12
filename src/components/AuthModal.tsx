@@ -1,6 +1,14 @@
 // src/components/AuthModal.tsx
 import { useId, useState } from "react";
-import { X, Mail, Lock, User as UserIcon, Eye, EyeOff, MailCheck } from "lucide-react";
+import {
+  X,
+  Mail,
+  Lock,
+  User as UserIcon,
+  Eye,
+  EyeOff,
+  MailCheck,
+} from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
 import * as authApi from "@/api/auth";
@@ -223,7 +231,9 @@ function LoginForm({
           value={pwd}
           onChange={(e) => setPwd(e.target.value)}
           error={err.pwd}
-          trailing={<PasswordToggle show={show} onToggle={() => setShow((v) => !v)} />}
+          trailing={
+            <PasswordToggle show={show} onToggle={() => setShow((v) => !v)} />
+          }
         />
 
         {unverified && (
@@ -280,7 +290,12 @@ function RegisterForm({
     password: string;
   }) => Promise<{ email: string; verificationEmailSent: boolean }>;
 }) {
-  const [f, setF] = useState({ email: "", full_name: "", password: "", confirm: "" });
+  const [f, setF] = useState({
+    email: "",
+    full_name: "",
+    password: "",
+    confirm: "",
+  });
   const [show, setShow] = useState(false);
   const [err, setErr] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
@@ -354,7 +369,9 @@ function RegisterForm({
           value={f.password}
           onChange={set("password")}
           error={err.password}
-          trailing={<PasswordToggle show={show} onToggle={() => setShow((v) => !v)} />}
+          trailing={
+            <PasswordToggle show={show} onToggle={() => setShow((v) => !v)} />
+          }
         />
         <Field
           icon={Lock}

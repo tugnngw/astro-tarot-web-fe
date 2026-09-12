@@ -7,7 +7,11 @@ import { useState } from "react";
 import { Send, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
-import { useTicket, useReplyTicket, useUpdateTicketStatus } from "@/features/support/queries";
+import {
+  useTicket,
+  useReplyTicket,
+  useUpdateTicketStatus,
+} from "@/features/support/queries";
 import { TICKET_STATUS_LABEL, type TicketStatus } from "@/api/support";
 
 const STATUS_PILL: Record<TicketStatus, string> = {
@@ -92,17 +96,23 @@ export function TicketThread({
           <h3 className="font-display text-lg">{ticket.subject}</h3>
           <p className="mt-0.5 text-xs text-muted-foreground">
             {ticket.requesterName}
-            {ticket.assignedToName ? ` · phụ trách: ${ticket.assignedToName}` : ""}
+            {ticket.assignedToName
+              ? ` · phụ trách: ${ticket.assignedToName}`
+              : ""}
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <span className={`rounded-full px-3 py-1 text-xs ${STATUS_PILL[ticket.status]}`}>
+          <span
+            className={`rounded-full px-3 py-1 text-xs ${STATUS_PILL[ticket.status]}`}
+          >
             {TICKET_STATUS_LABEL[ticket.status]}
           </span>
           {staffControls && canRespond && (
             <select
               value=""
-              onChange={(e) => e.target.value && changeStatus(e.target.value as TicketStatus)}
+              onChange={(e) =>
+                e.target.value && changeStatus(e.target.value as TicketStatus)
+              }
               className="rounded-full border border-mystic/50 bg-mystic/10 px-3 py-1 text-xs text-foreground/80"
               aria-label="Đổi trạng thái"
             >
@@ -122,7 +132,10 @@ export function TicketThread({
         {ticket.messages.map((m) => {
           const mine = m.senderId === user?.id;
           return (
-            <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
+            <div
+              key={m.id}
+              className={`flex ${mine ? "justify-end" : "justify-start"}`}
+            >
               <div
                 className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm ${
                   mine
@@ -132,7 +145,9 @@ export function TicketThread({
               >
                 <div className="mb-1 flex items-center gap-1.5 text-xs text-muted-foreground">
                   {m.fromStaff && <ShieldCheck className="h-3 w-3 text-gold" />}
-                  <span>{m.fromStaff ? `${m.senderName} · Hỗ trợ` : m.senderName}</span>
+                  <span>
+                    {m.fromStaff ? `${m.senderName} · Hỗ trợ` : m.senderName}
+                  </span>
                   <span>· {fmt(m.createdAt)}</span>
                 </div>
                 <p className="whitespace-pre-wrap leading-relaxed">{m.body}</p>
@@ -149,7 +164,8 @@ export function TicketThread({
         </p>
       ) : !canRespond ? (
         <p className="border-t border-gold/10 p-4 text-center text-sm text-muted-foreground">
-          Bạn xem được hàng chờ nhưng không trả lời khách — phần đó thuộc nhân viên hỗ trợ.
+          Bạn xem được hàng chờ nhưng không trả lời khách — phần đó thuộc nhân
+          viên hỗ trợ.
         </p>
       ) : (
         <div className="flex items-end gap-2 border-t border-gold/10 p-3">

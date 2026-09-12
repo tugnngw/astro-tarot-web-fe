@@ -12,6 +12,7 @@ import { useMyTickets, useCreateTicket } from "@/features/support/queries";
 import { TicketThread } from "@/features/support/components/TicketThread";
 import { TICKET_STATUS_LABEL, type TicketStatus } from "@/api/support";
 
+import { PagedList, Pagination } from "@/components/Pagination";
 export const Route = createFileRoute("/support")({
   head: () => ({ meta: [{ title: "Hỗ trợ — ASTROTAROT" }] }),
   component: () => (
@@ -52,7 +53,8 @@ function SupportPage() {
               <h1 className="font-display text-3xl sm:text-4xl">Hỗ trợ</h1>
             </div>
             <p className="mt-2 max-w-xl text-sm text-muted-foreground">
-              Gửi câu hỏi hoặc vướng mắc, đội hỗ trợ sẽ trả lời ngay trong trang này.
+              Gửi câu hỏi hoặc vướng mắc, đội hỗ trợ sẽ trả lời ngay trong trang
+              này.
             </p>
           </div>
           {!selected && !creating && (
@@ -98,7 +100,8 @@ function SupportPage() {
 }
 
 function MyTickets({ onOpen }: { onOpen: (id: string) => void }) {
-  const query = useMyTickets(0);
+  const [page, setPage] = useState(0);
+  const query = useMyTickets(page);
   const rows = query.data?.content ?? [];
 
   if (query.isLoading) {
@@ -121,27 +124,41 @@ function MyTickets({ onOpen }: { onOpen: (id: string) => void }) {
   }
 
   return (
-    <ul className="glass divide-y divide-gold/10 rounded-2xl px-4">
-      {rows.map((t) => (
-        <li key={t.id}>
-          <button
-            type="button"
-            onClick={() => onOpen(t.id)}
-            className="flex w-full items-center gap-3 py-3.5 text-left"
-          >
-            <div className="min-w-0 flex-1">
-              <div className="truncate font-medium">{t.subject}</div>
-              <div className="mt-0.5 text-xs text-muted-foreground">
-                {t.messageCount} tin · cập nhật {fmt(t.updatedAt)}
-              </div>
-            </div>
-            <span className={`shrink-0 rounded-full px-3 py-1 text-xs ${STATUS_PILL[t.status]}`}>
-              {TICKET_STATUS_LABEL[t.status]}
-            </span>
-          </button>
-        </li>
-      ))}
-    </ul>
+    <>
+      <PagedList>
+        <ul className="glass divide-y divide-gold/10 rounded-2xl px-4">
+          {rows.map((t) => (
+            <li key={t.id}>
+              <button
+                type="button"
+                onClick={() => onOpen(t.id)}
+                className="flex w-full items-center gap-3 py-3.5 text-left"
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="truncate font-medium">{t.subject}</div>
+                  <div className="mt-0.5 text-xs text-muted-foreground">
+                    {t.messageCount} tin · cập nhật {fmt(t.updatedAt)}
+                  </div>
+                </div>
+                <span
+                  className={`shrink-0 rounded-full px-3 py-1 text-xs ${STATUS_PILL[t.status]}`}
+                >
+                  {TICKET_STATUS_LABEL[t.status]}
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </PagedList>
+      <Pagination
+        page={page}
+        totalPages={query.data?.totalPages ?? 1}
+        totalElements={query.data?.totalElements ?? 0}
+        onChange={setPage}
+        busy={query.isFetching}
+        unit="yêu cầu"
+      />
+    </>
   );
 }
 
@@ -159,7 +176,10 @@ function NewTicketForm({
   async function submit() {
     if (!subject.trim() || !body.trim()) return;
     try {
-      const ticket = await create.mutateAsync({ subject: subject.trim(), body: body.trim() });
+      const ticket = await create.mutateAsync({
+        subject: subject.trim(),
+        body: body.trim(),
+      });
       toast.success("Đã gửi yêu cầu hỗ trợ");
       onCreated(ticket.id);
     } catch {
@@ -180,7 +200,9 @@ function NewTicketForm({
         />
       </div>
       <div>
-        <label className="mb-1 block text-sm text-foreground/80">Nội dung</label>
+        <label className="mb-1 block text-sm text-foreground/80">
+          Nội dung
+        </label>
         <textarea
           value={body}
           onChange={(e) => setBody(e.target.value)}

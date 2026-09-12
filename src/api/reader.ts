@@ -156,5 +156,7 @@ export function addUnavailableDate(payload: {
 }
 
 export function deleteUnavailableDate(id: string) {
-  return apiFetch<void>(`/api/v1/unavailable-dates/${id}`, { method: "DELETE" });
+  return apiFetch<void>(`/api/v1/unavailable-dates/${id}`, {
+    method: "DELETE",
+  });
 }

@@ -12,7 +12,7 @@ import {
 import { useCategories, useProducts } from "@/features/shop/queries";
 import type { Product } from "@/api/shop";
 
-import { Pagination } from "@/components/Pagination";
+import { PAGE_SIZE, PagedList, Pagination } from "@/components/Pagination";
 export const Route = createFileRoute("/shop")({
   head: () => ({
     meta: [
@@ -26,8 +26,6 @@ export const Route = createFileRoute("/shop")({
   }),
   component: ShopPage,
 });
-
-const PAGE_SIZE = 12;
 
 function ShopPage() {
   const searchId = useId();
@@ -148,15 +146,17 @@ function ShopPage() {
               }}
             />
           ) : (
-            <div
-              className={`mt-6 grid gap-4 transition-opacity sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${
-                isRefreshing ? "opacity-60" : "opacity-100"
-              }`}
-            >
-              {products.map((p) => (
-                <ProductCard key={p.id} product={p} />
-              ))}
-            </div>
+            <PagedList pageSize={PAGE_SIZE}>
+              <div
+                className={`mt-6 grid gap-4 transition-opacity sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${
+                  isRefreshing ? "opacity-60" : "opacity-100"
+                }`}
+              >
+                {products.map((p) => (
+                  <ProductCard key={p.id} product={p} />
+                ))}
+              </div>
+            </PagedList>
           )}
         </div>
 
