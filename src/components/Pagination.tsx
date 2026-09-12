@@ -141,30 +141,45 @@ export function PagedList({
 }) {
   const rieng = useRef<HTMLDivElement>(null);
   const inner = listRef ?? rieng;
-  const [minHeight, setMinHeight] = useState(0);
 
-  // Đổi cỡ trang thì quên chỗ đã chừa.
+  // Nhớ CẢ chiều cao lẫn cỡ trang lúc đo được nó.
   //
-  // Chỗ chừa là "chiều cao của một trang đầy", nên nó gắn với cỡ trang. Cỡ
-  // trang co lại từ 10 xuống 7 mà vẫn giữ chỗ của 10 dòng thì dưới danh sách
-  // hở ra ba dòng trống, và thanh phân trang bị đẩy khỏi màn hình — đúng thứ
-  // mà cỡ trang động sinh ra để tránh.
-  useLayoutEffect(() => {
-    setMinHeight(0);
-  }, [pageSize]);
+  // Chỉ nhớ mỗi chiều cao thì không đủ. Quy tắc "chỉ tăng, không giảm" giữ cho
+  // trang cuối ít dòng không làm tụt bố cục — nhưng khi cỡ trang co lại
+  // (10 → 7), chính quy tắc ấy khoá luôn con số cũ, và dưới danh sách hở ra ba
+  // dòng trống. Đo được trên production: chừa 640px cho một cái bảng cao 459px.
+  //
+  // Chuyện còn tệ hơn vì React Query giữ dữ liệu cũ trong lúc tải: ngay sau khi
+  // cỡ trang đổi, màn hình VẪN đang là 10 dòng, nên phép đo lại ghi đúng con số
+  // cũ một lần nữa.
+  //
+  // Nhớ kèm cỡ trang thì hết cả hai: cỡ trang khác là ghi đè bất kể lớn nhỏ,
+  // cỡ trang giống thì vẫn chỉ tăng.
+  const [daDo, setDaDo] = useState<{ cao: number; choCoTrang: number } | null>(
+    null,
+  );
 
   useLayoutEffect(() => {
     const el = inner.current;
     if (!el) return;
 
-    // Chỉ ghi nhớ khi đang hiển thị đủ một trang. Trang thiếu dòng thì chiều
-    // cao của nó không nói lên điều gì về chỗ cần chừa.
-    if (demDong(el) < pageSize) return;
+    // Đo ĐÚNG lúc số mục bằng cỡ trang. Nhiều hơn nghĩa là dữ liệu cũ còn trên
+    // màn hình; ít hơn nghĩa là trang chưa đầy.
+    if (demDong(el) !== pageSize) return;
 
     const h = el.getBoundingClientRect().height;
-    // Ngưỡng 1px để tránh nhấp nháy vì số lẻ khi trình duyệt làm tròn.
-    if (h > minHeight + 1) setMinHeight(h);
+    if (h < 1) return;
+
+    setDaDo((truoc) => {
+      if (!truoc || truoc.choCoTrang !== pageSize) {
+        return { cao: h, choCoTrang: pageSize };
+      }
+      // Ngưỡng 1px để tránh nhấp nháy vì số lẻ khi trình duyệt làm tròn.
+      return h > truoc.cao + 1 ? { cao: h, choCoTrang: pageSize } : truoc;
+    });
   });
+
+  const minHeight = daDo?.choCoTrang === pageSize ? daDo.cao : 0;
 
   return (
     <div style={minHeight ? { minHeight } : undefined}>
