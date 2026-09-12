@@ -207,43 +207,51 @@ export function useCoTrangVuaManHinh(
   }: { toiThieu?: number; toiDa?: number; buoc?: number; duTru?: number } = {},
 ) {
   const [coTrang, setCoTrang] = useState(PAGE_SIZE);
+  const [nhip, setNhip] = useState(0);
 
+  // Đo lại sau MỖI lần vẽ, không phải một lần lúc mount.
+  //
+  // Bản đầu chỉ chạy khi mount và trả về đúng giá trị mặc định: lúc đó danh
+  // sách còn đang tải, chưa có dòng nào để đo chiều cao, nên hàm thoát sớm và
+  // không bao giờ chạy lại. Đo được trên production: màn 900px mà vẫn cắt 10
+  // dòng thay vì 7.
+  //
+  // Chạy mỗi lần vẽ không gây vòng lặp vì chỉ gọi setCoTrang khi con số thật
+  // sự đổi — giống cách PagedList đo chiều cao.
   useLayoutEffect(() => {
-    function tinh() {
-      const el = ref.current;
-      if (!el) return;
+    const el = ref.current;
+    if (!el) return;
 
-      const dong = layMotDong(el);
-      if (!dong) return;
-      const caoDong = dong.getBoundingClientRect().height;
-      if (caoDong < 8) return;
+    const dong = layMotDong(el);
+    if (!dong) return;
+    const caoDong = dong.getBoundingClientRect().height;
+    if (caoDong < 8) return;
 
-      const top = el.getBoundingClientRect().top;
-      // duTru: thanh phân trang, đệm dưới, và một chút thở.
-      const conLai = window.innerHeight - top - duTru;
+    const conLai = window.innerHeight - el.getBoundingClientRect().top - duTru;
 
-      let n = Math.floor(conLai / caoDong);
-      n = Math.floor(n / buoc) * buoc;
-      n = Math.min(toiDa, Math.max(toiThieu, n));
+    let n = Math.floor(conLai / caoDong);
+    n = Math.floor(n / buoc) * buoc;
+    n = Math.min(toiDa, Math.max(toiThieu, n));
 
-      setCoTrang((truoc) => (truoc === n ? truoc : n));
-    }
+    setCoTrang((truoc) => (truoc === n ? truoc : n));
+  });
 
-    tinh();
-    // Đổi kích thước cửa sổ thì tính lại, nhưng chờ cho người dùng thả chuột
-    // đã — mỗi lần đổi là một lượt gọi lại API.
+  // Đổi kích thước cửa sổ thì thúc một nhịp để đo lại, nhưng chờ người dùng
+  // thả chuột đã — mỗi lần đổi cỡ trang là một lượt gọi lại API.
+  useLayoutEffect(() => {
     let hen: ReturnType<typeof setTimeout>;
     const khiDoiCo = () => {
       clearTimeout(hen);
-      hen = setTimeout(tinh, 250);
+      hen = setTimeout(() => setNhip((n) => n + 1), 250);
     };
     window.addEventListener("resize", khiDoiCo);
     return () => {
       clearTimeout(hen);
       window.removeEventListener("resize", khiDoiCo);
     };
-  }, [ref, toiThieu, toiDa, buoc, duTru]);
+  }, []);
 
+  void nhip;
   return coTrang;
 }
 
