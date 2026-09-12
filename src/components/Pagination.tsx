@@ -42,8 +42,16 @@ export function Pagination({
   const to = Math.min((page + 1) * pageSize, totalElements);
 
   return (
-    <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-white/5 pt-3">
-      <p className="text-xs text-muted-foreground">
+    /* KHÔNG flex-wrap.
+       Với flex-wrap, độ dài của chính cái nhãn quyết định thanh này cao một
+       dòng hay hai: "1–10 trên 20 tài khoản" đẩy cặp nút xuống dòng dưới, còn
+       "2 tài khoản" thì không — nên lọc lại một cái là cả khối tụt 44px. Đo
+       được trên production ở khung hẹp.
+
+       Một dòng cố định, nhãn tự cắt bớt khi chật. Thà mất vài chữ còn hơn để
+       cả trang nhảy. */
+    <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/5 pt-3">
+      <p className="min-w-0 truncate text-xs text-muted-foreground">
         {totalElements === 0
           ? `Không có ${unit} nào`
           : `${from}–${to} trên ${totalElements} ${unit}`}
@@ -55,7 +63,7 @@ export function Pagination({
           giữ nguyên chỗ; `aria-hidden` để trình đọc màn hình không đọc hai
           cái nút vô nghĩa. */}
       <div
-        className={`flex items-center gap-1 ${totalPages > 1 ? "" : "invisible"}`}
+        className={`flex shrink-0 items-center gap-1 ${totalPages > 1 ? "" : "invisible"}`}
         aria-hidden={totalPages <= 1}
       >
         <button
