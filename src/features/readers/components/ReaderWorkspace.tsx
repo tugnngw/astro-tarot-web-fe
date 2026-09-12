@@ -20,6 +20,7 @@ import { ApiError } from "@/api/client";
 import { useReaderReviews } from "@/features/booking/queries";
 import { Pagination, PagedList } from "@/components/Pagination";
 import { ListError } from "@/components/ListError";
+import { ViDateInput } from "@/components/ViDateInput";
 import { formatVND } from "@/lib/mock-data";
 import { useAuth } from "@/lib/auth-context";
 import type { ReaderProfile } from "@/api/reader";
@@ -596,13 +597,13 @@ function DaysOffManager({
       <form onSubmit={submit} className="mt-4 flex flex-wrap items-end gap-2">
         <label className="grid gap-1">
           <span className="text-[11px] text-muted-foreground">Ngày</span>
-          <input
-            type="date"
+          <ViDateInput
+            aria-label="Ngày nghỉ"
             required
             min={today}
             value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="rounded-lg border border-gold/30 bg-input/60 px-3 py-2 text-sm outline-none focus:border-gold"
+            onChange={setDate}
+            className="rounded-lg border border-gold/30 bg-input/60 px-3 py-2 text-sm outline-none"
           />
         </label>
         <label className="grid flex-1 gap-1">
