@@ -8,6 +8,7 @@
 
 import { apiFetch } from "./client";
 
+import { PAGE_SIZE } from "@/components/Pagination";
 export type BookingStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED";
 export type BookingPaymentStatus = "UNPAID" | "PAID" | "REFUNDED" | "FAILED";
 
@@ -120,7 +121,11 @@ export function getNextAvailableDate(
   );
 }
 
-export function getReaderReviews(readerProfileId: string, page = 0, size = 10) {
+export function getReaderReviews(
+  readerProfileId: string,
+  page = 0,
+  size = PAGE_SIZE,
+) {
   const params = new URLSearchParams({
     page: String(page),
     size: String(size),

@@ -9,7 +9,13 @@
 //      trang cũ trên màn hình thay vì rơi về khung xương rỗng.
 //   2. Bọc phần danh sách trong <PagedList> để mọi trang cao bằng nhau —
 //      trang cuối ít dòng hơn vẫn chiếm đúng chỗ, nên nút bấm không chạy lên.
-import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import {
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+  type RefObject,
+} from "react";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 
 /** Số dòng mỗi trang, dùng chung để mọi bảng trông giống nhau. */
@@ -122,12 +128,19 @@ export function Pagination({
 export function PagedList({
   children,
   pageSize = PAGE_SIZE,
+  listRef,
 }: {
   children: ReactNode;
   /** Số mục của một trang đầy. Lưới thẻ đếm khác bảng dòng. */
   pageSize?: number;
+  /**
+   * Cho useCoTrangVuaManHinh mượn để đo. Cùng trỏ vào phần tử bọc nội dung,
+   * nên hook đo được cả vị trí bắt đầu lẫn chiều cao một dòng.
+   */
+  listRef?: RefObject<HTMLDivElement | null>;
 }) {
-  const inner = useRef<HTMLDivElement>(null);
+  const rieng = useRef<HTMLDivElement>(null);
+  const inner = listRef ?? rieng;
   const [minHeight, setMinHeight] = useState(0);
 
   useLayoutEffect(() => {
@@ -160,4 +173,83 @@ function demDong(el: HTMLElement): number {
   const tbody = el.querySelector("tbody");
   if (tbody) return tbody.children.length;
   return el.firstElementChild?.children.length ?? 0;
+}
+
+/**
+ * Chọn số dòng mỗi trang sao cho một trang vừa đúng một màn hình.
+ *
+ * <p>Mục đích: không phải cuộn xuống mới thấy nút sang trang. Một con số cố
+ * định không làm được việc đó — đo thật trên màn 1440×900 thì bảng nhân sự bắt
+ * đầu ở 372px và mỗi dòng cao 61px, nên vừa 7 dòng; cũng bảng ấy trên laptop
+ * 768px chiều cao thì chỉ vừa 4. Chênh nhau gần gấp đôi.
+ *
+ * <p>Nên tính từ chỗ trống thật: lấy chiều cao màn hình, trừ đi phần nằm trên
+ * danh sách (tiêu đề, tab, bộ lọc) và phần nằm dưới (thanh phân trang), rồi
+ * chia cho chiều cao một dòng.
+ *
+ * <p>Chiều cao dòng ĐO từ dòng đang hiển thị chứ không nhận từ tham số: mỗi
+ * bảng một khác, và đoán thì sai — bảng đối soát có dòng cao gấp tám lần bảng
+ * tài khoản.
+ *
+ * <p>`buoc` để lưới thẻ luôn lấy trọn hàng: lưới bốn cột mà trả về 7 thì hàng
+ * cuối lẻ ba thẻ, nhìn như bị cắt. Truyền số cột vào đây thì kết quả luôn là
+ * bội của nó.
+ *
+ * @param ref  phần tử bọc danh sách, để biết nó bắt đầu ở đâu trên màn hình
+ */
+export function useCoTrangVuaManHinh(
+  ref: RefObject<HTMLElement | null>,
+  {
+    toiThieu = 3,
+    toiDa = 20,
+    buoc = 1,
+    duTru = 96,
+  }: { toiThieu?: number; toiDa?: number; buoc?: number; duTru?: number } = {},
+) {
+  const [coTrang, setCoTrang] = useState(PAGE_SIZE);
+
+  useLayoutEffect(() => {
+    function tinh() {
+      const el = ref.current;
+      if (!el) return;
+
+      const dong = layMotDong(el);
+      if (!dong) return;
+      const caoDong = dong.getBoundingClientRect().height;
+      if (caoDong < 8) return;
+
+      const top = el.getBoundingClientRect().top;
+      // duTru: thanh phân trang, đệm dưới, và một chút thở.
+      const conLai = window.innerHeight - top - duTru;
+
+      let n = Math.floor(conLai / caoDong);
+      n = Math.floor(n / buoc) * buoc;
+      n = Math.min(toiDa, Math.max(toiThieu, n));
+
+      setCoTrang((truoc) => (truoc === n ? truoc : n));
+    }
+
+    tinh();
+    // Đổi kích thước cửa sổ thì tính lại, nhưng chờ cho người dùng thả chuột
+    // đã — mỗi lần đổi là một lượt gọi lại API.
+    let hen: ReturnType<typeof setTimeout>;
+    const khiDoiCo = () => {
+      clearTimeout(hen);
+      hen = setTimeout(tinh, 250);
+    };
+    window.addEventListener("resize", khiDoiCo);
+    return () => {
+      clearTimeout(hen);
+      window.removeEventListener("resize", khiDoiCo);
+    };
+  }, [ref, toiThieu, toiDa, buoc, duTru]);
+
+  return coTrang;
+}
+
+/** Một mục bất kỳ đang hiển thị, để đo chiều cao. Xem demDong. */
+function layMotDong(el: HTMLElement): Element | null {
+  const tbody = el.querySelector("tbody");
+  if (tbody) return tbody.firstElementChild;
+  return el.firstElementChild?.firstElementChild ?? null;
 }

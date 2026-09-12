@@ -4,7 +4,7 @@
 // trong bộ nhớ trình duyệt: đặt lịch xong tải lại trang là mất, và Reader
 // không bao giờ nhìn thấy gì. Nay nối thẳng vào /api/v1/bookings.
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   AlertCircle,
   ArrowLeft,
@@ -25,7 +25,11 @@ import {
 import { DURATIONS, type Duration, type Slot } from "@/api/booking";
 import { formatVND } from "@/lib/mock-data";
 
-import { PagedList, Pagination } from "@/components/Pagination";
+import {
+  PagedList,
+  Pagination,
+  useCoTrangVuaManHinh,
+} from "@/components/Pagination";
 export const Route = createFileRoute("/readers_/$id")({
   head: () => ({ meta: [{ title: "Hồ sơ Reader — ASTROTAROT" }] }),
   component: ReaderProfilePage,
@@ -40,7 +44,11 @@ function ReaderProfilePage() {
 
   const reader = useReader(id);
   const [trangDanhGia, setTrangDanhGia] = useState(0);
-  const reviews = useReaderReviews(id, trangDanhGia);
+  // Cỡ trang theo màn hình thật: một trang vừa một màn, khỏi cuộn
+  // xuống mới bấm được sang trang.
+  const listRef = useRef<HTMLDivElement>(null);
+  const coTrang = useCoTrangVuaManHinh(listRef);
+  const reviews = useReaderReviews(id, trangDanhGia, coTrang);
 
   const [duration, setDuration] = useState<Duration>(30);
   const [date, setDate] = useState(() => toDateInput(new Date()));
@@ -239,7 +247,7 @@ function ReaderProfilePage() {
                   Chưa có đánh giá nào. Bạn có thể là người đầu tiên.
                 </p>
               ) : (
-                <PagedList>
+                <PagedList pageSize={coTrang} listRef={listRef}>
                   <ul className="space-y-3">
                     {reviews.data!.content.map((rv) => (
                       <li
@@ -287,6 +295,7 @@ function ReaderProfilePage() {
                   totalPages={reviews.data?.totalPages ?? 1}
                   totalElements={reviews.data?.totalElements ?? 0}
                   onChange={setTrangDanhGia}
+                  pageSize={coTrang}
                   busy={reviews.isFetching}
                   unit="đánh giá"
                 />

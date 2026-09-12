@@ -58,10 +58,14 @@ export function useNextAvailableDate(
   });
 }
 
-export function useReaderReviews(readerProfileId: string, page = 0) {
+export function useReaderReviews(
+  readerProfileId: string,
+  page = 0,
+  size?: number,
+) {
   return useQuery({
-    queryKey: bookingKeys.reviews(readerProfileId, page),
-    queryFn: () => bookingApi.getReaderReviews(readerProfileId, page),
+    queryKey: [...bookingKeys.reviews(readerProfileId, page), size],
+    queryFn: () => bookingApi.getReaderReviews(readerProfileId, page, size),
     enabled: Boolean(readerProfileId),
     placeholderData: keepPreviousData,
   });

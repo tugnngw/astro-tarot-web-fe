@@ -3,7 +3,7 @@
 // Khách mở yêu cầu và theo dõi trả lời ở đây; nhân viên xử lý ở /staff. Cùng
 // một API (/api/v1/support), hai góc nhìn.
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { ArrowLeft, LifeBuoy, Plus, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import { Header } from "@/components/Header";
@@ -12,7 +12,11 @@ import { useMyTickets, useCreateTicket } from "@/features/support/queries";
 import { TicketThread } from "@/features/support/components/TicketThread";
 import { TICKET_STATUS_LABEL, type TicketStatus } from "@/api/support";
 
-import { PagedList, Pagination } from "@/components/Pagination";
+import {
+  PagedList,
+  Pagination,
+  useCoTrangVuaManHinh,
+} from "@/components/Pagination";
 export const Route = createFileRoute("/support")({
   head: () => ({ meta: [{ title: "Hỗ trợ — ASTROTAROT" }] }),
   component: () => (
@@ -101,7 +105,11 @@ function SupportPage() {
 
 function MyTickets({ onOpen }: { onOpen: (id: string) => void }) {
   const [page, setPage] = useState(0);
-  const query = useMyTickets(page);
+  // Cỡ trang theo màn hình thật: một trang vừa một màn, khỏi cuộn
+  // xuống mới bấm được sang trang.
+  const listRef = useRef<HTMLDivElement>(null);
+  const coTrang = useCoTrangVuaManHinh(listRef);
+  const query = useMyTickets(page, coTrang);
   const rows = query.data?.content ?? [];
 
   if (query.isLoading) {
@@ -125,7 +133,7 @@ function MyTickets({ onOpen }: { onOpen: (id: string) => void }) {
 
   return (
     <>
-      <PagedList>
+      <PagedList pageSize={coTrang} listRef={listRef}>
         <ul className="glass divide-y divide-gold/10 rounded-2xl px-4">
           {rows.map((t) => (
             <li key={t.id}>
@@ -155,6 +163,7 @@ function MyTickets({ onOpen }: { onOpen: (id: string) => void }) {
         totalPages={query.data?.totalPages ?? 1}
         totalElements={query.data?.totalElements ?? 0}
         onChange={setPage}
+        pageSize={coTrang}
         busy={query.isFetching}
         unit="yêu cầu"
       />

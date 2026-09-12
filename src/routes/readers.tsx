@@ -4,7 +4,7 @@
 // đã xong nên rất dễ bị bỏ quên, mà người dùng thật thì tin vào những cái tên
 // và mức giá bịa ra ở đó. Nay đọc từ GET /api/v1/readers.
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { Search, Star, UserSearch } from "lucide-react";
 import { Header } from "@/components/Header";
 import { useReaders } from "@/features/readers/queries";
@@ -12,7 +12,12 @@ import { formatVND } from "@/lib/mock-data";
 import type { ReaderProfile } from "@/api/reader";
 
 import { ListError, useTaiLau, SlowHint } from "@/components/ListError";
-import { PAGE_SIZE, Pagination, PagedList } from "@/components/Pagination";
+import {
+  PAGE_SIZE,
+  Pagination,
+  PagedList,
+  useCoTrangVuaManHinh,
+} from "@/components/Pagination";
 export const Route = createFileRoute("/readers")({
   head: () => ({
     meta: [
@@ -30,6 +35,10 @@ function ReadersPage() {
   const query = useReaders();
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(0);
+  // Cỡ trang theo màn hình thật: một trang vừa một màn, khỏi cuộn
+  // xuống mới bấm được sang trang.
+  const listRef = useRef<HTMLDivElement>(null);
+  const coTrang = useCoTrangVuaManHinh(listRef, { buoc: 2 });
 
   const readers = useMemo(() => {
     const all = query.data ?? [];
@@ -49,11 +58,11 @@ function ReadersPage() {
     setPage(0);
   }, [keyword]);
 
-  const totalPages = Math.max(1, Math.ceil(readers.length / PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(readers.length / coTrang));
   const trangHienTai = Math.min(page, totalPages - 1);
   const readersTrangNay = readers.slice(
-    trangHienTai * PAGE_SIZE,
-    (trangHienTai + 1) * PAGE_SIZE,
+    trangHienTai * coTrang,
+    (trangHienTai + 1) * coTrang,
   );
 
   return (
@@ -124,7 +133,7 @@ function ReadersPage() {
             <>
               {/* PagedList giữ chiều cao: trang cuối ít thẻ hơn thì cả khối
                   không tụt lên, nút "Trang sau" đứng yên dưới ngón tay. */}
-              <PagedList>
+              <PagedList pageSize={coTrang} listRef={listRef}>
                 <div className="grid gap-5 md:grid-cols-2">
                   {readersTrangNay.map((r) => (
                     <ReaderCard key={r.id} reader={r} />
@@ -135,8 +144,8 @@ function ReadersPage() {
                 page={trangHienTai}
                 totalPages={totalPages}
                 totalElements={readers.length}
-                pageSize={PAGE_SIZE}
                 onChange={setPage}
+                pageSize={coTrang}
                 unit="Reader"
               />
             </>

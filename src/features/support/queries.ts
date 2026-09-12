@@ -18,17 +18,21 @@ export const supportKeys = {
   detail: (id: string) => [...supportKeys.all, "ticket", id] as const,
 };
 
-export function useMyTickets(page = 0) {
+export function useMyTickets(page = 0, size = PAGE_SIZE) {
   return useQuery({
-    queryKey: supportKeys.mine(page),
-    queryFn: () => supportApi.getMyTickets({ page, size: PAGE_SIZE }),
+    queryKey: [...supportKeys.mine(page), size],
+    queryFn: () => supportApi.getMyTickets({ page, size }),
     placeholderData: keepPreviousData,
   });
 }
 
-export function useSupportQueue(status: TicketStatus | "", page = 0) {
+export function useSupportQueue(
+  status: TicketStatus | "",
+  page = 0,
+  size = PAGE_SIZE,
+) {
   return useQuery({
-    queryKey: supportKeys.queue(status, page),
+    queryKey: [...supportKeys.queue(status, page), size],
     queryFn: () =>
       supportApi.getSupportQueue({
         status: status || undefined,

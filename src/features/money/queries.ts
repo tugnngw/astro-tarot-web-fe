@@ -56,10 +56,10 @@ export function useMyEscrow(enabled = true) {
   });
 }
 
-export function useMyPayouts(page = 0, enabled = true) {
+export function useMyPayouts(page = 0, enabled = true, size?: number) {
   return useQuery({
-    queryKey: moneyKeys.myPayouts(page),
-    queryFn: () => moneyApi.getMyPayouts(page),
+    queryKey: [...moneyKeys.myPayouts(page), size],
+    queryFn: () => moneyApi.getMyPayouts(page, size),
     enabled,
     placeholderData: keepPreviousData,
   });
