@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Bell, CheckCheck, Trash2 } from "lucide-react";
+import { Bell, CheckCheck, Star, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { notificationLink, type Notification } from "@/api/notifications";
 import {
+  useDeleteNotifications,
   useDeleteReadNotifications,
   useMarkAllNotificationsRead,
   useMarkNotificationRead,
   useNotifications,
+  usePinNotification,
   useUnreadCount,
 } from "@/features/booking/queries";
 import { useAuth } from "@/lib/auth-context";
@@ -21,6 +24,7 @@ export function NotificationBell() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
   const boxRef = useRef<HTMLDivElement>(null);
 
   const unread = useUnreadCount(Boolean(user));
@@ -28,13 +32,21 @@ export function NotificationBell() {
   const markRead = useMarkNotificationRead();
   const markAll = useMarkAllNotificationsRead();
   const xoaDaDoc = useDeleteReadNotifications();
+  const pin = usePinNotification();
+  const xoaChon = useDeleteNotifications();
 
   const count = unread.data?.count ?? 0;
   const items = list.data?.content ?? [];
-  const soTinDaDoc = items.filter((n) => n.read).length;
+  const soTinDaDoc = items.filter((n) => n.read && !n.pinned).length;
+  const coTheChon = items.filter((n) => !n.pinned);
+  const daChonHet =
+    coTheChon.length > 0 && coTheChon.every((n) => selected.has(n.id));
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      setSelected(new Set());
+      return;
+    }
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(false);
     };
@@ -43,14 +55,21 @@ export function NotificationBell() {
         setOpen(false);
     };
     window.addEventListener("keydown", onKey);
-    // mousedown chứ không click: click nổ sau khi React đã render lại, và lúc
-    // đó phần tử vừa bấm có thể không còn trong panel nữa.
     window.addEventListener("mousedown", onClick);
     return () => {
       window.removeEventListener("keydown", onKey);
       window.removeEventListener("mousedown", onClick);
     };
   }, [open]);
+
+  // Bỏ id đã biến mất khỏi danh sách (sau khi xoá / ghim).
+  useEffect(() => {
+    const ids = new Set(items.map((n) => n.id));
+    setSelected((prev) => {
+      const next = new Set([...prev].filter((id) => ids.has(id)));
+      return next.size === prev.size ? prev : next;
+    });
+  }, [items]);
 
   if (!user) return null;
 
@@ -59,6 +78,39 @@ export function NotificationBell() {
     const to = notificationLink(n);
     setOpen(false);
     if (to) navigate({ to });
+  }
+
+  function toggleSelect(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleSelectAll() {
+    if (daChonHet) {
+      setSelected(new Set());
+      return;
+    }
+    setSelected(new Set(coTheChon.map((n) => n.id)));
+  }
+
+  async function xoaDaChon() {
+    const ids = [...selected];
+    if (ids.length === 0) return;
+    try {
+      const res = await xoaChon.mutateAsync(ids);
+      setSelected(new Set());
+      toast.success(
+        res.deleted > 0
+          ? `Đã xoá ${res.deleted} thông báo`
+          : "Không xoá được tin đã ghim",
+      );
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Không xoá được");
+    }
   }
 
   return (
@@ -79,10 +131,10 @@ export function NotificationBell() {
       </button>
 
       {open && (
-        <div className="panel-black absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-xl border border-gold/30 shadow-2xl">
+        <div className="panel-black absolute right-0 z-50 mt-2 w-[22rem] overflow-hidden rounded-xl border border-gold/30 shadow-2xl sm:w-96">
           <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b border-gold/20 px-4 py-2.5">
             <span className="text-sm font-medium">Thông báo</span>
-            <span className="flex items-center gap-3">
+            <span className="flex flex-wrap items-center justify-end gap-x-3 gap-y-1">
               {count > 0 && (
                 <button
                   type="button"
@@ -94,15 +146,12 @@ export function NotificationBell() {
                   Đánh dấu đã đọc
                 </button>
               )}
-
-              {/* Chỉ hiện khi thật sự có tin đã đọc để xoá. Một nút luôn hiện
-                  mà bấm vào không làm gì là một nút nói dối. */}
               {soTinDaDoc > 0 && (
                 <button
                   type="button"
                   onClick={() => xoaDaDoc.mutate()}
                   disabled={xoaDaDoc.isPending}
-                  title="Xoá hẳn các thông báo đã đọc. Tin chưa đọc giữ nguyên."
+                  title="Xoá tin đã đọc. Tin đã ghim và tin chưa đọc giữ nguyên."
                   className="inline-flex items-center gap-1.5 text-xs text-muted-foreground transition hover:text-destructive disabled:opacity-50"
                 >
                   <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
@@ -111,6 +160,32 @@ export function NotificationBell() {
               )}
             </span>
           </div>
+
+          {items.length > 0 && (
+            <div className="flex items-center justify-between gap-2 border-b border-white/5 px-4 py-2">
+              <label className="inline-flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
+                <input
+                  type="checkbox"
+                  checked={daChonHet}
+                  disabled={coTheChon.length === 0}
+                  onChange={toggleSelectAll}
+                  className="h-3.5 w-3.5 accent-[var(--gold)]"
+                />
+                Chọn tất cả
+              </label>
+              {selected.size > 0 && (
+                <button
+                  type="button"
+                  onClick={() => void xoaDaChon()}
+                  disabled={xoaChon.isPending}
+                  className="inline-flex items-center gap-1.5 text-xs text-destructive transition hover:underline disabled:opacity-50"
+                >
+                  <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
+                  Xoá đã chọn ({selected.size})
+                </button>
+              )}
+            </div>
+          )}
 
           <div className="max-h-96 overflow-y-auto">
             {list.isPending ? (
@@ -129,22 +204,40 @@ export function NotificationBell() {
             ) : (
               <ul>
                 {items.map((n) => (
-                  <li key={n.id}>
+                  <li
+                    key={n.id}
+                    className={`flex items-start gap-2 border-b border-white/5 px-3 py-2.5 last:border-0 ${
+                      n.read ? "" : "bg-gold/[0.06]"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selected.has(n.id)}
+                      disabled={n.pinned}
+                      title={
+                        n.pinned
+                          ? "Bỏ ghim trước khi chọn xoá"
+                          : "Chọn để xoá"
+                      }
+                      onChange={() => toggleSelect(n.id)}
+                      className="mt-1.5 h-3.5 w-3.5 shrink-0 accent-[var(--gold)] disabled:opacity-40"
+                      aria-label={`Chọn: ${n.title}`}
+                    />
                     <button
                       type="button"
                       onClick={() => openItem(n)}
-                      className={`block w-full border-b border-white/5 px-4 py-3 text-left transition last:border-0 hover:bg-gold/5 ${
-                        n.read ? "" : "bg-gold/[0.06]"
-                      }`}
+                      className="min-w-0 flex-1 text-left transition hover:opacity-90"
                     >
                       <span className="flex items-start gap-2">
-                        {!n.read && (
+                        {!n.read ? (
                           <span
                             aria-hidden="true"
                             className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gold"
                           />
+                        ) : (
+                          <span className="mt-1.5 w-1.5 shrink-0" aria-hidden />
                         )}
-                        <span className={n.read ? "pl-3.5" : ""}>
+                        <span className="min-w-0">
                           <span className="block text-sm text-foreground">
                             {n.title}
                           </span>
@@ -158,6 +251,27 @@ export function NotificationBell() {
                           </span>
                         </span>
                       </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        pin.mutate({ id: n.id, pinned: !n.pinned });
+                      }}
+                      disabled={pin.isPending}
+                      title={n.pinned ? "Bỏ ghim" : "Ghim lên đầu"}
+                      aria-label={n.pinned ? "Bỏ ghim" : "Ghim"}
+                      aria-pressed={n.pinned}
+                      className={`mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full transition disabled:opacity-50 ${
+                        n.pinned
+                          ? "text-gold hover:bg-gold/10"
+                          : "text-muted-foreground hover:bg-mystic/15 hover:text-gold"
+                      }`}
+                    >
+                      <Star
+                        aria-hidden="true"
+                        className={`h-3.5 w-3.5 ${n.pinned ? "fill-gold" : ""}`}
+                      />
                     </button>
                   </li>
                 ))}

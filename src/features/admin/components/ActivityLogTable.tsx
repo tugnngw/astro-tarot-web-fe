@@ -3,6 +3,13 @@ import { AlertCircle, ScrollText } from "lucide-react";
 import { RoleBadge } from "@/components/RoleBadge";
 import { ACTION_LABEL, type ActivityLog } from "@/api/admin";
 import { useActivityLogs } from "@/features/admin/queries";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 import { PAGE_SIZE } from "@/components/Pagination";
 /**
@@ -36,22 +43,37 @@ export function ActivityLogTable() {
             xoá được từ giao diện.
           </p>
         </div>
-        <select
-          aria-label="Lọc theo hành động"
-          value={action}
-          onChange={(e) => {
-            setAction(e.target.value);
+        <Select
+          value={action || "__all__"}
+          onValueChange={(v) => {
+            setAction(v === "__all__" ? "" : v);
             setPage(0);
           }}
-          className="rounded-full border border-gold/30 bg-input/70 px-4 py-2 text-sm text-foreground outline-none focus:border-gold"
         >
-          <option value="">Mọi hành động</option>
-          {Object.entries(ACTION_LABEL).map(([key, label]) => (
-            <option key={key} value={key}>
-              {label}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger
+            aria-label="Lọc theo hành động"
+            className="h-auto w-auto min-w-[11rem] gap-1.5 rounded-full border-gold/30 bg-input/70 px-4 py-2 text-sm text-foreground shadow-none focus:ring-1 focus:ring-gold/40 data-[state=open]:border-gold"
+          >
+            <SelectValue placeholder="Mọi hành động" />
+          </SelectTrigger>
+          <SelectContent className="rounded-xl border border-gold/25 bg-card text-foreground shadow-xl">
+            <SelectItem
+              value="__all__"
+              className="cursor-pointer rounded-lg py-2 pl-3 pr-8 text-sm focus:bg-gold/15 focus:text-gold data-[state=checked]:bg-gold/10 data-[state=checked]:text-gold"
+            >
+              Mọi hành động
+            </SelectItem>
+            {Object.entries(ACTION_LABEL).map(([key, label]) => (
+              <SelectItem
+                key={key}
+                value={key}
+                className="cursor-pointer rounded-lg py-2 pl-3 pr-8 text-sm focus:bg-gold/15 focus:text-gold data-[state=checked]:bg-gold/10 data-[state=checked]:text-gold"
+              >
+                {label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div aria-live="polite" aria-busy={query.isFetching} className="mt-5">

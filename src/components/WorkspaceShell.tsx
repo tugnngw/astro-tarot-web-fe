@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { Sparkles } from "lucide-react";
 import { Header } from "@/components/Header";
@@ -35,6 +35,12 @@ export function WorkspaceShell({
 }) {
   const { user } = useAuth();
   const [active, setActive] = useState(tabs[0]?.key ?? "");
+  // Tab bị ẩn vì thiếu quyền → nhảy về tab còn lại, đừng giữ key đã biến mất.
+  useEffect(() => {
+    if (!tabs.some((t) => t.key === active)) {
+      setActive(tabs[0]?.key ?? "");
+    }
+  }, [tabs, active]);
   const current = tabs.find((t) => t.key === active) ?? tabs[0];
   // Staff / manager / admin vẫn có USER_BASIC — họ có thể cần trải bài hoặc
   // xem lịch cá nhân. "Trang chủ" của họ là khu làm việc, nên mở lối phụ sang

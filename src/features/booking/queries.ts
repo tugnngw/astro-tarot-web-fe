@@ -202,7 +202,7 @@ export function useMarkAllNotificationsRead() {
 }
 
 /**
- * Xoá hẳn các thông báo đã đọc.
+ * Xoá hẳn các thông báo đã đọc (trừ tin đã ghim).
  *
  * Khác "đánh dấu tất cả đã đọc": cái kia chỉ tắt chấm tròn, danh sách vẫn dài
  * ra mãi. Tin CHƯA đọc không bị đụng tới, nên bấm nhầm cũng không mất thứ
@@ -212,6 +212,25 @@ export function useDeleteReadNotifications() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: notificationApi.deleteReadNotifications,
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: notificationKeys.all }),
+  });
+}
+
+export function usePinNotification() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, pinned }: { id: string; pinned: boolean }) =>
+      notificationApi.setPinned(id, pinned),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: notificationKeys.all }),
+  });
+}
+
+export function useDeleteNotifications() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: notificationApi.deleteNotifications,
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: notificationKeys.all }),
   });

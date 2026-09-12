@@ -27,10 +27,12 @@ export const Route = createFileRoute("/staff")({
 });
 
 function StaffWorkspace() {
-  // Quản lý cũng có SUPPORT_VIEW nên vào được trang này để giám sát hàng chờ,
-  // nhưng họ không có READER_MANAGE_PROFILE. Ẩn hẳn tab Reader thay vì để họ
-  // bấm vào rồi nhận 403 — đúng tinh thần "không bày nút bấm vào sẽ hỏng".
+  // Mỗi tab chỉ hiện khi có đúng quyền API cần. ADMIN vào /staff vì có
+  // SUPPORT_VIEW, nhưng không có PAYOUT_REQUEST — bày "Thu nhập" rồi để họ
+  // bấm vào nhận 403 tệ hơn là ẩn hẳn.
   const { can } = useAuth();
+  const coReader = can("READER_MANAGE_PROFILE");
+  const coThuNhap = can("PAYOUT_REQUEST");
 
   return (
     <WorkspaceShell
@@ -42,18 +44,26 @@ function StaffWorkspace() {
           label: "Hỗ trợ khách",
           render: () => <StaffSupportQueue />,
         },
-        ...(can("READER_MANAGE_PROFILE")
+        ...(coReader
           ? [
               {
                 key: "bookings",
                 label: "Lịch hẹn",
                 render: () => <ReaderBookings />,
               },
+            ]
+          : []),
+        ...(coThuNhap
+          ? [
               {
                 key: "earnings",
                 label: "Thu nhập",
                 render: () => <EarningsPanel />,
               },
+            ]
+          : []),
+        ...(coReader
+          ? [
               {
                 key: "reader",
                 label: "Hồ sơ Reader",

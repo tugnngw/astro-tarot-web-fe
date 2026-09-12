@@ -39,12 +39,13 @@ import {
   useCoTrangVuaManHinh,
 } from "@/components/Pagination";
 
-/** Cùng bề ngang cho select vai trò và badge cứng (Quản lý…). */
+/** Cùng bề ngang / chiều cao cho select vai trò và badge cứng (Quản lý…). */
 const ROLE_CELL_WIDTH = "min-w-[8.5rem]";
+const ROLE_CELL_HEIGHT = "h-8";
 
 /** Trigger pill khớp kích thước RoleBadge / nút Khoá trong bảng. */
 const roleSelectTriggerClass =
-  `h-auto w-auto ${ROLE_CELL_WIDTH} gap-1.5 rounded-full border-gold/30 bg-input/70 px-3 py-1 text-xs text-foreground shadow-none focus:ring-1 focus:ring-gold/40 data-[state=open]:border-gold`;
+  `${ROLE_CELL_HEIGHT} w-auto ${ROLE_CELL_WIDTH} gap-1.5 rounded-full border-gold/30 bg-input/70 px-3 py-0 text-xs text-foreground shadow-none focus:ring-1 focus:ring-gold/40 data-[state=open]:border-gold [&>span]:justify-start`;
 
 const roleSelectContentClass =
   "rounded-xl border border-gold/25 bg-card text-foreground shadow-xl";
@@ -485,7 +486,7 @@ export function UserDirectory({
                         ) : (
                           <RoleBadge
                             role={u.role}
-                            className={`${ROLE_CELL_WIDTH} justify-center`}
+                            className={`${ROLE_CELL_HEIGHT} ${ROLE_CELL_WIDTH} justify-start gap-1.5 leading-none`}
                           />
                         )}
                       </td>

@@ -14,6 +14,8 @@ export interface Notification {
   /** Xem NotificationTypes bên BE. Quyết định biểu tượng và đường dẫn khi bấm. */
   type: string | null;
   read: boolean;
+  /** Tin ghim lên đầu; không bị xoá hàng loạt. */
+  pinned: boolean;
   /** JSON thô, thường chứa bookingId để dựng link. */
   metadata: string | null;
   createdAt: string;
@@ -44,14 +46,26 @@ export function markRead(id: string) {
   return apiFetch<void>(`${BASE}/${id}/read`, { method: "PATCH" });
 }
 
+export function setPinned(id: string, pinned: boolean) {
+  return apiFetch<void>(`${BASE}/${id}/pin`, {
+    method: "PATCH",
+    body: JSON.stringify({ pinned }),
+  });
+}
+
 /**
- * Xoá hẳn các thông báo ĐÃ ĐỌC.
- *
- * Đánh dấu đã đọc chỉ tắt chấm tròn; danh sách vẫn dài ra mãi. Đây là đường
- * dọn dẹp thật. Tin chưa đọc không bị đụng tới.
+ * Xoá hẳn các thông báo ĐÃ ĐỌC (trừ tin đã ghim).
  */
 export function deleteReadNotifications() {
   return apiFetch<{ deleted: number }>(`${BASE}/read`, { method: "DELETE" });
+}
+
+/** Xoá theo id đã chọn. Tin ghim bị bỏ qua phía server. */
+export function deleteNotifications(ids: string[]) {
+  return apiFetch<{ deleted: number }>(BASE, {
+    method: "DELETE",
+    body: JSON.stringify({ ids }),
+  });
 }
 
 export function markAllRead() {

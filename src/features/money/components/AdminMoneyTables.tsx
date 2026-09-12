@@ -24,6 +24,13 @@ import {
   useReports,
 } from "@/features/money/queries";
 import { PAGE_SIZE, PagedList, Pagination } from "@/components/Pagination";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { formatVND } from "@/lib/mock-data";
 import { useRowBusy } from "@/lib/row-busy";
 import { ListError } from "@/components/ListError";
@@ -651,19 +658,34 @@ function StatusFilter({
   labels: Record<string, string>;
 }) {
   return (
-    <select
-      aria-label="Lọc theo trạng thái"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className="rounded-full border border-gold/30 bg-input/70 px-4 py-2 text-sm text-foreground outline-none focus:border-gold"
+    <Select
+      value={value || "__all__"}
+      onValueChange={(v) => onChange(v === "__all__" ? "" : v)}
     >
-      <option value="">Tất cả</option>
-      {Object.entries(labels).map(([k, label]) => (
-        <option key={k} value={k}>
-          {label}
-        </option>
-      ))}
-    </select>
+      <SelectTrigger
+        aria-label="Lọc theo trạng thái"
+        className="h-auto w-auto min-w-[9.5rem] gap-1.5 rounded-full border-gold/30 bg-input/70 px-4 py-2 text-sm text-foreground shadow-none focus:ring-1 focus:ring-gold/40 data-[state=open]:border-gold"
+      >
+        <SelectValue placeholder="Tất cả" />
+      </SelectTrigger>
+      <SelectContent className="rounded-xl border border-gold/25 bg-card text-foreground shadow-xl">
+        <SelectItem
+          value="__all__"
+          className="cursor-pointer rounded-lg py-2 pl-3 pr-8 text-sm focus:bg-gold/15 focus:text-gold data-[state=checked]:bg-gold/10 data-[state=checked]:text-gold"
+        >
+          Tất cả
+        </SelectItem>
+        {Object.entries(labels).map(([k, label]) => (
+          <SelectItem
+            key={k}
+            value={k}
+            className="cursor-pointer rounded-lg py-2 pl-3 pr-8 text-sm focus:bg-gold/15 focus:text-gold data-[state=checked]:bg-gold/10 data-[state=checked]:text-gold"
+          >
+            {label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }
 

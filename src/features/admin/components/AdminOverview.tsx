@@ -89,6 +89,62 @@ function vnd(n: number) {
   }).format(n);
 }
 
+/** Rút gọn số tiền trên trục Y: 1.2tr, 800k… */
+function vndTruc(n: number) {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(n % 1_000_000 === 0 ? 0 : 1)}tr`;
+  if (n >= 1_000) return `${Math.round(n / 1_000)}k`;
+  return String(n);
+}
+
+/**
+ * Chữ số trắng giữa lát bánh — bỏ qua lát quá nhỏ để khỏi chồng chữ.
+ * Dùng chung mọi Pie trong file này.
+ */
+function pieWhiteLabel(props: {
+  cx?: number;
+  cy?: number;
+  midAngle?: number;
+  innerRadius?: number;
+  outerRadius?: number;
+  value?: number;
+  percent?: number;
+  format?: (n: number) => string;
+}) {
+  const {
+    cx = 0,
+    cy = 0,
+    midAngle = 0,
+    innerRadius = 0,
+    outerRadius = 0,
+    value = 0,
+    percent = 0,
+    format = nf,
+  } = props;
+  if (value <= 0 || percent < 0.05) return null;
+  const RADIAN = Math.PI / 180;
+  const r = innerRadius + (outerRadius - innerRadius) * 0.5;
+  const x = cx + r * Math.cos(-midAngle * RADIAN);
+  const y = cy + r * Math.sin(-midAngle * RADIAN);
+  return (
+    <text
+      x={x}
+      y={y}
+      fill="#ffffff"
+      textAnchor="middle"
+      dominantBaseline="central"
+      style={{
+        fontSize: 12,
+        fontWeight: 600,
+        paintOrder: "stroke",
+        stroke: "rgba(0,0,0,0.45)",
+        strokeWidth: 3,
+      }}
+    >
+      {format(value)}
+    </text>
+  );
+}
+
 /** BE cũ chưa có khối `revenue` thì coi như 0 — tránh vỡ trang khi lệch phiên bản. */
 function revenueStats(s: AdminStats): NonNullable<AdminStats["revenue"]> {
   return (
@@ -368,6 +424,7 @@ function RevenueMonthChart({
     label: monthLabel(month),
     count: Number(total),
   }));
+  const tong = data.reduce((s, d) => s + d.count, 0);
 
   const config = {
     count: { label: "Doanh thu", color: "#34d399" },
@@ -377,7 +434,15 @@ function RevenueMonthChart({
     <section className="glass rounded-2xl p-5">
       <h2 className="font-display text-lg">Doanh thu theo tháng</h2>
       <p className="mt-1 text-xs text-muted-foreground">
-        12 tháng gần nhất, tính trên giao dịch đã thu được tiền.
+        12 tháng gần nhất, tính trên giao dịch đã thu được tiền
+        {tong > 0 ? (
+          <>
+            {" "}
+            · Tổng:{" "}
+            <span className="font-medium text-gold">{vnd(tong)}</span>
+          </>
+        ) : null}
+        .
       </p>
       {data.length === 0 ? (
         <p className="mt-6 text-sm text-muted-foreground">
@@ -386,27 +451,54 @@ function RevenueMonthChart({
       ) : (
         <ChartContainer
           config={config}
-          className="mt-4 aspect-auto h-[260px] w-full"
+          className="mt-4 aspect-auto h-[280px] w-full"
         >
           <BarChart
             data={data}
-            margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+            margin={{ top: 12, right: 8, left: 4, bottom: 4 }}
           >
+            <CartesianGrid vertical={false} strokeDasharray="3 3" />
+            <XAxis
+              dataKey="label"
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              interval={0}
+              tick={{ fontSize: 10, fill: "oklch(0.7 0.02 280)" }}
+            />
+            <YAxis
+              tickLine={false}
+              axisLine={false}
+              width={44}
+              tickFormatter={vndTruc}
+              tick={{ fontSize: 10, fill: "oklch(0.7 0.02 280)" }}
+            />
             <ChartTooltip
+              cursor={{ fill: "oklch(0.75 0.12 85 / 0.12)" }}
               content={
                 <ChartTooltipContent
-                  formatter={(value) => (
-                    <span className="font-medium text-foreground">
-                      {vnd(Number(value))}
-                    </span>
+                  labelKey="label"
+                  formatter={(value, _name, item) => (
+                    <div className="flex w-full flex-col gap-0.5">
+                      <span className="text-muted-foreground">
+                        {(item?.payload as { label?: string } | undefined)
+                          ?.label ?? "Tháng"}
+                      </span>
+                      <span className="font-medium text-foreground">
+                        Doanh thu: {vnd(Number(value))}
+                      </span>
+                    </div>
                   )}
                 />
               }
             />
+            <ChartLegend content={<ChartLegendContent />} />
             <Bar
               dataKey="count"
+              name="Doanh thu"
               fill="var(--color-count)"
               radius={[6, 6, 0, 0]}
+              maxBarSize={36}
             />
           </BarChart>
         </ChartContainer>
@@ -430,15 +522,18 @@ function ProfitBreakdownChart({
     },
     {
       key: "fee",
-      label: "Phí nền tảng " + r.platformFeePercent + "%",
+      label: `Phí nền tảng ${r.platformFeePercent}%`,
       count: r.platformFee,
       fill: "#d4a84b",
     },
     { key: "ai", label: "Chi phí AI", count: r.aiCostVnd, fill: "#fb7185" },
   ].filter((d) => d.count > 0);
+  const tong = data.reduce((s, d) => s + d.count, 0);
 
   const config = {
-    count: { label: "Số tiền" },
+    ...Object.fromEntries(
+      data.map((d) => [d.key, { label: d.label, color: d.fill }]),
+    ),
   } satisfies ChartConfig;
 
   return (
@@ -446,42 +541,103 @@ function ProfitBreakdownChart({
       <h2 className="font-display text-lg">Tiền đi về đâu</h2>
       <p className="mt-1 text-xs text-muted-foreground">
         Phần lớn doanh thu là của Reader — phần nền tảng giữ lại mới là nguồn bù
-        chi phí.
+        chi phí
+        {tong > 0 ? (
+          <>
+            {" "}
+            · Tổng phân bổ:{" "}
+            <span className="font-medium text-gold">{vnd(tong)}</span>
+          </>
+        ) : null}
+        .
       </p>
       {data.length === 0 ? (
         <p className="mt-6 text-sm text-muted-foreground">Chưa có số liệu.</p>
       ) : (
-        <ChartContainer
-          config={config}
-          className="mt-4 aspect-auto h-[260px] w-full"
-        >
-          <PieChart>
-            <ChartTooltip
-              content={
-                <ChartTooltipContent
-                  nameKey="label"
-                  formatter={(value, _name, item) => (
-                    <span className="font-medium text-foreground">
-                      {String(item?.payload?.label ?? "")}: {vnd(Number(value))}
+        <>
+          <ChartContainer
+            config={config}
+            className="mt-4 aspect-auto h-[260px] w-full"
+          >
+            <PieChart>
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    nameKey="key"
+                    formatter={(value, _name, item) => {
+                      const n = Number(value) || 0;
+                      const pct =
+                        tong > 0 ? Math.round((n / tong) * 100) : 0;
+                      const label =
+                        (item?.payload as { label?: string } | undefined)
+                          ?.label ?? "";
+                      return (
+                        <div className="flex w-full flex-col gap-0.5">
+                          <span className="font-medium text-foreground">
+                            {label}
+                          </span>
+                          <span className="font-mono tabular-nums text-muted-foreground">
+                            {vnd(n)} · {pct}%
+                          </span>
+                        </div>
+                      );
+                    }}
+                  />
+                }
+              />
+              <Pie
+                data={data}
+                dataKey="count"
+                nameKey="key"
+                innerRadius={55}
+                outerRadius={95}
+                strokeWidth={2}
+                stroke="oklch(0.16 0.02 280)"
+                label={(props) =>
+                  pieWhiteLabel({
+                    ...props,
+                    format: (n) => vndTruc(n),
+                  })
+                }
+                labelLine={false}
+              >
+                {data.map((d) => (
+                  <Cell key={d.key} fill={d.fill} className="outline-none" />
+                ))}
+              </Pie>
+              <ChartLegend
+                content={<ChartLegendContent nameKey="key" />}
+                className="-translate-y-1 flex-wrap gap-2"
+              />
+            </PieChart>
+          </ChartContainer>
+          <ul className="mt-2 space-y-1.5 text-xs text-muted-foreground">
+            {data.map((d) => {
+              const pct = tong > 0 ? Math.round((d.count / tong) * 100) : 0;
+              return (
+                <li
+                  key={d.key}
+                  className="flex items-center justify-between gap-3"
+                >
+                  <span className="inline-flex items-center gap-2">
+                    <span
+                      className="h-2 w-2 shrink-0 rounded-[2px]"
+                      style={{ backgroundColor: d.fill }}
+                      aria-hidden
+                    />
+                    {d.label}
+                  </span>
+                  <span className="font-mono tabular-nums text-foreground">
+                    {vnd(d.count)}
+                    <span className="ml-1.5 text-muted-foreground">
+                      ({pct}%)
                     </span>
-                  )}
-                />
-              }
-            />
-            <Pie
-              data={data}
-              dataKey="count"
-              nameKey="label"
-              innerRadius={55}
-              outerRadius={95}
-            >
-              {data.map((d) => (
-                <Cell key={d.key} fill={d.fill} />
-              ))}
-            </Pie>
-            <ChartLegend content={<ChartLegendContent nameKey="label" />} />
-          </PieChart>
-        </ChartContainer>
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </>
       )}
     </section>
   );
@@ -563,6 +719,8 @@ function RoleChart({ users }: { users: AdminStats["users"] }) {
               outerRadius={96}
               strokeWidth={2}
               stroke="oklch(0.16 0.02 280)"
+              label={pieWhiteLabel}
+              labelLine={false}
             >
               {data.map((d) => (
                 <Cell
@@ -1038,6 +1196,8 @@ function AiModelChart({ ai }: { ai: NonNullable<AdminStats["ai"]> }) {
               outerRadius={96}
               strokeWidth={2}
               stroke="oklch(0.16 0.02 280)"
+              label={pieWhiteLabel}
+              labelLine={false}
             >
               {data.map((d) => (
                 <Cell key={d.key} fill={d.fill} className="outline-none" />
