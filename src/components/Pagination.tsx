@@ -49,34 +49,40 @@ export function Pagination({
           : `${from}–${to} trên ${totalElements} ${unit}`}
       </p>
 
-      {totalPages > 1 && (
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            aria-label="Trang trước"
-            disabled={page === 0 || busy}
-            onClick={() => onChange(page - 1)}
-            className="grid h-8 w-8 place-items-center rounded-lg border border-white/10 text-muted-foreground transition hover:border-gold/50 hover:text-gold disabled:opacity-30 disabled:hover:border-white/10 disabled:hover:text-muted-foreground"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
+      {/* Luôn chiếm chỗ, kể cả khi chỉ có một trang.
+          Ẩn hẳn cặp nút thì khối này cao lên hụt xuống 44px mỗi lần bộ lọc
+          đưa danh sách về một trang — vẫn là nhảy, chỉ nhỏ hơn. `invisible`
+          giữ nguyên chỗ; `aria-hidden` để trình đọc màn hình không đọc hai
+          cái nút vô nghĩa. */}
+      <div
+        className={`flex items-center gap-1 ${totalPages > 1 ? "" : "invisible"}`}
+        aria-hidden={totalPages <= 1}
+      >
+        <button
+          type="button"
+          aria-label="Trang trước"
+          disabled={page === 0 || busy}
+          onClick={() => onChange(page - 1)}
+          className="grid h-8 w-8 place-items-center rounded-lg border border-white/10 text-muted-foreground transition hover:border-gold/50 hover:text-gold disabled:opacity-30 disabled:hover:border-white/10 disabled:hover:text-muted-foreground"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </button>
 
-          <span className="inline-flex min-w-[5.5rem] items-center justify-center gap-1.5 text-xs text-muted-foreground">
-            {busy && <Loader2 className="h-3 w-3 animate-spin text-gold" />}
-            Trang {page + 1}/{totalPages}
-          </span>
+        <span className="inline-flex min-w-[5.5rem] items-center justify-center gap-1.5 text-xs text-muted-foreground">
+          {busy && <Loader2 className="h-3 w-3 animate-spin text-gold" />}
+          Trang {page + 1}/{totalPages}
+        </span>
 
-          <button
-            type="button"
-            aria-label="Trang sau"
-            disabled={page >= totalPages - 1 || busy}
-            onClick={() => onChange(page + 1)}
-            className="grid h-8 w-8 place-items-center rounded-lg border border-white/10 text-muted-foreground transition hover:border-gold/50 hover:text-gold disabled:opacity-30 disabled:hover:border-white/10 disabled:hover:text-muted-foreground"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        </div>
-      )}
+        <button
+          type="button"
+          aria-label="Trang sau"
+          disabled={page >= totalPages - 1 || busy}
+          onClick={() => onChange(page + 1)}
+          className="grid h-8 w-8 place-items-center rounded-lg border border-white/10 text-muted-foreground transition hover:border-gold/50 hover:text-gold disabled:opacity-30 disabled:hover:border-white/10 disabled:hover:text-muted-foreground"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </button>
+      </div>
     </div>
   );
 }
