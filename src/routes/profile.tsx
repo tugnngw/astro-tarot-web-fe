@@ -12,6 +12,7 @@ import {
 import { toast } from "sonner";
 import { Header } from "@/components/Header";
 import { useAuth } from "@/lib/auth-context";
+import { ViDateInput } from "@/components/ViDateInput";
 import {
   useChangePassword,
   useProfile,
@@ -531,17 +532,35 @@ function TextField({
       <label htmlFor={id} className="text-xs text-muted-foreground">
         {label}
       </label>
-      <input
-        {...rest}
-        id={id}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        aria-invalid={Boolean(error)}
-        aria-describedby={error ? errorId : undefined}
-        className={`mt-1 w-full rounded-xl border bg-input/70 px-3 py-2 text-sm text-foreground outline-none transition focus:border-gold ${
-          error ? "border-destructive" : "border-gold/30"
-        }`}
-      />
+      {/* Ngày sinh phải hiện DD/MM/YYYY. Input native vẽ theo locale của
+          trình duyệt, máy để en-US sẽ ra 09/18/2026 — người Việt đọc thành
+          "ngày 9 tháng 18" rồi sửa lại cho "đúng", thành ra ghi sai ngày
+          sinh của chính mình. */}
+      {rest.type === "date" ? (
+        <ViDateInput
+          {...rest}
+          id={id}
+          value={value}
+          onChange={onChange}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? errorId : undefined}
+          className={`mt-1 w-full rounded-xl border bg-input/70 px-3 py-2 text-sm outline-none transition focus-within:border-gold ${
+            error ? "border-destructive" : "border-gold/30"
+          }`}
+        />
+      ) : (
+        <input
+          {...rest}
+          id={id}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? errorId : undefined}
+          className={`mt-1 w-full rounded-xl border bg-input/70 px-3 py-2 text-sm text-foreground outline-none transition focus:border-gold ${
+            error ? "border-destructive" : "border-gold/30"
+          }`}
+        />
+      )}
       {error && (
         <p id={errorId} className="mt-1 text-xs text-destructive">
           {error}
