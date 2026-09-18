@@ -12,6 +12,7 @@ import {
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
 import * as authApi from "@/api/auth";
+import { TurnstileGate } from "@/components/TurnstileGate";
 
 type Mode = "login" | "register" | "forgot";
 
@@ -259,6 +260,7 @@ function LoginForm({
           </button>
         </div>
 
+        <TurnstileGate />
         <SubmitButton loading={loading}>Đăng nhập</SubmitButton>
       </form>
 
@@ -385,6 +387,7 @@ function RegisterForm({
         />
 
         <div className="pt-2">
+          <TurnstileGate />
           <SubmitButton loading={loading}>Tạo tài khoản</SubmitButton>
         </div>
       </form>
@@ -538,6 +541,7 @@ function ForgotForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
           onChange={(e) => setEmail(e.target.value)}
           error={err}
         />
+        <TurnstileGate />
         <SubmitButton loading={loading}>Gửi liên kết đặt lại</SubmitButton>
       </form>
 
