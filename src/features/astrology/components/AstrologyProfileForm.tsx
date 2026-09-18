@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { Loader2, MapPin, X } from "lucide-react";
 import { searchPlaces, type PlaceSuggestion } from "@/lib/geocode";
 import { getUserTimezone } from "@/lib/utils";
+import { ViDateInput } from "@/components/ViDateInput";
 import type {
   AstrologyProfile,
   ProfileType,
@@ -177,11 +178,11 @@ export function AstrologyProfileForm({
         </Field>
 
         <Field label="Ngày sinh">
-          <input
+          <ViDateInput
             required
-            type="date"
+            aria-label="Ngày sinh"
             value={birthDate}
-            onChange={(e) => setBirthDate(e.target.value)}
+            onChange={setBirthDate}
             className={inputCls}
           />
         </Field>

@@ -19,6 +19,7 @@ import { Header } from "@/components/Header";
 import { RoleGuard } from "@/components/RoleGuard";
 import { useAuth } from "@/lib/auth-context";
 import { useSlots, useBookings } from "@/lib/use-booking-store";
+import { ViDateInput } from "@/components/ViDateInput";
 import {
   addSlot,
   removeSlot,
@@ -133,11 +134,11 @@ function ReaderPage() {
             </div>
 
             <div className="mb-4 grid grid-cols-1 gap-2 rounded-lg border border-gold/20 bg-background/30 p-3 sm:grid-cols-[1fr_1fr_auto]">
-              <input
-                type="date"
+              <ViDateInput
+                aria-label="Ngày"
                 value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="rounded-lg border border-gold/30 bg-input/60 px-3 py-2 text-sm outline-none focus:border-gold"
+                onChange={setDate}
+                className="rounded-lg border border-gold/30 bg-input/60 px-3 py-2 text-sm outline-none focus-within:border-gold"
               />
               <input
                 type="time"
