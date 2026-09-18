@@ -1,6 +1,7 @@
 // src/api/auth.ts
 import { apiFetch, tokenStore } from "./client";
 import type { AuthResult } from "./types";
+import { turnstileHeader } from "@/lib/turnstile";
 
 export interface LoginPayload {
   email: string;
@@ -65,7 +66,11 @@ function toAuthResult(data: AuthResponseRaw): AuthResult {
 export async function login(payload: LoginPayload): Promise<AuthResult> {
   const data = await apiFetch<AuthResponseRaw>(
     "/auth/login",
-    { method: "POST", body: JSON.stringify(payload) },
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+      headers: turnstileHeader(),
+    },
     { auth: false },
   );
   const result = toAuthResult(data);
@@ -80,6 +85,7 @@ export async function register(
     "/auth/register",
     {
       method: "POST",
+      headers: turnstileHeader(),
       body: JSON.stringify({
         email: payload.email,
         password: payload.password,
@@ -110,7 +116,11 @@ export async function resendVerification(email: string): Promise<void> {
 export async function forgotPassword(email: string): Promise<void> {
   await apiFetch<void>(
     "/auth/forgot-password",
-    { method: "POST", body: JSON.stringify({ email }) },
+    {
+      method: "POST",
+      body: JSON.stringify({ email }),
+      headers: turnstileHeader(),
+    },
     { auth: false },
   );
 }
