@@ -250,8 +250,14 @@ export function useCoTrangVuaManHinh(
 
     const conLai = window.innerHeight - el.getBoundingClientRect().top - duTru;
 
-    let n = Math.floor(conLai / caoDong);
-    n = Math.floor(n / buoc) * buoc;
+    // caoDong là cao MỘT MỤC, mà trong lưới một hàng chứa `cot` mục — nên
+    // phép chia dưới đây ra số HÀNG vừa màn hình, phải nhân lên mới thành số
+    // mục. Xem demCot.
+    const cot = demCot(el);
+    let n = Math.floor(conLai / caoDong) * cot;
+    // Làm tròn xuống theo bội của số cột, để hàng cuối không lẻ thẻ.
+    const boi = Math.max(buoc, cot);
+    n = Math.floor(n / boi) * boi;
     n = Math.min(toiDa, Math.max(toiThieu, n));
 
     setCoTrang((truoc) => (truoc === n ? truoc : n));
@@ -285,4 +291,29 @@ function layMotDong(el: HTMLElement): Element | null {
   const tbody = el.querySelector("tbody");
   if (tbody) return tbody.firstElementChild;
   return el.firstElementChild?.firstElementChild ?? null;
+}
+
+/**
+ * Danh sách này xếp mấy MỤC trên một hàng ngang?
+ *
+ * <p>Với bảng và danh sách dọc thì luôn là 1, và đó là giả định ngầm khắp
+ * useCoTrangVuaManHinh: nó chia chỗ trống cho chiều cao MỘT MỤC rồi dùng luôn
+ * kết quả làm số mục mỗi trang. Đúng khi một hàng đúng một mục.
+ *
+ * <p>Trang Reader xếp lưới hai cột, nên phép chia ấy đếm số HÀNG chứ không phải
+ * số THẺ — vừa hai hàng thì nó kết luận hai thẻ, rồi bị chặn dưới nâng lên ba.
+ * Hậu quả nhìn thấy được: màn 1440×900 còn trống nửa dưới mà chỉ hiện 3 trên 7
+ * Reader, hàng cuối lẻ một thẻ.
+ *
+ * <p>Đọc thẳng số rãnh cột từ style đã tính. Không nhận qua tham số vì số cột
+ * đổi theo điểm ngắt (một cột trên điện thoại, hai trên máy tính) — tham số
+ * tĩnh sẽ sai đúng ở nửa số kích thước màn hình.
+ */
+function demCot(el: HTMLElement): number {
+  if (el.querySelector("tbody")) return 1;
+  const luoi = el.firstElementChild;
+  if (!(luoi instanceof HTMLElement)) return 1;
+  const ranh = getComputedStyle(luoi).gridTemplateColumns;
+  if (!ranh || ranh === "none") return 1;
+  return Math.max(1, ranh.split(/\s+/).filter(Boolean).length);
 }

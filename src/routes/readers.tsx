@@ -105,11 +105,11 @@ function ReadersPage() {
               className="glass rounded-2xl px-6 py-14"
             />
           ) : query.isPending ? (
-            <div className="grid gap-5 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2">
               {Array.from({ length: 4 }, (_, i) => (
                 <div
                   key={i}
-                  className="glass h-52 animate-pulse rounded-2xl"
+                  className="glass h-44 animate-pulse rounded-xl"
                   aria-hidden="true"
                 />
               ))}
@@ -134,7 +134,7 @@ function ReadersPage() {
               {/* PagedList giữ chiều cao: trang cuối ít thẻ hơn thì cả khối
                   không tụt lên, nút "Trang sau" đứng yên dưới ngón tay. */}
               <PagedList pageSize={coTrang} listRef={listRef}>
-                <div className="grid gap-5 md:grid-cols-2">
+                <div className="grid gap-4 md:grid-cols-2">
                   {readersTrangNay.map((r) => (
                     <ReaderCard key={r.id} reader={r} />
                   ))}
@@ -163,25 +163,25 @@ function ReaderCard({ reader }: { reader: ReaderProfile }) {
     reader.pricePer15m ?? reader.pricePer30m ?? reader.pricePer60m;
 
   return (
-    <article className="card-hover glass flex flex-col rounded-2xl p-6">
-      <div className="flex items-start gap-4">
+    <article className="card-hover glass flex flex-col rounded-xl p-4">
+      <div className="flex items-start gap-3">
         {reader.avatar ? (
           <img
             src={reader.avatar}
             alt=""
-            className="h-16 w-16 shrink-0 rounded-full object-cover ring-1 ring-gold/40"
+            className="h-12 w-12 shrink-0 rounded-full object-cover ring-1 ring-gold/40"
           />
         ) : (
           <span
             aria-hidden="true"
-            className="grid h-16 w-16 shrink-0 place-items-center rounded-full border border-gold bg-card font-display text-2xl text-gold"
+            className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-gold bg-card font-display text-lg text-gold"
           >
             {name.charAt(name.startsWith("@") ? 1 : 0).toUpperCase()}
           </span>
         )}
 
         <div className="min-w-0 flex-1">
-          <h2 className="font-display text-2xl leading-tight">
+          <h2 className="font-display text-lg leading-tight">
             <Link
               to="/readers/$id"
               params={{ id: reader.id }}
@@ -219,7 +219,7 @@ function ReaderCard({ reader }: { reader: ReaderProfile }) {
         {cheapest != null && (
           <div className="shrink-0 text-right">
             <div className="text-[11px] text-muted-foreground">chỉ từ</div>
-            <div className="font-display text-xl text-gold">
+            <div className="font-display text-base text-gold">
               {formatVND(cheapest)}
             </div>
           </div>
@@ -227,13 +227,13 @@ function ReaderCard({ reader }: { reader: ReaderProfile }) {
       </div>
 
       {reader.bio && (
-        <p className="mt-4 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
+        <p className="mt-3 line-clamp-2 text-[13px] leading-relaxed text-muted-foreground">
           {reader.bio}
         </p>
       )}
 
       {specialties.length > 0 && (
-        <ul className="mt-4 flex flex-wrap gap-2">
+        <ul className="mt-3 flex flex-wrap gap-1.5">
           {specialties.map((s) => (
             <li
               key={s}
@@ -245,11 +245,11 @@ function ReaderCard({ reader }: { reader: ReaderProfile }) {
         </ul>
       )}
 
-      <div className="mt-auto pt-5">
+      <div className="mt-auto pt-4">
         <Link
           to="/readers/$id"
           params={{ id: reader.id }}
-          className="block rounded-full bg-gold py-2.5 text-center text-sm font-medium text-primary-foreground glow-gold transition hover:scale-[1.02]"
+          className="block rounded-full bg-gold py-2 text-center text-[13px] font-medium text-primary-foreground glow-gold transition hover:scale-[1.02]"
         >
           Xem hồ sơ và đặt lịch
         </Link>
