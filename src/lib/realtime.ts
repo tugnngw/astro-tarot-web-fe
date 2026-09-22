@@ -20,6 +20,94 @@ let connected = false;
 const statusListeners = new Set<StatusListener>();
 const eventListeners = new Set<EventListener>();
 
+// ---------------------------------------------------------------
+// Kênh phụ (chat, gọi) — đăng ký theo đích, tự nối lại sau khi rớt
+// ---------------------------------------------------------------
+//
+// Không dùng client.subscribe() trực tiếp ở từng component. Lý do: mỗi lần
+// STOMP nối lại là một phiên MỚI, mọi subscription của phiên cũ chết theo.
+// Backend chạy trên gói free của Render, khởi động lại khá thường xuyên, nên
+// "rớt rồi nối lại" là chuyện hằng ngày chứ không phải ngoại lệ. Component
+// nào tự subscribe sẽ im lặng ngừng nhận tin sau lần rớt đầu tiên, mà giao
+// diện vẫn báo "đã kết nối" — kiểu hỏng khó tìm nhất.
+//
+// Sổ đăng ký dưới đây là nguồn sự thật duy nhất; onConnect đăng ký lại tất cả.
+
+type RawHandler = (body: unknown) => void;
+
+const handlers = new Map<string, Set<RawHandler>>();
+const liveSubs = new Map<string, StompSubscription>();
+
+function bind(destination: string) {
+  if (!client?.connected || liveSubs.has(destination)) return;
+  liveSubs.set(
+    destination,
+    client.subscribe(destination, (message) => {
+      let body: unknown;
+      try {
+        body = JSON.parse(message.body);
+      } catch {
+        return;
+      }
+      handlers.get(destination)?.forEach((fn) => fn(body));
+    }),
+  );
+}
+
+function bindAll() {
+  handlers.forEach((_set, destination) => bind(destination));
+}
+
+function dropAllSubs() {
+  liveSubs.forEach((sub) => {
+    try {
+      sub.unsubscribe();
+    } catch {
+      // Phiên đã chết thì không có gì để huỷ nữa.
+    }
+  });
+  liveSubs.clear();
+}
+
+/**
+ * Nghe một đích STOMP bất kỳ, ví dụ `/user/queue/booking-chat`.
+ *
+ * <p>Gọi được cả khi chưa kết nối — sẽ tự đăng ký ngay khi nối được, và đăng
+ * ký lại sau mỗi lần nối lại.
+ */
+export function subscribeDestination<T>(
+  destination: string,
+  handler: (body: T) => void,
+): () => void {
+  const set = handlers.get(destination) ?? new Set<RawHandler>();
+  set.add(handler as RawHandler);
+  handlers.set(destination, set);
+  bind(destination);
+
+  return () => {
+    const current = handlers.get(destination);
+    if (!current) return;
+    current.delete(handler as RawHandler);
+    if (current.size > 0) return;
+
+    handlers.delete(destination);
+    liveSubs.get(destination)?.unsubscribe();
+    liveSubs.delete(destination);
+  };
+}
+
+/**
+ * Gửi lên `/app/...`. Trả về false khi chưa có kết nối.
+ *
+ * <p>Người gọi PHẢI xử lý false — không được coi như đã gửi xong. Lối đi dự
+ * phòng là gọi REST, xem `sendBookingMessage`.
+ */
+export function publishRealtime(destination: string, body: unknown): boolean {
+  if (!client?.connected) return false;
+  client.publish({ destination, body: JSON.stringify(body) });
+  return true;
+}
+
 function setConnected(value: boolean) {
   if (connected === value) return;
   connected = value;
@@ -104,16 +192,24 @@ export function connectRealtime() {
         if (!event) return;
         eventListeners.forEach((fn) => fn(event));
       });
+      // Phiên mới thì mọi subscription cũ đã chết — dựng lại từ sổ đăng ký.
+      liveSubs.clear();
+      bindAll();
     },
     onDisconnect: () => {
       setConnected(false);
       subscription = null;
+      dropAllSubs();
     },
     onStompError: () => {
       setConnected(false);
     },
     onWebSocketClose: () => {
       setConnected(false);
+      // Huỷ tham chiếu tới subscription của phiên đã chết, nếu không lần nối
+      // lại sẽ thấy "đã đăng ký rồi" và bỏ qua, thành ra không nhận được gì.
+      subscription = null;
+      dropAllSubs();
     },
   });
 
@@ -124,6 +220,8 @@ export function connectRealtime() {
 export function disconnectRealtime() {
   subscription?.unsubscribe();
   subscription = null;
+  dropAllSubs();
+  handlers.clear();
   if (client) {
     void client.deactivate();
     client = null;
