@@ -191,16 +191,41 @@ export function useBookingCall(bookingId: string | null): BookingCall {
     }
   }, []);
 
+  /**
+   * Đặt đồng hồ bỏ cuộc.
+   *
+   * <p>Phải gọi NGAY khi bắt đầu, trước cả getUserMedia. Trước đây nó chỉ được
+   * đặt sau khi đã gửi OFFER, nên mọi thứ treo trước đó đều không có gì canh —
+   * và thứ hay treo nhất chính là hộp xin quyền micro/camera mà người dùng
+   * chưa bấm: getUserMedia không resolve, không reject, đứng im vô hạn. Bắt
+   * được trên production: màn hình ghi "Đang gọi…" suốt hơn mười phút, không
+   * một lời giải thích, trong khi quyền micro của trang vẫn ở trạng thái
+   * "prompt".
+   */
   const armTimeout = useCallback(() => {
     if (timeoutId.current) clearTimeout(timeoutId.current);
     timeoutId.current = setTimeout(() => {
+      // Báo cho phía kia biết ta bỏ cuộc, nếu không máy họ reo mãi dù đầu này
+      // đã tắt. fail() chỉ dọn phía mình.
+      send({ type: "HANGUP" });
+
+      // Chưa có luồng nào nghĩa là getUserMedia còn đang treo. Gần như luôn là
+      // hộp xin quyền chưa ai bấm — nói đúng việc cần làm thay vì đổ cho người
+      // kia không bắt máy, vì cuộc gọi còn chưa hề đi khỏi máy này.
+      if (!local.current) {
+        fail(
+          "Trình duyệt đang chờ bạn cho phép dùng micro/camera. Bấm \"Cho phép\" ở hộp thoại trên thanh địa chỉ rồi gọi lại.",
+        );
+        return;
+      }
+
       fail(
         hasTurn
           ? "Người kia không bắt máy."
           : "Không nối được cuộc gọi. Nếu đang dùng 4G, thử chuyển sang wifi.",
       );
     }, CONNECT_TIMEOUT_MS);
-  }, [fail, hasTurn]);
+  }, [fail, hasTurn, send]);
 
   // ---- gọi đi ----
   const start = useCallback(
@@ -209,6 +234,8 @@ export function useBookingCall(bookingId: string | null): BookingCall {
       setError(null);
       setWithVideo(video);
       setState("calling");
+      // Đặt trước buildPeer: xem chú thích ở armTimeout.
+      armTimeout();
       try {
         const peer = await buildPeer(video);
         const offer = await peer.createOffer();
@@ -226,6 +253,7 @@ export function useBookingCall(bookingId: string | null): BookingCall {
   const accept = useCallback(async () => {
     if (state !== "incoming" || !incomingOffer.current) return;
     setState("connecting");
+    armTimeout();
     try {
       const peer = await buildPeer(withVideo);
       await peer.setRemoteDescription(
