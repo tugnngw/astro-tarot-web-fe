@@ -320,10 +320,27 @@ export function useBookingCall(bookingId: string | null): BookingCall {
       switch (signal.type) {
         case "OFFER": {
           // Đang bận thì báo bận, đừng để chuông của mình ghi đè cuộc đang nói.
-          if (state !== "idle") {
+          //
+          // "Bận" là ĐANG trong một cuộc, không phải "khác idle". Trước đây
+          // điều kiện là state !== "idle", mà "failed" cũng khác "idle" — nên
+          // sau một cuộc gọi hỏng, máy này lặng lẽ từ chối MỌI cuộc gọi tới
+          // cho tới khi người dùng bấm "Đóng" trên dải báo lỗi. Người gọi thì
+          // thấy "Người kia đang bận", trong khi phía kia chẳng bận gì, chỉ là
+          // còn sót một dải báo lỗi chưa ai tắt. Gặp thật khi thử trên
+          // production: gọi lần đầu hết giờ vì chưa cấp quyền micro, lần sau
+          // gọi lại thì bị báo bận.
+          const dangTrongCuoc =
+            state === "calling" ||
+            state === "incoming" ||
+            state === "connecting" ||
+            state === "active";
+          if (dangTrongCuoc) {
             send({ type: "BUSY" });
             return;
           }
+          // Tới đây state là "idle" hoặc "failed". Chuông mới thì dẹp lỗi cũ,
+          // không thì dải báo lỗi của lần trước còn nằm đè lên màn cuộc gọi.
+          setError(null);
           incomingOffer.current = signal.payload ?? null;
           setPeerName(signal.fromName ?? "Người kia");
           setWithVideo(Boolean(signal.video));
