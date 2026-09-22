@@ -7,6 +7,7 @@ import {
   NotebookPen,
   Star,
   X,
+  MessageCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -27,6 +28,7 @@ import { ReportDialog } from "@/features/money/components/ReportDialog";
 import { useCreatePaymentIntent } from "@/features/money/queries";
 import type { PaymentInstruction } from "@/api/money";
 
+import { BookingChat } from "@/features/booking/components/BookingChat";
 import {
   ListError,
   useTaiLau,
@@ -74,6 +76,7 @@ export function BookingList({
     null,
   );
   const [reporting, setReporting] = useState<Booking | null>(null);
+  const [chatting, setChatting] = useState<string | null>(null);
   const pay = useCreatePaymentIntent();
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
@@ -263,6 +266,20 @@ export function BookingList({
                 </span>
               )}
 
+              {/* Cờ do máy chủ tính (đã trả tiền chưa, còn trong hạn không).
+                  Không chép lại luật ở đây: chép là hai nơi sẽ lệch nhau. */}
+              {b.chatOpen && (
+                <button
+                  type="button"
+                  onClick={() => setChatting(chatting === b.id ? null : b.id)}
+                  aria-expanded={chatting === b.id}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-gold/30 px-3.5 py-1.5 text-xs text-gold"
+                >
+                  <MessageCircle aria-hidden="true" className="h-3.5 w-3.5" />
+                  {chatting === b.id ? "Đóng trao đổi" : "Nhắn tin / Gọi"}
+                </button>
+              )}
+
               {side === "customer" && b.status === "COMPLETED" && (
                 <button
                   type="button"
@@ -300,6 +317,11 @@ export function BookingList({
               )}
             </div>
 
+            {chatting === b.id && (
+              <div className="mt-3">
+                <BookingChat bookingId={b.id} peerLabel={other} />
+              </div>
+            )}
             {cancelling === b.id && (
               <div className="mt-3 rounded-xl border border-destructive/25 p-3">
                 <label

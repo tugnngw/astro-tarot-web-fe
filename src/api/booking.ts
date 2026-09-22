@@ -36,6 +36,11 @@ export interface Booking {
   /** Đã đánh giá chưa — quyết định hiện nút "Đánh giá" hay điểm đã chấm. */
   reviewed: boolean;
   /**
+   * Hộp trao đổi có đang mở không — máy chủ tính, giao diện chỉ đọc.
+   * Optional vì bản BE cũ chưa trả trường này.
+   */
+  chatOpen?: boolean;
+  /**
    * Ghi chú Reader viết sau buổi xem — cả khách lẫn Reader đều đọc được.
    * Với đề tài Tarot thì đây là sản phẩm: trước khi có nó, khách trả tiền
    * xong là buổi xem không để lại gì ngoài một dòng trạng thái.
