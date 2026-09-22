@@ -19,7 +19,14 @@ import { useBookingCall } from "../hooks/useBookingCall";
 const CHAT_QUEUE = "/user/queue/booking-chat";
 const ERROR_QUEUE = "/user/queue/errors";
 
-function gio(iso: string) {
+/**
+ * Không nhận rỗng: new Date(null) KHÔNG phải Invalid Date mà là mốc 1970, nên
+ * nó lọt qua chốt isNaN ngay dưới và vẽ ra "08:00 01-01" — chuỗi từng hiện
+ * thật trên production khi máy chủ đẩy tin thiếu createdAt. Thà không có dấu
+ * thời gian còn hơn có một cái sai.
+ */
+function gio(iso: string | null | undefined) {
+  if (!iso) return "";
   const d = new Date(iso);
   return Number.isNaN(d.getTime())
     ? ""
