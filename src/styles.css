@@ -131,6 +131,26 @@
     }
   }
 
+  /* Danh sách xổ xuống của <select> phải tự sơn nền.
+
+     `color-scheme: dark` ở trên KHÔNG đủ, và đây là chỗ dễ tưởng nhầm đã
+     xong. Đo bằng getComputedStyle: <option> có background-color là
+     rgba(0, 0, 0, 0) — trong suốt. Popup là widget của hệ điều hành, nền
+     trong suốt nghĩa là nó rơi về màu menu mặc định của Windows: TRẮNG.
+     Còn chữ thì thừa hưởng `color` gần trắng từ <select> của app. Kết quả
+     là chữ trắng trên nền trắng, chỉ đọc được đúng dòng đang rê chuột.
+
+     Đặt ở đây một lần cho cả app thay vì vá từng <select>: hiện có 7 chỗ
+     dùng, và chỗ thứ 8 viết sau sẽ lại hỏng y hệt nếu phải nhớ mà vá tay.
+
+     Màu đặt ĐỤC hoàn toàn, không dùng biến có alpha. Nền popup không có gì
+     ở dưới để pha, nên một màu nửa trong suốt lại rơi về trắng lần nữa. */
+  option,
+  optgroup {
+    background-color: var(--popover);
+    color: var(--popover-foreground);
+  }
+
   /* Scrollbar theo tông vàng - tím của app thay vì thanh xám mặc định. */
   ::-webkit-scrollbar {
     width: 10px;
