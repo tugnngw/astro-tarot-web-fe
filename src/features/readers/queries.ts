@@ -64,7 +64,14 @@ export function useApplyReader() {
   return useMutation({
     mutationFn: readerApi.applyReader,
     onSuccess: () =>
-      qc.invalidateQueries({ queryKey: readerMeKeys.application }),
+      // Phải làm mới CẢ hồ sơ, không chỉ đơn: nhân viên nộp form là có hồ sơ
+      // NGAY (không qua hàng chờ). Chỉ invalidate đơn thì màn hình vẫn đứng ở
+      // trạng thái "bạn chưa có hồ sơ Reader" dù hồ sơ đã tồn tại, và người
+      // dùng tưởng vừa bấm hụt.
+      Promise.all([
+        qc.invalidateQueries({ queryKey: readerMeKeys.application }),
+        qc.invalidateQueries({ queryKey: readerMeKeys.profile }),
+      ]),
   });
 }
 
