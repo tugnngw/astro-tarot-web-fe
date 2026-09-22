@@ -59,7 +59,7 @@ function errText(e: unknown, fallback: string) {
 const toHm = (t: string) => t.slice(0, 5);
 
 export function ReaderWorkspace() {
-  const { openAuth } = useAuth();
+  const { openAuth, can, user } = useAuth();
   const profile = useMyReaderProfile();
   const application = useMyApplication();
   const availability = useAvailability();
@@ -92,9 +92,16 @@ export function ReaderWorkspace() {
             <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
               {application.data?.status === "PENDING"
                 ? "Đơn của bạn đang chờ quản trị viên duyệt. Duyệt xong là hồ sơ Reader hiện ở đây."
-                : "Hồ sơ Reader chỉ có sau khi đơn xin làm Reader được duyệt. Nộp đơn ngay bên dưới."}
+                : !can("READER_APPLY")
+                  ? "Tài khoản quản trị không nhận booking nên không có hồ sơ Reader. Đây là trạng thái bình thường."
+                  : user?.role === "staff"
+                    ? "Bạn đã là nhân viên nên không phải chờ duyệt: điền form là có hồ sơ ngay và bắt đầu nhận khách."
+                    : "Hồ sơ Reader chỉ có sau khi đơn xin làm Reader được duyệt. Nộp đơn ngay bên dưới."}
             </p>
-            {application.data?.status !== "PENDING" && (
+            {/* Chỉ hiện khi THẬT SỰ nộp được. Quản trị viên có
+                READER_MANAGE_PROFILE (nên thấy tab này) nhưng KHÔNG có
+                READER_APPLY — trước đây họ thấy nút rồi bấm vào nhận 403. */}
+            {application.data?.status !== "PENDING" && can("READER_APPLY") && (
               <button
                 type="button"
                 onClick={() => openAuth("reader")}
@@ -103,7 +110,9 @@ export function ReaderWorkspace() {
                 <Plus className="h-4 w-4" />
                 {application.data?.status === "REJECTED"
                   ? "Nộp lại đơn"
-                  : "Nộp đơn làm Reader"}
+                  : user?.role === "staff"
+                    ? "Tạo hồ sơ Reader"
+                    : "Nộp đơn làm Reader"}
               </button>
             )}
           </>

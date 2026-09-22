@@ -1,5 +1,5 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ChevronDown,
   User as UserIcon,
@@ -56,6 +56,8 @@ export function Header() {
   const coKhongGianThanhVien = can(user, "USER_BASIC");
   const [open, setOpen] = useState(false);
   const [logoutOpen, setLogoutOpen] = useState(false);
+  /** Cụm avatar + menu, để biết một cú bấm là trong hay ngoài. */
+  const accountRef = useRef<HTMLDivElement>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -66,6 +68,29 @@ export function Header() {
     setOpen(false);
   }, [pathname]);
 
+  // Bấm ra ngoài thì đóng menu tài khoản.
+  //
+  // Trước đây CHỈ có Escape và đổi trang mới đóng được. Không ai bấm Escape
+  // để tắt một menu, nên nó cứ treo đó che mất nội dung bên dưới, và người
+  // dùng phải bấm lại đúng cái nút avatar mới tắt.
+  //
+  // Nghe "mousedown" chứ không phải "click": nếu nghe click thì thao tác bấm
+  // -giữ-kéo-thả bắt đầu trong menu mà nhả chuột ở ngoài cũng tính là một cú
+  // click ngoài, và menu đóng giữa chừng khi người dùng đang bôi đen email
+  // của mình để sao chép.
+  //
+  // Kiểm tra contains() trên CẢ cụm (nút + panel) chứ không riêng panel: nút
+  // avatar tự nó đã đảo trạng thái, nếu nó bị tính là "ngoài" thì một cú bấm
+  // vừa đóng (từ handler này) vừa mở (từ onClick), menu nhấp nháy rồi mở lại.
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      const cum = accountRef.current;
+      if (cum && !cum.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [open]);
   // Escape đóng menu — hành vi mặc định người dùng mong đợi ở mọi overlay.
   useEffect(() => {
     if (!mobileOpen && !open) return;
@@ -139,7 +164,7 @@ export function Header() {
             <NotificationBell />
 
             {user ? (
-              <div className="relative">
+              <div className="relative" ref={accountRef}>
                 <button
                   onClick={() => setOpen((v) => !v)}
                   className="flex items-center gap-2 rounded-full border border-gold/40 bg-card/60 px-2 py-1.5 text-sm transition hover:border-gold sm:px-3"

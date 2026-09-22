@@ -165,8 +165,16 @@ function ApplyForm({
           .filter(Boolean),
       },
       {
-        onSuccess: () => {
-          toast.success("Đã gửi đơn đăng ký Reader ✦");
+        // BE trả "APPROVED_IMMEDIATELY" cho nhân viên (có hồ sơ ngay) và
+        // "SUBMITTED" cho người ngoài (vào hàng chờ). Báo chung một câu "đã
+        // gửi đơn" sẽ khiến nhân viên ngồi đợi một lần duyệt không bao giờ
+        // tới, trong khi hồ sơ của họ đã sẵn sàng nhận khách.
+        onSuccess: (ketQua) => {
+          toast.success(
+            ketQua === "APPROVED_IMMEDIATELY"
+              ? "Đã tạo hồ sơ Reader ✦ Khai báo khung giờ rảnh để khách đặt được."
+              : "Đã gửi đơn đăng ký Reader ✦",
+          );
           onClose();
         },
         // Không toast thành công khi hỏng — đó chính là lỗi cũ của form này.

@@ -110,8 +110,12 @@ export function toAppRole(role: AccountRole | string | null | undefined): Role {
     case "USER":
       return "user";
     default:
-      // Gồm cả "READER" của bản cũ còn sót trong localStorage: coi như staff,
-      // đúng với việc READER đã gộp vào STAFF ở BE.
+      // "READER" đã bị bỏ khỏi hệ thống ở migration V2_15 (gộp vào STAFF).
+      // GIỮ nhánh này lại dù backend không còn sinh ra giá trị đó nữa: phiên
+      // đăng nhập cũ còn cache user cũ trong localStorage, và nếu ở đây trả
+      // "guest" thì họ bị khoá sạch giao diện cho tới khi tự đăng xuất rồi
+      // đăng nhập lại — không ai đoán ra phải làm thế.
+      // Xoá được sau khi mọi phiên cũ đã hết hạn (refresh token 7 ngày).
       return role === "READER" ? "staff" : "guest";
   }
 }
