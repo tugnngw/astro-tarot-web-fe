@@ -9,7 +9,6 @@ import {
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 import { Toaster } from "sonner";
-import { Analytics } from "@vercel/analytics/react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -202,8 +201,6 @@ function RootComponent() {
                 },
               }}
             />
-            {/* React/Vite — không dùng @vercel/analytics/next (đúng cho Next.js). */}
-            <Analytics />
           </CartProvider>
         </RealtimeProvider>
       </AuthProvider>
