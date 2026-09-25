@@ -309,7 +309,10 @@ function layMotDong(el: HTMLElement): Element | null {
  * đổi theo điểm ngắt (một cột trên điện thoại, hai trên máy tính) — tham số
  * tĩnh sẽ sai đúng ở nửa số kích thước màn hình.
  */
-function demCot(el: HTMLElement): number {
+// Xuất ra để kiểm được. Đây là hàm thuần trên DOM và nó đã từng sai thật (xem
+// chú thích ngay trên), nên nó xứng đáng có phép kiểm chặn hồi quy — mà cách
+// duy nhất để kiểm là gọi được nó từ ngoài.
+export function demCot(el: HTMLElement): number {
   if (el.querySelector("tbody")) return 1;
   const luoi = el.firstElementChild;
   if (!(luoi instanceof HTMLElement)) return 1;

@@ -21,3 +21,6 @@ dist
 *.log
 
 .vercel
+
+# Bao cao do phu do vitest sinh ra moi lan chay test.
+coverage/

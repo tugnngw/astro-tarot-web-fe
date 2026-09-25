@@ -34,6 +34,12 @@ jobs:
       - name: Cài phụ thuộc
         run: npm ci
 
+      # Test TRƯỚC build: bộ kiểm chạy trong hai giây, còn build mất vài phút.
+      # Đảo thứ tự thì mỗi lần một phép kiểm đỏ là phải chờ hết bản dựng mới
+      # biết, và biết rồi thì bản dựng ấy cũng vứt đi.
+      - name: Test
+        run: npm test
+
       - name: Build
         run: npm run build
         env:
