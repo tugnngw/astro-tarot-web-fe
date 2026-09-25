@@ -39,6 +39,24 @@ interface Signal {
   fromName?: string;
 }
 
+/**
+ * "Bận" là ĐANG trong một cuộc — không phải "khác idle".
+ *
+ * <p>Tách ra thành hàm thuần để kiểm được. Điều kiện này đã sai thật một lần:
+ * nó từng viết là `state !== "idle"`, mà "failed" cũng khác "idle" — nên sau
+ * một cuộc gọi hỏng, máy này lặng lẽ từ chối MỌI cuộc gọi tới cho tới khi
+ * người dùng bấm "Đóng" trên dải báo lỗi. Người gọi thì thấy "Người kia đang
+ * bận", trong khi phía kia chẳng bận gì.
+ */
+export function dangTrongCuoc(state: CallState): boolean {
+  return (
+    state === "calling" ||
+    state === "incoming" ||
+    state === "connecting" ||
+    state === "active"
+  );
+}
+
 export interface BookingCall {
   state: CallState;
   /** Tên người đang gọi tới, chỉ có nghĩa khi state === "incoming". */
@@ -329,12 +347,7 @@ export function useBookingCall(bookingId: string | null): BookingCall {
           // còn sót một dải báo lỗi chưa ai tắt. Gặp thật khi thử trên
           // production: gọi lần đầu hết giờ vì chưa cấp quyền micro, lần sau
           // gọi lại thì bị báo bận.
-          const dangTrongCuoc =
-            state === "calling" ||
-            state === "incoming" ||
-            state === "connecting" ||
-            state === "active";
-          if (dangTrongCuoc) {
+          if (dangTrongCuoc(state)) {
             send({ type: "BUSY" });
             return;
           }
