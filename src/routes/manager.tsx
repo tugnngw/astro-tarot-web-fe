@@ -16,6 +16,11 @@ import type { WorkspaceTab } from "@/components/WorkspaceShell";
 
 export const Route = createFileRoute("/manager")({
   head: () => ({ meta: [{ title: "Quản lý — ASTROTAROT" }] }),
+  // Tab đang mở nằm ở đường dẫn để gửi liên kết được. Dấu ? là bắt buộc: thiếu
+  // nó thì TanStack coi khoá này là BẮT BUỘC, và mọi <Link to="/manager"> trong app
+  // sẽ báo thiếu prop `search`.
+  validateSearch: (search: Record<string, unknown>): { tab?: string } =>
+    typeof search.tab === "string" ? { tab: search.tab } : {},
   component: () => (
     <RoleGuard require={["STAFF_VIEW"]}>
       <ManagerWorkspace />

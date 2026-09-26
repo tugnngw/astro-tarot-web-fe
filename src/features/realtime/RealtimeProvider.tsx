@@ -8,10 +8,7 @@ import {
   subscribeRealtimeEvents,
   type RealtimeEvent,
 } from "@/lib/realtime";
-import {
-  bookingKeys,
-  notificationKeys,
-} from "@/features/booking/queries";
+import { bookingKeys, notificationKeys } from "@/features/booking/queries";
 import { moneyKeys } from "@/features/money/queries";
 import { supportKeys } from "@/features/support/queries";
 import { readerMeKeys } from "@/features/readers/queries";
@@ -59,10 +56,7 @@ function handleRealtimeEvent(
   }
   void queryClient.invalidateQueries({ queryKey: notificationKeys.all });
 
-  if (
-    type.startsWith("BOOKING_") ||
-    type === "REVIEW_RECEIVED"
-  ) {
+  if (type.startsWith("BOOKING_") || type === "REVIEW_RECEIVED") {
     void queryClient.invalidateQueries({ queryKey: bookingKeys.all });
   }
 
@@ -91,8 +85,12 @@ function handleRealtimeEvent(
 }
 
 function showLiveToast(n: Notification) {
-  const href = notificationLink(n);
-  if (href) {
+  const dich = notificationLink(n);
+  if (dich) {
+    // Kèm cả `search`: nó là thứ chọn TAB ở Bàn làm việc, nên bỏ đi thì Reader
+    // bấm "Xem" trên thông báo lịch hẹn mới và rơi vào tab Hỗ trợ khách.
+    const qs = new URLSearchParams(dich.search ?? {}).toString();
+    const href = qs ? `${dich.to}?${qs}` : dich.to;
     toast(n.title, {
       description: n.message ?? undefined,
       action: {

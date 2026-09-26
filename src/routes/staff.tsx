@@ -19,6 +19,11 @@ import { EarningsPanel } from "@/features/money/components/EarningsPanel";
 
 export const Route = createFileRoute("/staff")({
   head: () => ({ meta: [{ title: "Bàn làm việc — ASTROTAROT" }] }),
+  // Tab đang mở nằm ở đường dẫn để gửi liên kết được. Dấu ? là bắt buộc: thiếu
+  // nó thì TanStack coi khoá này là BẮT BUỘC, và mọi <Link to="/staff"> trong app
+  // sẽ báo thiếu prop `search`.
+  validateSearch: (search: Record<string, unknown>): { tab?: string } =>
+    typeof search.tab === "string" ? { tab: search.tab } : {},
   component: () => (
     <RoleGuard require={["SUPPORT_VIEW"]}>
       <StaffWorkspace />
