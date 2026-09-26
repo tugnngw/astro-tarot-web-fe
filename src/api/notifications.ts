@@ -91,11 +91,22 @@ const PHIA_KHACH: NotificationTarget = { to: "/bookings" };
  * Trả null với tin cũ tạo ra trước khi BE ghi khoá này, và với metadata hỏng —
  * một chuỗi JSON không đọc được không được phép làm hỏng cả hộp thông báo.
  */
-function phiaCua(metadata: string | null): "reader" | "customer" | null {
+export function phiaCua(metadata: string | null): "reader" | "customer" | null {
   if (!metadata) return null;
   try {
     const side = (JSON.parse(metadata) as { side?: unknown }).side;
     return side === "reader" || side === "customer" ? side : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Mã buổi xem gắn trong metadata, hoặc null nếu tin này không gắn với buổi nào. */
+export function maBuoi(metadata: string | null): string | null {
+  if (!metadata) return null;
+  try {
+    const id = (JSON.parse(metadata) as { bookingId?: unknown }).bookingId;
+    return typeof id === "string" && id ? id : null;
   } catch {
     return null;
   }
