@@ -195,6 +195,28 @@
     font-family: var(--font-display);
     letter-spacing: -0.01em;
   }
+
+  /* Nút và thẻ bấm phải phản hồi khi trỏ và khi nhấn.
+     Nhiều nút tự vẽ viền mà không có hover, nên di chuột qua trông như chữ
+     chết. Lớp nền chỉ thêm độ sáng và co nhẹ lúc nhấn; màu riêng của từng
+     nút vẫn do class của nó quyết. */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+  @media (hover: hover) {
+    button:not(:disabled):hover,
+    [role="button"]:not([aria-disabled="true"]):hover {
+      filter: brightness(1.08);
+    }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    button:not(:disabled):active,
+    [role="button"]:not([aria-disabled="true"]):active {
+      filter: brightness(1.14);
+      transform: scale(0.98);
+    }
+  }
 }
 
 @layer utilities {
@@ -263,7 +285,8 @@
   .card-hover:hover {
     transform: translateY(-4px);
     border-color: color-mix(in oklab, var(--gold) 45%, transparent);
-    box-shadow: 0 18px 40px -24px color-mix(in oklab, var(--gold) 70%, transparent);
+    box-shadow: 0 18px 40px -24px
+      color-mix(in oklab, var(--gold) 70%, transparent);
   }
   @media (prefers-reduced-motion: reduce) {
     .card-hover,
@@ -414,5 +437,4 @@
     padding-top: 0;
     padding-bottom: 0;
   }
-
 }

@@ -57,6 +57,7 @@ export function BookingList({
   isError,
   error,
   onRetry,
+  emptyText,
 }: {
   bookings: Booking[];
   side: "customer" | "reader";
@@ -64,6 +65,7 @@ export function BookingList({
   isError: boolean;
   error?: unknown;
   onRetry: () => void;
+  emptyText?: string;
 }) {
   const confirm = useConfirmBooking();
   const complete = useCompleteBooking();
@@ -126,7 +128,10 @@ export function BookingList({
     return false;
   }
 
-  function getCancelInfo(b: Booking): { canFree: boolean; refundAmount: number } {
+  function getCancelInfo(b: Booking): {
+    canFree: boolean;
+    refundAmount: number;
+  } {
     if (canCancelForFree(b)) {
       return { canFree: true, refundAmount: b.totalAmount ?? 0 };
     }
@@ -179,9 +184,10 @@ export function BookingList({
         <CalendarX aria-hidden="true" className="h-9 w-9 text-gold/50" />
         <h3 className="mt-3 font-display text-lg">Chưa có lịch hẹn nào</h3>
         <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-          {side === "customer"
-            ? "Chọn một Reader và khung giờ phù hợp để bắt đầu buổi xem đầu tiên."
-            : "Khi có khách đặt lịch với bạn, lịch hẹn sẽ xuất hiện ở đây."}
+          {emptyText ??
+            (side === "customer"
+              ? "Chọn một Reader và khung giờ phù hợp để bắt đầu buổi xem đầu tiên."
+              : "Khi có khách đặt lịch với bạn, lịch hẹn sẽ xuất hiện ở đây.")}
         </p>
       </div>
     );
@@ -418,7 +424,9 @@ export function BookingList({
                         return (
                           <p>
                             Quá hạn — bạn sẽ mất{" "}
-                            {formatVND(b.forfeitedAmount ?? b.depositAmount ?? 0)}{" "}
+                            {formatVND(
+                              b.forfeitedAmount ?? b.depositAmount ?? 0,
+                            )}{" "}
                             đặt cọc. Phần còn lại sẽ được hoàn.
                           </p>
                         );

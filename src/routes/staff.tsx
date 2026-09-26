@@ -5,15 +5,21 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { CalendarClock, MessageCircle, Star } from "lucide-react";
 import { RoleGuard } from "@/components/RoleGuard";
 import { WorkspaceShell } from "@/components/WorkspaceShell";
 import { ReaderWorkspace } from "@/features/readers/components/ReaderWorkspace";
 import { useAuth } from "@/lib/auth-context";
 import { BookingList } from "@/features/booking/components/BookingList";
-import { PAGE_SIZE, PagedList, Pagination } from "@/components/Pagination";
+import {
+  demTheoNgay,
+  DieuHuongThang,
+  homNayVn,
+  LuoiNgay,
+  ngayVn,
+  thangRiengHopLe,
+} from "@/features/booking/components/LichThang";
 import { StaffSupportQueue } from "@/features/support/components/StaffSupportQueue";
-import { useReaderBookings } from "@/features/booking/queries";
+import { useReaderBookingMonth } from "@/features/booking/queries";
 import { BOOKING_STATUS_LABEL, type BookingStatus } from "@/api/booking";
 import { EarningsPanel } from "@/features/money/components/EarningsPanel";
 
@@ -89,12 +95,11 @@ function StaffWorkspace() {
  */
 function ReaderBookings() {
   const [status, setStatus] = useState("");
-  const [page, setPage] = useState(0);
-  const query = useReaderBookings({
-    status: status || undefined,
-    page,
-    size: PAGE_SIZE,
-  });
+  const hom = homNayVn();
+  const [year, setYear] = useState(hom.year);
+  const [month, setMonth] = useState(hom.month);
+  const [ngay, setNgay] = useState<string | null>(null);
+  const query = useReaderBookingMonth(year, month);
 
   const filters = [
     { key: "", label: "Tất cả" },
@@ -103,6 +108,9 @@ function ReaderBookings() {
       label: BOOKING_STATUS_LABEL[s],
     })),
   ];
+
+  const loc = (query.data ?? []).filter((b) => !status || b.status === status);
+  const hien = ngay ? loc.filter((b) => ngayVn(b.startTime) === ngay) : loc;
 
   return (
     <div>
@@ -115,40 +123,69 @@ function ReaderBookings() {
           <button
             key={f.key || "all"}
             type="button"
-            onClick={() => {
-              setStatus(f.key);
-              setPage(0);
-            }}
+            onClick={() => setStatus(f.key)}
             aria-pressed={status === f.key}
-            className={
+            className={`rounded-full border px-4 py-1.5 text-xs transition hover:border-gold/70 hover:bg-gold/10 active:scale-95 ${
               status === f.key
-                ? "rounded-full border border-gold bg-gold/20 px-4 py-1.5 text-xs text-gold"
-                : "rounded-full border border-mystic/50 bg-mystic/10 px-4 py-1.5 text-xs text-foreground/80 transition hover:border-gold/60"
-            }
+                ? "border-gold bg-gold/20 text-gold"
+                : "border-mystic/50 bg-mystic/10 text-foreground/80"
+            }`}
           >
             {f.label}
           </button>
         ))}
       </div>
 
-      <div aria-live="polite" aria-busy={query.isFetching}>
-        <PagedList>
-          <BookingList
-            bookings={query.data?.content ?? []}
-            side="reader"
-            isPending={query.isPending}
-            isError={query.isError}
-            error={query.error}
-            onRetry={() => void query.refetch()}
+      <section className="glass mb-4 rounded-2xl p-4">
+        <DieuHuongThang
+          year={year}
+          month={month}
+          coTruoc={thangRiengHopLe(
+            month === 1 ? year - 1 : year,
+            month === 1 ? 12 : month - 1,
+          )}
+          coSau={thangRiengHopLe(
+            month === 12 ? year + 1 : year,
+            month === 12 ? 1 : month + 1,
+          )}
+          onMove={(delta) => {
+            const base = year * 12 + (month - 1) + delta;
+            const y = Math.floor(base / 12);
+            const m = (base % 12) + 1;
+            if (!thangRiengHopLe(y, m)) return;
+            setYear(y);
+            setMonth(m);
+            setNgay(null);
+          }}
+        />
+        <div className="mt-2">
+          <LuoiNgay
+            year={year}
+            month={month}
+            selected={ngay}
+            onSelect={(iso) => setNgay((cur) => (cur === iso ? null : iso))}
+            soBuoi={demTheoNgay(loc)}
           />
-        </PagedList>
-        <Pagination
-          page={page}
-          totalPages={query.data?.totalPages ?? 0}
-          totalElements={query.data?.totalElements ?? 0}
-          onChange={setPage}
-          busy={query.isFetching}
-          unit="lịch hẹn"
+        </div>
+        <p className="mt-2 text-[11px] text-muted-foreground">
+          Cùng một Reader: khách khác không đặt trùng giờ, ô đã kín hiện trên
+          lịch đặt của họ. Ở đây bạn thấy tên khách theo từng ngày.
+        </p>
+      </section>
+
+      <div aria-live="polite" aria-busy={query.isFetching}>
+        <BookingList
+          bookings={hien}
+          side="reader"
+          isPending={query.isPending}
+          isError={query.isError}
+          error={query.error}
+          onRetry={() => void query.refetch()}
+          emptyText={
+            ngay
+              ? "Ngày này không có buổi nào với bộ lọc đang chọn."
+              : undefined
+          }
         />
       </div>
     </div>
