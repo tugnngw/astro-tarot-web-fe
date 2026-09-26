@@ -10,7 +10,12 @@ import { apiFetch } from "./client";
 
 import { PAGE_SIZE } from "@/components/Pagination";
 export type BookingStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED";
-export type BookingPaymentStatus = "UNPAID" | "DEPOSIT_PAID" | "PAID" | "REFUNDED" | "FAILED";
+export type BookingPaymentStatus =
+  | "UNPAID"
+  | "DEPOSIT_PAID"
+  | "PAID"
+  | "REFUNDED"
+  | "FAILED";
 
 /** Đúng ba mốc Reader khai giá. BE từ chối mọi giá trị khác. */
 export const DURATIONS = [15, 30, 60] as const;
@@ -67,6 +72,36 @@ export interface Slot {
   startTime: string;
   endTime: string;
   price: number;
+}
+
+export type CalendarDayKind =
+  | "OFF"
+  | "CLOSED"
+  | "OPEN"
+  | "FULL"
+  | "OVER"
+  | "PAST";
+
+export type CalendarSlotState = "FREE" | "TAKEN" | "PAST";
+
+export interface CalendarSlot {
+  startTime: string;
+  endTime: string;
+  price: number;
+  state: CalendarSlotState;
+}
+
+export interface CalendarDay {
+  date: string;
+  kind: CalendarDayKind;
+  slots: CalendarSlot[];
+}
+
+export interface MonthCalendar {
+  year: number;
+  month: number;
+  durationMinutes: number;
+  days: CalendarDay[];
 }
 
 export interface Review {
@@ -128,6 +163,42 @@ export function getNextAvailableDate(
     {},
     { auth: false },
   );
+}
+
+/** Cả tháng, một lần. Khung đã kín vẫn có, state = TAKEN. */
+export function getMonthCalendar(
+  readerProfileId: string,
+  year: number,
+  month: number,
+  duration: number,
+) {
+  const params = new URLSearchParams({
+    year: String(year),
+    month: String(month),
+    duration: String(duration),
+  });
+  return apiFetch<MonthCalendar>(
+    `/api/v1/readers/${readerProfileId}/calendar?${params}`,
+    {},
+    { auth: false },
+  );
+}
+
+/** Buổi của chính mình trong một tháng — để vẽ lịch, không cắt theo trang. */
+export function getMyBookingMonth(year: number, month: number) {
+  const params = new URLSearchParams({
+    year: String(year),
+    month: String(month),
+  });
+  return apiFetch<Booking[]>(`/api/v1/bookings/me/calendar?${params}`);
+}
+
+export function getReaderBookingMonth(year: number, month: number) {
+  const params = new URLSearchParams({
+    year: String(year),
+    month: String(month),
+  });
+  return apiFetch<Booking[]>(`/api/v1/bookings/reader/calendar?${params}`);
 }
 
 export function getReaderReviews(
@@ -204,7 +275,10 @@ export function saveReaderNote(id: string, note: string) {
 export function cancelBooking(id: string, reason?: string, actorType?: string) {
   return apiFetch<Booking>(`/api/v1/bookings/${id}/cancel`, {
     method: "PATCH",
-    body: JSON.stringify({ reason: reason ?? null, actorType: actorType ?? null }),
+    body: JSON.stringify({
+      reason: reason ?? null,
+      actorType: actorType ?? null,
+    }),
   });
 }
 

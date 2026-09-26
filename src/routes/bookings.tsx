@@ -5,8 +5,15 @@ import { toast } from "sonner";
 import { Header } from "@/components/Header";
 import { RoleGuard } from "@/components/RoleGuard";
 import { BookingList } from "@/features/booking/components/BookingList";
-import { PAGE_SIZE, PagedList, Pagination } from "@/components/Pagination";
-import { useMyBookings } from "@/features/booking/queries";
+import {
+  demTheoNgay,
+  DieuHuongThang,
+  homNayVn,
+  LuoiNgay,
+  ngayVn,
+  thangRiengHopLe,
+} from "@/features/booking/components/LichThang";
+import { useMyBookingMonth } from "@/features/booking/queries";
 import { useAuth } from "@/lib/auth-context";
 import { BOOKING_STATUS_LABEL, type BookingStatus } from "@/api/booking";
 
@@ -43,12 +50,11 @@ function MyBookingsPage() {
   const coLichKhachDat = can("READER_MANAGE_PROFILE");
   const [status, setStatus] = useState("");
   const { payment } = Route.useSearch();
-  const [page, setPage] = useState(0);
-  const query = useMyBookings({
-    status: status || undefined,
-    page,
-    size: PAGE_SIZE,
-  });
+  const hom = homNayVn();
+  const [year, setYear] = useState(hom.year);
+  const [month, setMonth] = useState(hom.month);
+  const [ngay, setNgay] = useState<string | null>(null);
+  const query = useMyBookingMonth(year, month);
 
   useEffect(() => {
     if (payment === "success") {
@@ -60,6 +66,9 @@ function MyBookingsPage() {
       toast.message("Bạn đã huỷ thanh toán trên PayOS");
     }
   }, [payment]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const loc = (query.data ?? []).filter((b) => !status || b.status === status);
+  const hien = ngay ? loc.filter((b) => ngayVn(b.startTime) === ngay) : loc;
 
   return (
     <div className="relative min-h-screen">
@@ -109,15 +118,12 @@ function MyBookingsPage() {
             <button
               key={f.key || "all"}
               type="button"
-              onClick={() => {
-                setStatus(f.key);
-                setPage(0);
-              }}
+              onClick={() => setStatus(f.key)}
               aria-pressed={status === f.key}
-              className={`rounded-full border px-4 py-1.5 text-xs transition focus-visible:ring-2 focus-visible:ring-gold/40 ${
+              className={`rounded-full border px-4 py-1.5 text-xs transition hover:border-gold/70 hover:bg-gold/10 active:scale-95 focus-visible:ring-2 focus-visible:ring-gold/40 ${
                 status === f.key
                   ? "border-gold bg-gold/20 text-gold"
-                  : "border-mystic/50 bg-mystic/10 text-foreground/80 hover:border-gold/60"
+                  : "border-mystic/50 bg-mystic/10 text-foreground/80"
               }`}
             >
               {f.label}
@@ -125,24 +131,56 @@ function MyBookingsPage() {
           ))}
         </div>
 
-        <div className="mt-6" aria-live="polite" aria-busy={query.isFetching}>
-          <PagedList>
-            <BookingList
-              bookings={query.data?.content ?? []}
-              side="customer"
-              isPending={query.isPending}
-              isError={query.isError}
-              error={query.error}
-              onRetry={() => void query.refetch()}
+        <section className="glass mt-4 rounded-2xl p-4">
+          <DieuHuongThang
+            year={year}
+            month={month}
+            coTruoc={thangRiengHopLe(
+              month === 1 ? year - 1 : year,
+              month === 1 ? 12 : month - 1,
+            )}
+            coSau={thangRiengHopLe(
+              month === 12 ? year + 1 : year,
+              month === 12 ? 1 : month + 1,
+            )}
+            onMove={(delta) => {
+              const base = year * 12 + (month - 1) + delta;
+              const y = Math.floor(base / 12);
+              const m = (base % 12) + 1;
+              if (!thangRiengHopLe(y, m)) return;
+              setYear(y);
+              setMonth(m);
+              setNgay(null);
+            }}
+          />
+          <div className="mt-2">
+            <LuoiNgay
+              year={year}
+              month={month}
+              selected={ngay}
+              onSelect={(iso) => setNgay((cur) => (cur === iso ? null : iso))}
+              soBuoi={demTheoNgay(loc)}
             />
-          </PagedList>
-          <Pagination
-            page={page}
-            totalPages={query.data?.totalPages ?? 0}
-            totalElements={query.data?.totalElements ?? 0}
-            onChange={setPage}
-            busy={query.isFetching}
-            unit="lịch hẹn"
+          </div>
+          <p className="mt-2 text-[11px] text-muted-foreground">
+            Số trên mỗi ngày là buổi chưa huỷ. Bấm một ngày để xem đúng ngày đó,
+            bấm lại để xem cả tháng.
+          </p>
+        </section>
+
+        <div className="mt-4" aria-live="polite" aria-busy={query.isFetching}>
+          <BookingList
+            bookings={hien}
+            side="customer"
+            isPending={query.isPending}
+            isError={query.isError}
+            error={query.error}
+            onRetry={() => void query.refetch()}
+            emptyText={
+              ngay
+                ? "Ngày này không có buổi nào với bộ lọc đang chọn."
+                : undefined
+            }
           />
         </div>
       </main>

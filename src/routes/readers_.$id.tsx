@@ -4,33 +4,33 @@
 // trong bộ nhớ trình duyệt: đặt lịch xong tải lại trang là mất, và Reader
 // không bao giờ nhìn thấy gì. Nay nối thẳng vào /api/v1/bookings.
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState, useRef } from "react";
-import {
-  AlertCircle,
-  ArrowLeft,
-  Calendar as CalendarIcon,
-  CalendarClock,
-  Clock,
-  Star,
-} from "lucide-react";
+import { useState, useRef } from "react";
+import { AlertCircle, ArrowLeft, CalendarClock, Star } from "lucide-react";
 import { toast } from "sonner";
 import { Header } from "@/components/Header";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { useAuth } from "@/lib/auth-context";
 import { useReader } from "@/features/readers/queries";
 import {
   useCreateBooking,
+  useMonthCalendar,
   useReaderReviews,
-  useSlots,
-  useNextAvailableDate,
 } from "@/features/booking/queries";
-import { DURATIONS, type Duration, type Slot } from "@/api/booking";
+import {
+  DURATIONS,
+  type CalendarDay,
+  type CalendarSlot,
+  type Duration,
+} from "@/api/booking";
 import { formatVND } from "@/lib/mock-data";
+import {
+  ChuThichDat,
+  DieuHuongThang,
+  LuoiNgay,
+  gioVn,
+  homNayVn,
+  loiNgay,
+  thangDatHopLe,
+} from "@/features/booking/components/LichThang";
 
 import {
   PagedList,
@@ -41,9 +41,6 @@ export const Route = createFileRoute("/readers_/$id")({
   head: () => ({ meta: [{ title: "Hồ sơ Reader — ASTROTAROT" }] }),
   component: ReaderProfilePage,
 });
-
-/** Cho đặt trước tối đa hai tuần — xa hơn thì lịch Reader còn đổi nhiều. */
-const DAYS_AHEAD = 14;
 
 function ReaderProfilePage() {
   const { id } = Route.useParams();
@@ -57,22 +54,14 @@ function ReaderProfilePage() {
   const coTrang = useCoTrangVuaManHinh(listRef);
   const reviews = useReaderReviews(id, trangDanhGia, coTrang);
 
+  const hom = homNayVn();
   const [duration, setDuration] = useState<Duration>(30);
-  const [date, setDate] = useState(() => toDateInput(new Date()));
-  const [picked, setPicked] = useState<Slot | null>(null);
+  const [year, setYear] = useState(hom.year);
+  const [month, setMonth] = useState(hom.month);
+  const [date, setDate] = useState(hom.iso);
+  const [picked, setPicked] = useState<CalendarSlot | null>(null);
 
-  // Khung đã qua giờ bị loại, nên mở trang vào buổi tối là hôm nay trống trơn
-  // và Reader trông như không nhận khách — dù mai vẫn còn chỗ. Hỏi BE ngày
-  // trống gần nhất rồi nhảy thẳng tới đó, một lần, ngay khi mở trang.
-  const nextDay = useNextAvailableDate(id, duration, reader.isSuccess);
-  const [jumped, setJumped] = useState(false);
-  useEffect(() => {
-    if (jumped || !nextDay.data) return;
-    if (nextDay.data !== date) setDate(nextDay.data);
-    setJumped(true);
-  }, [nextDay.data, jumped, date]);
-
-  const slots = useSlots(id, date, duration, reader.isSuccess);
+  const lich = useMonthCalendar(id, year, month, duration, reader.isSuccess);
   const create = useCreateBooking();
 
   // Reader của chính mình thì không đặt lịch được — BE chặn, nên giao diện cũng
@@ -341,6 +330,7 @@ function ReaderProfilePage() {
                   <div className="mt-2 flex gap-2">
                     {DURATIONS.map((d) => {
                       const unavailable = priceFor(r, d) == null;
+                      const chon = duration === d;
                       return (
                         <button
                           key={d}
@@ -350,17 +340,17 @@ function ReaderProfilePage() {
                             setDuration(d);
                             setPicked(null);
                           }}
-                          aria-pressed={duration === d}
+                          aria-pressed={chon}
                           title={
                             unavailable
                               ? "Reader chưa đặt giá cho mốc này"
                               : undefined
                           }
-                          className={
-                            duration === d
-                              ? "flex-1 rounded-full border border-gold bg-gold/20 py-1.5 text-xs text-gold"
-                              : "flex-1 rounded-full border border-mystic/50 py-1.5 text-xs text-foreground/80 transition hover:border-gold/60 disabled:cursor-not-allowed disabled:opacity-30"
-                          }
+                          className={`flex-1 rounded-full border py-1.5 text-xs transition hover:border-gold/70 hover:bg-gold/10 active:scale-95 disabled:cursor-not-allowed disabled:opacity-30 ${
+                            chon
+                              ? "border-gold bg-gold/20 text-gold"
+                              : "border-mystic/50 text-foreground/80"
+                          }`}
                         >
                           {d}p
                         </button>
@@ -369,129 +359,90 @@ function ReaderProfilePage() {
                   </div>
                 </fieldset>
 
-                <div className="mt-4">
-                  <span className="text-xs text-muted-foreground">Ngày</span>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <button
-                        type="button"
-                        className="mt-1 flex w-full items-center justify-between rounded-lg border border-gold/25 bg-input/70 px-3 py-2 text-sm text-foreground outline-none transition hover:border-gold/60 focus:border-gold"
-                      >
-                        <span>{formatDateInput(date)}</span>
-                        <CalendarIcon
-                          aria-hidden="true"
-                          className="h-4 w-4 shrink-0 text-muted-foreground"
-                        />
-                      </button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={parseDateInput(date)}
-                        onSelect={(d) => {
-                          if (!d) return;
-                          setDate(toDateInput(d));
-                          setPicked(null);
-                        }}
-                        disabled={(d) => {
-                          const min = new Date();
-                          min.setHours(0, 0, 0, 0);
-                          const max = new Date(
-                            Date.now() + DAYS_AHEAD * 86400000,
-                          );
-                          max.setHours(23, 59, 59, 999);
-                          return d < min || d > max;
-                        }}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-
                 <div
                   className="mt-4"
                   aria-live="polite"
-                  aria-busy={slots.isFetching}
+                  aria-busy={lich.isFetching}
                 >
-                  <p className="text-xs text-muted-foreground">
-                    Khung giờ còn trống
-                  </p>
-                  {slots.isPending ? (
+                  <DieuHuongThang
+                    year={year}
+                    month={month}
+                    coTruoc={thangDatHopLe(
+                      month === 1 ? year - 1 : year,
+                      month === 1 ? 12 : month - 1,
+                    )}
+                    coSau={thangDatHopLe(
+                      month === 12 ? year + 1 : year,
+                      month === 12 ? 1 : month + 1,
+                    )}
+                    onMove={(delta) => {
+                      const base = year * 12 + (month - 1) + delta;
+                      const y = Math.floor(base / 12);
+                      const m = (base % 12) + 1;
+                      if (!thangDatHopLe(y, m)) return;
+                      setYear(y);
+                      setMonth(m);
+                      setPicked(null);
+                      const so = new Date(y, m, 0).getDate();
+                      const ngay = Math.min(Number(date.slice(8)), so);
+                      const iso = `${y}-${String(m).padStart(2, "0")}-${String(ngay).padStart(2, "0")}`;
+                      const h = homNayVn();
+                      setDate(
+                        y === h.year && m === h.month && iso < h.iso
+                          ? h.iso
+                          : iso,
+                      );
+                    }}
+                  />
+                  {lich.isPending ? (
                     <div
-                      className="mt-2 grid grid-cols-3 gap-2"
+                      className="mt-2 h-64 animate-pulse rounded-xl bg-mystic/10"
                       aria-hidden="true"
-                    >
-                      {Array.from({ length: 6 }, (_, i) => (
-                        <div
-                          key={i}
-                          className="h-8 animate-pulse rounded-lg bg-mystic/10"
-                        />
-                      ))}
-                    </div>
-                  ) : slots.isError ? (
+                    />
+                  ) : lich.isError ? (
                     <p className="mt-2 text-sm text-destructive">
-                      {slots.error instanceof Error
-                        ? slots.error.message
-                        : "Không tải được khung giờ"}
+                      {lich.error instanceof Error
+                        ? lich.error.message
+                        : "Không tải được lịch"}
                     </p>
-                  ) : (slots.data?.length ?? 0) === 0 ? (
-                    <div className="mt-2 flex items-start gap-2 text-sm text-muted-foreground">
-                      <Clock
-                        aria-hidden="true"
-                        className="mt-0.5 h-4 w-4 shrink-0"
-                      />
-                      <div>
-                        <p>
-                          {date === toDateInput(new Date())
-                            ? "Hôm nay đã qua giờ làm việc của Reader."
-                            : "Ngày này Reader không còn khung nào trống."}
-                        </p>
-                        {nextDay.data && nextDay.data !== date ? (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setDate(nextDay.data as string);
-                              setPicked(null);
-                            }}
-                            className="mt-1 text-gold underline-offset-4 hover:underline"
-                          >
-                            Xem ngày trống gần nhất (
-                            {formatDayLabel(nextDay.data)})
-                          </button>
-                        ) : (
-                          <p className="mt-1">
-                            {nextDay.isPending
-                              ? "Đang tìm ngày trống gần nhất…"
-                              : "Reader này chưa có khung trống trong hai tuần tới."}
-                          </p>
-                        )}
-                      </div>
-                    </div>
                   ) : (
-                    <div className="mt-2 grid max-h-64 grid-cols-3 gap-2 overflow-y-auto pr-1">
-                      {slots.data!.map((s) => (
-                        <button
-                          key={s.startTime}
-                          type="button"
-                          onClick={() => setPicked(s)}
-                          aria-pressed={picked?.startTime === s.startTime}
-                          className={
-                            picked?.startTime === s.startTime
-                              ? "rounded-lg border border-gold bg-gold/20 py-1.5 text-xs text-gold"
-                              : "rounded-lg border border-mystic/50 py-1.5 text-xs text-foreground/80 transition hover:border-gold/60"
-                          }
-                        >
-                          {formatTime(s.startTime)}
-                        </button>
-                      ))}
-                    </div>
+                    <>
+                      <LuoiNgay
+                        year={year}
+                        month={month}
+                        selected={date}
+                        onSelect={(iso) => {
+                          setDate(iso);
+                          setPicked(null);
+                        }}
+                        loai={
+                          new Map(
+                            (lich.data?.days ?? []).map((d) => [
+                              d.date,
+                              d.kind,
+                            ]),
+                          )
+                        }
+                      />
+                      <ChuThichDat />
+                    </>
                   )}
                 </div>
+
+                <KhungGio
+                  dangTai={lich.isPending}
+                  loi={lich.isError}
+                  ngay={lich.data?.days.find((d) => d.date === date)}
+                  laHomNay={date === homNayVn().iso}
+                  picked={picked}
+                  onPick={setPicked}
+                />
 
                 {picked && (
                   <div className="mt-4 rounded-xl border border-gold/30 bg-gold/5 p-3 text-sm">
                     <p>
-                      {formatDayTime(picked.startTime)} –{" "}
-                      {formatTime(picked.endTime)}
+                      {date.split("-").reverse().join("/")} ·{" "}
+                      {gioVn(picked.startTime)} – {gioVn(picked.endTime)}
                     </p>
                     <p className="mt-1 font-display text-xl text-gold">
                       {formatVND(picked.price)}
@@ -503,7 +454,7 @@ function ReaderProfilePage() {
                   type="button"
                   disabled={!picked || create.isPending || price == null}
                   onClick={book}
-                  className="mt-4 w-full rounded-full bg-gold py-2.5 text-sm font-medium text-primary-foreground glow-gold transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
+                  className="mt-4 w-full rounded-full bg-gold py-2.5 text-sm font-medium text-primary-foreground glow-gold transition hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
                 >
                   {create.isPending
                     ? "Đang gửi…"
@@ -558,56 +509,86 @@ function priceFor(
   return d === 15 ? r.pricePer15m : d === 30 ? r.pricePer30m : r.pricePer60m;
 }
 
-/** yyyy-mm-dd theo giờ ĐỊA PHƯƠNG. toISOString() sẽ lệch một ngày với múi giờ VN. */
-/** "2026-10-09" → "Thứ 6, 09/10". Dùng cho nút nhảy tới ngày trống. */
-function formatDayLabel(iso: string) {
-  const d = new Date(iso + "T00:00:00");
-  return d.toLocaleDateString("vi-VN", {
-    weekday: "short",
-    day: "2-digit",
-    month: "2-digit",
-  });
+function KhungGio({
+  dangTai,
+  loi,
+  ngay,
+  laHomNay,
+  picked,
+  onPick,
+}: {
+  dangTai: boolean;
+  loi: boolean;
+  ngay: CalendarDay | undefined;
+  laHomNay: boolean;
+  picked: CalendarSlot | null;
+  onPick: (s: CalendarSlot | null) => void;
+}) {
+  const conTrong = (ngay?.slots ?? []).some((s) => s.state === "FREE");
+  return (
+    <div className="mt-4">
+      <p className="text-xs text-muted-foreground">Khung giờ</p>
+      {dangTai ? (
+        <div className="mt-2 grid grid-cols-3 gap-2" aria-hidden="true">
+          {Array.from({ length: 6 }, (_, i) => (
+            <div
+              key={i}
+              className="h-8 animate-pulse rounded-lg bg-mystic/10"
+            />
+          ))}
+        </div>
+      ) : loi || !ngay ? null : !conTrong ? (
+        <p className="mt-2 text-sm text-muted-foreground">
+          {loiNgay(ngay, laHomNay)}
+        </p>
+      ) : (
+        <div className="mt-2 grid max-h-64 grid-cols-3 gap-2 overflow-y-auto pr-1">
+          {ngay.slots.map((s) => {
+            const mo = s.state === "FREE";
+            const dangChon = picked?.startTime === s.startTime;
+            return (
+              <button
+                key={s.startTime}
+                type="button"
+                disabled={!mo}
+                onClick={() => onPick(dangChon ? null : s)}
+                aria-pressed={dangChon}
+                className={`rounded-lg border py-1.5 text-xs transition active:scale-95 disabled:cursor-not-allowed ${
+                  dangChon
+                    ? "border-gold bg-gold/20 text-gold"
+                    : mo
+                      ? "border-mystic/50 text-foreground/80 hover:border-gold/60 hover:bg-gold/10"
+                      : "border-mystic/30 text-muted-foreground/45"
+                }`}
+              >
+                <span
+                  className={
+                    mo ? "" : "line-through decoration-muted-foreground/40"
+                  }
+                >
+                  {gioVn(s.startTime)}
+                </span>
+                {!mo && (
+                  <span className="mt-0.5 block text-[9px] font-normal no-underline">
+                    {s.state === "TAKEN" ? "Đã kín" : "Đã qua"}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
 }
 
-function toDateInput(d: Date) {
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-}
-
-/** "yyyy-mm-dd" → Date theo giờ địa phương (tránh lệch ngày do UTC). */
-function parseDateInput(iso: string) {
-  return new Date(iso + "T00:00:00");
-}
-
-/** Hiển thị cố định DD/MM/YYYY (vi-VN). */
-function formatDateInput(iso: string) {
-  return DATE_FORMAT.format(parseDateInput(iso));
-}
-
-/** Định dạng cố định vi-VN: để mặc định thì máy chủ và trình duyệt ra khác nhau. */
-const TIME_FORMAT = new Intl.DateTimeFormat("vi-VN", {
-  hour: "2-digit",
-  minute: "2-digit",
-});
-const DAY_TIME_FORMAT = new Intl.DateTimeFormat("vi-VN", {
-  weekday: "short",
-  day: "2-digit",
-  month: "2-digit",
-  hour: "2-digit",
-  minute: "2-digit",
-});
 const DATE_FORMAT = new Intl.DateTimeFormat("vi-VN", {
+  timeZone: "Asia/Ho_Chi_Minh",
   day: "2-digit",
   month: "2-digit",
   year: "numeric",
 });
 
-function formatTime(iso: string) {
-  return TIME_FORMAT.format(new Date(iso));
-}
-function formatDayTime(iso: string) {
-  return DAY_TIME_FORMAT.format(new Date(iso));
-}
 function formatDate(iso: string) {
   return DATE_FORMAT.format(new Date(iso));
 }

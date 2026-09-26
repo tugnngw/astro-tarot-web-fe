@@ -11,10 +11,7 @@ import {
 import { useEffect, useState } from "react";
 import * as bookingApi from "@/api/booking";
 import * as notificationApi from "@/api/notifications";
-import {
-  isRealtimeConnected,
-  subscribeRealtimeStatus,
-} from "@/lib/realtime";
+import { isRealtimeConnected, subscribeRealtimeStatus } from "@/lib/realtime";
 
 export const bookingKeys = {
   all: ["booking"] as const,
@@ -60,6 +57,49 @@ export function useNextAvailableDate(
     queryFn: () => bookingApi.getNextAvailableDate(readerProfileId, duration),
     enabled: enabled && Boolean(readerProfileId),
     staleTime: 60_000,
+  });
+}
+
+export function useMonthCalendar(
+  readerProfileId: string,
+  year: number,
+  month: number,
+  duration: number,
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: [
+      ...bookingKeys.all,
+      "calendar",
+      readerProfileId,
+      year,
+      month,
+      duration,
+    ],
+    queryFn: () =>
+      bookingApi.getMonthCalendar(readerProfileId, year, month, duration),
+    enabled: enabled && Boolean(readerProfileId),
+    staleTime: 30_000,
+  });
+}
+
+export function useMyBookingMonth(year: number, month: number, enabled = true) {
+  return useQuery({
+    queryKey: [...bookingKeys.all, "mine-month", year, month],
+    queryFn: () => bookingApi.getMyBookingMonth(year, month),
+    enabled,
+  });
+}
+
+export function useReaderBookingMonth(
+  year: number,
+  month: number,
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: [...bookingKeys.all, "reader-month", year, month],
+    queryFn: () => bookingApi.getReaderBookingMonth(year, month),
+    enabled,
   });
 }
 
@@ -139,8 +179,16 @@ export function useSaveReaderNote() {
 }
 
 export function useCancelBooking() {
-  return useBookingMutation(({ id, reason, actorType }: { id: string; reason?: string; actorType?: string }) =>
-    bookingApi.cancelBooking(id, reason, actorType),
+  return useBookingMutation(
+    ({
+      id,
+      reason,
+      actorType,
+    }: {
+      id: string;
+      reason?: string;
+      actorType?: string;
+    }) => bookingApi.cancelBooking(id, reason, actorType),
   );
 }
 
