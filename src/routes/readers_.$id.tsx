@@ -4,7 +4,7 @@
 // trong bộ nhớ trình duyệt: đặt lịch xong tải lại trang là mất, và Reader
 // không bao giờ nhìn thấy gì. Nay nối thẳng vào /api/v1/bookings.
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { AlertCircle, ArrowLeft, CalendarClock, Star } from "lucide-react";
 import { toast } from "sonner";
 import { Header } from "@/components/Header";
@@ -63,6 +63,22 @@ function ReaderProfilePage() {
 
   const lich = useMonthCalendar(id, year, month, duration, reader.isSuccess);
   const create = useCreateBooking();
+  const daNhay = useRef(false);
+
+  // Mở lịch đúng ngày hôm nay mà hôm nay đã hết giờ thì nhảy sang ngày còn
+  // khung trống. Người xem không bị kẹt ở một ô không đặt được.
+  useEffect(() => {
+    if (daNhay.current || !lich.data) return;
+    daNhay.current = true;
+    const homIso = homNayVn().iso;
+    const mo = lich.data.days.find(
+      (d) => d.date >= homIso && d.kind === "OPEN",
+    );
+    if (mo && mo.date !== date) {
+      setDate(mo.date);
+      setPicked(null);
+    }
+  }, [lich.data, date]);
 
   // Reader của chính mình thì không đặt lịch được — BE chặn, nên giao diện cũng
   // phải nói trước thay vì để bấm rồi nhận lỗi.
@@ -85,7 +101,9 @@ function ReaderProfilePage() {
           startTime: slot.startTime,
           durationMinutes: duration,
         });
-        toast.success("Đã gửi yêu cầu. Reader sẽ xác nhận trong ít phút.");
+        toast.success(
+          "Đã đặt lịch. Vào Lịch hẹn của tôi để đặt cọc. Huỷ từ 12 tiếng trước giờ hẹn thì hoàn cọc.",
+        );
         setPicked(null);
       } catch (e) {
         toast.error(e instanceof Error ? e.message : "Không đặt được lịch");
@@ -339,6 +357,7 @@ function ReaderProfilePage() {
                           onClick={() => {
                             setDuration(d);
                             setPicked(null);
+                            daNhay.current = false;
                           }}
                           aria-pressed={chon}
                           title={
@@ -383,6 +402,7 @@ function ReaderProfilePage() {
                       setYear(y);
                       setMonth(m);
                       setPicked(null);
+                      daNhay.current = false;
                       const so = new Date(y, m, 0).getDate();
                       const ngay = Math.min(Number(date.slice(8)), so);
                       const iso = `${y}-${String(m).padStart(2, "0")}-${String(ngay).padStart(2, "0")}`;
@@ -411,7 +431,9 @@ function ReaderProfilePage() {
                         year={year}
                         month={month}
                         selected={date}
+                        khoaQuaKhu
                         onSelect={(iso) => {
+                          if (iso < homNayVn().iso) return;
                           setDate(iso);
                           setPicked(null);
                         }}
@@ -464,12 +486,12 @@ function ReaderProfilePage() {
                 </button>
 
                 <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
-                  Đặt xong sẽ ở trạng thái chờ Reader xác nhận. Bạn theo dõi và
-                  huỷ được ở trang{" "}
+                  Cùng một ngày nhiều người đặt được, mỗi người một khung giờ.
+                  Đặt xong buổi mới tới bước đặt cọc, ở trang{" "}
                   <Link to="/bookings" className="text-gold hover:underline">
                     Lịch hẹn của tôi
                   </Link>
-                  .
+                  . Huỷ từ 12 tiếng trước giờ hẹn thì hoàn cọc.
                 </p>
               </>
             )}
@@ -524,7 +546,8 @@ function KhungGio({
   picked: CalendarSlot | null;
   onPick: (s: CalendarSlot | null) => void;
 }) {
-  const conTrong = (ngay?.slots ?? []).some((s) => s.state === "FREE");
+  const hien = (ngay?.slots ?? []).filter((s) => s.state !== "PAST");
+  const conTrong = hien.some((s) => s.state === "FREE");
   return (
     <div className="mt-4">
       <p className="text-xs text-muted-foreground">Khung giờ</p>
@@ -537,13 +560,22 @@ function KhungGio({
             />
           ))}
         </div>
-      ) : loi || !ngay ? null : !conTrong ? (
+      ) : loi || !ngay ? null : hien.length === 0 ? (
         <p className="mt-2 text-sm text-muted-foreground">
           {loiNgay(ngay, laHomNay)}
         </p>
       ) : (
-        <div className="mt-2 grid max-h-64 grid-cols-3 gap-2 overflow-y-auto pr-1">
-          {ngay.slots.map((s) => {
+        <>
+          {!conTrong && (
+            <p className="mt-2 text-sm text-muted-foreground">
+              {loiNgay(ngay, laHomNay)}
+            </p>
+          )}
+          <p className="mt-2 text-[11px] text-muted-foreground">
+            Khung gạch ngang đã có người. Khung còn lại vẫn đặt được.
+          </p>
+          <div className="mt-2 grid max-h-64 grid-cols-3 gap-2 overflow-y-auto pr-1">
+          {hien.map((s) => {
             const mo = s.state === "FREE";
             const dangChon = picked?.startTime === s.startTime;
             return (
@@ -576,7 +608,8 @@ function KhungGio({
               </button>
             );
           })}
-        </div>
+          </div>
+        </>
       )}
     </div>
   );
