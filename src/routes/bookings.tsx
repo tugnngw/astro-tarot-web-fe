@@ -7,6 +7,7 @@ import { RoleGuard } from "@/components/RoleGuard";
 import { BookingList } from "@/features/booking/components/BookingList";
 import { PAGE_SIZE, PagedList, Pagination } from "@/components/Pagination";
 import { useMyBookings } from "@/features/booking/queries";
+import { useAuth } from "@/lib/auth-context";
 import { BOOKING_STATUS_LABEL, type BookingStatus } from "@/api/booking";
 
 export const Route = createFileRoute("/bookings")({
@@ -32,6 +33,14 @@ const FILTERS: Array<{ key: string; label: string }> = [
 ];
 
 function MyBookingsPage() {
+  const { can } = useAuth();
+  // Trang này CHỈ có lịch do chính người dùng đặt với Reader. Lịch mà khách
+  // đặt với họ là một danh sách khác, ở Bàn làm việc.
+  //
+  // Với tài khoản Reader hai thứ đó rất dễ lẫn, và khi lẫn thì cái họ thấy là
+  // một danh sách trống — đúng về mặt dữ liệu, nhưng đọc lên thì giống hệt
+  // "lịch khách vừa đặt đã biến mất". Nói rõ ngay tại chỗ dễ nhầm.
+  const coLichKhachDat = can("READER_MANAGE_PROFILE");
   const [status, setStatus] = useState("");
   const { payment } = Route.useSearch();
   const [page, setPage] = useState(0);
@@ -74,6 +83,22 @@ function MyBookingsPage() {
             Tìm Reader
           </Link>
         </div>
+
+        {coLichKhachDat && (
+          <div className="glass mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gold/20 px-4 py-3">
+            <p className="text-sm text-muted-foreground">
+              Đây là những buổi <span className="text-foreground">bạn đặt</span>{" "}
+              với Reader khác. Lịch khách đặt với bạn nằm ở Bàn làm việc.
+            </p>
+            <Link
+              to="/staff"
+              search={{ tab: "bookings" }}
+              className="shrink-0 rounded-full border border-gold/50 px-4 py-1.5 text-xs text-gold transition hover:bg-gold/10"
+            >
+              Xem lịch khách đặt
+            </Link>
+          </div>
+        )}
 
         <div
           className="mt-6 flex flex-wrap gap-2"

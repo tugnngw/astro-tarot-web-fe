@@ -7,6 +7,7 @@ import {
   Settings,
   LogOut,
   CalendarClock,
+  CalendarCheck,
   LifeBuoy,
   Star,
   Menu,
@@ -54,6 +55,11 @@ export function Header() {
   // thành viên thường tới đó qua nhãn "Trang chủ", nên khi nhãn ấy trả về
   // đúng nghĩa thì /home mất lối vào nếu không bù chỗ này.
   const coKhongGianThanhVien = can(user, "USER_BASIC");
+  // Reader cần hai lối vào khác nhau: lịch HỌ đặt với người khác (/bookings) và
+  // lịch KHÁCH đặt với họ (Bàn làm việc). Trước đây chỉ có cái đầu, và nó là
+  // mục duy nhất mang chữ "Lịch hẹn" — nên Reader vừa nhận được lịch sẽ bấm
+  // vào đó, thấy một danh sách trống, và kết luận lịch hẹn không tới nơi.
+  const coLichKhachDat = can(user, "READER_MANAGE_PROFILE");
   const [open, setOpen] = useState(false);
   const [logoutOpen, setLogoutOpen] = useState(false);
   /** Cụm avatar + menu, để biết một cú bấm là trong hay ngoài. */
@@ -234,6 +240,21 @@ export function Header() {
                           navigate({ to: "/bookings" });
                         },
                       },
+                      ...(coLichKhachDat
+                        ? [
+                            {
+                              ic: CalendarCheck,
+                              l: "Lịch khách đặt với tôi",
+                              a: () => {
+                                setOpen(false);
+                                navigate({
+                                  to: "/staff",
+                                  search: { tab: "bookings" },
+                                });
+                              },
+                            },
+                          ]
+                        : []),
                       {
                         ic: Star,
                         l: "Bản đồ sao",
@@ -357,6 +378,16 @@ export function Header() {
                   )}
                 >
                   Lịch hẹn của tôi
+                </Link>
+              )}
+              {coLichKhachDat && (
+                <Link
+                  to="/staff"
+                  search={{ tab: "bookings" }}
+                  onClick={() => setMobileOpen(false)}
+                  className={mobileNavLinkClass(false)}
+                >
+                  Lịch khách đặt với tôi
                 </Link>
               )}
               {workspaceLinks.map((l) => {

@@ -26,6 +26,11 @@ import { RoleBadge } from "@/components/RoleBadge";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Quản trị — ASTROTAROT" }] }),
+  // Tab đang mở nằm ở đường dẫn để gửi liên kết được. Dấu ? là bắt buộc: thiếu
+  // nó thì TanStack coi khoá này là BẮT BUỘC, và mọi <Link to="/admin"> trong app
+  // sẽ báo thiếu prop `search`.
+  validateSearch: (search: Record<string, unknown>): { tab?: string } =>
+    typeof search.tab === "string" ? { tab: search.tab } : {},
   component: () => (
     <RoleGuard require={["USERS_MANAGE"]}>
       <AdminWorkspace />

@@ -75,9 +75,11 @@ export function NotificationBell() {
 
   function openItem(n: Notification) {
     if (!n.read) markRead.mutate(n.id);
-    const to = notificationLink(n);
+    const dich = notificationLink(n);
     setOpen(false);
-    if (to) navigate({ to });
+    // `search` quyết định TAB nào mở ra ở Bàn làm việc. Bỏ nó đi thì Reader
+    // bấm "Có lịch hẹn mới" và rơi vào tab Hỗ trợ khách — đúng trang, sai chỗ.
+    if (dich) navigate({ to: dich.to, search: dich.search ?? {} });
   }
 
   function toggleSelect(id: string) {
@@ -215,9 +217,7 @@ export function NotificationBell() {
                       checked={selected.has(n.id)}
                       disabled={n.pinned}
                       title={
-                        n.pinned
-                          ? "Bỏ ghim trước khi chọn xoá"
-                          : "Chọn để xoá"
+                        n.pinned ? "Bỏ ghim trước khi chọn xoá" : "Chọn để xoá"
                       }
                       onChange={() => toggleSelect(n.id)}
                       className="mt-1.5 h-3.5 w-3.5 shrink-0 accent-[var(--gold)] disabled:opacity-40"
