@@ -8,10 +8,7 @@ import {
   sendBookingMessage,
   type BookingMessage,
 } from "@/api/booking-chat";
-import {
-  subscribeDestination,
-  subscribeRealtimeStatus,
-} from "@/lib/realtime";
+import { subscribeDestination, subscribeRealtimeStatus } from "@/lib/realtime";
 import { useAuth } from "@/lib/auth-context";
 import { CallPanel } from "./CallPanel";
 import { useBookingCall } from "../hooks/useBookingCall";
@@ -38,13 +35,46 @@ function gio(iso: string | null | undefined) {
       });
 }
 
+/**
+ * Khung tin có đang cuộn ở gần đáy không.
+ *
+ * <p>Quyết định một tin mới tới thì có kéo người dùng xuống hay không. Ai đó
+ * cuộn lên đọc lại tin cũ mà bị kéo về đáy thì họ mất chỗ đang đọc và không
+ * hiểu vì sao — nên chỉ tự cuộn khi họ vốn đã ở dưới cùng.
+ *
+ * <p>Ngưỡng 80px: đủ rộng để lệch một dòng tin không bị tính là "đã đi chỗ
+ * khác", đủ hẹp để người đang đọc giữa danh sách không bị coi là ở đáy.
+ *
+ * <p>Xuất ra để kiểm được — đây là hàm thuần trên ba con số, và nó là chỗ duy
+ * nhất quyết định hành vi ấy.
+ */
+export function dangOGanDay(el: {
+  scrollHeight: number;
+  scrollTop: number;
+  clientHeight: number;
+}) {
+  return el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+}
+
 export function BookingChat({
   bookingId,
   peerLabel,
+  gonGang = false,
 }: {
   bookingId: string;
   /** "Reader" hay tên khách — chỉ để ghi tiêu đề. */
   peerLabel: string;
+  /**
+   * Dạng gọn, dùng khi nhúng trong cục trao đổi nổi.
+   *
+   * Bỏ chiều cao cố định (khung ngoài đã kẹp rồi, giữ thêm một con số cứng ở
+   * đây là tràn trên màn thấp) và bỏ dòng tiêu đề — khung ngoài đã ghi tên
+   * người bên kia, ghi lại thành hai dòng giống nhau chồng lên nhau.
+   *
+   * KHÔNG bỏ dòng trạng thái kết nối và hai nút gọi: đó là lý do người ta mở
+   * khung này ra.
+   */
+  gonGang?: boolean;
 }) {
   const { user } = useAuth();
   const [messages, setMessages] = useState<BookingMessage[]>([]);
@@ -52,7 +82,14 @@ export function BookingChat({
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
   const [online, setOnline] = useState(false);
-  const cuoiDanh = useRef<HTMLDivElement>(null);
+  const khungTin = useRef<HTMLDivElement>(null);
+  /**
+   * Người dùng có đang ở gần đáy không, đo NGAY TRƯỚC khi danh sách đổi.
+   *
+   * Ai đó cuộn lên đọc lại tin cũ thì một tin mới tới không được kéo họ về
+   * đáy — họ mất chỗ đang đọc và không biết vì sao.
+   */
+  const gapDay = useRef(true);
 
   const call = useBookingCall(bookingId);
 
@@ -109,8 +146,20 @@ export function BookingChat({
     });
   }, [bookingId, messages.length]);
 
+  /*
+   * Cuộn KHUNG TIN, không phải cả trang.
+   *
+   * Trước đây chỗ này kéo một thẻ mốc ở cuối danh sách vào tầm nhìn. Hàm ấy
+   * cuộn MỌI khung cha cuộn được cho tới khi thẻ mốc hiện ra — kể cả chính
+   * cửa sổ trình duyệt. Nên mỗi lần gửi một tin, cả trang giật lên: ô nhập
+   * biến khỏi chỗ ngón tay vừa bấm, và tiêu đề lịch hẹn trôi mất.
+   *
+   * Đặt thẳng `scrollTop` thì chỉ đúng một khung di chuyển.
+   */
   useEffect(() => {
-    cuoiDanh.current?.scrollIntoView({ block: "end" });
+    const box = khungTin.current;
+    if (!box || !gapDay.current) return;
+    box.scrollTop = box.scrollHeight;
   }, [messages.length]);
 
   const guiDi = useCallback(
@@ -118,6 +167,9 @@ export function BookingChat({
       e.preventDefault();
       const body = draft.trim();
       if (!body || sending) return;
+      // Tự mình gửi thì LUÔN về đáy, kể cả đang đọc dở tin cũ ở trên: gửi một
+      // câu rồi không thấy nó đâu là tưởng gửi hỏng.
+      gapDay.current = true;
       setSending(true);
       try {
         const { viaSocket } = await sendBookingMessage(bookingId, body);
@@ -142,10 +194,18 @@ export function BookingChat({
   const nhom = useMemo(() => messages, [messages]);
 
   return (
-    <section className="glass flex h-[32rem] flex-col rounded-2xl">
+    <section
+      className={`glass flex flex-col ${
+        gonGang ? "h-full min-h-0 rounded-none" : "h-[32rem] rounded-2xl"
+      }`}
+    >
       <header className="flex items-center justify-between gap-2 border-b border-white/5 px-4 py-3">
         <div className="min-w-0">
-          <h3 className="truncate font-display text-lg">Trao đổi với {peerLabel}</h3>
+          {!gonGang && (
+            <h3 className="truncate font-display text-lg">
+              Trao đổi với {peerLabel}
+            </h3>
+          )}
           <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
             {online ? (
               <>
@@ -186,9 +246,17 @@ export function BookingChat({
 
       <CallPanel call={call} />
 
-      <div className="flex-1 space-y-2 overflow-y-auto px-4 py-3">
+      <div
+        ref={khungTin}
+        onScroll={(e) => {
+          gapDay.current = dangOGanDay(e.currentTarget);
+        }}
+        className="flex-1 space-y-2 overflow-y-auto px-4 py-3"
+      >
         {loading ? (
-          <p className="py-8 text-center text-sm text-muted-foreground">Đang tải…</p>
+          <p className="py-8 text-center text-sm text-muted-foreground">
+            Đang tải…
+          </p>
         ) : nhom.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted-foreground">
             Chưa có tin nhắn nào. Nhắn một câu để bắt đầu.
@@ -218,7 +286,6 @@ export function BookingChat({
             );
           })
         )}
-        <div ref={cuoiDanh} />
       </div>
 
       <form

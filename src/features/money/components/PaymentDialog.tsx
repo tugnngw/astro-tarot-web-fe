@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { QRCodeSVG } from "qrcode.react";
 import { Check, Copy, ExternalLink, Landmark, X } from "lucide-react";
 import { Clock } from "lucide-react";
 import { toast } from "sonner";
@@ -90,6 +91,26 @@ export function PaymentDialog({
             Hệ thống chưa cấu hình tài khoản nhận tiền. Báo với quản trị viên
             trước khi chuyển khoản.
           </p>
+        )}
+
+        {/*
+          Mã QR đã điền sẵn SỐ TIỀN và NỘI DUNG — quét xong là bấm xác nhận,
+          không gõ gì nữa.
+
+          Ba thứ bên dưới vẫn giữ nguyên chứ không thay bằng mã: không phải ai
+          cũng quét được (ảnh chụp màn hình gửi cho người khác chuyển hộ, máy
+          tính không có ứng dụng ngân hàng), và đó chính là những lần cần số
+          tài khoản dạng chữ nhất.
+        */}
+        {!isPayOs && instruction.qrCode && (
+          <div className="mt-5 flex flex-col items-center gap-2">
+            <div className="rounded-xl bg-white p-3">
+              <QRCodeSVG value={instruction.qrCode} size={168} level="M" />
+            </div>
+            <p className="text-center text-[11px] text-muted-foreground">
+              Quét bằng ứng dụng ngân hàng — số tiền và nội dung đã điền sẵn.
+            </p>
+          </div>
         )}
 
         <dl className="mt-5 space-y-3">
