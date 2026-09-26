@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { Sparkles } from "lucide-react";
 import { Header } from "@/components/Header";
 import { RoleBadge } from "@/components/RoleBadge";
@@ -34,14 +34,40 @@ export function WorkspaceShell({
   aside?: ReactNode;
 }) {
   const { user } = useAuth();
-  const [active, setActive] = useState(tabs[0]?.key ?? "");
+  const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  /*
+   * Tab đang mở nằm ở ĐƯỜNG DẪN (`?tab=`), không phải ở state cục bộ.
+   *
+   * State cục bộ làm ba việc trở nên bất khả: gửi cho ai đó một liên kết tới
+   * đúng tab, tải lại trang mà vẫn ở chỗ cũ, và bấm Quay lại để về tab trước.
+   * Riêng cái đầu tiên là một lỗi thật: thông báo "Có lịch hẹn mới" của Reader
+   * phải mở được tab Lịch hẹn, mà tab mặc định lại là Hỗ trợ khách.
+   */
+  const tabTrenUrl = useRouterState({
+    select: (s) => (s.location.search as { tab?: unknown }).tab,
+  });
+  const yeuCau = typeof tabTrenUrl === "string" ? tabTrenUrl : "";
+  const hopLe = tabs.some((t) => t.key === yeuCau);
+  const [duPhong, setDuPhong] = useState(tabs[0]?.key ?? "");
   // Tab bị ẩn vì thiếu quyền → nhảy về tab còn lại, đừng giữ key đã biến mất.
   useEffect(() => {
-    if (!tabs.some((t) => t.key === active)) {
-      setActive(tabs[0]?.key ?? "");
+    if (!tabs.some((t) => t.key === duPhong)) {
+      setDuPhong(tabs[0]?.key ?? "");
     }
-  }, [tabs, active]);
+  }, [tabs, duPhong]);
+  // `?tab=` trỏ tới một tab không tồn tại (gõ tay, hoặc thiếu quyền) thì rơi
+  // về tab đầu — không để trang trắng vì một tham số sai.
+  const active = hopLe ? yeuCau : duPhong;
   const current = tabs.find((t) => t.key === active) ?? tabs[0];
+
+  function moTab(key: string) {
+    setDuPhong(key);
+    // `replace` để mỗi lần bấm tab không chèn thêm một mục vào lịch sử: người
+    // dùng xem qua bốn tab rồi bấm Quay lại phải về trang trước, không phải
+    // lần ngược từng tab một.
+    void navigate({ to: pathname, search: { tab: key }, replace: true });
+  }
   // Staff / manager / admin vẫn có USER_BASIC — họ có thể cần trải bài hoặc
   // xem lịch cá nhân. "Trang chủ" của họ là khu làm việc, nên mở lối phụ sang
   // hub thành viên thay vì bắt họ gõ URL.
@@ -101,7 +127,7 @@ export function WorkspaceShell({
                     type="button"
                     role="tab"
                     aria-selected={isActive}
-                    onClick={() => setActive(tab.key)}
+                    onClick={() => moTab(tab.key)}
                     className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-left text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/40 lg:w-full ${
                       isActive
                         ? "bg-gold font-medium text-background shadow-sm"
