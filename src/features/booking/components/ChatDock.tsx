@@ -1,13 +1,38 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MessageCircle, X } from "lucide-react";
 import type { BookingMessage } from "@/api/booking-chat";
+import { maBuoi, phiaCua, type Notification } from "@/api/notifications";
 import type { Booking } from "@/api/booking";
-import { subscribeDestination } from "@/lib/realtime";
+import { subscribeDestination, subscribeRealtimeEvents } from "@/lib/realtime";
 import { useAuth } from "@/lib/auth-context";
 import { useMyBookings, useReaderBookings } from "@/features/booking/queries";
+import { LopPhu } from "@/components/GocNoi";
 import { BookingChat } from "./BookingChat";
 
 const CHAT_QUEUE = "/user/queue/booking-chat";
+
+/**
+ * Buổi mà KHÁCH vừa trả tiền xong, hoặc null nếu tin này không phải chuyện đó.
+ *
+ * <p>Trả tiền xong là lúc người ta muốn nói chuyện ngay: xác nhận lại giờ, hỏi
+ * cần chuẩn bị gì, gửi trước câu hỏi muốn xem. Bắt họ tự mò vào Lịch hẹn rồi
+ * tìm đúng buổi rồi bấm mở trao đổi là ba bước cho một việc mà họ vừa mới trả
+ * tiền để được làm.
+ *
+ * <p>Nghe theo THÔNG BÁO chứ không theo đường dẫn trả về từ cổng thanh toán:
+ * tiền có thể được xác nhận bằng webhook PayOS hoặc bằng tay do quản trị viên
+ * đối soát, và chỉ đường thứ nhất mới đưa người dùng quay lại một URL. Nghe ở
+ * đây thì cả hai đường đều chạy.
+ *
+ * <p>Chỉ mở cho phía KHÁCH. Reader cũng nhận một tin PAYMENT_CONFIRMED cho
+ * cùng buổi ấy, nhưng bật khung chat lên giữa lúc họ đang làm việc khác là
+ * chen ngang — họ đã có chấm đếm tin chưa đọc rồi.
+ */
+export function buoiKhachVuaTraTien(n: Notification | null): string | null {
+  if (!n || n.type !== "PAYMENT_CONFIRMED") return null;
+  if (phiaCua(n.metadata) !== "customer") return null;
+  return maBuoi(n.metadata);
+}
 
 /**
  * Cục trao đổi nổi ở góc dưới bên phải.
@@ -83,6 +108,22 @@ export function ChatDock() {
     });
   }, [user, taiLai]);
 
+  // Trả tiền xong thì mở thẳng cuộc với Reader đó ra.
+  //
+  // `chatOpen` bên máy chủ vừa chuyển sang true đúng lúc này, nên buổi ấy chưa
+  // có trong danh sách đã tải — phải tải lại trước. Trong lúc chờ, khung hiện
+  // danh sách rồi tự nhảy sang đúng cuộc khi dữ liệu về.
+  useEffect(() => {
+    if (!user) return;
+    return subscribeRealtimeEvents((e) => {
+      const id = buoiKhachVuaTraTien(e?.notification ?? null);
+      if (!id) return;
+      taiLai();
+      setDangXem(id);
+      setMoRong(true);
+    });
+  }, [user, taiLai]);
+
   const tong = Object.values(chuaDoc).reduce((a, b) => a + b, 0);
 
   function mo(id: string) {
@@ -108,7 +149,9 @@ export function ChatDock() {
         aria-label={
           tong > 0 ? `Trao đổi — ${tong} tin chưa đọc` : "Mở khung trao đổi"
         }
-        className="fixed bottom-5 right-5 z-40 grid h-14 w-14 place-items-center rounded-full border border-gold/40 bg-background/95 text-gold shadow-xl backdrop-blur transition hover:bg-gold/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50"
+        /* Vị trí do <GocNoi> quyết định — nút này đứng cùng cột với nút
+           Góp ý. `relative` để cái huy hiệu đếm tin bám vào nút. */
+        className="relative grid h-14 w-14 place-items-center rounded-full border border-gold/40 bg-background/95 text-gold shadow-xl backdrop-blur transition hover:bg-gold/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50"
       >
         <MessageCircle aria-hidden="true" className="h-6 w-6" />
         {tong > 0 && (
@@ -123,70 +166,78 @@ export function ChatDock() {
   const daChon = cuoc.find(({ b }) => b.id === dangXem);
 
   return (
-    /* inset-x-3 trên màn hẹp: khung rộng 380px tràn ra ngoài mép điện thoại
-       320px, và phần tràn là cột bên phải — tức là đúng chỗ đặt nút gửi. */
-    <div className="fixed inset-x-3 bottom-3 z-40 sm:inset-x-auto sm:bottom-5 sm:right-5 sm:w-[380px]">
-      <div className="panel-black flex max-h-[min(70vh,560px)] flex-col overflow-hidden rounded-2xl border border-gold/25 shadow-2xl">
-        <div className="flex items-center justify-between gap-2 border-b border-white/5 px-3 py-2.5">
-          {daChon ? (
+    /* Đẩy ra khỏi cột nút: khung này phủ cả góc màn hình, để trong cột thì nó
+       kéo giãn chính cái cột đang giữ nút Góp ý.
+
+       inset-x-3 trên màn hẹp: khung rộng 380px tràn ra ngoài mép điện thoại
+       320px, và phần tràn là cột bên phải — tức là đúng chỗ đặt nút gửi.
+
+       z-50 chứ không phải z-40: lúc mở ra nó nằm chồng đúng lên chỗ nút Góp
+       ý, và nút ấy phải nằm dưới chứ không thò ra giữa khung chat. */
+    <LopPhu>
+      <div className="fixed inset-x-3 bottom-3 z-50 sm:inset-x-auto sm:bottom-5 sm:right-5 sm:w-[380px]">
+        <div className="panel-black flex max-h-[min(70vh,560px)] flex-col overflow-hidden rounded-2xl border border-gold/25 shadow-2xl">
+          <div className="flex items-center justify-between gap-2 border-b border-white/5 px-3 py-2.5">
+            {daChon ? (
+              <button
+                type="button"
+                onClick={() => setDangXem(null)}
+                className="min-w-0 truncate text-left text-sm text-gold hover:underline"
+              >
+                ‹ {tenDoiPhuong(daChon.b, daChon.laKhach)}
+              </button>
+            ) : (
+              <p className="text-sm text-foreground">Trao đổi</p>
+            )}
             <button
               type="button"
-              onClick={() => setDangXem(null)}
-              className="min-w-0 truncate text-left text-sm text-gold hover:underline"
+              onClick={() => setMoRong(false)}
+              aria-label="Thu nhỏ khung trao đổi"
+              className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-gold/30 text-gold transition hover:bg-gold/10"
             >
-              ‹ {tenDoiPhuong(daChon.b, daChon.laKhach)}
+              <X aria-hidden="true" className="h-3.5 w-3.5" />
             </button>
-          ) : (
-            <p className="text-sm text-foreground">Trao đổi</p>
-          )}
-          <button
-            type="button"
-            onClick={() => setMoRong(false)}
-            aria-label="Thu nhỏ khung trao đổi"
-            className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-gold/30 text-gold transition hover:bg-gold/10"
-          >
-            <X aria-hidden="true" className="h-3.5 w-3.5" />
-          </button>
-        </div>
-
-        {daChon ? (
-          <div className="flex min-h-[340px] flex-1 flex-col overflow-hidden">
-            <BookingChat
-              gonGang
-              bookingId={daChon.b.id}
-              peerLabel={tenDoiPhuong(daChon.b, daChon.laKhach)}
-            />
           </div>
-        ) : (
-          <ul className="flex-1 overflow-y-auto">
-            {cuoc.map(({ b, laKhach }) => (
-              <li key={`${b.id}-${laKhach ? "k" : "r"}`}>
-                <button
-                  type="button"
-                  onClick={() => mo(b.id)}
-                  className="flex w-full items-center justify-between gap-3 px-3 py-2.5 text-left transition hover:bg-mystic/15"
-                >
-                  <span className="min-w-0">
-                    <span className="block truncate text-sm text-foreground">
-                      {tenDoiPhuong(b, laKhach)}
+
+          {daChon ? (
+            <div className="flex min-h-[340px] flex-1 flex-col overflow-hidden">
+              <BookingChat
+                gonGang
+                bookingId={daChon.b.id}
+                peerLabel={tenDoiPhuong(daChon.b, daChon.laKhach)}
+              />
+            </div>
+          ) : (
+            <ul className="flex-1 overflow-y-auto">
+              {cuoc.map(({ b, laKhach }) => (
+                <li key={`${b.id}-${laKhach ? "k" : "r"}`}>
+                  <button
+                    type="button"
+                    onClick={() => mo(b.id)}
+                    className="flex w-full items-center justify-between gap-3 px-3 py-2.5 text-left transition hover:bg-mystic/15"
+                  >
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm text-foreground">
+                        {tenDoiPhuong(b, laKhach)}
+                      </span>
+                      <span className="block truncate text-[11px] text-muted-foreground">
+                        {laKhach ? "Bạn đặt" : "Khách đặt với bạn"} ·{" "}
+                        {ngayGio(b.startTime)}
+                      </span>
                     </span>
-                    <span className="block truncate text-[11px] text-muted-foreground">
-                      {laKhach ? "Bạn đặt" : "Khách đặt với bạn"} ·{" "}
-                      {ngayGio(b.startTime)}
-                    </span>
-                  </span>
-                  {chuaDoc[b.id] ? (
-                    <span className="grid min-w-[20px] shrink-0 place-items-center rounded-full bg-gold px-1.5 py-0.5 text-[11px] font-semibold text-background">
-                      {chuaDoc[b.id]}
-                    </span>
-                  ) : null}
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
+                    {chuaDoc[b.id] ? (
+                      <span className="grid min-w-[20px] shrink-0 place-items-center rounded-full bg-gold px-1.5 py-0.5 text-[11px] font-semibold text-background">
+                        {chuaDoc[b.id]}
+                      </span>
+                    ) : null}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
-    </div>
+    </LopPhu>
   );
 }
 

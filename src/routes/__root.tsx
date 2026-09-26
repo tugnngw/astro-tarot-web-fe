@@ -21,6 +21,7 @@ import { BecomeReaderModal } from "@/components/BecomeReaderModal";
 import { BackendWarmBanner } from "@/components/BackendWarmBanner";
 import { FeedbackPrompt } from "@/components/FeedbackPrompt";
 import { ChatDock } from "@/features/booking/components/ChatDock";
+import { GocNoi } from "@/components/GocNoi";
 import { captureUtmFromUrl } from "@/lib/utm";
 
 function UtmCapture() {
@@ -180,16 +181,18 @@ function RootComponent() {
             <Outlet />
             <AuthModal />
             <BecomeReaderModal />
-            <FeedbackPrompt />
             {/*
-              Cục trao đổi nổi — nghe được tin nhắn ở MỌI trang.
+              Hai nút nổi đứng CHUNG một cột ở góc dưới bên phải. Mỗi cái tự
+              khai vị trí thì chúng chồng lên nhau — xem <GocNoi>.
 
-              Trước đây muốn biết có tin mới thì phải vào Lịch hẹn, tìm đúng
-              buổi, rồi bấm "Nhắn tin / Gọi": phải đoán trước rằng có tin thì
-              mới thấy được tin. Đặt ở đây (ngoài Outlet) để nó sống qua mọi
-              lần đổi trang, nên một cuộc đang mở không bị dựng lại.
+              Cục trao đổi đặt ở đây (ngoài Outlet) để nó sống qua mọi lần đổi
+              trang: nó nghe tin nhắn ở MỌI trang, và một cuộc đang mở không
+              bị dựng lại mỗi lần người dùng bấm sang chỗ khác.
             */}
-            <ChatDock />
+            <GocNoi>
+              <FeedbackPrompt />
+              <ChatDock />
+            </GocNoi>
             {/*
               Góc dưới bên phải, không phải giữa trên cùng: vị trí cũ đè đúng
               thanh điều hướng, che mất menu ngay lúc người dùng vừa thao tác
