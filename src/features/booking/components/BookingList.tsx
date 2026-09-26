@@ -116,30 +116,19 @@ export function BookingList({
     return `${m} phút`;
   }
 
-  function canCancelForFree(b: Booking): boolean {
-    // Đặt cọc và vẫn còn >=12h trước paymentDeadline
-    if (b.paymentStatus === "DEPOSIT_PAID" && b.paymentDeadline) {
-      return new Date(b.paymentDeadline).getTime() - now.getTime() > 0;
-    }
-    // Đã trả đủ (FULL) — khách có thể huỷ miễn phí trước giờ hẹn
-    if (b.paymentStatus === "PAID" && b.startTime) {
-      return new Date(b.startTime).getTime() - now.getTime() > 0;
-    }
-    return false;
+  function daTra(b: Booking) {
+    if (b.paymentStatus === "PAID") return b.totalAmount ?? 0;
+    if (b.paymentStatus === "DEPOSIT_PAID") return b.depositAmount ?? 0;
+    return 0;
   }
 
-  function getCancelInfo(b: Booking): {
-    canFree: boolean;
-    refundAmount: number;
-  } {
-    if (canCancelForFree(b)) {
-      return { canFree: true, refundAmount: b.totalAmount ?? 0 };
-    }
-    // Không miễn phí: mất đặt cọc (nếu có) hoặc toàn bộ tiền
-    if (b.paymentStatus === "DEPOSIT_PAID") {
-      return { canFree: false, refundAmount: 0 };
-    }
-    return { canFree: false, refundAmount: 0 };
+  function somHon12Gio(b: Booking) {
+    const moc = b.paymentDeadline
+      ? new Date(b.paymentDeadline).getTime()
+      : b.startTime
+        ? new Date(b.startTime).getTime() - 12 * 3_600_000
+        : 0;
+    return moc - now.getTime() > 0;
   }
 
   async function run(fn: () => Promise<unknown>, ok: string) {
@@ -407,39 +396,32 @@ export function BookingList({
                   placeholder="Ví dụ: mình có việc đột xuất..."
                 />
                 {/* Hiển thị chính sách huỷ */}
-                {b.paymentStatus !== "UNPAID" && (
-                  <div className="mt-3 rounded-lg border border-amber-400/30 bg-amber-400/5 px-3 py-2 text-xs text-amber-300">
-                    <p className="font-medium">Chính sách huỷ:</p>
-                    {(() => {
-                      const info = getCancelInfo(b);
-                      if (info.canFree) {
-                        return (
-                          <p>
-                            Huỷ miễn phí — bạn sẽ được hoàn lại{" "}
-                            {formatVND(info.refundAmount)}
-                          </p>
-                        );
-                      }
-                      if (b.paymentStatus === "DEPOSIT_PAID") {
-                        return (
-                          <p>
-                            Quá hạn — bạn sẽ mất{" "}
-                            {formatVND(
-                              b.forfeitedAmount ?? b.depositAmount ?? 0,
-                            )}{" "}
-                            đặt cọc. Phần còn lại sẽ được hoàn.
-                          </p>
-                        );
-                      }
-                      return (
-                        <p>
-                          Quá hạn — bạn sẽ mất toàn bộ{" "}
-                          {formatVND(b.totalAmount ?? 0)}.
-                        </p>
-                      );
-                    })()}
-                  </div>
-                )}
+                <div className="mt-3 rounded-lg border border-amber-400/30 bg-amber-400/5 px-3 py-2 text-xs text-amber-300">
+                  <p className="font-medium">Hoàn cọc khi huỷ</p>
+                  {side === "reader" ? (
+                    <p className="mt-1">
+                      Bạn huỷ thì khách được hoàn toàn bộ số đã trả
+                      {daTra(b) > 0 ? ` (${formatVND(daTra(b))})` : ""}.
+                    </p>
+                  ) : daTra(b) === 0 ? (
+                    <p className="mt-1">
+                      Buổi này chưa đặt cọc. Huỷ lúc này không mất tiền.
+                    </p>
+                  ) : somHon12Gio(b) ? (
+                    <p className="mt-1">
+                      Còn trước hạn 12 tiếng — hoàn lại {formatVND(daTra(b))}.
+                    </p>
+                  ) : (
+                    <p className="mt-1">
+                      Đã trong 12 tiếng trước buổi — mất cọc{" "}
+                      {formatVND(b.depositAmount ?? 0)}, hoàn{" "}
+                      {formatVND(
+                        Math.max(0, daTra(b) - (b.depositAmount ?? 0)),
+                      )}
+                      .
+                    </p>
+                  )}
+                </div>
                 <div className="mt-3 flex justify-end gap-2">
                   <button
                     type="button"

@@ -127,6 +127,7 @@ export function LuoiNgay({
   onSelect,
   loai,
   soBuoi,
+  khoaQuaKhu,
 }: {
   year: number;
   month: number;
@@ -134,6 +135,8 @@ export function LuoiNgay({
   onSelect: (iso: string) => void;
   loai?: Map<string, CalendarDayKind>;
   soBuoi?: Map<string, number>;
+  /** Lịch đặt: ngày đã qua không chọn được. Lịch riêng vẫn bấm để xem buổi cũ. */
+  khoaQuaKhu?: boolean;
 }) {
   const hom = homNayVn().iso;
   const soNgay = new Date(year, month, 0).getDate();
@@ -165,19 +168,24 @@ export function LuoiNgay({
           const dem = soBuoi?.get(iso) ?? 0;
           const dangChon = selected === iso;
           const laHomNay = iso === hom;
-          const quaKhu = kind === "PAST";
+          const quaKhu = kind === "PAST" || (khoaQuaKhu === true && iso < hom);
           return (
             <button
               key={iso}
               type="button"
-              onClick={() => onSelect(iso)}
+              disabled={quaKhu}
+              onClick={() => {
+                if (!quaKhu) onSelect(iso);
+              }}
               aria-pressed={dangChon}
               aria-label={iso}
-              className={`flex h-11 flex-col items-center justify-center rounded-lg text-xs transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/40 ${
+              className={`flex h-11 flex-col items-center justify-center rounded-lg text-xs transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/40 disabled:cursor-not-allowed ${
                 dangChon
                   ? "bg-gold/20 text-gold ring-1 ring-gold"
-                  : "hover:bg-gold/10 active:scale-95"
-              } ${quaKhu ? "text-muted-foreground/45" : "text-foreground"}`}
+                  : quaKhu
+                    ? ""
+                    : "hover:bg-gold/10 active:scale-95"
+              } ${quaKhu ? "text-muted-foreground/35" : "text-foreground"}`}
             >
               <span
                 className={
@@ -194,7 +202,7 @@ export function LuoiNgay({
                 </span>
               ) : (
                 <span
-                  className={`mt-0.5 h-1 w-1 rounded-full ${kind ? dauCham(kind) : "bg-transparent"}`}
+                  className={`mt-0.5 h-1.5 w-1.5 rounded-full ${kind ? dauCham(kind) : "bg-transparent"}`}
                 />
               )}
             </button>
@@ -230,7 +238,7 @@ export function loiNgay(day: CalendarDay | undefined, laHomNay: boolean) {
     case "CLOSED":
       return "Reader không làm việc ngày này.";
     case "FULL":
-      return "Ngày này đã kín. Chọn ngày có chấm vàng.";
+      return "Các khung của thời lượng này đã có người đặt. Cùng ngày vẫn đặt được khung khác, hoặc đổi thời lượng.";
     case "OVER":
       return laHomNay
         ? "Hôm nay đã qua giờ làm việc của Reader."

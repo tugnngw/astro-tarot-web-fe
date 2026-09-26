@@ -168,8 +168,8 @@ function ReaderBookings() {
           />
         </div>
         <p className="mt-2 text-[11px] text-muted-foreground">
-          Cùng một Reader: khách khác không đặt trùng giờ, ô đã kín hiện trên
-          lịch đặt của họ. Ở đây bạn thấy tên khách theo từng ngày.
+          Số là số buổi trong ngày. Cùng một ngày nhiều khách đặt được, miễn
+          khác khung giờ. Bấm ngày để xem tên khách.
         </p>
       </section>
 
