@@ -319,7 +319,7 @@ export function BookingList({
                       ? `Thanh toán nốt (${formatVND(b.remainingAmount ?? 0)})`
                       : "Thanh toán"}
                   </button>
-                )
+                )}
 
               {side === "customer" && b.paymentStatus === "PAID" && (
                 <span className="inline-flex items-center gap-1.5 text-xs text-emerald-300">
