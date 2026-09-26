@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Check, Copy, ExternalLink, Landmark, X } from "lucide-react";
+import { Clock } from "lucide-react";
 import { toast } from "sonner";
 import type { PaymentInstruction } from "@/api/money";
 import { formatVND } from "@/lib/mock-data";
@@ -17,6 +18,12 @@ export function PaymentDialog({
   const [copied, setCopied] = useState<string | null>(null);
   const isPayOs =
     Boolean(instruction.checkoutUrl) || instruction.paymentMethod === "PAYOS";
+
+  const phaseLabel: Record<string, string> = {
+    DEPOSIT: "Đặt cọc",
+    REMAINING: "Thanh toán nốt",
+    FULL: "Thanh toán đủ",
+  };
 
   async function copy(value: string, field: string) {
     try {
@@ -60,11 +67,22 @@ export function PaymentDialog({
         >
           <Landmark aria-hidden="true" className="h-5 w-5 text-gold" />
           {isPayOs ? "Thanh toán PayOS" : "Chuyển khoản"}
+          {instruction.paymentPhase && (
+            <span className="ml-auto rounded-full bg-gold/20 px-2.5 py-0.5 text-[11px] text-gold">
+              {phaseLabel[instruction.paymentPhase] ?? instruction.paymentPhase}
+            </span>
+          )}
         </h2>
         <p className="mt-1 text-xs text-muted-foreground">
-          {isPayOs
-            ? "Mở PayOS để quét VietQR hoặc chuyển khoản. Hệ thống xác nhận tự động sau khi nhận tiền."
-            : "Chuyển đúng số tiền và đúng nội dung bên dưới. Chúng tôi đối soát rồi xác nhận, thường trong vài giờ làm việc."}
+          {instruction.paymentPhase === "DEPOSIT"
+            ? "Đây là khoản đặt cọc 50%. Bạn sẽ thanh toán nốt phần còn lại trước buổi xem."
+            : instruction.paymentPhase === "REMAINING"
+              ? "Đây là phần còn lại của lịch hẹn. Vui lòng chuyển đủ số tiền trước hạn."
+              : instruction.paymentPhase === "FULL"
+                ? "Lịch hẹn dưới 12 giờ. Bạn cần thanh toán toàn bộ ngay."
+                : isPayOs
+                  ? "Mở PayOS để quét VietQR hoặc chuyển khoản. Hệ thống xác nhận tự động sau khi nhận tiền."
+                  : "Chuyển đúng số tiền và đúng nội dung bên dưới. Chúng tôi đối soát rồi xác nhận, thường trong vài giờ làm việc."}
         </p>
 
         {notConfigured && (

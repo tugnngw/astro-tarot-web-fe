@@ -10,7 +10,7 @@ import { apiFetch } from "./client";
 
 import { PAGE_SIZE } from "@/components/Pagination";
 export type BookingStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED";
-export type BookingPaymentStatus = "UNPAID" | "PAID" | "REFUNDED" | "FAILED";
+export type BookingPaymentStatus = "UNPAID" | "DEPOSIT_PAID" | "PAID" | "REFUNDED" | "FAILED";
 
 /** Đúng ba mốc Reader khai giá. BE từ chối mọi giá trị khác. */
 export const DURATIONS = [15, 30, 60] as const;
@@ -30,6 +30,10 @@ export interface Booking {
   endTime: string;
   durationMinutes: number;
   totalAmount: number;
+  depositAmount: number | null;
+  remainingAmount: number | null;
+  paymentDeadline: string | null;
+  forfeitedAmount: number | null;
   status: BookingStatus;
   paymentStatus: BookingPaymentStatus;
   cancelReason: string | null;
@@ -197,10 +201,10 @@ export function saveReaderNote(id: string, note: string) {
   });
 }
 
-export function cancelBooking(id: string, reason?: string) {
+export function cancelBooking(id: string, reason?: string, actorType?: string) {
   return apiFetch<Booking>(`/api/v1/bookings/${id}/cancel`, {
     method: "PATCH",
-    body: JSON.stringify({ reason: reason ?? null }),
+    body: JSON.stringify({ reason: reason ?? null, actorType: actorType ?? null }),
   });
 }
 

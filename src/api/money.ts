@@ -11,12 +11,16 @@ import { PAGE_SIZE } from "@/components/Pagination";
 
 export type TransactionStatus = "PENDING" | "SUCCESS" | "FAILED" | "CANCELLED";
 
+export type PaymentPhase = "DEPOSIT" | "REMAINING" | "FULL";
+
 export interface PaymentInstruction {
   transactionId: string;
   bookingId: string;
   amount: number;
   /** BANK_TRANSFER hoặc PAYOS */
   paymentMethod?: "BANK_TRANSFER" | "PAYOS" | string;
+  /** DEPOSIT, REMAINING, hoặc FULL */
+  paymentPhase?: PaymentPhase;
   /** Khách gõ đúng chuỗi này vào nội dung chuyển khoản. */
   referenceCode: string;
   bankName: string;

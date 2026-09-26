@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   CalendarX,
   Check,
@@ -14,6 +14,7 @@ import {
   BOOKING_STATUS_LABEL,
   type Booking,
   type BookingStatus,
+  type BookingPaymentStatus,
 } from "@/api/booking";
 import {
   useCancelBooking,
@@ -81,12 +82,60 @@ export function BookingList({
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
 
+  // Countdown cho paymentDeadline
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 10_000);
+    return () => clearInterval(id);
+  }, []);
+
   const busy =
     confirm.isPending ||
     complete.isPending ||
     cancel.isPending ||
     review.isPending ||
     pay.isPending;
+
+  const PAYMENT_STATUS_LABEL: Record<BookingPaymentStatus, string> = {
+    UNPAID: "Chưa trả",
+    DEPOSIT_PAID: "Đã đặt cọc",
+    PAID: "Đã trả đủ",
+    REFUNDED: "Đã hoàn",
+    FAILED: "Thất bại",
+  };
+
+  function timeLeft(deadline: string | null): string | null {
+    if (!deadline) return null;
+    const diff = new Date(deadline).getTime() - now.getTime();
+    if (diff <= 0) return "Đã quá hạn";
+    const h = Math.floor(diff / 3_600_000);
+    const m = Math.floor((diff % 3_600_000) / 60_000);
+    if (h > 0) return `${h}h ${m} phút`;
+    return `${m} phút`;
+  }
+
+  function canCancelForFree(b: Booking): boolean {
+    // Đặt cọc và vẫn còn >=12h trước paymentDeadline
+    if (b.paymentStatus === "DEPOSIT_PAID" && b.paymentDeadline) {
+      return new Date(b.paymentDeadline).getTime() - now.getTime() > 0;
+    }
+    // Đã trả đủ (FULL) — khách có thể huỷ miễn phí trước giờ hẹn
+    if (b.paymentStatus === "PAID" && b.startTime) {
+      return new Date(b.startTime).getTime() - now.getTime() > 0;
+    }
+    return false;
+  }
+
+  function getCancelInfo(b: Booking): { canFree: boolean; refundAmount: number } {
+    if (canCancelForFree(b)) {
+      return { canFree: true, refundAmount: b.totalAmount ?? 0 };
+    }
+    // Không miễn phí: mất đặt cọc (nếu có) hoặc toàn bộ tiền
+    if (b.paymentStatus === "DEPOSIT_PAID") {
+      return { canFree: false, refundAmount: 0 };
+    }
+    return { canFree: false, refundAmount: 0 };
+  }
 
   async function run(fn: () => Promise<unknown>, ok: string) {
     try {
@@ -179,6 +228,16 @@ export function BookingList({
                 <span className="font-display text-lg text-gold">
                   {formatVND(b.totalAmount)}
                 </span>
+                {b.paymentStatus === "DEPOSIT_PAID" && (
+                  <span className="text-[11px] text-amber-400">
+                    Đã đặt cọc · Còn {formatVND(b.remainingAmount ?? 0)}
+                  </span>
+                )}
+                {b.paymentStatus === "DEPOSIT_PAID" && b.paymentDeadline && (
+                  <span className="text-[11px] text-muted-foreground">
+                    Hạn trả nốt: {timeLeft(b.paymentDeadline)}
+                  </span>
+                )}
               </div>
             </div>
 
@@ -236,7 +295,8 @@ export function BookingList({
               )}
 
               {side === "customer" &&
-                b.paymentStatus === "UNPAID" &&
+                b.paymentStatus !== "PAID" &&
+                b.paymentStatus !== "REFUNDED" &&
                 b.status !== "CANCELLED" && (
                   <button
                     type="button"
@@ -255,9 +315,11 @@ export function BookingList({
                     className="inline-flex items-center gap-1.5 rounded-full bg-gold px-3.5 py-1.5 text-xs font-medium text-primary-foreground glow-gold transition disabled:opacity-40"
                   >
                     <Landmark aria-hidden="true" className="h-3.5 w-3.5" />{" "}
-                    Thanh toán
+                    {b.paymentStatus === "DEPOSIT_PAID"
+                      ? `Thanh toán nốt (${formatVND(b.remainingAmount ?? 0)})`
+                      : "Thanh toán"}
                   </button>
-                )}
+                )
 
               {side === "customer" && b.paymentStatus === "PAID" && (
                 <span className="inline-flex items-center gap-1.5 text-xs text-emerald-300">
@@ -338,6 +400,38 @@ export function BookingList({
                   className="mt-2 w-full rounded-lg border border-gold/25 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
                   placeholder="Ví dụ: mình có việc đột xuất..."
                 />
+                {/* Hiển thị chính sách huỷ */}
+                {b.paymentStatus !== "UNPAID" && (
+                  <div className="mt-3 rounded-lg border border-amber-400/30 bg-amber-400/5 px-3 py-2 text-xs text-amber-300">
+                    <p className="font-medium">Chính sách huỷ:</p>
+                    {(() => {
+                      const info = getCancelInfo(b);
+                      if (info.canFree) {
+                        return (
+                          <p>
+                            Huỷ miễn phí — bạn sẽ được hoàn lại{" "}
+                            {formatVND(info.refundAmount)}
+                          </p>
+                        );
+                      }
+                      if (b.paymentStatus === "DEPOSIT_PAID") {
+                        return (
+                          <p>
+                            Quá hạn — bạn sẽ mất{" "}
+                            {formatVND(b.forfeitedAmount ?? b.depositAmount ?? 0)}{" "}
+                            đặt cọc. Phần còn lại sẽ được hoàn.
+                          </p>
+                        );
+                      }
+                      return (
+                        <p>
+                          Quá hạn — bạn sẽ mất toàn bộ{" "}
+                          {formatVND(b.totalAmount ?? 0)}.
+                        </p>
+                      );
+                    })()}
+                  </div>
+                )}
                 <div className="mt-3 flex justify-end gap-2">
                   <button
                     type="button"
@@ -355,6 +449,7 @@ export function BookingList({
                           cancel.mutateAsync({
                             id: b.id,
                             reason: reason.trim() || undefined,
+                            actorType: "USER",
                           }),
                         "Đã huỷ lịch hẹn",
                       );

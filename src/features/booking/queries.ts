@@ -139,8 +139,8 @@ export function useSaveReaderNote() {
 }
 
 export function useCancelBooking() {
-  return useBookingMutation(({ id, reason }: { id: string; reason?: string }) =>
-    bookingApi.cancelBooking(id, reason),
+  return useBookingMutation(({ id, reason, actorType }: { id: string; reason?: string; actorType?: string }) =>
+    bookingApi.cancelBooking(id, reason, actorType),
   );
 }
 
