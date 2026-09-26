@@ -1,15 +1,18 @@
 // Hộp nhắn tin giữa khách và Reader trong một buổi đã đặt.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Send, Wifi, WifiOff, Video, Phone } from "lucide-react";
+import { Send, WifiOff, Video, Phone } from "lucide-react";
 import { toast } from "sonner";
 import {
   getMessages,
+  getPresence,
   markMessagesRead,
   sendBookingMessage,
   type BookingMessage,
+  type Presence,
 } from "@/api/booking-chat";
 import { subscribeDestination, subscribeRealtimeStatus } from "@/lib/realtime";
 import { useAuth } from "@/lib/auth-context";
+import { moTaHoatDong } from "../hoatDong";
 import { CallPanel } from "./CallPanel";
 import { useBookingCall } from "../hooks/useBookingCall";
 
@@ -82,6 +85,7 @@ export function BookingChat({
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
   const [online, setOnline] = useState(false);
+  const [hienDien, setHienDien] = useState<Presence | null>(null);
   const khungTin = useRef<HTMLDivElement>(null);
   /**
    * Người dùng có đang ở gần đáy không, đo NGAY TRƯỚC khi danh sách đổi.
@@ -139,6 +143,35 @@ export function BookingChat({
 
   useEffect(() => subscribeRealtimeStatus(setOnline), []);
 
+  // Hỏi lại định kỳ thay vì đẩy realtime.
+  //
+  // Đẩy thì phải tìm ra ai đang mở hội thoại với người vừa đổi trạng thái —
+  // một truy vấn cho mỗi lần bất kỳ ai nối hay rớt, mà STOMP rớt rồi nối lại
+  // là chuyện hằng ngày trên gói free của Render.
+  //
+  // 30 giây: đủ nhanh để "đang hoạt động" còn có nghĩa, đủ chậm để không
+  // thành một vòng gọi API suốt thời gian khung chat mở.
+  useEffect(() => {
+    let daRoi = false;
+    const tai = () => {
+      void getPresence(bookingId)
+        .then((p) => {
+          if (!daRoi) setHienDien(p);
+        })
+        .catch(() => {
+          // Không biết trạng thái thì giấu dòng ấy đi, đừng làm phiền bằng
+          // một câu lỗi về một chi tiết phụ.
+          if (!daRoi) setHienDien(null);
+        });
+    };
+    tai();
+    const hen = setInterval(tai, 30_000);
+    return () => {
+      daRoi = true;
+      clearInterval(hen);
+    };
+  }, [bookingId]);
+
   // Đánh dấu đã đọc khi mở và mỗi khi có tin mới của phía kia.
   useEffect(() => {
     void markMessagesRead(bookingId).catch(() => {
@@ -191,6 +224,7 @@ export function BookingChat({
   );
 
   const coTheGoi = call.state === "idle";
+  const moTa = moTaHoatDong(hienDien);
   const nhom = useMemo(() => messages, [messages]);
 
   return (
@@ -206,19 +240,34 @@ export function BookingChat({
               Trao đổi với {peerLabel}
             </h3>
           )}
-          <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
-            {online ? (
-              <>
-                <Wifi aria-hidden className="h-3 w-3 text-emerald-400" />
-                Đang kết nối tức thời
-              </>
-            ) : (
-              <>
-                <WifiOff aria-hidden className="h-3 w-3 text-amber-400" />
-                Mất kết nối tức thời — tin vẫn gửi được, chỉ chậm hơn
-              </>
-            )}
-          </p>
+          {/*
+            Dòng này nói về NGƯỜI BÊN KIA, không phải về kết nối của mình.
+
+            Trước đây chỗ này hiện "Đang kết nối tức thời" kèm một chấm xanh —
+            tức là trạng thái socket của CHÍNH MÌNH. Nó trông y hệt một chỉ
+            báo có mặt, nên người dùng đọc thành "Reader đang online" và ngồi
+            chờ trả lời từ một người đã đi ngủ.
+
+            Kết nối của mình chỉ đáng nói khi nó ĐỨT, vì lúc ấy mới có việc
+            phải làm. Còn chạy tốt thì im lặng.
+          */}
+          {moTa && (
+            <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+              <span
+                aria-hidden
+                className={`h-2 w-2 shrink-0 rounded-full ${
+                  hienDien?.online ? "bg-emerald-400" : "bg-muted-foreground/40"
+                }`}
+              />
+              {moTa}
+            </p>
+          )}
+          {!online && (
+            <p className="flex items-center gap-1 text-[11px] text-amber-300">
+              <WifiOff aria-hidden className="h-3 w-3 shrink-0" />
+              Mất kết nối tức thời — tin vẫn gửi được, chỉ chậm hơn
+            </p>
+          )}
         </div>
         <div className="flex shrink-0 gap-2">
           <button
