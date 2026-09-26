@@ -76,9 +76,9 @@ export function PaymentDialog({
         </h2>
         <p className="mt-1 text-xs text-muted-foreground">
           {instruction.paymentPhase === "DEPOSIT"
-            ? "Đây là khoản đặt cọc 50%. Bạn sẽ thanh toán nốt phần còn lại trước buổi xem."
+            ? "Đây là khoản đặt cọc 50%. Trả nốt phần còn lại trước buổi xem 12 tiếng — quá hạn thì mất cọc."
             : instruction.paymentPhase === "REMAINING"
-              ? "Đây là phần còn lại của lịch hẹn. Vui lòng chuyển đủ số tiền trước hạn."
+              ? "Đây là phần còn lại. Chuyển đủ trước hạn 12 tiếng, quá hạn thì mất cọc."
               : instruction.paymentPhase === "FULL"
                 ? "Lịch hẹn dưới 12 giờ. Bạn cần thanh toán toàn bộ ngay."
                 : isPayOs
