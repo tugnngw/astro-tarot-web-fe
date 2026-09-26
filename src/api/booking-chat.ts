@@ -41,6 +41,17 @@ export function markMessagesRead(bookingId: string) {
   );
 }
 
+/** Trạng thái hoạt động của người BÊN KIA trong buổi này. */
+export interface Presence {
+  online: boolean;
+  /** null khi người kia chưa từng kết nối lần nào. */
+  lastSeenAt: string | null;
+}
+
+export function getPresence(bookingId: string) {
+  return apiFetch<Presence>(`/api/v1/bookings/${bookingId}/presence`);
+}
+
 export function getIceConfig() {
   return apiFetch<IceConfig>("/api/v1/rtc/ice");
 }
