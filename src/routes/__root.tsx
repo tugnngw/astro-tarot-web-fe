@@ -20,6 +20,7 @@ import { AuthModal } from "@/components/AuthModal";
 import { BecomeReaderModal } from "@/components/BecomeReaderModal";
 import { BackendWarmBanner } from "@/components/BackendWarmBanner";
 import { FeedbackPrompt } from "@/components/FeedbackPrompt";
+import { ChatDock } from "@/features/booking/components/ChatDock";
 import { captureUtmFromUrl } from "@/lib/utm";
 
 function UtmCapture() {
@@ -181,6 +182,15 @@ function RootComponent() {
             <BecomeReaderModal />
             <FeedbackPrompt />
             {/*
+              Cục trao đổi nổi — nghe được tin nhắn ở MỌI trang.
+
+              Trước đây muốn biết có tin mới thì phải vào Lịch hẹn, tìm đúng
+              buổi, rồi bấm "Nhắn tin / Gọi": phải đoán trước rằng có tin thì
+              mới thấy được tin. Đặt ở đây (ngoài Outlet) để nó sống qua mọi
+              lần đổi trang, nên một cuộc đang mở không bị dựng lại.
+            */}
+            <ChatDock />
+            {/*
               Góc dưới bên phải, không phải giữa trên cùng: vị trí cũ đè đúng
               thanh điều hướng, che mất menu ngay lúc người dùng vừa thao tác
               xong và hay cần bấm tiếp.
@@ -190,6 +200,9 @@ function RootComponent() {
             */}
             <Toaster
               position="bottom-right"
+              /* Nhường chỗ cho cục trao đổi ở cùng góc: thiếu dòng này thì
+                 toast đè lên đúng cái nút, và bấm vào nút hoá ra bấm toast. */
+              offset="84px"
               theme="dark"
               richColors
               duration={2500}
