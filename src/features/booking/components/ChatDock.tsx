@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { MessageCircle, X } from "lucide-react";
-import type { BookingMessage } from "@/api/booking-chat";
+import { MessageCircle, Search, X } from "lucide-react";
+import { getMessages, type BookingMessage } from "@/api/booking-chat";
+import { deCuocCho, type TinHieuGoi } from "../cuocCho";
 import { maBuoi, phiaCua, type Notification } from "@/api/notifications";
 import type { Booking } from "@/api/booking";
 import { subscribeDestination, subscribeRealtimeEvents } from "@/lib/realtime";
@@ -10,6 +11,7 @@ import { LopPhu } from "@/components/GocNoi";
 import { BookingChat } from "./BookingChat";
 
 const CHAT_QUEUE = "/user/queue/booking-chat";
+const CALL_QUEUE = "/user/queue/booking-call";
 
 /**
  * Buổi mà KHÁCH vừa trả tiền xong, hoặc null nếu tin này không phải chuyện đó.
@@ -56,6 +58,17 @@ export function ChatDock() {
   const [moRong, setMoRong] = useState(false);
   const [dangXem, setDangXem] = useState<string | null>(null);
   const [chuaDoc, setChuaDoc] = useState<Record<string, number>>({});
+  const [xemTruoc, setXemTruoc] = useState<
+    Record<string, { body: string; at: string; senderId: string }>
+  >({});
+  const [tim, setTim] = useState("");
+  const [loc, setLoc] = useState<"tat-ca" | "chua-doc">("tat-ca");
+  // Đọc trong handler của STOMP nên phải qua ref: handler được đăng ký một
+  // lần, còn hai giá trị này đổi liên tục.
+  const moRongRef = useRef(moRong);
+  const dangXemRef = useRef(dangXem);
+  moRongRef.current = moRong;
+  dangXemRef.current = dangXem;
 
   const laReader = can("READER_MANAGE_PROFILE");
   // Lấy trang đầu là đủ: một buổi còn mở trao đổi thì nó nằm trong những buổi
@@ -77,13 +90,6 @@ export function ChatDock() {
       .sort((x, y) => y.b.startTime.localeCompare(x.b.startTime));
   }, [duLieuToi, duLieuReader]);
 
-  // Đọc trong handler của STOMP nên phải qua ref: handler được đăng ký một
-  // lần, còn hai giá trị này đổi liên tục.
-  const dangXemRef = useRef<string | null>(null);
-  const moRongRef = useRef(false);
-  dangXemRef.current = dangXem;
-  moRongRef.current = moRong;
-
   const taiLaiToi = cuaToi.refetch;
   const taiLaiReader = cuaReader.refetch;
   const taiLai = useCallback(() => {
@@ -99,6 +105,14 @@ export function ChatDock() {
       // Đang mở đúng cuộc đó thì BookingChat lo hiển thị và đánh dấu đã đọc.
       if (moRongRef.current && dangXemRef.current === m.bookingId) return;
 
+      setXemTruoc((truoc) => ({
+        ...truoc,
+        [m.bookingId]: {
+          body: m.body,
+          at: m.createdAt || new Date().toISOString(),
+          senderId: m.senderId,
+        },
+      }));
       setChuaDoc((truoc) => ({
         ...truoc,
         [m.bookingId]: (truoc[m.bookingId] ?? 0) + 1,
@@ -107,6 +121,21 @@ export function ChatDock() {
       taiLai();
     });
   }, [user, taiLai]);
+
+  // Lời mời gọi có thể tới lúc khung chat đang đóng. Giữ lại rồi mở đúng buổi,
+  // hộp chat của buổi đó lấy lời mời và hiện chuông giữa màn hình.
+  useEffect(() => {
+    if (!user) return;
+    return subscribeDestination<TinHieuGoi>(CALL_QUEUE, (tin) => {
+      if (!tin || tin.type !== "OFFER" || !tin.bookingId) return;
+      // Hộp chat đang mở thì chính nó nghe lời mời. Giữ thêm ở đây sẽ reo lần nữa
+      // khi người ta đóng rồi mở lại cuộc ấy.
+      if (moRongRef.current && dangXemRef.current === tin.bookingId) return;
+      deCuocCho(tin);
+      setDangXem(tin.bookingId);
+      setMoRong(true);
+    });
+  }, [user]);
 
   // Trả tiền xong thì mở thẳng cuộc với Reader đó ra.
   //
@@ -125,6 +154,32 @@ export function ChatDock() {
   }, [user, taiLai]);
 
   const tong = Object.values(chuaDoc).reduce((a, b) => a + b, 0);
+
+  useEffect(() => {
+    if (!moRong || dangXem) return;
+    let huy = false;
+    for (const { b } of cuoc) {
+      void getMessages(b.id, 0, 1)
+        .then((trang) => {
+          const m = trang.content[0];
+          if (!m || huy) return;
+          setXemTruoc((truoc) => {
+            const cu = truoc[b.id];
+            if (cu && cu.at >= m.createdAt) return truoc;
+            return {
+              ...truoc,
+              [b.id]: { body: m.body, at: m.createdAt, senderId: m.senderId },
+            };
+          });
+        })
+        .catch(() => {
+          // Không có tin thì dòng phụ vẫn hiện giờ hẹn.
+        });
+    }
+    return () => {
+      huy = true;
+    };
+  }, [moRong, dangXem, cuoc]);
 
   function mo(id: string) {
     setDangXem(id);
@@ -164,6 +219,18 @@ export function ChatDock() {
   }
 
   const daChon = cuoc.find(({ b }) => b.id === dangXem);
+  const tu = tim.trim().toLowerCase();
+  const danhSach = cuoc
+    .filter(({ b, laKhach }) => {
+      if (loc === "chua-doc" && !chuaDoc[b.id]) return false;
+      if (!tu) return true;
+      return tenDoiPhuong(b, laKhach).toLowerCase().includes(tu);
+    })
+    .sort((x, y) => {
+      const ax = xemTruoc[x.b.id]?.at ?? x.b.startTime;
+      const ay = xemTruoc[y.b.id]?.at ?? y.b.startTime;
+      return ay.localeCompare(ax);
+    });
 
   return (
     /* Đẩy ra khỏi cột nút: khung này phủ cả góc màn hình, để trong cột thì nó
@@ -175,65 +242,136 @@ export function ChatDock() {
        z-50 chứ không phải z-40: lúc mở ra nó nằm chồng đúng lên chỗ nút Góp
        ý, và nút ấy phải nằm dưới chứ không thò ra giữa khung chat. */
     <LopPhu>
-      <div className="fixed inset-x-3 bottom-3 z-50 sm:inset-x-auto sm:bottom-5 sm:right-5 sm:w-[380px]">
-        <div className="panel-black flex max-h-[min(70vh,560px)] flex-col overflow-hidden rounded-2xl border border-gold/25 shadow-2xl">
-          <div className="flex items-center justify-between gap-2 border-b border-white/5 px-3 py-2.5">
+      <div className="fixed inset-x-3 bottom-3 z-50 sm:inset-x-auto sm:bottom-5 sm:right-5 sm:w-[360px]">
+        <div className="flex max-h-[min(78vh,640px)] flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#242526] text-white shadow-2xl">
+          <div className="flex items-center justify-between gap-2 px-4 pb-1 pt-3">
             {daChon ? (
               <button
                 type="button"
                 onClick={() => setDangXem(null)}
-                className="min-w-0 truncate text-left text-sm text-gold hover:underline"
+                className="flex min-w-0 items-center gap-2 text-left"
               >
-                ‹ {tenDoiPhuong(daChon.b, daChon.laKhach)}
+                <Anh
+                  src={anhDoiPhuong(daChon.b, daChon.laKhach)}
+                  ten={tenDoiPhuong(daChon.b, daChon.laKhach)}
+                  nho
+                />
+                <span className="truncate text-[15px] font-semibold">
+                  {tenDoiPhuong(daChon.b, daChon.laKhach)}
+                </span>
               </button>
             ) : (
-              <p className="text-sm text-foreground">Trao đổi</p>
+              <p className="text-2xl font-bold tracking-tight">Đoạn chat</p>
             )}
             <button
               type="button"
               onClick={() => setMoRong(false)}
               aria-label="Thu nhỏ khung trao đổi"
-              className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-gold/30 text-gold transition hover:bg-gold/10"
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
             >
-              <X aria-hidden="true" className="h-3.5 w-3.5" />
+              <X aria-hidden="true" className="h-4 w-4" />
             </button>
           </div>
 
           {daChon ? (
-            <div className="flex min-h-[340px] flex-1 flex-col overflow-hidden">
+            <div className="flex min-h-[420px] flex-1 flex-col overflow-hidden">
               <BookingChat
                 gonGang
                 bookingId={daChon.b.id}
                 peerLabel={tenDoiPhuong(daChon.b, daChon.laKhach)}
+                peerAvatar={anhDoiPhuong(daChon.b, daChon.laKhach)}
               />
             </div>
           ) : (
-            <ul className="flex-1 overflow-y-auto">
-              {cuoc.map(({ b, laKhach }) => (
-                <li key={`${b.id}-${laKhach ? "k" : "r"}`}>
+            <>
+              <div className="px-3 pb-2">
+                <label className="flex items-center gap-2 rounded-full bg-[#3a3b3c] px-3 py-2 text-sm text-white/80">
+                  <Search aria-hidden className="h-4 w-4 shrink-0" />
+                  <input
+                    value={tim}
+                    onChange={(e) => setTim(e.target.value)}
+                    placeholder="Tìm kiếm trên Messenger"
+                    className="w-full bg-transparent outline-none placeholder:text-white/45"
+                  />
+                </label>
+              </div>
+              <div className="flex gap-2 px-3 pb-2">
+                {(
+                  [
+                    ["tat-ca", "Tất cả"],
+                    ["chua-doc", "Chưa đọc"],
+                  ] as const
+                ).map(([khoa, nhan]) => (
                   <button
+                    key={khoa}
                     type="button"
-                    onClick={() => mo(b.id)}
-                    className="flex w-full items-center justify-between gap-3 px-3 py-2.5 text-left transition hover:bg-mystic/15"
+                    onClick={() => setLoc(khoa)}
+                    aria-pressed={loc === khoa}
+                    className={`rounded-full px-3 py-1.5 text-sm font-medium ${
+                      loc === khoa
+                        ? "bg-[#2374e1] text-white"
+                        : "bg-[#3a3b3c] text-white/90 hover:bg-white/15"
+                    }`}
                   >
-                    <span className="min-w-0">
-                      <span className="block truncate text-sm text-foreground">
-                        {tenDoiPhuong(b, laKhach)}
-                      </span>
-                      <span className="block truncate text-[11px] text-muted-foreground">
-                        {laKhach ? "Bạn đặt" : "Khách đặt với bạn"} ·{" "}
-                        {ngayGio(b.startTime)}
-                      </span>
-                    </span>
-                    {chuaDoc[b.id] ? (
-                      <span className="grid min-w-[20px] shrink-0 place-items-center rounded-full bg-gold px-1.5 py-0.5 text-[11px] font-semibold text-background">
-                        {chuaDoc[b.id]}
-                      </span>
-                    ) : null}
+                    {nhan}
                   </button>
-                </li>
-              ))}
-            </ul>
+                ))}
+              </div>
+              <ul className="flex-1 overflow-y-auto pb-2">
+                {danhSach.length === 0 ? (
+                  <li className="px-4 py-8 text-center text-sm text-white/55">
+                    {loc === "chua-doc"
+                      ? "Không có tin chưa đọc."
+                      : "Không thấy cuộc nào."}
+                  </li>
+                ) : (
+                  danhSach.map(({ b, laKhach }) => {
+                    const ten = tenDoiPhuong(b, laKhach);
+                    const xem = xemTruoc[b.id];
+                    const laCuaToi = xem?.senderId === user?.id;
+                    const dong = xem
+                      ? `${laCuaToi ? "Bạn: " : ""}${xem.body}`
+                      : laKhach
+                        ? "Bạn đặt buổi này"
+                        : "Khách đặt với bạn";
+                    return (
+                      <li key={`${b.id}-${laKhach ? "k" : "r"}`}>
+                        <button
+                          type="button"
+                          onClick={() => mo(b.id)}
+                          className="flex w-full items-center gap-3 px-2 py-2 text-left hover:bg-white/10"
+                        >
+                          <Anh src={anhDoiPhuong(b, laKhach)} ten={ten} />
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate text-[15px] font-semibold">
+                              {ten}
+                            </span>
+                            <span
+                              className={`block truncate text-[13px] ${
+                                chuaDoc[b.id]
+                                  ? "font-semibold text-white"
+                                  : "text-white/55"
+                              }`}
+                            >
+                              {dong}
+                              <span className="text-white/45">
+                                {" "}
+                                · {lucTuongDoi(xem?.at ?? b.startTime)}
+                              </span>
+                            </span>
+                          </span>
+                          {chuaDoc[b.id] ? (
+                            <span className="grid h-5 min-w-5 shrink-0 place-items-center rounded-full bg-[#2374e1] px-1 text-[11px] font-semibold">
+                              {chuaDoc[b.id] > 9 ? "9+" : chuaDoc[b.id]}
+                            </span>
+                          ) : null}
+                        </button>
+                      </li>
+                    );
+                  })
+                )}
+              </ul>
+            </>
           )}
         </div>
       </div>
@@ -246,12 +384,49 @@ function tenDoiPhuong(b: Booking, laKhach: boolean) {
   return laKhach ? b.readerName : b.customerName;
 }
 
-function ngayGio(iso: string) {
-  const d = new Date(iso);
-  return d.toLocaleString("vi-VN", {
-    day: "2-digit",
-    month: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+function anhDoiPhuong(b: Booking, laKhach: boolean) {
+  return laKhach ? b.readerAvatar : b.customerAvatar;
+}
+
+function Anh({
+  src,
+  ten,
+  nho = false,
+}: {
+  src: string | null;
+  ten: string;
+  nho?: boolean;
+}) {
+  return (
+    <span
+      className={`grid shrink-0 place-items-center overflow-hidden rounded-full bg-[#3a3b3c] font-semibold ${
+        nho ? "h-10 w-10 text-sm" : "h-14 w-14 text-lg"
+      }`}
+    >
+      {src ? (
+        <img src={src} alt="" className="h-full w-full object-cover" />
+      ) : (
+        ten.charAt(0).toUpperCase()
+      )}
+    </span>
+  );
+}
+
+/** "5 phút", "3 giờ", "5 tuần" — cùng cách đọc của danh sách Messenger. */
+export function lucTuongDoi(iso: string, bayGio = Date.now()) {
+  const luc = new Date(iso).getTime();
+  if (Number.isNaN(luc)) return "";
+  const giay = Math.max(0, Math.floor((bayGio - luc) / 1000));
+  if (giay < 60) return "Vừa xong";
+  const phut = Math.floor(giay / 60);
+  if (phut < 60) return `${phut} phút`;
+  const gio = Math.floor(phut / 60);
+  if (gio < 24) return `${gio} giờ`;
+  const ngay = Math.floor(gio / 24);
+  if (ngay < 7) return `${ngay} ngày`;
+  const tuan = Math.floor(ngay / 7);
+  if (tuan < 13) return `${tuan} tuần`;
+  const thang = Math.floor(ngay / 30);
+  if (thang < 12) return `${thang} tháng`;
+  return `${Math.floor(ngay / 365)} năm`;
 }

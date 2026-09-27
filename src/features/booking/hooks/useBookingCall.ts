@@ -13,6 +13,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getIceConfig } from "@/api/booking-chat";
 import { publishRealtime, subscribeDestination } from "@/lib/realtime";
+import { layCuocCho } from "../cuocCho";
 
 const CALL_QUEUE = "/user/queue/booking-call";
 
@@ -325,14 +326,21 @@ export function useBookingCall(bookingId: string | null): BookingCall {
   useEffect(() => {
     if (!bookingId) return;
 
-    const off = subscribeDestination<Signal>(CALL_QUEUE, (signal) => {
+    const nhan = (signal: Signal) => {
       // Hàng đợi là của cả người dùng chứ không riêng buổi này: họ có thể mở
       // hai buổi ở hai tab. Không lọc thì chuông của buổi A reo ở màn buổi B.
       if (!signal || (signal.bookingId && signal.bookingId !== bookingId)) {
         return;
       }
+      // Khung nổi đã giữ lời mời này để mở hộp chat. Lấy ra kẻo chuông reo
+      // lần nữa khi hiệu ứng này vừa gắn.
+      if (signal.type === "OFFER") layCuocCho(bookingId);
       void handle(signal);
-    });
+    };
+
+    const off = subscribeDestination<Signal>(CALL_QUEUE, nhan);
+    const sot = layCuocCho(bookingId);
+    if (sot) nhan(sot as Signal);
 
     async function handle(signal: Signal) {
       switch (signal.type) {

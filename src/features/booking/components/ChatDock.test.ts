@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Notification } from "@/api/notifications";
-import { buoiKhachVuaTraTien } from "./ChatDock";
+import { buoiKhachVuaTraTien, lucTuongDoi } from "./ChatDock";
 
 /**
  * Trả tiền xong thì khung trao đổi với Reader tự mở ra.
@@ -106,5 +106,18 @@ describe("buoiKhachVuaTraTien", () => {
     // Sự kiện realtime có thể tới mà không kèm thông báo nào.
     expect(buoiKhachVuaTraTien(null)).toBeNull();
     expect(buoiKhachVuaTraTien(tin({ type: null }))).toBeNull();
+  });
+});
+
+describe("lucTuongDoi", () => {
+  const bayGio = Date.parse("2026-09-26T12:00:00Z");
+
+  it("đọc theo phút, giờ, ngày, tuần", () => {
+    expect(lucTuongDoi("2026-09-26T11:59:30Z", bayGio)).toBe("Vừa xong");
+    expect(lucTuongDoi("2026-09-26T11:55:00Z", bayGio)).toBe("5 phút");
+    expect(lucTuongDoi("2026-09-26T10:00:00Z", bayGio)).toBe("2 giờ");
+    expect(lucTuongDoi("2026-09-23T12:00:00Z", bayGio)).toBe("3 ngày");
+    expect(lucTuongDoi("2026-08-29T12:00:00Z", bayGio)).toBe("4 tuần");
+    expect(lucTuongDoi("2026-07-18T12:00:00Z", bayGio)).toBe("10 tuần");
   });
 });

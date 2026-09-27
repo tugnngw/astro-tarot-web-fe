@@ -81,6 +81,7 @@ export function BookingList({
   const [reporting, setReporting] = useState<Booking | null>(null);
   const [chatting, setChatting] = useState<string | null>(null);
   const pay = useCreatePaymentIntent();
+  const [dangTra, setDangTra] = useState<string | null>(null);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
 
@@ -95,8 +96,7 @@ export function BookingList({
     confirm.isPending ||
     complete.isPending ||
     cancel.isPending ||
-    review.isPending ||
-    pay.isPending;
+    review.isPending;
 
   const PAYMENT_STATUS_LABEL: Record<BookingPaymentStatus, string> = {
     UNPAID: "Chưa trả",
@@ -122,12 +122,15 @@ export function BookingList({
   }
 
   async function moTra(bookingId: string, phase?: "DEPOSIT" | "FULL") {
+    setDangTra(bookingId);
     try {
       setInstruction(await pay.mutateAsync({ bookingId, phase }));
     } catch (e) {
       toast.error(
         e instanceof Error ? e.message : "Không tạo được lệnh thanh toán",
       );
+    } finally {
+      setDangTra(null);
     }
   }
 
@@ -299,7 +302,7 @@ export function BookingList({
                   <>
                     <button
                       type="button"
-                      disabled={busy}
+                      disabled={dangTra === b.id}
                       onClick={() => void moTra(b.id, "DEPOSIT")}
                       className="inline-flex items-center gap-1.5 rounded-full bg-gold px-3.5 py-1.5 text-xs font-medium text-primary-foreground glow-gold transition disabled:opacity-40"
                     >
@@ -308,7 +311,7 @@ export function BookingList({
                     </button>
                     <button
                       type="button"
-                      disabled={busy}
+                      disabled={dangTra === b.id}
                       onClick={() => void moTra(b.id, "FULL")}
                       className="inline-flex items-center gap-1.5 rounded-full border border-gold/50 px-3.5 py-1.5 text-xs text-gold transition hover:bg-gold/10 disabled:opacity-40"
                     >
@@ -322,7 +325,7 @@ export function BookingList({
                 b.status !== "CANCELLED" && (
                   <button
                     type="button"
-                    disabled={busy}
+                    disabled={dangTra === b.id}
                     onClick={() => void moTra(b.id)}
                     className="inline-flex items-center gap-1.5 rounded-full bg-gold px-3.5 py-1.5 text-xs font-medium text-primary-foreground glow-gold transition disabled:opacity-40"
                   >
@@ -391,7 +394,11 @@ export function BookingList({
 
             {chatting === b.id && (
               <div className="mt-3">
-                <BookingChat bookingId={b.id} peerLabel={other} />
+                <BookingChat
+                  bookingId={b.id}
+                  peerLabel={other}
+                  peerAvatar={avatar}
+                />
               </div>
             )}
             {cancelling === b.id && (
