@@ -76,11 +76,11 @@ export function PaymentDialog({
         </h2>
         <p className="mt-1 text-xs text-muted-foreground">
           {instruction.paymentPhase === "DEPOSIT"
-            ? "Đây là khoản đặt cọc 50%. Trả nốt phần còn lại trước buổi xem 12 tiếng — quá hạn thì mất cọc."
+            ? "Đây là khoản đặt cọc 50%. Sau khi Reader đọc xong, bạn thanh toán nốt 50% còn lại."
             : instruction.paymentPhase === "REMAINING"
-              ? "Đây là phần còn lại. Chuyển đủ trước hạn 12 tiếng, quá hạn thì mất cọc."
+              ? "Đây là 50% còn lại. Reader đọc xong thì chuyển khoản nốt số này."
               : instruction.paymentPhase === "FULL"
-                ? "Lịch hẹn dưới 12 giờ. Bạn cần thanh toán toàn bộ ngay."
+                ? "Bạn thanh toán toàn bộ một lần, không đặt cọc."
                 : isPayOs
                   ? "Mở PayOS để quét VietQR hoặc chuyển khoản. Hệ thống xác nhận tự động sau khi nhận tiền."
                   : "Chuyển đúng số tiền và đúng nội dung bên dưới. Chúng tôi đối soát rồi xác nhận, thường trong vài giờ làm việc."}

@@ -106,16 +106,6 @@ export function BookingList({
     FAILED: "Thất bại",
   };
 
-  function timeLeft(deadline: string | null): string | null {
-    if (!deadline) return null;
-    const diff = new Date(deadline).getTime() - now.getTime();
-    if (diff <= 0) return "Đã quá hạn";
-    const h = Math.floor(diff / 3_600_000);
-    const m = Math.floor((diff % 3_600_000) / 60_000);
-    if (h > 0) return `${h}h ${m} phút`;
-    return `${m} phút`;
-  }
-
   function daTra(b: Booking) {
     if (b.paymentStatus === "PAID") return b.totalAmount ?? 0;
     if (b.paymentStatus === "DEPOSIT_PAID") return b.depositAmount ?? 0;
@@ -129,6 +119,16 @@ export function BookingList({
         ? new Date(b.startTime).getTime() - 12 * 3_600_000
         : 0;
     return moc - now.getTime() > 0;
+  }
+
+  async function moTra(bookingId: string, phase?: "DEPOSIT" | "FULL") {
+    try {
+      setInstruction(await pay.mutateAsync({ bookingId, phase }));
+    } catch (e) {
+      toast.error(
+        e instanceof Error ? e.message : "Không tạo được lệnh thanh toán",
+      );
+    }
   }
 
   async function run(fn: () => Promise<unknown>, ok: string) {
@@ -228,11 +228,6 @@ export function BookingList({
                     Đã đặt cọc · Còn {formatVND(b.remainingAmount ?? 0)}
                   </span>
                 )}
-                {b.paymentStatus === "DEPOSIT_PAID" && b.paymentDeadline && (
-                  <span className="text-[11px] text-muted-foreground">
-                    Hạn trả nốt: {timeLeft(b.paymentDeadline)}
-                  </span>
-                )}
               </div>
             </div>
 
@@ -290,29 +285,49 @@ export function BookingList({
               )}
 
               {side === "customer" &&
-                b.paymentStatus !== "PAID" &&
-                b.paymentStatus !== "REFUNDED" &&
+                b.paymentStatus === "DEPOSIT_PAID" &&
+                b.status === "COMPLETED" && (
+                  <p className="w-full rounded-lg border border-amber-400/40 bg-amber-400/10 px-3 py-2 text-xs text-amber-100">
+                    Reader đã đọc xong. Thanh toán nốt 50% còn lại (
+                    {formatVND(b.remainingAmount ?? 0)}).
+                  </p>
+                )}
+
+              {side === "customer" &&
+                b.paymentStatus === "UNPAID" &&
+                b.status !== "CANCELLED" && (
+                  <>
+                    <button
+                      type="button"
+                      disabled={busy}
+                      onClick={() => void moTra(b.id, "DEPOSIT")}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-gold px-3.5 py-1.5 text-xs font-medium text-primary-foreground glow-gold transition disabled:opacity-40"
+                    >
+                      <Landmark aria-hidden="true" className="h-3.5 w-3.5" />{" "}
+                      Đặt cọc 50% ({formatVND(b.depositAmount ?? 0)})
+                    </button>
+                    <button
+                      type="button"
+                      disabled={busy}
+                      onClick={() => void moTra(b.id, "FULL")}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-gold/50 px-3.5 py-1.5 text-xs text-gold transition hover:bg-gold/10 disabled:opacity-40"
+                    >
+                      Thanh toán hết ({formatVND(b.totalAmount)})
+                    </button>
+                  </>
+                )}
+
+              {side === "customer" &&
+                b.paymentStatus === "DEPOSIT_PAID" &&
                 b.status !== "CANCELLED" && (
                   <button
                     type="button"
                     disabled={busy}
-                    onClick={async () => {
-                      try {
-                        setInstruction(await pay.mutateAsync(b.id));
-                      } catch (e) {
-                        toast.error(
-                          e instanceof Error
-                            ? e.message
-                            : "Không tạo được lệnh thanh toán",
-                        );
-                      }
-                    }}
+                    onClick={() => void moTra(b.id)}
                     className="inline-flex items-center gap-1.5 rounded-full bg-gold px-3.5 py-1.5 text-xs font-medium text-primary-foreground glow-gold transition disabled:opacity-40"
                   >
                     <Landmark aria-hidden="true" className="h-3.5 w-3.5" />{" "}
-                    {b.paymentStatus === "DEPOSIT_PAID"
-                      ? `Thanh toán nốt (${formatVND(b.remainingAmount ?? 0)})`
-                      : "Thanh toán"}
+                    Thanh toán nốt ({formatVND(b.remainingAmount ?? 0)})
                   </button>
                 )}
 
