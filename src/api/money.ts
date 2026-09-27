@@ -54,10 +54,18 @@ export const TRANSACTION_STATUS_LABEL: Record<TransactionStatus, string> = {
   CANCELLED: "Đã huỷ / hoàn",
 };
 
-export function createPaymentIntent(bookingId: string) {
-  return apiFetch<PaymentInstruction>(`/api/v1/bookings/${bookingId}/payment`, {
-    method: "POST",
-  });
+export function createPaymentIntent(input: {
+  bookingId: string;
+  /** Bỏ trống khi trả nốt. Cọc hoặc trả hết thì nói rõ. */
+  phase?: "DEPOSIT" | "FULL";
+}) {
+  return apiFetch<PaymentInstruction>(
+    `/api/v1/bookings/${input.bookingId}/payment`,
+    {
+      method: "POST",
+      body: JSON.stringify(input.phase ? { phase: input.phase } : {}),
+    },
+  );
 }
 
 export function getPayments(

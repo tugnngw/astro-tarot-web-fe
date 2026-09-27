@@ -102,7 +102,7 @@ function ReaderProfilePage() {
           durationMinutes: duration,
         });
         toast.success(
-          "Đã đặt lịch. Vào Lịch hẹn của tôi để đặt cọc. Huỷ từ 12 tiếng trước giờ hẹn thì hoàn cọc.",
+          "Đã đặt lịch. Vào Lịch hẹn của tôi để đặt cọc 50% hoặc thanh toán hết. Huỷ từ 12 tiếng trước giờ hẹn thì hoàn cọc.",
         );
         setPicked(null);
       } catch (e) {
@@ -487,7 +487,7 @@ function ReaderProfilePage() {
 
                 <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
                   Cùng một ngày nhiều người đặt được, mỗi người một khung giờ.
-                  Đặt xong buổi mới tới bước đặt cọc, ở trang{" "}
+                  Đặt xong thì chọn đặt cọc 50% hoặc thanh toán hết, ở trang{" "}
                   <Link to="/bookings" className="text-gold hover:underline">
                     Lịch hẹn của tôi
                   </Link>
