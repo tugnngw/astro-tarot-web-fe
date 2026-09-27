@@ -30,8 +30,8 @@ export function CallPanel({ call }: { call: BookingCall }) {
     return (
       <p className="flex items-start gap-2 border-b border-amber-400/20 bg-amber-950/40 px-4 py-2 text-[11px] text-amber-100">
         <TriangleAlert aria-hidden className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-        Cuộc gọi chỉ chạy khi hai bên cùng mạng wifi thông thường. Dùng 4G có
-        thể không nối được — nhắn tin vẫn bình thường.
+        Cuộc gọi nối thẳng giữa hai máy. Không nối được thì nhắn tin vẫn
+        dùng được.
       </p>
     );
   }

@@ -95,6 +95,8 @@ export function useBookingCall(bookingId: string | null): BookingCall {
   /** Ứng viên ICE tới trước khi có remote description — phải xếp hàng, xem nạp() */
   const pendingIce = useRef<RTCIceCandidateInit[]>([]);
   const incomingOffer = useRef<string | null>(null);
+  /** Đã nhận ANSWER chưa. Hết giờ mà chưa có thì là không bắt máy, không phải lỗi mạng. */
+  const daCoTraLoi = useRef(false);
   const timeoutId = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const send = useCallback(
@@ -124,6 +126,7 @@ export function useBookingCall(bookingId: string | null): BookingCall {
     pc.current = null;
     pendingIce.current = [];
     incomingOffer.current = null;
+    daCoTraLoi.current = false;
     setLocalStream(null);
     setRemoteStream(null);
     setPeerName(null);
@@ -177,9 +180,7 @@ export function useBookingCall(bookingId: string | null): BookingCall {
           // Đây chính là cảnh thiếu TURN gây ra. Nói thẳng nguyên nhân thay vì
           // "đã xảy ra lỗi", để người dùng biết đổi sang wifi là xong.
           fail(
-            hasTurn
-              ? "Mất kết nối với người kia."
-              : "Không nối được cuộc gọi. Hai máy đang ở hai mạng không tự thấy nhau — thử chuyển sang wifi thay vì 4G.",
+            "Không nối được cuộc gọi. Hai máy không tìm được đường đến nhau. Nhắn tin vẫn gửi được.",
           );
         }
       };
@@ -187,7 +188,7 @@ export function useBookingCall(bookingId: string | null): BookingCall {
       pc.current = peer;
       return peer;
     },
-    [fail, hasTurn, send],
+    [fail, send],
   );
 
   /**
@@ -238,13 +239,16 @@ export function useBookingCall(bookingId: string | null): BookingCall {
         return;
       }
 
+      if (!daCoTraLoi.current) {
+        fail("Người kia không bắt máy.");
+        return;
+      }
+
       fail(
-        hasTurn
-          ? "Người kia không bắt máy."
-          : "Không nối được cuộc gọi. Nếu đang dùng 4G, thử chuyển sang wifi.",
+        "Không nối được cuộc gọi. Hai máy không tìm được đường đến nhau. Nhắn tin vẫn gửi được.",
       );
     }, CONNECT_TIMEOUT_MS);
-  }, [fail, hasTurn, send]);
+  }, [fail, send]);
 
   // ---- gọi đi ----
   const start = useCallback(
@@ -376,6 +380,7 @@ export function useBookingCall(bookingId: string | null): BookingCall {
             JSON.parse(signal.payload) as RTCSessionDescriptionInit,
           );
           await drainIce(peer);
+          daCoTraLoi.current = true;
           setState("connecting");
           break;
         }
