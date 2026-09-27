@@ -62,11 +62,13 @@ export function dangOGanDay(el: {
 export function BookingChat({
   bookingId,
   peerLabel,
+  peerAvatar = null,
   gonGang = false,
 }: {
   bookingId: string;
   /** "Reader" hay tên khách — chỉ để ghi tiêu đề. */
   peerLabel: string;
+  peerAvatar?: string | null;
   /**
    * Dạng gọn, dùng khi nhúng trong cục trao đổi nổi.
    *
@@ -234,7 +236,21 @@ export function BookingChat({
       }`}
     >
       <header className="flex items-center justify-between gap-2 border-b border-white/5 px-4 py-3">
-        <div className="min-w-0">
+        <div className="flex min-w-0 items-center gap-2">
+          {!gonGang && (
+            <span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full bg-[#3a3b3c] text-sm font-semibold text-white">
+              {peerAvatar ? (
+                <img
+                  src={peerAvatar}
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                peerLabel.charAt(0).toUpperCase()
+              )}
+            </span>
+          )}
+          <div className="min-w-0">
           {!gonGang && (
             <h3 className="truncate font-display text-lg">
               Trao đổi với {peerLabel}
@@ -268,6 +284,7 @@ export function BookingChat({
               Mất kết nối tức thời — tin vẫn gửi được, chỉ chậm hơn
             </p>
           )}
+          </div>
         </div>
         <div className="flex shrink-0 gap-2">
           <button
@@ -316,17 +333,30 @@ export function BookingChat({
             return (
               <div
                 key={m.id}
-                className={`flex ${cuaToi ? "justify-end" : "justify-start"}`}
+                className={`flex items-end gap-2 ${cuaToi ? "justify-end" : "justify-start"}`}
               >
+                {!cuaToi && (
+                  <span className="grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-full bg-[#3a3b3c] text-xs font-semibold text-white">
+                    {peerAvatar ? (
+                      <img
+                        src={peerAvatar}
+                        alt=""
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      peerLabel.charAt(0).toUpperCase()
+                    )}
+                  </span>
+                )}
                 <div
                   className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${
                     cuaToi
-                      ? "bg-gold/20 text-foreground"
-                      : "bg-mystic/15 text-foreground"
+                      ? "rounded-br-md bg-[#0084ff] text-white"
+                      : "rounded-bl-md bg-[#3a3b3c] text-white"
                   }`}
                 >
                   <p className="whitespace-pre-wrap break-words">{m.body}</p>
-                  <p className="mt-1 text-right text-[10px] text-muted-foreground">
+                  <p className="mt-1 text-right text-[10px] text-white/60">
                     {gio(m.createdAt)}
                     {cuaToi && m.readAt ? " · đã xem" : ""}
                   </p>

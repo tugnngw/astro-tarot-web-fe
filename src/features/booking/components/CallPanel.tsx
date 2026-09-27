@@ -1,6 +1,7 @@
 // Khung cuộc gọi: chuông đến, video hai bên, nút tắt mic/cam, cúp máy.
 import { useEffect, useRef } from "react";
-import { Mic, MicOff, PhoneOff, Video, VideoOff, TriangleAlert } from "lucide-react";
+import { Mic, MicOff, Phone, PhoneOff, Video, VideoOff, TriangleAlert } from "lucide-react";
+import { LopPhu } from "@/components/GocNoi";
 import type { BookingCall } from "../hooks/useBookingCall";
 
 /** Gắn MediaStream vào thẻ video. */
@@ -51,28 +52,48 @@ export function CallPanel({ call }: { call: BookingCall }) {
   }
 
   if (call.state === "incoming") {
+    const ten = call.peerName || "Người kia";
     return (
-      <div className="flex items-center justify-between gap-3 border-b border-gold/25 bg-gold/10 px-4 py-3">
-        <p className="text-sm">
-          <b>{call.peerName}</b> đang gọi {call.withVideo ? "video" : "thoại"}…
-        </p>
-        <div className="flex shrink-0 gap-2">
-          <button
-            type="button"
-            onClick={() => void call.accept()}
-            className="rounded-lg bg-emerald-500 px-3 py-1.5 text-sm text-black"
-          >
-            Nghe
-          </button>
-          <button
-            type="button"
-            onClick={call.hangup}
-            className="rounded-lg bg-destructive px-3 py-1.5 text-sm"
-          >
-            Từ chối
-          </button>
+      <LopPhu>
+      <div className="fixed inset-0 z-[200] grid place-items-center bg-black/65 p-4">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${ten} đang gọi`}
+          className="w-full max-w-sm rounded-3xl bg-[#242526] px-6 py-8 text-center text-white shadow-2xl"
+        >
+          <div className="mx-auto grid h-24 w-24 place-items-center rounded-full bg-[#3a3b3c] text-3xl font-semibold">
+            {ten.charAt(0).toUpperCase()}
+          </div>
+          <p className="mt-4 text-xl font-semibold">{ten}</p>
+          <p className="mt-1 text-sm text-white/70">
+            Đang gọi {call.withVideo ? "video" : "thoại"} cho bạn
+          </p>
+          <div className="mt-8 flex items-center justify-center gap-16">
+            <button
+              type="button"
+              onClick={call.hangup}
+              className="grid h-16 w-16 place-items-center rounded-full bg-[#e41e3f] text-white"
+            >
+              <PhoneOff aria-hidden className="h-7 w-7" />
+              <span className="sr-only">Từ chối</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => void call.accept()}
+              className="grid h-16 w-16 place-items-center rounded-full bg-[#31a24c] text-white"
+            >
+              {call.withVideo ? (
+                <Video aria-hidden className="h-7 w-7" />
+              ) : (
+                <Phone aria-hidden className="h-7 w-7" />
+              )}
+              <span className="sr-only">Nghe</span>
+            </button>
+          </div>
         </div>
       </div>
+      </LopPhu>
     );
   }
 
