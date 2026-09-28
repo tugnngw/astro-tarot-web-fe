@@ -1,6 +1,6 @@
 // Hộp nhắn tin giữa khách và Reader trong một buổi đã đặt.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Send, WifiOff, Video, Phone } from "lucide-react";
+import { Smile, WifiOff, Video, Phone } from "lucide-react";
 import { toast } from "sonner";
 import {
   getMessages,
@@ -14,6 +14,7 @@ import { subscribeDestination, subscribeRealtimeStatus } from "@/lib/realtime";
 import { useAuth } from "@/lib/auth-context";
 import { moTaHoatDong } from "../hoatDong";
 import { CallPanel } from "./CallPanel";
+import { BangEmote } from "./BangEmote";
 import { useBookingCall } from "../hooks/useBookingCall";
 
 const CHAT_QUEUE = "/user/queue/booking-chat";
@@ -88,7 +89,10 @@ export function BookingChat({
   const [loading, setLoading] = useState(true);
   const [online, setOnline] = useState(false);
   const [hienDien, setHienDien] = useState<Presence | null>(null);
+  const [emoteMo, setEmoteMo] = useState(false);
   const khungTin = useRef<HTMLDivElement>(null);
+  const oNhap = useRef<HTMLTextAreaElement>(null);
+  const oForm = useRef<HTMLFormElement>(null);
   /**
    * Người dùng có đang ở gần đáy không, đo NGAY TRƯỚC khi danh sách đổi.
    *
@@ -98,6 +102,38 @@ export function BookingChat({
   const gapDay = useRef(true);
 
   const call = useBookingCall(bookingId);
+
+  useEffect(() => {
+    if (!emoteMo) return;
+    const tat = (e: MouseEvent) => {
+      if (oForm.current?.contains(e.target as Node)) return;
+      setEmoteMo(false);
+    };
+    const phim = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setEmoteMo(false);
+    };
+    document.addEventListener("mousedown", tat);
+    window.addEventListener("keydown", phim);
+    return () => {
+      document.removeEventListener("mousedown", tat);
+      window.removeEventListener("keydown", phim);
+    };
+  }, [emoteMo]);
+
+  function chenEmote(ky: string) {
+    const el = oNhap.current;
+    setDraft((cu) => {
+      const dau = el?.selectionStart ?? cu.length;
+      const cuoi = el?.selectionEnd ?? dau;
+      const sau = (cu.slice(0, dau) + ky + cu.slice(cuoi)).slice(0, 4000);
+      const cho = Math.min(dau + ky.length, sau.length);
+      queueMicrotask(() => {
+        el?.focus();
+        el?.setSelectionRange(cho, cho);
+      });
+      return sau;
+    });
+  }
 
   // Lịch sử: BE trả mới-nhất-trước cho tiện phân trang, màn hình cần ngược lại.
   useEffect(() => {
@@ -368,14 +404,17 @@ export function BookingChat({
       </div>
 
       <form
+        ref={oForm}
         onSubmit={guiDi}
-        className="mx-3 mb-3 mt-2 flex shrink-0 items-end gap-2 rounded-2xl border border-gold/70 bg-black p-2"
+        className="relative mx-3 mb-3 mt-2 flex h-12 shrink-0 items-center rounded-full border border-gold/70 bg-black pl-4 pr-1"
       >
+        {emoteMo && <BangEmote onChon={chenEmote} />}
         <textarea
+          ref={oNhap}
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => {
-            // Enter gửi, Shift+Enter xuống dòng — thói quen của mọi ứng dụng chat.
+            // Enter gửi. Không còn nút gửi.
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
               void guiDi(e as unknown as React.FormEvent);
@@ -385,15 +424,16 @@ export function BookingChat({
           maxLength={4000}
           placeholder="Nhắn gì đó…"
           aria-label="Nội dung tin nhắn"
-          className="max-h-32 min-h-[2.5rem] flex-1 resize-none overflow-y-auto rounded-xl border-0 bg-transparent px-3 py-2 text-sm outline-none"
+          className="h-10 min-h-0 flex-1 resize-none overflow-hidden bg-transparent text-sm leading-10 outline-none"
         />
         <button
-          type="submit"
-          disabled={!draft.trim() || sending}
-          className="rounded-xl bg-gold px-3 py-2 text-background disabled:opacity-40"
+          type="button"
+          onClick={() => setEmoteMo((v) => !v)}
+          aria-expanded={emoteMo}
+          aria-label="Biểu cảm"
+          className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-gold hover:bg-white/10"
         >
-          <Send aria-hidden className="h-4 w-4" />
-          <span className="sr-only">Gửi</span>
+          <Smile aria-hidden className="h-5 w-5" />
         </button>
       </form>
     </section>
