@@ -56,9 +56,12 @@ export function RoleGuard({ require: required, children, redirectTo }: Props) {
     );
   }
 
-  if (!user || !allowed) {
-    // Nói rõ vì sao trang trống, thay vì để người dùng nhìn màn hình trắng
-    // trong lúc chờ chuyển hướng.
+  // Chưa đăng nhập thì GIỮ trang đang mở và để form đăng nhập phủ lên.
+  // Trước đây thay cả trang bằng "khu vực hạn chế", đăng nhập xong người dùng
+  // không còn thấy chỗ mình vừa đứng.
+  if (!user) return <>{children}</>;
+
+  if (!allowed) {
     return (
       <div className="grid min-h-[60vh] place-items-center px-4 text-center">
         <div>
@@ -68,9 +71,7 @@ export function RoleGuard({ require: required, children, redirectTo }: Props) {
           />
           <h1 className="mt-4 font-display text-xl">Khu vực hạn chế</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            {user
-              ? "Tài khoản của bạn không có quyền vào trang này."
-              : "Bạn cần đăng nhập để vào trang này."}
+            Tài khoản của bạn không có quyền vào trang này.
           </p>
         </div>
       </div>

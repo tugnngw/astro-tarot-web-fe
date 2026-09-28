@@ -10,7 +10,7 @@ import {
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import * as authApi from "@/api/auth";
-import { ApiError, PHIEN_HET_HAN, tokenStore } from "@/api/client";
+import { ApiError, ensureAccessToken, PHIEN_HET_HAN, tokenStore } from "@/api/client";
 import { getProfile } from "@/api/profile";
 import {
   can as hasPermission,
@@ -174,6 +174,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // apiFetch đã xoá token. Gỡ luôn tên trên header, nếu không trang lịch
   // vẫn hiện người dùng đã đăng nhập và nút thử lại gọi lại request trống.
+  // Không đổi URL: đăng nhập xong họ đang đứng đúng trang vừa mở.
   useEffect(() => {
     const het = () => {
       setUser(null);
@@ -183,6 +184,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     window.addEventListener(PHIEN_HET_HAN, het);
     return () => window.removeEventListener(PHIEN_HET_HAN, het);
   }, []);
+
+  // Đổi trang mà phiên đã hết hạn: header vẫn giữ tên cũ nên không có nút
+  // Đăng nhập. Kiểm tra lúc chuyển trang, gỡ tên, mở form, giữ nguyên đường dẫn.
+  const dangCoTen = Boolean(user);
+  useEffect(() => {
+    if (bootstrapping || !dangCoTen) return;
+    let huy = false;
+    void ensureAccessToken().then((token) => {
+      if (huy || token) return;
+      setUser(null);
+      localStorage.removeItem(USER_KEY);
+      setAuthPrompt({ open: true, mode: "login" });
+    });
+    return () => {
+      huy = true;
+    };
+  }, [pathname, bootstrapping, dangCoTen]);
 
   // Gửi thẳng email xuống BE. Bản cũ cắt lấy phần trước dấu @ để làm username
   // — từ khi BE đăng nhập bằng email thì cách đó luôn sai.

@@ -139,9 +139,16 @@ async function refreshAccessToken(): Promise<KetQuaLamMoi> {
 export async function ensureAccessToken(): Promise<string | null> {
   const current = tokenStore.getAccess();
   if (current && !tokenDaHetHan()) return current;
-  if (!tokenStore.getRefresh()) return current;
+  if (!tokenStore.getRefresh()) {
+    if (current) baoPhienHetHan();
+    return null;
+  }
   const lamMoi = await refreshAccessToken();
   if (lamMoi.ok) return lamMoi.token;
+  if (lamMoi.phienHong) {
+    baoPhienHetHan();
+    return null;
+  }
   return tokenStore.getAccess();
 }
 
