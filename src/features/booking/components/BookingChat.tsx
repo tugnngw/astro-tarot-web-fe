@@ -235,7 +235,7 @@ export function BookingChat({
         gonGang ? "min-h-0 flex-1 rounded-none" : "glass h-[32rem] rounded-2xl"
       }`}
     >
-      <header className="flex items-center justify-between gap-2 border-b border-white/5 px-4 py-3">
+      <header className="flex items-center justify-between gap-2 border-b border-gold px-4 py-3">
         <div className="flex min-w-0 items-center gap-2">
           {!gonGang && (
             <span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full bg-[#3a3b3c] text-sm font-semibold text-white">
@@ -369,7 +369,7 @@ export function BookingChat({
 
       <form
         onSubmit={guiDi}
-        className="flex shrink-0 items-end gap-2 border-t border-white/10 bg-black p-3"
+        className="mx-3 mb-3 mt-2 flex shrink-0 items-end gap-2 rounded-2xl border border-gold/70 bg-black p-2"
       >
         <textarea
           value={draft}
@@ -385,7 +385,7 @@ export function BookingChat({
           maxLength={4000}
           placeholder="Nhắn gì đó…"
           aria-label="Nội dung tin nhắn"
-          className="max-h-32 min-h-[2.5rem] flex-1 resize-y rounded-xl border border-gold/25 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
+          className="max-h-32 min-h-[2.5rem] flex-1 resize-none overflow-y-auto rounded-xl border-0 bg-transparent px-3 py-2 text-sm outline-none"
         />
         <button
           type="submit"
