@@ -144,9 +144,9 @@ export function CatalogManager() {
               </span>{" "}
               — tính theo giá × tỉ lệ × lượt bấm. Đây{" "}
               <strong className="text-foreground">không phải</strong> doanh thu
-              nền tảng: mình chỉ đếm được người bấm sang, không biết ai mua.
-              Số thật nằm ở báo cáo đối tác Shopee Affiliate — ghi vào ô dưới
-              khi có để Pitch/EXE201.
+              nền tảng: mình chỉ đếm được người bấm sang, không biết ai mua. Số
+              thật nằm ở báo cáo đối tác Shopee Affiliate — ghi vào ô dưới khi
+              có để Pitch/EXE201.
             </p>
             <ShopeeCommissionNote />
           </>

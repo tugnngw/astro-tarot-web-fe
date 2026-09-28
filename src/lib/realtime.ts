@@ -116,12 +116,15 @@ function setConnected(value: boolean) {
 
 function wsBrokerUrl(): string {
   const base = API_BASE.replace(/\/$/, "");
-  if (base.startsWith("https://")) return `wss://${base.slice("https://".length)}/ws`;
-  if (base.startsWith("http://")) return `ws://${base.slice("http://".length)}/ws`;
+  if (base.startsWith("https://"))
+    return `wss://${base.slice("https://".length)}/ws`;
+  if (base.startsWith("http://"))
+    return `ws://${base.slice("http://".length)}/ws`;
   // Relative / same-origin proxy — giả định https khi trang là https.
-  const proto = typeof window !== "undefined" && window.location.protocol === "https:"
-    ? "wss:"
-    : "ws:";
+  const proto =
+    typeof window !== "undefined" && window.location.protocol === "https:"
+      ? "wss:"
+      : "ws:";
   const host =
     typeof window !== "undefined" ? window.location.host : "localhost:8080";
   return `${proto}//${host}/ws`;

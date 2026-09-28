@@ -240,7 +240,7 @@ export function useBookingCall(bookingId: string | null): BookingCall {
       // kia không bắt máy, vì cuộc gọi còn chưa hề đi khỏi máy này.
       if (!local.current) {
         fail(
-          "Trình duyệt đang chờ bạn cho phép dùng micro/camera. Bấm \"Cho phép\" ở hộp thoại trên thanh địa chỉ rồi gọi lại.",
+          'Trình duyệt đang chờ bạn cho phép dùng micro/camera. Bấm "Cho phép" ở hộp thoại trên thanh địa chỉ rồi gọi lại.',
         );
         return;
       }

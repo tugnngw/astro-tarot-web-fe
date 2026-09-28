@@ -11,8 +11,8 @@ Gắn ảnh không đúng món mà im lặng là mô tả sai hàng.
 
 ## Ảnh thật
 
-| File | Sản phẩm | Nguồn / giấy phép |
-| --- | --- | --- |
+| File                    | Sản phẩm          | Nguồn / giấy phép                                                                                                |
+| ----------------------- | ----------------- | ---------------------------------------------------------------------------------------------------------------- |
 | `rider-waite-tarot.jpg` | Rider-Waite Tarot | Lá The Magician, bộ Rider-Waite-Smith 1909. Hết hạn bản quyền — public domain. Ảnh của **đúng** bộ bài đang bán. |
 
 ## Ảnh minh hoạ (`image_is_illustrative = TRUE`)
@@ -22,19 +22,19 @@ Wild Unknown, Blue Owl, Maybe Lenormand, Moonology) thuộc bản quyền nhà x
 bản, không lấy trên mạng về dùng được; đá khoáng, nến, khăn, hộp gỗ thì kho
 ảnh tự do chỉ có ảnh của món tương tự. Tất cả đều lấy từ Wikimedia Commons.
 
-| File | Sản phẩm (slug) | File gốc trên Commons | Tác giả | Giấy phép |
-| --- | --- | --- | --- | --- |
-| `thoth-tarot.jpg` | `thoth-tarot` | Tarot cards - Celtic cross spread.jpg | Nosferattus | CC0 |
-| `wild-unknown-tarot.jpg` | `wild-unknown-tarot` | Tarot cards - 3 card spread.jpg | Nosferattus | CC0 |
-| `maybe-lenormand.jpg` | `maybe-lenormand` | Tarot cards - 3 card spread with candles.jpg | Nosferattus | CC0 |
-| `blue-owl-lenormand.jpg` | `blue-owl-lenormand` | Lenormand.jpg | FIST (German Wikipedia) | Public domain |
-| `moonology-oracle.png` | `moonology-oracle` | Moon Phase (PSF).png | Pearson Scott Foresman | Public domain |
-| `thach-anh-tim-tru-500g.jpg` | `thach-anh-tim-tru-500g` | Amethyst Druse.jpg | Ra'ike | CC BY 2.5 |
-| `vong-thach-anh-hong-8mm.jpg` | `vong-thach-anh-hong-8mm` | Rose quartz pebbles.jpg | Mauro Cateb | CC BY-SA 3.0 |
-| `da-mat-trang-set-3.jpg` | `da-mat-trang-set-3` | Moonstone.cabochons.arp.jpg | Arpingstone | Public domain |
-| `hop-go-dung-bai.jpg` | `hop-go-dung-bai` | Carved Wooden Bowl With Lid (30646940752).jpg | Archives New Zealand | CC BY 2.0 |
-| `khan-trai-bai-nhung.jpg` | `khan-trai-bai-nhung` | Silk Fabric (7194805316) (2).jpg | David Schroeter | CC BY-SA 2.0 |
-| `nen-tram-huong-200g.jpg` | `nen-tram-huong-200g` | Scented candle.jpg | MichalPL | CC BY-SA 4.0 |
+| File                          | Sản phẩm (slug)           | File gốc trên Commons                         | Tác giả                 | Giấy phép     |
+| ----------------------------- | ------------------------- | --------------------------------------------- | ----------------------- | ------------- |
+| `thoth-tarot.jpg`             | `thoth-tarot`             | Tarot cards - Celtic cross spread.jpg         | Nosferattus             | CC0           |
+| `wild-unknown-tarot.jpg`      | `wild-unknown-tarot`      | Tarot cards - 3 card spread.jpg               | Nosferattus             | CC0           |
+| `maybe-lenormand.jpg`         | `maybe-lenormand`         | Tarot cards - 3 card spread with candles.jpg  | Nosferattus             | CC0           |
+| `blue-owl-lenormand.jpg`      | `blue-owl-lenormand`      | Lenormand.jpg                                 | FIST (German Wikipedia) | Public domain |
+| `moonology-oracle.png`        | `moonology-oracle`        | Moon Phase (PSF).png                          | Pearson Scott Foresman  | Public domain |
+| `thach-anh-tim-tru-500g.jpg`  | `thach-anh-tim-tru-500g`  | Amethyst Druse.jpg                            | Ra'ike                  | CC BY 2.5     |
+| `vong-thach-anh-hong-8mm.jpg` | `vong-thach-anh-hong-8mm` | Rose quartz pebbles.jpg                       | Mauro Cateb             | CC BY-SA 3.0  |
+| `da-mat-trang-set-3.jpg`      | `da-mat-trang-set-3`      | Moonstone.cabochons.arp.jpg                   | Arpingstone             | Public domain |
+| `hop-go-dung-bai.jpg`         | `hop-go-dung-bai`         | Carved Wooden Bowl With Lid (30646940752).jpg | Archives New Zealand    | CC BY 2.0     |
+| `khan-trai-bai-nhung.jpg`     | `khan-trai-bai-nhung`     | Silk Fabric (7194805316) (2).jpg              | David Schroeter         | CC BY-SA 2.0  |
+| `nen-tram-huong-200g.jpg`     | `nen-tram-huong-200g`     | Scented candle.jpg                            | MichalPL                | CC BY-SA 4.0  |
 
 Trang gốc của mỗi file: `https://commons.wikimedia.org/wiki/File:<tên file gốc>`
 (thay dấu cách bằng `_`).

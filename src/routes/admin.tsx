@@ -23,6 +23,8 @@ import {
   ROLE_LABEL,
 } from "@/lib/roles";
 import { RoleBadge } from "@/components/RoleBadge";
+import { BlogReviewQueue } from "@/features/blog/components/BlogReviewQueue";
+import { MyBlogList } from "@/features/blog/components/MyBlogList";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Quản trị — ASTROTAROT" }] }),
@@ -42,12 +44,22 @@ function AdminWorkspace() {
   return (
     <WorkspaceShell
       title="Quản trị"
-      subtitle="Toàn quyền trên tài khoản, tiền và sản phẩm liên kết."
+      subtitle="Toàn quyền trên tài khoản, bài viết, tiền và sản phẩm liên kết."
       tabs={[
         {
           key: "overview",
           label: "Tổng quan",
           render: () => <AdminOverview />,
+        },
+        {
+          key: "blogs",
+          label: "Quản lý Blog",
+          render: () => <BlogReviewQueue />,
+        },
+        {
+          key: "my-blogs",
+          label: "Bài viết của tôi",
+          render: () => <MyBlogList />,
         },
         {
           key: "users",

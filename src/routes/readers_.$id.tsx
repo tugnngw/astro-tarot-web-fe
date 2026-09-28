@@ -575,39 +575,39 @@ function KhungGio({
             Khung gạch ngang đã có người. Khung còn lại vẫn đặt được.
           </p>
           <div className="mt-2 grid max-h-64 grid-cols-3 gap-2 overflow-y-auto pr-1">
-          {hien.map((s) => {
-            const mo = s.state === "FREE";
-            const dangChon = picked?.startTime === s.startTime;
-            return (
-              <button
-                key={s.startTime}
-                type="button"
-                disabled={!mo}
-                onClick={() => onPick(dangChon ? null : s)}
-                aria-pressed={dangChon}
-                className={`rounded-lg border py-1.5 text-xs transition active:scale-95 disabled:cursor-not-allowed ${
-                  dangChon
-                    ? "border-gold bg-gold/20 text-gold"
-                    : mo
-                      ? "border-mystic/50 text-foreground/80 hover:border-gold/60 hover:bg-gold/10"
-                      : "border-mystic/30 text-muted-foreground/45"
-                }`}
-              >
-                <span
-                  className={
-                    mo ? "" : "line-through decoration-muted-foreground/40"
-                  }
+            {hien.map((s) => {
+              const mo = s.state === "FREE";
+              const dangChon = picked?.startTime === s.startTime;
+              return (
+                <button
+                  key={s.startTime}
+                  type="button"
+                  disabled={!mo}
+                  onClick={() => onPick(dangChon ? null : s)}
+                  aria-pressed={dangChon}
+                  className={`rounded-lg border py-1.5 text-xs transition active:scale-95 disabled:cursor-not-allowed ${
+                    dangChon
+                      ? "border-gold bg-gold/20 text-gold"
+                      : mo
+                        ? "border-mystic/50 text-foreground/80 hover:border-gold/60 hover:bg-gold/10"
+                        : "border-mystic/30 text-muted-foreground/45"
+                  }`}
                 >
-                  {gioVn(s.startTime)}
-                </span>
-                {!mo && (
-                  <span className="mt-0.5 block text-[9px] font-normal no-underline">
-                    {s.state === "TAKEN" ? "Đã kín" : "Đã qua"}
+                  <span
+                    className={
+                      mo ? "" : "line-through decoration-muted-foreground/40"
+                    }
+                  >
+                    {gioVn(s.startTime)}
                   </span>
-                )}
-              </button>
-            );
-          })}
+                  {!mo && (
+                    <span className="mt-0.5 block text-[9px] font-normal no-underline">
+                      {s.state === "TAKEN" ? "Đã kín" : "Đã qua"}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
         </>
       )}

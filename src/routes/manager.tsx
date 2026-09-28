@@ -14,6 +14,9 @@ import { StaffSupportQueue } from "@/features/support/components/StaffSupportQue
 import { useAuth } from "@/lib/auth-context";
 import type { WorkspaceTab } from "@/components/WorkspaceShell";
 
+import { BlogReviewQueue } from "@/features/blog/components/BlogReviewQueue";
+import { MyBlogList } from "@/features/blog/components/MyBlogList";
+
 export const Route = createFileRoute("/manager")({
   head: () => ({ meta: [{ title: "Quản lý — ASTROTAROT" }] }),
   // Tab đang mở nằm ở đường dẫn để gửi liên kết được. Dấu ? là bắt buộc: thiếu
@@ -32,6 +35,20 @@ function ManagerWorkspace() {
   const { can } = useAuth();
   const tabs: WorkspaceTab[] = [];
 
+  if (can("BLOG_REVIEW")) {
+    tabs.push({
+      key: "blog-review",
+      label: "Duyệt bài viết",
+      render: () => <BlogReviewQueue />,
+    });
+  }
+  if (can("BLOG_CREATE")) {
+    tabs.push({
+      key: "my-blogs",
+      label: "Bài viết của tôi",
+      render: () => <MyBlogList />,
+    });
+  }
   if (can("ADMIN_READERS_REVIEW")) {
     tabs.push({
       key: "applications",
@@ -80,7 +97,7 @@ function ManagerWorkspace() {
   return (
     <WorkspaceShell
       title="Quản lý"
-      subtitle="Điều chỉnh đội ngũ và xét duyệt hồ sơ xin làm Reader."
+      subtitle="Điều chỉnh đội ngũ, kiểm duyệt bài viết và xét duyệt hồ sơ xin làm Reader."
       tabs={tabs}
     />
   );

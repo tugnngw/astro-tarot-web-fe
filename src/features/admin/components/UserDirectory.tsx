@@ -44,8 +44,7 @@ const ROLE_CELL_WIDTH = "min-w-[8.5rem]";
 const ROLE_CELL_HEIGHT = "h-8";
 
 /** Trigger pill khớp kích thước RoleBadge / nút Khoá trong bảng. */
-const roleSelectTriggerClass =
-  `${ROLE_CELL_HEIGHT} w-auto ${ROLE_CELL_WIDTH} gap-1.5 rounded-full border-gold/30 bg-input/70 px-3 py-0 text-xs text-foreground shadow-none focus:ring-1 focus:ring-gold/40 data-[state=open]:border-gold [&>span]:justify-start`;
+const roleSelectTriggerClass = `${ROLE_CELL_HEIGHT} w-auto ${ROLE_CELL_WIDTH} gap-1.5 rounded-full border-gold/30 bg-input/70 px-3 py-0 text-xs text-foreground shadow-none focus:ring-1 focus:ring-gold/40 data-[state=open]:border-gold [&>span]:justify-start`;
 
 const roleSelectContentClass =
   "rounded-xl border border-gold/25 bg-card text-foreground shadow-xl";
@@ -233,7 +232,10 @@ export function UserDirectory({
             className="w-full rounded-full border border-gold/30 bg-input/70 py-2 pl-10 pr-4 text-sm text-foreground outline-none transition focus:border-gold focus-visible:ring-2 focus-visible:ring-gold/40"
           />
         </div>
-        <Select value={role || "__all__"} onValueChange={(v) => setRole(v === "__all__" ? "" : v)}>
+        <Select
+          value={role || "__all__"}
+          onValueChange={(v) => setRole(v === "__all__" ? "" : v)}
+        >
           <SelectTrigger
             aria-label="Lọc theo vai trò"
             className={filterSelectTriggerClass}
@@ -305,11 +307,7 @@ export function UserDirectory({
               </SelectTrigger>
               <SelectContent className={roleSelectContentClass}>
                 {assignableRoles.map((r) => (
-                  <SelectItem
-                    key={r}
-                    value={r}
-                    className={roleSelectItemClass}
-                  >
+                  <SelectItem key={r} value={r} className={roleSelectItemClass}>
                     {ROLE_LABEL_SHORT[r]}
                   </SelectItem>
                 ))}

@@ -93,7 +93,8 @@ function vnd(n: number) {
 
 /** Rút gọn số tiền trên trục Y: 1.2tr, 800k… */
 function vndTruc(n: number) {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(n % 1_000_000 === 0 ? 0 : 1)}tr`;
+  if (n >= 1_000_000)
+    return `${(n / 1_000_000).toFixed(n % 1_000_000 === 0 ? 0 : 1)}tr`;
   if (n >= 1_000) return `${Math.round(n / 1_000)}k`;
   return String(n);
 }
@@ -415,8 +416,7 @@ function TractionStrip({
       </div>
       <p className="mt-1 text-xs text-muted-foreground">
         Một khối số liệu cho slide EXE201. Doanh thu biểu đồ bên dưới vẫn gồm
-        seed demo để test — khi nộp OC3 hãy dùng giao dịch PayOS thật và ghi
-        rõ.
+        seed demo để test — khi nộp OC3 hãy dùng giao dịch PayOS thật và ghi rõ.
       </p>
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {items.map((it) => (
@@ -431,8 +431,7 @@ function TractionStrip({
       </div>
       {eventEntries.length > 0 && (
         <p className="mt-3 text-xs text-muted-foreground">
-          CTA 30 ngày:{" "}
-          {eventEntries.map(([k, v]) => `${k}=${v}`).join(" · ")}
+          CTA 30 ngày: {eventEntries.map(([k, v]) => `${k}=${v}`).join(" · ")}
         </p>
       )}
     </section>
@@ -556,8 +555,7 @@ function RevenueMonthChart({
         {tong > 0 ? (
           <>
             {" "}
-            · Tổng:{" "}
-            <span className="font-medium text-gold">{vnd(tong)}</span>
+            · Tổng: <span className="font-medium text-gold">{vnd(tong)}</span>
           </>
         ) : null}
         .
@@ -689,8 +687,7 @@ function ProfitBreakdownChart({
                     nameKey="key"
                     formatter={(value, _name, item) => {
                       const n = Number(value) || 0;
-                      const pct =
-                        tong > 0 ? Math.round((n / tong) * 100) : 0;
+                      const pct = tong > 0 ? Math.round((n / tong) * 100) : 0;
                       const label =
                         (item?.payload as { label?: string } | undefined)
                           ?.label ?? "";
@@ -1005,7 +1002,10 @@ function ReaderChart({ readers }: { readers: AdminStats["readers"] }) {
         config={config}
         className="mt-4 aspect-auto h-[240px] w-full"
       >
-        <BarChart data={data} margin={{ top: 24, right: 8, left: 0, bottom: 0 }}>
+        <BarChart
+          data={data}
+          margin={{ top: 24, right: 8, left: 0, bottom: 0 }}
+        >
           <BarGrid />
           <XAxis
             dataKey="label"
@@ -1094,7 +1094,10 @@ function ShopChart({ shop }: { shop: AdminStats["shop"] }) {
         config={config}
         className="mt-4 aspect-auto h-[240px] w-full"
       >
-        <BarChart data={data} margin={{ top: 24, right: 8, left: 0, bottom: 0 }}>
+        <BarChart
+          data={data}
+          margin={{ top: 24, right: 8, left: 0, bottom: 0 }}
+        >
           <BarGrid />
           <XAxis
             dataKey="label"

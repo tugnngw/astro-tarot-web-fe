@@ -15,10 +15,10 @@
 
 ## 3. Channels (chọn ≥2)
 
-| Kênh | Phương pháp | Chi phí | Metric chính | Kết quả tuần này |
-|------|-------------|---------|--------------|------------------|
-| Website + SEO/content | Landing, blog, UTM, sitemap | ~0 (Vercel free) | Visits (Vercel Analytics), đăng ký | … |
-| Facebook / TikTok / Zalo | Post + link `?utm_source=…` | Ads / organic | Reach, click, conversion | … |
+| Kênh                     | Phương pháp                 | Chi phí          | Metric chính                       | Kết quả tuần này |
+| ------------------------ | --------------------------- | ---------------- | ---------------------------------- | ---------------- |
+| Website + SEO/content    | Landing, blog, UTM, sitemap | ~0 (Vercel free) | Visits (Vercel Analytics), đăng ký | …                |
+| Facebook / TikTok / Zalo | Post + link `?utm_source=…` | Ads / organic    | Reach, click, conversion           | …                |
 
 ## 4. Methods
 

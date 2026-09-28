@@ -167,6 +167,68 @@ export interface ChatMessage {
 }
 
 // ============================================================
+// BLOG
+// ============================================================
+
+export type BlogStatus =
+  | "DRAFT"
+  | "PENDING"
+  | "APPROVED"
+  | "REJECTED"
+  | "PUBLISHED";
+
+export interface BlogUserSummary {
+  id: string;
+  username: string;
+  fullName: string;
+  avatar?: string | null;
+}
+
+export interface BlogResponse {
+  id: string;
+  title: string;
+  slug: string;
+  summary?: string | null;
+  content: string;
+  thumbnailUrl?: string | null;
+  status: BlogStatus;
+  author: BlogUserSummary;
+  reviewer?: BlogUserSummary | null;
+  rejectionReason?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BlogListResponse {
+  content: BlogResponse[];
+  totalPages: number;
+  totalElements: number;
+  number: number;
+  size: number;
+}
+
+export interface CreateBlogRequest {
+  title: string;
+  slug: string;
+  summary?: string;
+  content: string;
+  thumbnailUrl?: string;
+}
+
+export interface UpdateBlogRequest {
+  title?: string;
+  slug?: string;
+  summary?: string;
+  content?: string;
+  thumbnailUrl?: string;
+}
+
+export interface ReviewBlogRequest {
+  action: "APPROVED" | "REJECTED" | "PUBLISH";
+  rejectionReason?: string;
+}
+
+// ============================================================
 // API RESPONSE WRAPPER
 // ============================================================
 

@@ -43,7 +43,9 @@ export type Permission =
   | "PAYMENTS_MANAGE"
   | "PAYOUT_REQUEST"
   | "PAYOUT_REVIEW"
-  | "REPORT_REVIEW";
+  | "REPORT_REVIEW"
+  | "BLOG_CREATE"
+  | "BLOG_REVIEW";
 
 /**
  * Vai trò cấp trên KHÔNG tự thừa kế quyền cấp dưới — giống hệt bên BE.
@@ -62,6 +64,9 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "SUPPORT_VIEW",
     "SUPPORT_RESPOND",
     "PAYOUT_REQUEST",
+    "ADMIN_READERS_VIEW",
+    "ADMIN_READERS_REVIEW",
+    "BLOG_CREATE",
   ],
   manager: [
     "USER_BASIC",
@@ -71,6 +76,8 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "ADMIN_READERS_VIEW",
     "ADMIN_READERS_REVIEW",
     "REPORT_REVIEW",
+    "BLOG_CREATE",
+    "BLOG_REVIEW",
     // Gian hàng là các liên kết tiếp thị: việc ở đây là chọn bán gì, viết mô
     // tả, xếp danh mục — công việc vận hành chứ không phải công việc tài
     // chính, nên nó thuộc Quản lý. Cố ý không trao cho Nhân viên: Nhân viên
@@ -88,6 +95,8 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "STAFF_MANAGE",
     "ADMIN_READERS_VIEW",
     "ADMIN_READERS_REVIEW",
+    "BLOG_CREATE",
+    "BLOG_REVIEW",
     "CATALOG_MANAGE",
     "ORDERS_MANAGE",
     "USERS_MANAGE",
@@ -231,6 +240,7 @@ export const PUBLIC_NAV = [
   { to: "/tarot", label: "Tarot AI" },
   { to: "/readers", label: "Reader" },
   { to: "/shop", label: "Shop" },
+  { to: "/blogs", label: "Blog" },
 ] as const;
 
 /** Link khu vực làm việc, chỉ hiện với người có quyền tương ứng. */

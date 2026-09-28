@@ -4,7 +4,11 @@
 // Đó là chủ ý: bật/tắt tính năng chỉ bằng một biến môi trường, và môi trường
 // dev không bị chặn khi chưa cấu hình gì.
 import { useEffect, useRef } from "react";
-import { TURNSTILE_SITE_KEY, turnstileDangBat, turnstileStore } from "@/lib/turnstile";
+import {
+  TURNSTILE_SITE_KEY,
+  turnstileDangBat,
+  turnstileStore,
+} from "@/lib/turnstile";
 
 const SCRIPT_SRC =
   "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";

@@ -97,13 +97,13 @@ Không cần cài Vercel GitHub App. Mỗi lần có push/merge vào `nhánh mai
 workflow `.github/workflows/cd.yml` gọi một URL Deploy Hook — URL đó chỉ kích
 hoạt lại đúng dự án này.
 
-1. Vercel → Project → **Settings → Git → Deploy Hooks** → Create Hook  
-   - Tên: `github-main` (tuỳ ý)  
+1. Vercel → Project → **Settings → Git → Deploy Hooks** → Create Hook
+   - Tên: `github-main` (tuỳ ý)
    - Branch: **`main`**
 2. Chép URL vừa tạo.
 3. GitHub → repo `astro-tarot-web-fe` → **Settings → Secrets and variables →
-   Actions** → New repository secret  
-   - Name: `VERCEL_DEPLOY_HOOK`  
+   Actions** → New repository secret
+   - Name: `VERCEL_DEPLOY_HOOK`
    - Value: URL vừa chép
 
 Sau đó mỗi lần merge PR vào `main`, Actions tab sẽ có job **CD / Deploy lên
@@ -143,8 +143,8 @@ App.
 Project Settings → Environment Variables, thêm cho cả ba môi trường
 (Production, Preview, Development):
 
-| Tên | Giá trị |
-|---|---|
+| Tên                 | Giá trị                         |
+| ------------------- | ------------------------------- |
 | `VITE_API_BASE_URL` | `https://api.ten-mien-that.com` |
 
 Ba điều dễ sai:

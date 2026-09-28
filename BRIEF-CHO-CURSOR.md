@@ -21,11 +21,11 @@ không hết hạn" chi phối rất nhiều quyết định kỹ thuật bên d
 
 ## 2. Hai repo, và nơi chúng chạy
 
-| | Backend | Frontend |
-|---|---|---|
-| Repo | `github.com/tugnngw/astro-tarot-web-be` | `github.com/tugnngw/astro-tarot-web-fe` |
-| Chạy tại | https://astra-tarot-api.onrender.com | https://astro-tarot-web-fe.vercel.app |
-| Nền tảng | Render (Docker, gói free) | Vercel |
+|          | Backend                                 | Frontend                                |
+| -------- | --------------------------------------- | --------------------------------------- |
+| Repo     | `github.com/tugnngw/astro-tarot-web-be` | `github.com/tugnngw/astro-tarot-web-fe` |
+| Chạy tại | https://astra-tarot-api.onrender.com    | https://astro-tarot-web-fe.vercel.app   |
+| Nền tảng | Render (Docker, gói free)               | Vercel                                  |
 
 **Nhánh làm việc: `feat/dat-branch`.** Xong việc thì merge vào `main`; đẩy lên
 `main` là CI/CD tự deploy cả hai nơi (GitHub Actions → Render deploy hook /
@@ -167,7 +167,7 @@ thiếu `@Builder.Default` thì `builder().build()` cho ra `null` → ghi xuốn
   tế: đặt 10 phút nhưng chạy mỗi ~2 tiếng, có lúc im 8 tiếng liền.
 - **Hộp 512 MB.** Cờ JVM đặt ở `ENTRYPOINT` của Dockerfile (heap 35%, metaspace
   192 MB, SerialGC, `ExitOnOutOfMemoryError`). Từng bị `OutOfMemoryError:
-  Metaspace` vì chia heap 65% / metaspace 128 MB. Lưu ý `ENTRYPOINT` phải là
+Metaspace` vì chia heap 65% / metaspace 128 MB. Lưu ý `ENTRYPOINT` phải là
   dạng shell — dạng exec không khai triển `$JAVA_OPTS`.
 
 ### 6.5 Webhook PayOS

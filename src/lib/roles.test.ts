@@ -139,9 +139,9 @@ describe("canAny", () => {
   });
 
   it("sai khi không có quyền nào", () => {
-    expect(
-      canAny({ role: "user" }, ["PAYMENTS_MANAGE", "USERS_MANAGE"]),
-    ).toBe(false);
+    expect(canAny({ role: "user" }, ["PAYMENTS_MANAGE", "USERS_MANAGE"])).toBe(
+      false,
+    );
   });
 
   it("danh sách rỗng là sai, không phải đúng", () => {

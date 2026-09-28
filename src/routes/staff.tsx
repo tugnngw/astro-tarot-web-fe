@@ -25,6 +25,8 @@ import { useReaderBookingMonth } from "@/features/booking/queries";
 import { BOOKING_STATUS_LABEL, type BookingStatus } from "@/api/booking";
 import { EarningsPanel } from "@/features/money/components/EarningsPanel";
 
+import { MyBlogList } from "@/features/blog/components/MyBlogList";
+
 export const Route = createFileRoute("/staff")({
   head: () => ({ meta: [{ title: "Bàn làm việc — ASTROTAROT" }] }),
   // Tab đang mở nằm ở đường dẫn để gửi liên kết được. Dấu ? là bắt buộc: thiếu
@@ -46,11 +48,12 @@ function StaffWorkspace() {
   const { can } = useAuth();
   const coReader = can("READER_MANAGE_PROFILE");
   const coThuNhap = can("PAYOUT_REQUEST");
+  const coBlog = can("BLOG_CREATE");
 
   return (
     <WorkspaceShell
       title="Bàn làm việc"
-      subtitle="Nơi xử lý yêu cầu hỗ trợ của khách và quản lý phần việc Reader của bạn."
+      subtitle="Nơi xử lý yêu cầu hỗ trợ của khách, quản lý bài viết và phần việc Reader của bạn."
       tabs={[
         {
           key: "support",
@@ -81,6 +84,15 @@ function StaffWorkspace() {
                 key: "reader",
                 label: "Hồ sơ Reader",
                 render: () => <ReaderWorkspace />,
+              },
+            ]
+          : []),
+        ...(coBlog
+          ? [
+              {
+                key: "blogs",
+                label: "Bài viết",
+                render: () => <MyBlogList />,
               },
             ]
           : []),

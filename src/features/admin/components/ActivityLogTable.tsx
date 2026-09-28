@@ -80,11 +80,7 @@ export function ActivityLogTable() {
         </Select>
       </div>
 
-      <div
-        aria-live="polite"
-        aria-busy={query.isFetching}
-        className="mt-5"
-      >
+      <div aria-live="polite" aria-busy={query.isFetching} className="mt-5">
         {query.isError ? (
           <PagedList pageSize={ACTIVITY_PAGE_SIZE}>
             <div className="flex flex-col items-center py-12 text-center">
