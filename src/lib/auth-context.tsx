@@ -8,8 +8,9 @@ import {
   type ReactNode,
 } from "react";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import * as authApi from "@/api/auth";
-import { ApiError, tokenStore } from "@/api/client";
+import { ApiError, PHIEN_HET_HAN, tokenStore } from "@/api/client";
 import { getProfile } from "@/api/profile";
 import {
   can as hasPermission,
@@ -96,6 +97,7 @@ function toAuthUser(u: User, permissions: string[]): AuthUser {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [user, setUser] = useState<AuthUser | null>(null);
   const [authPrompt, setAuthPrompt] = useState<AuthCtx["authPrompt"]>({
@@ -170,11 +172,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  // apiFetch đã xoá token. Gỡ luôn tên trên header, nếu không trang lịch
+  // vẫn hiện người dùng đã đăng nhập và nút thử lại gọi lại request trống.
+  useEffect(() => {
+    const het = () => {
+      setUser(null);
+      localStorage.removeItem(USER_KEY);
+      setAuthPrompt({ open: true, mode: "login" });
+    };
+    window.addEventListener(PHIEN_HET_HAN, het);
+    return () => window.removeEventListener(PHIEN_HET_HAN, het);
+  }, []);
+
   // Gửi thẳng email xuống BE. Bản cũ cắt lấy phần trước dấu @ để làm username
   // — từ khi BE đăng nhập bằng email thì cách đó luôn sai.
   const login: AuthCtx["login"] = async (email, password) => {
     const res = await authApi.login({ email: email.trim(), password });
     persist(toAuthUser(res.user, res.permissions));
+    // Lịch hẹn đang nằm ở trạng thái lỗi 401. Đăng nhập xong phải gọi lại,
+    // không thì ô "phiên hết hạn" vẫn đứng đó với token mới.
+    void queryClient.invalidateQueries();
 
     // Đóng modal ngay tại đây. Trước đây không ai đóng nó: hàm này chỉ đổi
     // route, nên đăng nhập xong người dùng nhìn thấy trang chủ với ô đăng nhập

@@ -8,6 +8,7 @@
 import { useEffect, useState } from "react";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { ApiError } from "@/api/client";
+import { useAuth } from "@/lib/auth-context";
 
 /**
  * Dịch lỗi kỹ thuật sang câu người dùng đọc được.
@@ -56,6 +57,8 @@ export function ListError({
   title?: string;
   className?: string;
 }) {
+  const { openAuth } = useAuth();
+  const hetPhien = error instanceof ApiError && error.status === 401;
   return (
     <div
       className={`flex flex-col items-center py-12 text-center ${className}`}
@@ -67,10 +70,10 @@ export function ListError({
       </p>
       <button
         type="button"
-        onClick={onRetry}
+        onClick={() => (hetPhien ? openAuth("login") : onRetry())}
         className="mt-4 rounded-full border border-gold/50 px-5 py-1.5 text-sm text-gold transition hover:bg-gold/10"
       >
-        Thử lại
+        {hetPhien ? "Đăng nhập lại" : "Thử lại"}
       </button>
     </div>
   );

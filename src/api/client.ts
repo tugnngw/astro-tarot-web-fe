@@ -18,6 +18,16 @@ export const isLiveBackend = () => API_BASE.length > 0;
 const ACCESS_KEY = "astrotarot_access_token";
 const REFRESH_KEY = "astrotarot_refresh_token";
 
+/** Phiên không cứu được nữa. Auth lắng nghe và mở lại ô đăng nhập. */
+export const PHIEN_HET_HAN = "astrotarot:phien-het-han";
+
+function baoPhienHetHan() {
+  tokenStore.clear();
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event(PHIEN_HET_HAN));
+  }
+}
+
 // ---------- Token helpers (lưu localStorage, không nhạy cảm với SSR) ----------
 export const tokenStore = {
   getAccess: () =>
@@ -203,6 +213,14 @@ export async function apiFetch<T>(
 ): Promise<T> {
   if (!isLiveBackend()) throw new MockUnavailableError();
 
+  // Access token sống 15 phút. Nếu để request đi với token đã hết hạn,
+  // máy chủ trả 401 rồi mới làm mới — lịch hẹn hiện lỗi "phiên hết hạn"
+  // trong khi refresh token vẫn còn dùng được.
+  if (auth && retry && tokenDaHetHan() && tokenStore.getRefresh()) {
+    const som = await refreshAccessToken();
+    if (!som.ok && som.phienHong) baoPhienHetHan();
+  }
+
   const headers = new Headers(init.headers);
   // Với FormData phải để trình duyệt tự đặt Content-Type: nó cần kèm chuỗi
   // boundary do chính nó sinh ra. Tự gán "multipart/form-data" (hay tệ hơn là
@@ -280,7 +298,9 @@ export async function apiFetch<T>(
     // thời thì giữ nguyên: người dùng thử lại sau vài giây là vào được, thay
     // vì bị đá ra màn đăng nhập vì một lần máy chủ khởi động lại.
     if (lamMoi.phienHong) {
-      tokenStore.clear();
+      // Nút "Thử lại" gọi lại đúng request không còn token, nên lỗi đứng im.
+      // Báo cho auth gỡ tên trên header và mở ô đăng nhập.
+      baoPhienHetHan();
     } else {
       throw new ApiError(
         0,
