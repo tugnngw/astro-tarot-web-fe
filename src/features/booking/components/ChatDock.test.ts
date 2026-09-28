@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Notification } from "@/api/notifications";
-import { buoiKhachVuaTraTien, lucTuongDoi } from "./ChatDock";
+import { buoiKhachVuaTraTien, gopTheoNguoi, lucTuongDoi } from "./ChatDock";
+import type { Booking } from "@/api/booking";
 
 /**
  * Trả tiền xong thì khung trao đổi với Reader tự mở ra.
@@ -119,5 +120,21 @@ describe("lucTuongDoi", () => {
     expect(lucTuongDoi("2026-09-23T12:00:00Z", bayGio)).toBe("3 ngày");
     expect(lucTuongDoi("2026-08-29T12:00:00Z", bayGio)).toBe("4 tuần");
     expect(lucTuongDoi("2026-07-18T12:00:00Z", bayGio)).toBe("10 tuần");
+  });
+});
+
+describe("gopTheoNguoi", () => {
+  function buoi(id: string, reader: string, ten: string): Booking {
+    return { id, readerUserId: reader, readerName: ten } as Booking;
+  }
+
+  it("hai buổi cùng một Reader thành một dòng", () => {
+    const ra = gopTheoNguoi([
+      { b: buoi("a", "r1", "Đạt Trần"), laKhach: true },
+      { b: buoi("b", "r1", "Đạt Trần"), laKhach: true },
+      { b: buoi("c", "r2", "Lan"), laKhach: true },
+    ]);
+    expect(ra.map((n) => n.ten)).toEqual(["Đạt Trần", "Lan"]);
+    expect(ra[0].buoi.map((c) => c.b.id)).toEqual(["a", "b"]);
   });
 });

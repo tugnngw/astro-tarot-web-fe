@@ -8,6 +8,7 @@ import { subscribeDestination, subscribeRealtimeEvents } from "@/lib/realtime";
 import { useAuth } from "@/lib/auth-context";
 import { useMyBookings, useReaderBookings } from "@/features/booking/queries";
 import { LopPhu } from "@/components/GocNoi";
+import { dangKyMoChat } from "../moKhungChat";
 import { BookingChat } from "./BookingChat";
 
 const CHAT_QUEUE = "/user/queue/booking-chat";
@@ -69,6 +70,13 @@ export function ChatDock() {
   const dangXemRef = useRef(dangXem);
   moRongRef.current = moRong;
   dangXemRef.current = dangXem;
+
+  useEffect(() => {
+    return dangKyMoChat((id) => {
+      setDangXem(id);
+      setMoRong(true);
+    });
+  }, []);
 
   const laReader = can("READER_MANAGE_PROFILE");
   // Lấy trang đầu là đủ: một buổi còn mở trao đổi thì nó nằm trong những buổi
@@ -220,15 +228,24 @@ export function ChatDock() {
 
   const daChon = cuoc.find(({ b }) => b.id === dangXem);
   const tu = tim.trim().toLowerCase();
-  const danhSach = cuoc
-    .filter(({ b, laKhach }) => {
-      if (loc === "chua-doc" && !chuaDoc[b.id]) return false;
+  const danhSach = gopTheoNguoi(cuoc)
+    .map((nhom) => ({
+      ...nhom,
+      buoi: [...nhom.buoi].sort((x, y) => {
+        const ax = xemTruoc[x.b.id]?.at ?? x.b.startTime;
+        const ay = xemTruoc[y.b.id]?.at ?? y.b.startTime;
+        return ay.localeCompare(ax);
+      }),
+    }))
+    .filter((nhom) => {
+      const coChuaDoc = nhom.buoi.some(({ b }) => chuaDoc[b.id]);
+      if (loc === "chua-doc" && !coChuaDoc) return false;
       if (!tu) return true;
-      return tenDoiPhuong(b, laKhach).toLowerCase().includes(tu);
+      return nhom.ten.toLowerCase().includes(tu);
     })
     .sort((x, y) => {
-      const ax = xemTruoc[x.b.id]?.at ?? x.b.startTime;
-      const ay = xemTruoc[y.b.id]?.at ?? y.b.startTime;
+      const ax = xemTruoc[x.buoi[0].b.id]?.at ?? x.buoi[0].b.startTime;
+      const ay = xemTruoc[y.buoi[0].b.id]?.at ?? y.buoi[0].b.startTime;
       return ay.localeCompare(ax);
     });
 
@@ -242,8 +259,8 @@ export function ChatDock() {
        z-50 chứ không phải z-40: lúc mở ra nó nằm chồng đúng lên chỗ nút Góp
        ý, và nút ấy phải nằm dưới chứ không thò ra giữa khung chat. */
     <LopPhu>
-      <div className="fixed inset-x-3 bottom-3 z-50 sm:inset-x-auto sm:bottom-5 sm:right-5 sm:w-[360px]">
-        <div className="flex max-h-[min(78vh,640px)] flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#242526] text-white shadow-2xl">
+      <div className="fixed inset-x-0 bottom-0 z-50 sm:inset-x-auto sm:right-4 sm:w-[420px]">
+        <div className="flex h-[min(100dvh,760px)] flex-col overflow-hidden rounded-t-2xl border border-gold/35 bg-black text-white shadow-2xl sm:rounded-t-2xl">
           <div className="flex items-center justify-between gap-2 px-4 pb-1 pt-3">
             {daChon ? (
               <button
@@ -274,7 +291,18 @@ export function ChatDock() {
           </div>
 
           {daChon ? (
-            <div className="flex min-h-[420px] flex-1 flex-col overflow-hidden">
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+              <CacBuoi
+                dangXem={daChon.b.id}
+                buoi={cuoc.filter(
+                  (c) =>
+                    c.laKhach === daChon.laKhach &&
+                    (c.laKhach
+                      ? c.b.readerUserId === daChon.b.readerUserId
+                      : c.b.customerId === daChon.b.customerId),
+                )}
+                onChon={mo}
+              />
               <BookingChat
                 gonGang
                 bookingId={daChon.b.id}
@@ -325,44 +353,51 @@ export function ChatDock() {
                       : "Không thấy cuộc nào."}
                   </li>
                 ) : (
-                  danhSach.map(({ b, laKhach }) => {
-                    const ten = tenDoiPhuong(b, laKhach);
-                    const xem = xemTruoc[b.id];
+                  danhSach.map((nhom) => {
+                    const dau = nhom.buoi[0];
+                    const xem = xemTruoc[dau.b.id];
                     const laCuaToi = xem?.senderId === user?.id;
                     const dong = xem
                       ? `${laCuaToi ? "Bạn: " : ""}${xem.body}`
-                      : laKhach
+                      : dau.laKhach
                         ? "Bạn đặt buổi này"
                         : "Khách đặt với bạn";
+                    const soChua = nhom.buoi.reduce(
+                      (n, { b }) => n + (chuaDoc[b.id] ?? 0),
+                      0,
+                    );
+                    const them =
+                      nhom.buoi.length > 1 ? ` · ${nhom.buoi.length} buổi` : "";
                     return (
-                      <li key={`${b.id}-${laKhach ? "k" : "r"}`}>
+                      <li key={nhom.khoa}>
                         <button
                           type="button"
-                          onClick={() => mo(b.id)}
+                          onClick={() => mo(dau.b.id)}
                           className="flex w-full items-center gap-3 px-2 py-2 text-left hover:bg-white/10"
                         >
-                          <Anh src={anhDoiPhuong(b, laKhach)} ten={ten} />
+                          <Anh src={nhom.anh} ten={nhom.ten} />
                           <span className="min-w-0 flex-1">
                             <span className="block truncate text-[15px] font-semibold">
-                              {ten}
+                              {nhom.ten}
                             </span>
                             <span
                               className={`block truncate text-[13px] ${
-                                chuaDoc[b.id]
+                                soChua
                                   ? "font-semibold text-white"
                                   : "text-white/55"
                               }`}
                             >
                               {dong}
+                              {them}
                               <span className="text-white/45">
                                 {" "}
-                                · {lucTuongDoi(xem?.at ?? b.startTime)}
+                                · {lucTuongDoi(xem?.at ?? dau.b.startTime)}
                               </span>
                             </span>
                           </span>
-                          {chuaDoc[b.id] ? (
+                          {soChua ? (
                             <span className="grid h-5 min-w-5 shrink-0 place-items-center rounded-full bg-[#2374e1] px-1 text-[11px] font-semibold">
-                              {chuaDoc[b.id] > 9 ? "9+" : chuaDoc[b.id]}
+                              {soChua > 9 ? "9+" : soChua}
                             </span>
                           ) : null}
                         </button>
@@ -379,6 +414,38 @@ export function ChatDock() {
   );
 }
 
+export interface CuocChat {
+  b: Booking;
+  laKhach: boolean;
+}
+
+export interface NhomChat {
+  khoa: string;
+  ten: string;
+  anh: string | null;
+  buoi: CuocChat[];
+}
+
+/** Hai buổi với cùng một người là một dòng, không phải hai cái tên giống nhau. */
+export function gopTheoNguoi(cuoc: CuocChat[]): NhomChat[] {
+  const map = new Map<string, NhomChat>();
+  for (const c of cuoc) {
+    const id = c.laKhach ? c.b.readerUserId : c.b.customerId;
+    const khoa = `${c.laKhach ? "k" : "r"}:${id}`;
+    const co = map.get(khoa);
+    if (co) co.buoi.push(c);
+    else {
+      map.set(khoa, {
+        khoa,
+        ten: tenDoiPhuong(c.b, c.laKhach),
+        anh: anhDoiPhuong(c.b, c.laKhach),
+        buoi: [c],
+      });
+    }
+  }
+  return [...map.values()];
+}
+
 /** Tên người BÊN KIA: khách thì thấy Reader, Reader thì thấy khách. */
 function tenDoiPhuong(b: Booking, laKhach: boolean) {
   return laKhach ? b.readerName : b.customerName;
@@ -386,6 +453,45 @@ function tenDoiPhuong(b: Booking, laKhach: boolean) {
 
 function anhDoiPhuong(b: Booking, laKhach: boolean) {
   return laKhach ? b.readerAvatar : b.customerAvatar;
+}
+
+function CacBuoi({
+  buoi,
+  dangXem,
+  onChon,
+}: {
+  buoi: CuocChat[];
+  dangXem: string;
+  onChon: (id: string) => void;
+}) {
+  if (buoi.length < 2) return null;
+  return (
+    <div className="flex gap-2 overflow-x-auto px-3 pb-2">
+      {buoi.map(({ b }) => {
+        const gio = new Date(b.startTime).toLocaleString("vi-VN", {
+          timeZone: "Asia/Ho_Chi_Minh",
+          day: "2-digit",
+          month: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+        const chon = b.id === dangXem;
+        return (
+          <button
+            key={b.id}
+            type="button"
+            onClick={() => onChon(b.id)}
+            aria-pressed={chon}
+            className={`shrink-0 rounded-full px-3 py-1 text-[11px] ${
+              chon ? "bg-gold text-black" : "bg-white/10 text-white/80"
+            }`}
+          >
+            {gio}
+          </button>
+        );
+      })}
+    </div>
+  );
 }
 
 function Anh({

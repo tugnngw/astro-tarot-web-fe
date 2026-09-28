@@ -1,6 +1,6 @@
 // Lịch hẹn của Thành viên — phía khách của trụ cột 2.
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Header } from "@/components/Header";
 import { RoleGuard } from "@/components/RoleGuard";
@@ -8,9 +8,11 @@ import { BookingList } from "@/features/booking/components/BookingList";
 import {
   demTheoNgay,
   DieuHuongThang,
+  docViTriLich,
   homNayVn,
   LuoiNgay,
   ngayVn,
+  nhoViTriLich,
   thangRiengHopLe,
 } from "@/features/booking/components/LichThang";
 import { useMyBookingMonth } from "@/features/booking/queries";
@@ -55,6 +57,24 @@ function MyBookingsPage() {
   const [month, setMonth] = useState(hom.month);
   const [ngay, setNgay] = useState<string | null>(null);
   const query = useMyBookingMonth(year, month);
+  const daDoc = useRef(false);
+
+  useEffect(() => {
+    if (!daDoc.current) {
+      daDoc.current = true;
+      const daNho = docViTriLich("astrotarot.lich-khach");
+      if (
+        daNho &&
+        (daNho.year !== year || daNho.month !== month || daNho.ngay !== ngay)
+      ) {
+        setYear(daNho.year);
+        setMonth(daNho.month);
+        setNgay(daNho.ngay);
+        return;
+      }
+    }
+    nhoViTriLich("astrotarot.lich-khach", { year, month, ngay });
+  }, [year, month, ngay]);
 
   useEffect(() => {
     if (payment === "success") {

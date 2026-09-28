@@ -1,11 +1,15 @@
 // Khung cuộc gọi: chuông đến, video hai bên, nút tắt mic/cam, cúp máy.
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Mic, MicOff, Phone, PhoneOff, Video, VideoOff, TriangleAlert } from "lucide-react";
 import { LopPhu } from "@/components/GocNoi";
 import type { BookingCall } from "../hooks/useBookingCall";
 
 /** Gắn MediaStream vào thẻ video. */
-function useStream(ref: React.RefObject<HTMLVideoElement | null>, stream: MediaStream | null) {
+function useStream(
+  ref: React.RefObject<HTMLVideoElement | null>,
+  stream: MediaStream | null,
+  key: unknown,
+) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -14,15 +18,22 @@ function useStream(ref: React.RefObject<HTMLVideoElement | null>, stream: MediaS
     if (stream) void el.play().catch(() => {
       // Trình duyệt chặn tự phát khi chưa có tương tác — người dùng bấm là chạy.
     });
-  }, [ref, stream]);
+  }, [ref, stream, key]);
 }
 
 export function CallPanel({ call }: { call: BookingCall }) {
   const localRef = useRef<HTMLVideoElement>(null);
   const remoteRef = useRef<HTMLVideoElement>(null);
+  const [phongTo, setPhongTo] = useState(false);
 
-  useStream(localRef, call.localStream);
-  useStream(remoteRef, call.remoteStream);
+  useStream(localRef, call.localStream, phongTo);
+  useStream(remoteRef, call.remoteStream, phongTo);
+
+  useEffect(() => {
+    if (!call.withVideo || call.state === "idle" || call.state === "failed") {
+      setPhongTo(false);
+    }
+  }, [call.state, call.withVideo]);
 
   if (call.state === "idle" && !call.error) {
     // Chỉ cảnh báo thiếu TURN, không chiếm chỗ khi mọi thứ bình thường.
@@ -108,56 +119,28 @@ export function CallPanel({ call }: { call: BookingCall }) {
           {dangNoi && "Đang trong cuộc gọi"}
         </p>
         <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={call.toggleMic}
-            title={call.micOn ? "Tắt micro" : "Bật micro"}
-            className="rounded-full border border-white/15 p-2"
-          >
-            {call.micOn ? (
-              <Mic aria-hidden className="h-4 w-4" />
-            ) : (
-              <MicOff aria-hidden className="h-4 w-4 text-destructive" />
-            )}
-            <span className="sr-only">{call.micOn ? "Tắt micro" : "Bật micro"}</span>
-          </button>
-          {call.withVideo && (
-            <button
-              type="button"
-              onClick={call.toggleCam}
-              title={call.camOn ? "Tắt camera" : "Bật camera"}
-              className="rounded-full border border-white/15 p-2"
-            >
-              {call.camOn ? (
-                <Video aria-hidden className="h-4 w-4" />
-              ) : (
-                <VideoOff aria-hidden className="h-4 w-4 text-destructive" />
-              )}
-              <span className="sr-only">
-                {call.camOn ? "Tắt camera" : "Bật camera"}
-              </span>
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={call.hangup}
-            title="Cúp máy"
-            className="rounded-full bg-destructive p-2"
-          >
-            <PhoneOff aria-hidden className="h-4 w-4" />
-            <span className="sr-only">Cúp máy</span>
-          </button>
+          <NutMic call={call} />
+          {call.withVideo && <NutCam call={call} />}
+          <NutCup call={call} />
         </div>
       </div>
 
-      {call.withVideo && (
+      {call.withVideo && !phongTo && (
         <div className="mt-3 grid grid-cols-2 gap-2">
-          <video
-            ref={remoteRef}
-            playsInline
-            autoPlay
-            className="aspect-video w-full rounded-xl bg-black object-cover"
-          />
+          <button
+            type="button"
+            onClick={() => setPhongTo(true)}
+            className="overflow-hidden rounded-xl"
+            title="Phóng to người kia"
+          >
+            <video
+              ref={remoteRef}
+              playsInline
+              autoPlay
+              className="aspect-video w-full bg-black object-cover"
+            />
+            <span className="sr-only">Phóng to video người kia</span>
+          </button>
           <video
             ref={localRef}
             playsInline
@@ -169,10 +152,95 @@ export function CallPanel({ call }: { call: BookingCall }) {
         </div>
       )}
 
+      {call.withVideo && phongTo && (
+        <LopPhu>
+          <div className="fixed inset-0 z-[210] flex flex-col bg-black">
+            <button
+              type="button"
+              onClick={() => setPhongTo(false)}
+              className="relative min-h-0 flex-1"
+              aria-label="Thu nhỏ video"
+            >
+              <video
+                ref={remoteRef}
+                playsInline
+                autoPlay
+                className="h-full w-full object-contain"
+              />
+              <video
+                ref={localRef}
+                playsInline
+                autoPlay
+                muted
+                className="absolute bottom-4 right-4 h-32 w-44 rounded-xl object-cover ring-1 ring-white/30"
+              />
+              <span className="absolute left-4 top-4 rounded-full bg-black/60 px-3 py-1 text-xs text-white">
+                Bấm để thu nhỏ
+              </span>
+            </button>
+            <div className="flex justify-center gap-3 pb-6">
+              <NutMic call={call} />
+              <NutCam call={call} />
+              <NutCup call={call} />
+            </div>
+          </div>
+        </LopPhu>
+      )}
+
       {/* Gọi thoại vẫn cần thẻ audio, nếu không thì không ai nghe thấy ai. */}
       {!call.withVideo && (
         <video ref={remoteRef} autoPlay playsInline className="hidden" />
       )}
     </div>
+  );
+}
+
+function NutMic({ call }: { call: BookingCall }) {
+  return (
+    <button
+      type="button"
+      onClick={call.toggleMic}
+      title={call.micOn ? "Tắt micro" : "Bật micro"}
+      className="rounded-full border border-white/15 bg-black/50 p-2 text-white"
+    >
+      {call.micOn ? (
+        <Mic aria-hidden className="h-4 w-4" />
+      ) : (
+        <MicOff aria-hidden className="h-4 w-4 text-destructive" />
+      )}
+      <span className="sr-only">{call.micOn ? "Tắt micro" : "Bật micro"}</span>
+    </button>
+  );
+}
+
+function NutCam({ call }: { call: BookingCall }) {
+  return (
+    <button
+      type="button"
+      onClick={call.toggleCam}
+      title={call.camOn ? "Tắt camera" : "Bật camera"}
+      className="rounded-full border border-white/15 bg-black/50 p-2 text-white"
+    >
+      {call.camOn ? (
+        <Video aria-hidden className="h-4 w-4" />
+      ) : (
+        <VideoOff aria-hidden className="h-4 w-4 text-destructive" />
+      )}
+      <span className="sr-only">{call.camOn ? "Tắt camera" : "Bật camera"}</span>
+    </button>
+  );
+}
+
+function NutCup({ call }: { call: BookingCall }) {
+  return (
+    <button
+      type="button"
+      onClick={call.hangup}
+      title="Cúp máy"
+      className="rounded-full bg-destructive p-2 text-white"
+    >
+      <PhoneOff aria-hidden className="h-4 w-4" />
+      <span className="sr-only">Cúp máy</span>
+    </button>
   );
 }

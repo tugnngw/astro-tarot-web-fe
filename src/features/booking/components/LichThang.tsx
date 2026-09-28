@@ -24,6 +24,37 @@ export function homNayVn(): {
   return { year, month, day, iso: s };
 }
 
+/** Ngày đang xem trên lịch, để tab thanh toán PayOS quay lại đúng ngày ấy. */
+export interface ViTriLich {
+  year: number;
+  month: number;
+  ngay: string | null;
+}
+
+export function nhoViTriLich(khoa: string, v: ViTriLich) {
+  try {
+    localStorage.setItem(khoa, JSON.stringify(v));
+  } catch {
+    // Trình duyệt chặn bộ nhớ thì lịch vẫn dùng được, chỉ không nhớ ngày.
+  }
+}
+
+export function docViTriLich(khoa: string): ViTriLich | null {
+  try {
+    const raw = localStorage.getItem(khoa);
+    if (!raw) return null;
+    const v = JSON.parse(raw) as Partial<ViTriLich>;
+    if (typeof v.year !== "number" || typeof v.month !== "number") return null;
+    if (!thangRiengHopLe(v.year, v.month)) return null;
+    const ngay = typeof v.ngay === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v.ngay)
+      ? v.ngay
+      : null;
+    return { year: v.year, month: v.month, ngay };
+  } catch {
+    return null;
+  }
+}
+
 export function ngayVn(isoInstant: string) {
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: ZONE,
