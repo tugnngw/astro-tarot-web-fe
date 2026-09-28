@@ -402,11 +402,7 @@ function TractionStrip({
     { label: "Thanh toán SUCCESS", value: nf(t.successfulPayments) },
     { label: "Buổi hoàn tất", value: nf(t.completedBookings) },
     { label: "Đánh giá Reader", value: nf(t.reviewsCount) },
-    {
-      label: "Phản hồi khảo sát",
-      value: `${nf(t.feedbackCount)}/20`,
-      ok: t.feedbackGoalMet,
-    },
+    { label: "Phản hồi khảo sát", value: nf(t.feedbackCount) },
     { label: "Affiliate 30 ngày", value: nf(t.affiliateClicks30d) },
   ];
   const eventEntries = Object.entries(t.marketingEventsLast30Days ?? {});
@@ -416,15 +412,6 @@ function TractionStrip({
       <div className="flex flex-wrap items-center gap-2">
         <Target className="h-4 w-4 text-gold" />
         <h2 className="font-display text-lg">Traction — chụp cho Pitch</h2>
-        {t.feedbackGoalMet ? (
-          <span className="rounded-full border border-emerald-400/40 px-2 py-0.5 text-[11px] text-emerald-300">
-            Đủ ≥20 phản hồi
-          </span>
-        ) : (
-          <span className="rounded-full border border-amber-400/40 px-2 py-0.5 text-[11px] text-amber-200">
-            Còn thiếu phản hồi khảo sát
-          </span>
-        )}
       </div>
       <p className="mt-1 text-xs text-muted-foreground">
         Một khối số liệu cho slide EXE201. Doanh thu biểu đồ bên dưới vẫn gồm
@@ -437,13 +424,7 @@ function TractionStrip({
             key={it.label}
             className="rounded-xl border border-gold/15 bg-mystic/5 px-3 py-3"
           >
-            <div
-              className={`font-display text-2xl leading-none ${
-                it.ok ? "text-emerald-300" : ""
-              }`}
-            >
-              {it.value}
-            </div>
+            <div className="font-display text-2xl leading-none">{it.value}</div>
             <div className="mt-1 text-xs text-muted-foreground">{it.label}</div>
           </div>
         ))}
