@@ -12,6 +12,7 @@ import {
 } from "@/api/booking-chat";
 import { subscribeDestination, subscribeRealtimeStatus } from "@/lib/realtime";
 import { useAuth } from "@/lib/auth-context";
+import { avatarUrl } from "@/api/profile";
 import { moTaHoatDong } from "../hoatDong";
 import { CallPanel } from "./CallPanel";
 import { BangEmote } from "./BangEmote";
@@ -264,6 +265,9 @@ export function BookingChat({
   const coTheGoi = call.state === "idle";
   const moTa = moTaHoatDong(hienDien);
   const nhom = useMemo(() => messages, [messages]);
+  const anhPeer = avatarUrl(peerAvatar);
+  const [anhHong, setAnhHong] = useState(false);
+  useEffect(() => setAnhHong(false), [anhPeer]);
 
   return (
     <section
@@ -275,11 +279,12 @@ export function BookingChat({
         <div className="flex min-w-0 items-center gap-2">
           {!gonGang && (
             <span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full bg-[#3a3b3c] text-sm font-semibold text-white">
-              {peerAvatar ? (
+              {anhPeer && !anhHong ? (
                 <img
-                  src={peerAvatar}
+                  src={anhPeer}
                   alt=""
                   className="h-full w-full object-cover"
+                  onError={() => setAnhHong(true)}
                 />
               ) : (
                 peerLabel.charAt(0).toUpperCase()
@@ -373,11 +378,12 @@ export function BookingChat({
               >
                 {!cuaToi && (
                   <span className="grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-full bg-[#3a3b3c] text-xs font-semibold text-white">
-                    {peerAvatar ? (
+                    {anhPeer && !anhHong ? (
                       <img
-                        src={peerAvatar}
+                        src={anhPeer}
                         alt=""
                         className="h-full w-full object-cover"
+                        onError={() => setAnhHong(true)}
                       />
                     ) : (
                       peerLabel.charAt(0).toUpperCase()

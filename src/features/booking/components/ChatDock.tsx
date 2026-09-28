@@ -8,6 +8,7 @@ import { subscribeDestination, subscribeRealtimeEvents } from "@/lib/realtime";
 import { useAuth } from "@/lib/auth-context";
 import { useMyBookings, useReaderBookings } from "@/features/booking/queries";
 import { LopPhu } from "@/components/GocNoi";
+import { avatarUrl } from "@/api/profile";
 import { dangKyMoChat } from "../moKhungChat";
 import { BookingChat } from "./BookingChat";
 
@@ -500,16 +501,25 @@ function Anh({
   ten: string;
   nho?: boolean;
 }) {
+  const url = avatarUrl(src);
+  const [hong, setHong] = useState(false);
+  useEffect(() => setHong(false), [url]);
+  const chu = ten.trim().charAt(0).toUpperCase() || "?";
   return (
     <span
       className={`grid shrink-0 place-items-center overflow-hidden rounded-full bg-[#3a3b3c] font-semibold ${
         nho ? "h-10 w-10 text-sm" : "h-14 w-14 text-lg"
       }`}
     >
-      {src ? (
-        <img src={src} alt="" className="h-full w-full object-cover" />
+      {url && !hong ? (
+        <img
+          src={url}
+          alt=""
+          className="h-full w-full object-cover"
+          onError={() => setHong(true)}
+        />
       ) : (
-        ten.charAt(0).toUpperCase()
+        chu
       )}
     </span>
   );
