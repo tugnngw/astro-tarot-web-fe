@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Mic, MicOff, Phone, PhoneOff, Video, VideoOff, TriangleAlert } from "lucide-react";
 import { LopPhu } from "@/components/GocNoi";
+import { batDauChuong } from "../chuongGoi";
 import type { BookingCall } from "../hooks/useBookingCall";
 
 /** Gắn MediaStream vào thẻ video. */
@@ -28,6 +29,11 @@ export function CallPanel({ call }: { call: BookingCall }) {
 
   useStream(localRef, call.localStream, phongTo);
   useStream(remoteRef, call.remoteStream, phongTo);
+
+  useEffect(() => {
+    if (call.state !== "incoming") return;
+    return batDauChuong();
+  }, [call.state]);
 
   useEffect(() => {
     if (!call.withVideo || call.state === "idle" || call.state === "failed") {
