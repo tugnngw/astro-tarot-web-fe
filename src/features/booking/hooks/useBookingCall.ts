@@ -13,6 +13,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getIceConfig } from "@/api/booking-chat";
 import { publishRealtime, subscribeDestination } from "@/lib/realtime";
+import { useAuth } from "@/lib/auth-context";
 import { layCuocCho } from "../cuocCho";
 
 const CALL_QUEUE = "/user/queue/booking-call";
@@ -79,7 +80,12 @@ export interface BookingCall {
 }
 
 export function useBookingCall(bookingId: string | null): BookingCall {
+  const { user } = useAuth();
   const [state, setState] = useState<CallState>("idle");
+  const stateRef = useRef(state);
+  stateRef.current = state;
+  const toiRef = useRef(user?.id);
+  toiRef.current = user?.id;
   const [peerName, setPeerName] = useState<string | null>(null);
   const [withVideo, setWithVideo] = useState(false);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
@@ -274,7 +280,7 @@ export function useBookingCall(bookingId: string | null): BookingCall {
 
   // ---- nhận máy ----
   const accept = useCallback(async () => {
-    if (state !== "incoming" || !incomingOffer.current) return;
+    if (stateRef.current !== "incoming" || !incomingOffer.current) return;
     setState("connecting");
     armTimeout();
     try {
@@ -290,7 +296,7 @@ export function useBookingCall(bookingId: string | null): BookingCall {
     } catch (e) {
       fail(mediaError(e));
     }
-  }, [armTimeout, buildPeer, drainIce, fail, send, state, withVideo]);
+  }, [armTimeout, buildPeer, drainIce, fail, send, withVideo]);
 
   const toggleMic = useCallback(() => {
     const track = local.current?.getAudioTracks()[0];
@@ -349,6 +355,8 @@ export function useBookingCall(bookingId: string | null): BookingCall {
     async function handle(signal: Signal) {
       switch (signal.type) {
         case "OFFER": {
+          // Lời mời do chính máy này gửi thì không được hiện lại thành chuông đến.
+          if (signal.fromUserId && signal.fromUserId === toiRef.current) return;
           // Đang bận thì báo bận, đừng để chuông của mình ghi đè cuộc đang nói.
           //
           // "Bận" là ĐANG trong một cuộc, không phải "khác idle". Trước đây
@@ -359,7 +367,9 @@ export function useBookingCall(bookingId: string | null): BookingCall {
           // còn sót một dải báo lỗi chưa ai tắt. Gặp thật khi thử trên
           // production: gọi lần đầu hết giờ vì chưa cấp quyền micro, lần sau
           // gọi lại thì bị báo bận.
-          if (dangTrongCuoc(state)) {
+          const hien = stateRef.current;
+          if (hien === "incoming") return;
+          if (dangTrongCuoc(hien)) {
             send({ type: "BUSY" });
             return;
           }
@@ -416,7 +426,7 @@ export function useBookingCall(bookingId: string | null): BookingCall {
     }
 
     return off;
-  }, [bookingId, cleanup, drainIce, fail, send, state]);
+  }, [bookingId, cleanup, drainIce, fail, send]);
 
   // Rời trang giữa cuộc gọi vẫn phải tắt camera và báo cho phía kia.
   useEffect(() => cleanup, [cleanup]);

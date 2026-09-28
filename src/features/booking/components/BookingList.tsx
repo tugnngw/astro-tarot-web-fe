@@ -28,8 +28,7 @@ import { PaymentDialog } from "@/features/money/components/PaymentDialog";
 import { ReportDialog } from "@/features/money/components/ReportDialog";
 import { useCreatePaymentIntent } from "@/features/money/queries";
 import type { PaymentInstruction } from "@/api/money";
-
-import { BookingChat } from "@/features/booking/components/BookingChat";
+import { moKhungChat } from "@/features/booking/moKhungChat";
 import {
   ListError,
   useTaiLau,
@@ -79,8 +78,9 @@ export function BookingList({
     null,
   );
   const [reporting, setReporting] = useState<Booking | null>(null);
-  const [chatting, setChatting] = useState<string | null>(null);
   const pay = useCreatePaymentIntent();
+  // Đúng nút vừa bấm, dạng "mã buổi:pha". Hai nút cùng một buổi không dùng
+  // chung một cờ: dùng chung thì bấm Đặt cọc làm nút Thanh toán hết mờ đen theo.
   const [dangTra, setDangTra] = useState<string | null>(null);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
@@ -122,7 +122,8 @@ export function BookingList({
   }
 
   async function moTra(bookingId: string, phase?: "DEPOSIT" | "FULL") {
-    setDangTra(bookingId);
+    const khoa = `${bookingId}:${phase ?? "REMAINING"}`;
+    setDangTra(khoa);
     try {
       setInstruction(await pay.mutateAsync({ bookingId, phase }));
     } catch (e) {
@@ -302,20 +303,24 @@ export function BookingList({
                   <>
                     <button
                       type="button"
-                      disabled={dangTra === b.id}
+                      disabled={dangTra === `${b.id}:DEPOSIT`}
                       onClick={() => void moTra(b.id, "DEPOSIT")}
-                      className="inline-flex items-center gap-1.5 rounded-full bg-gold px-3.5 py-1.5 text-xs font-medium text-primary-foreground glow-gold transition disabled:opacity-40"
+                      className="inline-flex items-center gap-1.5 rounded-full bg-gold px-3.5 py-1.5 text-xs font-medium text-primary-foreground glow-gold transition disabled:cursor-wait"
                     >
                       <Landmark aria-hidden="true" className="h-3.5 w-3.5" />{" "}
-                      Đặt cọc 50% ({formatVND(b.depositAmount ?? 0)})
+                      {dangTra === `${b.id}:DEPOSIT`
+                        ? "Đang mở thanh toán…"
+                        : `Đặt cọc 50% (${formatVND(b.depositAmount ?? 0)})`}
                     </button>
                     <button
                       type="button"
-                      disabled={dangTra === b.id}
+                      disabled={dangTra === `${b.id}:FULL`}
                       onClick={() => void moTra(b.id, "FULL")}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-gold/50 px-3.5 py-1.5 text-xs text-gold transition hover:bg-gold/10 disabled:opacity-40"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-gold/50 px-3.5 py-1.5 text-xs text-gold transition hover:bg-gold/10 disabled:cursor-wait"
                     >
-                      Thanh toán hết ({formatVND(b.totalAmount)})
+                      {dangTra === `${b.id}:FULL`
+                        ? "Đang mở thanh toán…"
+                        : `Thanh toán hết (${formatVND(b.totalAmount)})`}
                     </button>
                   </>
                 )}
@@ -325,12 +330,14 @@ export function BookingList({
                 b.status !== "CANCELLED" && (
                   <button
                     type="button"
-                    disabled={dangTra === b.id}
+                    disabled={dangTra === `${b.id}:REMAINING`}
                     onClick={() => void moTra(b.id)}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-gold px-3.5 py-1.5 text-xs font-medium text-primary-foreground glow-gold transition disabled:opacity-40"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-gold px-3.5 py-1.5 text-xs font-medium text-primary-foreground glow-gold transition disabled:cursor-wait"
                   >
                     <Landmark aria-hidden="true" className="h-3.5 w-3.5" />{" "}
-                    Thanh toán nốt ({formatVND(b.remainingAmount ?? 0)})
+                    {dangTra === `${b.id}:REMAINING`
+                      ? "Đang mở thanh toán…"
+                      : `Thanh toán nốt (${formatVND(b.remainingAmount ?? 0)})`}
                   </button>
                 )}
 
@@ -346,12 +353,11 @@ export function BookingList({
               {b.chatOpen && (
                 <button
                   type="button"
-                  onClick={() => setChatting(chatting === b.id ? null : b.id)}
-                  aria-expanded={chatting === b.id}
+                  onClick={() => moKhungChat(b.id)}
                   className="inline-flex items-center gap-1.5 rounded-full border border-gold/30 px-3.5 py-1.5 text-xs text-gold"
                 >
                   <MessageCircle aria-hidden="true" className="h-3.5 w-3.5" />
-                  {chatting === b.id ? "Đóng trao đổi" : "Nhắn tin / Gọi"}
+                  Nhắn tin / Gọi
                 </button>
               )}
 
@@ -392,15 +398,6 @@ export function BookingList({
               )}
             </div>
 
-            {chatting === b.id && (
-              <div className="mt-3">
-                <BookingChat
-                  bookingId={b.id}
-                  peerLabel={other}
-                  peerAvatar={avatar}
-                />
-              </div>
-            )}
             {cancelling === b.id && (
               <div className="mt-3 rounded-xl border border-destructive/25 p-3">
                 <label

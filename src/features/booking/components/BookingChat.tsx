@@ -231,8 +231,8 @@ export function BookingChat({
 
   return (
     <section
-      className={`glass flex flex-col ${
-        gonGang ? "h-full min-h-0 rounded-none" : "h-[32rem] rounded-2xl"
+      className={`flex flex-col bg-black ${
+        gonGang ? "min-h-0 flex-1 rounded-none" : "glass h-[32rem] rounded-2xl"
       }`}
     >
       <header className="flex items-center justify-between gap-2 border-b border-white/5 px-4 py-3">
@@ -369,7 +369,7 @@ export function BookingChat({
 
       <form
         onSubmit={guiDi}
-        className="flex items-end gap-2 border-t border-white/5 p-3"
+        className="flex shrink-0 items-end gap-2 border-t border-white/10 bg-black p-3"
       >
         <textarea
           value={draft}

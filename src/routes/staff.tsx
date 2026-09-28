@@ -4,7 +4,7 @@
 // READER cũ đã gộp vào STAFF (xem migration V2_0 và src/lib/roles.ts).
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RoleGuard } from "@/components/RoleGuard";
 import { WorkspaceShell } from "@/components/WorkspaceShell";
 import { ReaderWorkspace } from "@/features/readers/components/ReaderWorkspace";
@@ -13,9 +13,11 @@ import { BookingList } from "@/features/booking/components/BookingList";
 import {
   demTheoNgay,
   DieuHuongThang,
+  docViTriLich,
   homNayVn,
   LuoiNgay,
   ngayVn,
+  nhoViTriLich,
   thangRiengHopLe,
 } from "@/features/booking/components/LichThang";
 import { StaffSupportQueue } from "@/features/support/components/StaffSupportQueue";
@@ -100,6 +102,24 @@ function ReaderBookings() {
   const [month, setMonth] = useState(hom.month);
   const [ngay, setNgay] = useState<string | null>(null);
   const query = useReaderBookingMonth(year, month);
+  const daDoc = useRef(false);
+
+  useEffect(() => {
+    if (!daDoc.current) {
+      daDoc.current = true;
+      const daNho = docViTriLich("astrotarot.lich-reader");
+      if (
+        daNho &&
+        (daNho.year !== year || daNho.month !== month || daNho.ngay !== ngay)
+      ) {
+        setYear(daNho.year);
+        setMonth(daNho.month);
+        setNgay(daNho.ngay);
+        return;
+      }
+    }
+    nhoViTriLich("astrotarot.lich-reader", { year, month, ngay });
+  }, [year, month, ngay]);
 
   const filters = [
     { key: "", label: "Tất cả" },
