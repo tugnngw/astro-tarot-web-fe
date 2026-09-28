@@ -212,8 +212,8 @@ export function ChatDock() {
         aria-label={
           tong > 0 ? `Trao đổi — ${tong} tin chưa đọc` : "Mở khung trao đổi"
         }
-        /* Vị trí do <GocNoi> quyết định — nút này đứng cùng cột với nút
-           Góp ý. `relative` để cái huy hiệu đếm tin bám vào nút. */
+        /* Vị trí do <GocNoi> quyết định — góc phải. Góp ý đứng bên trái,
+           không cùng cột này. `relative` để cái huy hiệu đếm tin bám vào nút. */
         className="relative grid h-14 w-14 place-items-center rounded-full border border-gold/40 bg-background/95 text-gold shadow-xl backdrop-blur transition hover:bg-gold/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50"
       >
         <MessageCircle aria-hidden="true" className="h-6 w-6" />
@@ -251,13 +251,10 @@ export function ChatDock() {
 
   return (
     /* Đẩy ra khỏi cột nút: khung này phủ cả góc màn hình, để trong cột thì nó
-       kéo giãn chính cái cột đang giữ nút Góp ý.
+       kéo giãn chính cái cột đang giữ nút chat.
 
-       inset-x-3 trên màn hẹp: khung rộng 380px tràn ra ngoài mép điện thoại
-       320px, và phần tràn là cột bên phải — tức là đúng chỗ đặt nút gửi.
-
-       z-50 chứ không phải z-40: lúc mở ra nó nằm chồng đúng lên chỗ nút Góp
-       ý, và nút ấy phải nằm dưới chứ không thò ra giữa khung chat. */
+       z-50 chứ không phải z-40: khung chat nằm trên các lớp nổi khác, không
+       để nút Góp ý (góc trái) hay nút chat (góc phải) thò ra giữa khung. */
     <LopPhu>
       <div className="fixed inset-x-0 bottom-0 z-50 sm:inset-x-auto sm:right-4 sm:w-[420px]">
         <div className="flex h-[min(100dvh,760px)] flex-col overflow-hidden rounded-t-2xl border border-gold/35 bg-black text-white shadow-2xl sm:rounded-t-2xl">

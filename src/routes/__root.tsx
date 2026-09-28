@@ -182,15 +182,17 @@ function RootComponent() {
             <AuthModal />
             <BecomeReaderModal />
             {/*
-              Hai nút nổi đứng CHUNG một cột ở góc dưới bên phải. Mỗi cái tự
-              khai vị trí thì chúng chồng lên nhau — xem <GocNoi>.
+              Góp ý ở góc trái, chat ở góc phải. Đứng cùng một cột thì nút
+              Góp ý đè lên nút mở cuộc chat.
 
               Cục trao đổi đặt ở đây (ngoài Outlet) để nó sống qua mọi lần đổi
               trang: nó nghe tin nhắn ở MỌI trang, và một cuộc đang mở không
               bị dựng lại mỗi lần người dùng bấm sang chỗ khác.
             */}
-            <GocNoi>
+            <div className="fixed bottom-5 left-5 z-40">
               <FeedbackPrompt />
+            </div>
+            <GocNoi>
               <ChatDock />
             </GocNoi>
             {/*

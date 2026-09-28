@@ -30,7 +30,6 @@ export function FeedbackPrompt({
   const [comment, setComment] = useState("");
   const [busy, setBusy] = useState(false);
   const [already, setAlready] = useState(false);
-  const [total, setTotal] = useState(0);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -42,7 +41,6 @@ export function FeedbackPrompt({
     void getMyFeedbackStatus()
       .then((s) => {
         setAlready(s.submitted);
-        setTotal(s.total);
         if (s.submitted) setHidden(true);
       })
       .catch(() => {
@@ -97,9 +95,6 @@ export function FeedbackPrompt({
       >
         <MessageSquareHeart className="h-4 w-4" aria-hidden />
         Góp ý
-        {total > 0 ? (
-          <span className="text-muted-foreground">({total}/20)</span>
-        ) : null}
       </button>
 
       {open && (
@@ -117,7 +112,7 @@ export function FeedbackPrompt({
                     ASTROTAROT có giúp bạn không?
                   </h2>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Khảo sát ngắn cho đồ án EXE201 — mục tiêu ≥20 phản hồi thật.
+                    Khảo sát ngắn. Càng nhiều góp ý càng tốt.
                   </p>
                 </div>
                 <button
