@@ -10,6 +10,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { toast } from "sonner";
+import { avatarUrl } from "@/api/profile";
 import {
   BOOKING_STATUS_LABEL,
   type Booking,
@@ -190,7 +191,9 @@ export function BookingList({
     <div className="space-y-3">
       {bookings.map((b) => {
         const other = side === "customer" ? b.readerName : b.customerName;
-        const avatar = side === "customer" ? b.readerAvatar : b.customerAvatar;
+        const avatar = avatarUrl(
+          side === "customer" ? b.readerAvatar : b.customerAvatar,
+        );
         return (
           <article key={b.id} className="glass rounded-2xl p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
