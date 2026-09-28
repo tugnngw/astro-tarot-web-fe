@@ -256,8 +256,8 @@ export function ChatDock() {
        z-50 chứ không phải z-40: khung chat nằm trên các lớp nổi khác, không
        để nút Góp ý (góc trái) hay nút chat (góc phải) thò ra giữa khung. */
     <LopPhu>
-      <div className="fixed inset-x-0 bottom-0 z-50 sm:inset-x-auto sm:right-4 sm:w-[420px]">
-        <div className="flex h-[min(100dvh,760px)] flex-col overflow-hidden rounded-t-2xl border border-gold/35 bg-black text-white shadow-2xl sm:rounded-t-2xl">
+      <div className="fixed inset-x-3 bottom-3 z-50 sm:inset-x-auto sm:right-4 sm:w-[420px]">
+        <div className="flex h-[min(100dvh,760px)] flex-col overflow-hidden rounded-2xl border border-gold/70 bg-black text-white shadow-2xl">
           <div className="flex items-center justify-between gap-2 px-4 pb-1 pt-3">
             {daChon ? (
               <button
