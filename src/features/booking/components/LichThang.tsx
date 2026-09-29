@@ -46,9 +46,10 @@ export function docViTriLich(khoa: string): ViTriLich | null {
     const v = JSON.parse(raw) as Partial<ViTriLich>;
     if (typeof v.year !== "number" || typeof v.month !== "number") return null;
     if (!thangRiengHopLe(v.year, v.month)) return null;
-    const ngay = typeof v.ngay === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v.ngay)
-      ? v.ngay
-      : null;
+    const ngay =
+      typeof v.ngay === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v.ngay)
+        ? v.ngay
+        : null;
     return { year: v.year, month: v.month, ngay };
   } catch {
     return null;
@@ -63,6 +64,30 @@ export function ngayVn(isoInstant: string) {
     day: "2-digit",
   }).format(new Date(isoInstant));
 }
+
+/** Giờ (0–23) theo giờ Việt Nam, để chia khung giờ theo buổi. */
+export function gioSoVn(isoInstant: string) {
+  return Number(
+    new Intl.DateTimeFormat("en-GB", {
+      timeZone: ZONE,
+      hour: "2-digit",
+      hour12: false,
+    }).format(new Date(isoInstant)),
+  );
+}
+
+/**
+ * Chia khung giờ thành sáng / chiều / tối.
+ *
+ * Một ngày làm việc của Reader ra khoảng ba mươi khung mười lăm phút. Đổ liền
+ * một mạch thì người đặt phải dò từng ô để biết mình đang ở quãng nào trong
+ * ngày. Chia buổi là cách người ta vốn đã nghĩ về thời gian khi hẹn nhau.
+ */
+export const BUOI = [
+  { ten: "Sáng", tu: 0, den: 12 },
+  { ten: "Chiều", tu: 12, den: 18 },
+  { ten: "Tối", tu: 18, den: 24 },
+] as const;
 
 export function gioVn(isoInstant: string) {
   return new Intl.DateTimeFormat("vi-VN", {
