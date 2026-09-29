@@ -292,12 +292,12 @@ export function BookingChat({
             </span>
           )}
           <div className="min-w-0">
-          {!gonGang && (
-            <h3 className="truncate font-display text-lg">
-              Trao đổi với {peerLabel}
-            </h3>
-          )}
-          {/*
+            {!gonGang && (
+              <h3 className="truncate font-display text-lg">
+                Trao đổi với {peerLabel}
+              </h3>
+            )}
+            {/*
             Dòng này nói về NGƯỜI BÊN KIA, không phải về kết nối của mình.
 
             Trước đây chỗ này hiện "Đang kết nối tức thời" kèm một chấm xanh —
@@ -308,23 +308,25 @@ export function BookingChat({
             Kết nối của mình chỉ đáng nói khi nó ĐỨT, vì lúc ấy mới có việc
             phải làm. Còn chạy tốt thì im lặng.
           */}
-          {moTa && (
-            <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-              <span
-                aria-hidden
-                className={`h-2 w-2 shrink-0 rounded-full ${
-                  hienDien?.online ? "bg-emerald-400" : "bg-muted-foreground/40"
-                }`}
-              />
-              {moTa}
-            </p>
-          )}
-          {!online && (
-            <p className="flex items-center gap-1 text-[11px] text-amber-300">
-              <WifiOff aria-hidden className="h-3 w-3 shrink-0" />
-              Mất kết nối tức thời — tin vẫn gửi được, chỉ chậm hơn
-            </p>
-          )}
+            {moTa && (
+              <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                <span
+                  aria-hidden
+                  className={`h-2 w-2 shrink-0 rounded-full ${
+                    hienDien?.online
+                      ? "bg-emerald-400"
+                      : "bg-muted-foreground/40"
+                  }`}
+                />
+                {moTa}
+              </p>
+            )}
+            {!online && (
+              <p className="flex items-center gap-1 text-[11px] text-amber-300">
+                <WifiOff aria-hidden className="h-3 w-3 shrink-0" />
+                Mất kết nối tức thời — tin vẫn gửi được, chỉ chậm hơn
+              </p>
+            )}
           </div>
         </div>
         <div className="flex shrink-0 gap-2">
@@ -358,55 +360,70 @@ export function BookingChat({
         onScroll={(e) => {
           gapDay.current = dangOGanDay(e.currentTarget);
         }}
-        className="flex-1 space-y-2 overflow-y-auto px-4 py-3"
+        /*
+          Tin nhắn neo xuống ĐÁY, không xếp từ nóc.
+
+          Trước đây một khung chat mới mở chỉ có vài tin thì chúng dính lên
+          trên cùng, để lại một khoảng trống mênh mông tới tận ô nhập. Nhìn
+          như đoạn hội thoại đã trôi đi đâu mất, trong khi thứ người ta cần
+          thấy ngay — tin mới nhất — lại nằm xa ô nhập nhất.
+
+          mt-auto trên khối bên trong chứ không phải justify-end trên khối
+          cuộn: justify-end làm phần đầu danh sách bị cắt và không cuộn tới
+          được khi tin nhiều lên. Còn margin tự động thì hết chỗ là tự về 0,
+          nên lúc ít tin nó đẩy xuống đáy, lúc nhiều tin nó cuộn bình thường.
+        */
+        className="flex flex-1 flex-col overflow-y-auto px-4 py-3"
       >
-        {loading ? (
-          <p className="py-8 text-center text-sm text-muted-foreground">
-            Đang tải…
-          </p>
-        ) : nhom.length === 0 ? (
-          <p className="py-8 text-center text-sm text-muted-foreground">
-            Chưa có tin nhắn nào. Nhắn một câu để bắt đầu.
-          </p>
-        ) : (
-          nhom.map((m) => {
-            const cuaToi = m.senderId === user?.id;
-            return (
-              <div
-                key={m.id}
-                className={`flex items-end gap-2 ${cuaToi ? "justify-end" : "justify-start"}`}
-              >
-                {!cuaToi && (
-                  <span className="grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-full bg-[#3a3b3c] text-xs font-semibold text-white">
-                    {anhPeer && !anhHong ? (
-                      <img
-                        src={anhPeer}
-                        alt=""
-                        className="h-full w-full object-cover"
-                        onError={() => setAnhHong(true)}
-                      />
-                    ) : (
-                      peerLabel.charAt(0).toUpperCase()
-                    )}
-                  </span>
-                )}
+        <div className="mt-auto space-y-2">
+          {loading ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">
+              Đang tải…
+            </p>
+          ) : nhom.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">
+              Chưa có tin nhắn nào. Nhắn một câu để bắt đầu.
+            </p>
+          ) : (
+            nhom.map((m) => {
+              const cuaToi = m.senderId === user?.id;
+              return (
                 <div
-                  className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${
-                    cuaToi
-                      ? "rounded-br-md bg-[#0084ff] text-white"
-                      : "rounded-bl-md bg-[#3a3b3c] text-white"
-                  }`}
+                  key={m.id}
+                  className={`flex items-end gap-2 ${cuaToi ? "justify-end" : "justify-start"}`}
                 >
-                  <p className="whitespace-pre-wrap break-words">{m.body}</p>
-                  <p className="mt-1 text-right text-[10px] text-white/60">
-                    {gio(m.createdAt)}
-                    {cuaToi && m.readAt ? " · đã xem" : ""}
-                  </p>
+                  {!cuaToi && (
+                    <span className="grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-full bg-[#3a3b3c] text-xs font-semibold text-white">
+                      {anhPeer && !anhHong ? (
+                        <img
+                          src={anhPeer}
+                          alt=""
+                          className="h-full w-full object-cover"
+                          onError={() => setAnhHong(true)}
+                        />
+                      ) : (
+                        peerLabel.charAt(0).toUpperCase()
+                      )}
+                    </span>
+                  )}
+                  <div
+                    className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${
+                      cuaToi
+                        ? "rounded-br-md bg-[#0084ff] text-white"
+                        : "rounded-bl-md bg-[#3a3b3c] text-white"
+                    }`}
+                  >
+                    <p className="whitespace-pre-wrap break-words">{m.body}</p>
+                    <p className="mt-1 text-right text-[10px] text-white/60">
+                      {gio(m.createdAt)}
+                      {cuaToi && m.readAt ? " · đã xem" : ""}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            );
-          })
-        )}
+              );
+            })
+          )}
+        </div>
       </div>
 
       <form

@@ -25,7 +25,9 @@ import { formatVND } from "@/lib/mock-data";
 import {
   ChuThichDat,
   DieuHuongThang,
+  BUOI,
   LuoiNgay,
+  gioSoVn,
   gioVn,
   homNayVn,
   loiNgay,
@@ -149,7 +151,7 @@ function ReaderProfilePage() {
 
   return (
     <Shell>
-      <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
+      <div className="grid gap-6 lg:grid-cols-[1fr_440px]">
         {/* Hồ sơ */}
         <div className="space-y-5">
           <section className="glass rounded-2xl p-6">
@@ -319,7 +321,7 @@ function ReaderProfilePage() {
         </div>
 
         {/* Đặt lịch */}
-        <aside className="lg:sticky lg:top-24 lg:self-start">
+        <aside className="lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:self-start lg:overflow-y-auto">
           <section className="glass rounded-2xl p-6">
             <h2 className="flex items-center gap-2 font-display text-xl">
               <CalendarClock aria-hidden="true" className="h-5 w-5 text-gold" />
@@ -574,41 +576,64 @@ function KhungGio({
           <p className="mt-2 text-[11px] text-muted-foreground">
             Khung gạch ngang đã có người. Khung còn lại vẫn đặt được.
           </p>
-          <div className="mt-2 grid max-h-64 grid-cols-3 gap-2 overflow-y-auto pr-1">
-            {hien.map((s) => {
-              const mo = s.state === "FREE";
-              const dangChon = picked?.startTime === s.startTime;
-              return (
-                <button
-                  key={s.startTime}
-                  type="button"
-                  disabled={!mo}
-                  onClick={() => onPick(dangChon ? null : s)}
-                  aria-pressed={dangChon}
-                  className={`rounded-lg border py-1.5 text-xs transition active:scale-95 disabled:cursor-not-allowed ${
-                    dangChon
-                      ? "border-gold bg-gold/20 text-gold"
-                      : mo
-                        ? "border-mystic/50 text-foreground/80 hover:border-gold/60 hover:bg-gold/10"
-                        : "border-mystic/30 text-muted-foreground/45"
-                  }`}
-                >
-                  <span
-                    className={
-                      mo ? "" : "line-through decoration-muted-foreground/40"
-                    }
-                  >
-                    {gioVn(s.startTime)}
-                  </span>
-                  {!mo && (
-                    <span className="mt-0.5 block text-[9px] font-normal no-underline">
-                      {s.state === "TAKEN" ? "Đã kín" : "Đã qua"}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
+          {/*
+            Bỏ hộp cuộn cao 64 (max-h-64 overflow-y-auto) có từ trước: nó nhốt
+            ba mươi khung giờ vào một ô cao chừng một trăm tám mươi điểm ảnh,
+            ngay giữa một trang không hề cuộn. Muốn xem giờ buổi tối thì phải
+            lăn chuột đúng bên trong cái ô ấy — trên điện thoại còn dễ thành
+            cuộn cả trang. Để nó trải hết ra, trang cuộn như mọi trang khác.
+          */}
+          {BUOI.map((b) => {
+            const cua = hien.filter((s) => {
+              const g = gioSoVn(s.startTime);
+              return g >= b.tu && g < b.den;
+            });
+            if (cua.length === 0) return null;
+            return (
+              <div key={b.ten} className="mt-3">
+                <p className="mb-1.5 text-[11px] uppercase tracking-wider text-muted-foreground/70">
+                  {b.ten}
+                </p>
+                <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                  {cua.map((s) => {
+                    const mo = s.state === "FREE";
+                    const dangChon = picked?.startTime === s.startTime;
+                    return (
+                      <button
+                        key={s.startTime}
+                        type="button"
+                        disabled={!mo}
+                        onClick={() => onPick(dangChon ? null : s)}
+                        aria-pressed={dangChon}
+                        className={`rounded-lg border py-2 text-xs transition active:scale-95 disabled:cursor-not-allowed ${
+                          dangChon
+                            ? "border-gold bg-gold/20 text-gold"
+                            : mo
+                              ? "border-mystic/50 text-foreground/80 hover:border-gold/60 hover:bg-gold/10"
+                              : "border-mystic/30 text-muted-foreground/45"
+                        }`}
+                      >
+                        <span
+                          className={
+                            mo
+                              ? ""
+                              : "line-through decoration-muted-foreground/40"
+                          }
+                        >
+                          {gioVn(s.startTime)}
+                        </span>
+                        {!mo && (
+                          <span className="mt-0.5 block text-[9px] font-normal no-underline">
+                            {s.state === "TAKEN" ? "Đã kín" : "Đã qua"}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
         </>
       )}
     </div>

@@ -19,7 +19,9 @@ import { useEffect, useState } from "react";
 function laLinkTimKiem(url: string | null | undefined) {
   if (!url) return false;
   try {
-    return /(^|\/)(search|find)$/.test(new URL(url).pathname.replace(/\/$/, ""));
+    return /(^|\/)(search|find)$/.test(
+      new URL(url).pathname.replace(/\/$/, ""),
+    );
   } catch {
     return false;
   }
@@ -696,11 +698,14 @@ function ProductDialog({
           />
           {laLinkTimKiem(form.affiliateUrl) ? (
             <p className="flex items-start gap-1.5 text-[11px] text-amber-300">
-              <AlertCircle aria-hidden="true" className="mt-px h-3 w-3 shrink-0" />
+              <AlertCircle
+                aria-hidden="true"
+                className="mt-px h-3 w-3 shrink-0"
+              />
               <span>
                 Đây là link <b>tìm kiếm</b> trên sàn, không phải link tiếp thị.
-                Khách bấm vào vẫn mua được, nhưng sàn không ghi công hoa hồng cho
-                mình — lượt bấm đếm được mà tiền thì không về.
+                Khách bấm vào vẫn mua được, nhưng sàn không ghi công hoa hồng
+                cho mình — lượt bấm đếm được mà tiền thì không về.
               </span>
             </p>
           ) : (
