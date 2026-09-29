@@ -1,6 +1,4 @@
-import { useState } from "react";
 import { ExternalLink } from "lucide-react";
-import { toast } from "sonner";
 import { PLATFORM_LABEL, trackAffiliateClick, type Product } from "@/api/shop";
 import { trackCta } from "@/lib/track";
 
@@ -12,9 +10,33 @@ import { trackCta } from "@/lib/track";
  * ngay" rồi bật khách sang trang lạ — bị chuyển sang một tên miền không ngờ
  * tới là cách nhanh nhất để mất niềm tin.
  *
- * Mở cửa sổ NGAY trong cú bấm, trước khi chờ mạng: trình duyệt chỉ cho phép
- * window.open trong ngữ cảnh người dùng vừa tương tác. Chờ fetch xong mới mở
- * là bị chặn popup.
+ * ---------------------------------------------------------------------------
+ * Vì sao là thẻ <a> chứ không phải window.open
+ * ---------------------------------------------------------------------------
+ *
+ * Bản trước mở tab trống rồi điền địa chỉ sau khi hỏi xong máy chủ:
+ *
+ *     const tab = window.open("", "_blank", "noopener,noreferrer");
+ *
+ * Nhưng hễ chuỗi tuỳ chọn có `noopener` thì window.open TRẢ VỀ null — đã cắt
+ * liên hệ giữa hai cửa sổ thì không còn tay cầm nào để trả. Nên `tab` luôn
+ * null, nhánh dự phòng `window.location.href = url` luôn chạy, và tab hiện
+ * tại rời khỏi web. Cái tab trống trình duyệt vừa mở thì nằm lại ở
+ * about:blank. Người dùng thấy đúng hai thứ đó: trang trắng, và web thì mất.
+ *
+ * Cái sai sâu hơn là đã dựng lại bằng JavaScript một việc mà thẻ <a> làm sẵn,
+ * và làm tốt hơn: không bao giờ bị chặn popup, bấm giữa hay Ctrl+bấm đều mở
+ * tab mới, giữ lâu trên di động ra đúng trình đơn quen thuộc, và trang hiện
+ * tại không hề bị đụng tới.
+ *
+ * Địa chỉ đã nằm sẵn trong `product.affiliateUrl`, không cần hỏi mới có:
+ * `registerClick` ở máy chủ trả về đúng giá trị ấy, lượt gọi kia chỉ để đếm.
+ * Nên cứ để trình duyệt mở link, còn việc đếm gửi đi song song và không ai
+ * phải chờ nó.
+ *
+ * rel="sponsored": đây là liên kết có hoa hồng, và đó là giá trị các công cụ
+ * tìm kiếm quy định cho đúng loại này. noopener chặn trang đích với tay ngược
+ * lại `window.opener`; noreferrer giấu luôn địa chỉ trang nguồn.
  */
 export function BuyOnPlatformButton({
   product,
@@ -23,8 +45,6 @@ export function BuyOnPlatformButton({
   product: Product;
   className?: string;
 }) {
-  const [busy, setBusy] = useState(false);
-
   if (!product.affiliateUrl) {
     return (
       <span
@@ -39,39 +59,33 @@ export function BuyOnPlatformButton({
   const platform =
     PLATFORM_LABEL[product.affiliatePlatform ?? "OTHER"] ?? "sàn liên kết";
 
-  async function open() {
-    setBusy(true);
+  /**
+   * Đếm lượt bấm. Cố ý KHÔNG chặn việc mở link.
+   *
+   * Không await, và nuốt lỗi: đây là số liệu nội bộ. Máy chủ ngủ đông hay
+   * mạng chập một nhịp thì người mua vẫn phải sang được Shopee — hỏng việc
+   * đếm là chuyện của mình, không phải chuyện của họ.
+   *
+   * Không cần sendBeacon: target="_blank" nên trang này không hề bị đóng,
+   * lượt fetch cứ thế chạy tiếp bình thường.
+   */
+  function dem() {
     trackCta("cta_shopee_click", { slug: product.slug });
-    // Mở tab trống trước, điền địa chỉ sau khi có link. Nếu đợi fetch xong mới
-    // gọi window.open thì trình duyệt coi đó là popup tự phát và chặn.
-    const tab = window.open("", "_blank", "noopener,noreferrer");
-    try {
-      const { url } = await trackAffiliateClick(product.slug);
-      if (tab) {
-        tab.location.href = url;
-      } else {
-        // Popup vẫn bị chặn (một số trình duyệt di động). Điều hướng ngay tab
-        // hiện tại còn hơn để người dùng bấm mà không có gì xảy ra.
-        window.location.href = url;
-      }
-    } catch (e) {
-      tab?.close();
-      toast.error(e instanceof Error ? e.message : "Không mở được liên kết");
-    } finally {
-      setBusy(false);
-    }
+    void trackAffiliateClick(product.slug).catch(() => {});
   }
 
   return (
-    <button
-      type="button"
-      onClick={() => void open()}
-      disabled={busy}
-      className={`inline-flex w-full items-center justify-center gap-2 rounded-full bg-gold py-2.5 text-sm font-medium text-primary-foreground glow-gold transition hover:scale-[1.02] disabled:opacity-50 ${className}`}
+    <a
+      href={product.affiliateUrl}
+      target="_blank"
+      rel="noopener noreferrer sponsored"
+      onClick={dem}
+      onAuxClick={dem}
+      className={`inline-flex w-full items-center justify-center gap-2 rounded-full bg-gold py-2.5 text-sm font-medium text-primary-foreground glow-gold transition hover:scale-[1.02] ${className}`}
     >
       <ExternalLink aria-hidden="true" className="h-4 w-4" />
-      {busy ? "Đang mở…" : `Mua trên ${platform}`}
-    </button>
+      {`Mua trên ${platform}`}
+    </a>
   );
 }
 
