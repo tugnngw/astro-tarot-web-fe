@@ -1,4 +1,29 @@
 import { useEffect, useState } from "react";
+
+/**
+ * Link này có phải chỉ là một lượt tìm kiếm trên sàn không.
+ *
+ * Mười hai sản phẩm đầu tiên đều được gieo bằng
+ * `shopee.vn/search?keyword=...`. Nút bấm vẫn chạy, khách vẫn mua được, màn
+ * thống kê vẫn đếm lượt bấm và ước lượng hoa hồng — nên nhìn từ ngoài mọi thứ
+ * đều bình thường. Chỉ có điều sàn không ghi công cho ai cả, và số hoa hồng
+ * kia không tương ứng với đồng nào.
+ *
+ * Kiểu hỏng im lặng ấy đáng được nói thẳng ra trong màn quản trị.
+ *
+ * Cố ý chỉ bắt đúng trường hợp CHẮC CHẮN sai — đường dẫn tìm kiếm — chứ không
+ * đoán xem một link sản phẩm có gắn mã tiếp thị hay không. Mỗi sàn đánh dấu
+ * một kiểu và còn đổi theo thời gian; cảnh báo sai chỗ thì chỉ vài lần là
+ * người ta thôi đọc cảnh báo.
+ */
+function laLinkTimKiem(url: string | null | undefined) {
+  if (!url) return false;
+  try {
+    return /(^|\/)(search|find)$/.test(new URL(url).pathname.replace(/\/$/, ""));
+  } catch {
+    return false;
+  }
+}
 import { PAGE_SIZE, PagedList, Pagination } from "@/components/Pagination";
 import {
   keepPreviousData,
@@ -284,14 +309,26 @@ export function CatalogManager() {
                               href={p.affiliateUrl}
                               target="_blank"
                               rel="noopener noreferrer nofollow"
-                              className="inline-flex items-center gap-1 text-xs text-gold hover:underline"
+                              title={
+                                laLinkTimKiem(p.affiliateUrl)
+                                  ? "Đây là link tìm kiếm trên sàn, không ghi công hoa hồng. Thay bằng link tiếp thị."
+                                  : p.affiliateUrl
+                              }
+                              className={`inline-flex items-center gap-1 text-xs hover:underline ${
+                                laLinkTimKiem(p.affiliateUrl)
+                                  ? "text-amber-300"
+                                  : "text-gold"
+                              }`}
                             >
                               <ExternalLink
                                 aria-hidden="true"
                                 className="h-3 w-3"
                               />
-                              {PLATFORM_LABEL[p.affiliatePlatform ?? "OTHER"] ??
-                                "Liên kết"}
+                              {laLinkTimKiem(p.affiliateUrl)
+                                ? "link tìm kiếm"
+                                : (PLATFORM_LABEL[
+                                    p.affiliatePlatform ?? "OTHER"
+                                  ] ?? "Liên kết")}
                             </a>
                           ) : (
                             <span className="text-xs text-amber-300">
@@ -657,11 +694,22 @@ function ProductDialog({
             onChange={(v) => setForm((f) => ({ ...f, affiliateUrl: v }))}
             placeholder="https://shopee.vn/..."
           />
-          <p className="text-[11px] text-muted-foreground">
-            Dán link tiếp thị lấy từ chương trình đối tác của sàn, không phải
-            link sản phẩm thường — link thường thì không ghi công hoa hồng cho
-            mình.
-          </p>
+          {laLinkTimKiem(form.affiliateUrl) ? (
+            <p className="flex items-start gap-1.5 text-[11px] text-amber-300">
+              <AlertCircle aria-hidden="true" className="mt-px h-3 w-3 shrink-0" />
+              <span>
+                Đây là link <b>tìm kiếm</b> trên sàn, không phải link tiếp thị.
+                Khách bấm vào vẫn mua được, nhưng sàn không ghi công hoa hồng cho
+                mình — lượt bấm đếm được mà tiền thì không về.
+              </span>
+            </p>
+          ) : (
+            <p className="text-[11px] text-muted-foreground">
+              Dán link tiếp thị lấy từ chương trình đối tác của sàn, không phải
+              link sản phẩm thường — link thường thì không ghi công hoa hồng cho
+              mình.
+            </p>
+          )}
 
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="block">
