@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Calendar, Star, Users, BookOpen } from "lucide-react";
 
-export function DashboardStats() {
+export function DashboardStatsView() {
   const { data: stats, isLoading } = useDashboardStats();
 
   if (isLoading) {

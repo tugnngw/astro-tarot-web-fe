@@ -28,6 +28,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShopSlugRouteImport } from './routes/shop_.$slug'
 import { Route as ReadersIdRouteImport } from './routes/readers_.$id'
+import { Route as ProfileSubscriptionRouteImport } from './routes/profile_.subscription'
 import { Route as ProfileAstrologyRouteImport } from './routes/profile_.astrology'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 
@@ -126,6 +127,11 @@ const ReadersIdRoute = ReadersIdRouteImport.update({
   path: '/readers/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProfileSubscriptionRoute = ProfileSubscriptionRouteImport.update({
+  id: '/profile_/subscription',
+  path: '/profile/subscription',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfileAstrologyRoute = ProfileAstrologyRouteImport.update({
   id: '/profile_/astrology',
   path: '/profile/astrology',
@@ -157,6 +163,7 @@ export interface FileRoutesByFullPath {
   '/verify-email': typeof VerifyEmailRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/profile/astrology': typeof ProfileAstrologyRoute
+  '/profile/subscription': typeof ProfileSubscriptionRoute
   '/readers/$id': typeof ReadersIdRoute
   '/shop/$slug': typeof ShopSlugRoute
 }
@@ -180,6 +187,7 @@ export interface FileRoutesByTo {
   '/verify-email': typeof VerifyEmailRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/profile/astrology': typeof ProfileAstrologyRoute
+  '/profile/subscription': typeof ProfileSubscriptionRoute
   '/readers/$id': typeof ReadersIdRoute
   '/shop/$slug': typeof ShopSlugRoute
 }
@@ -204,6 +212,7 @@ export interface FileRoutesById {
   '/verify-email': typeof VerifyEmailRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/profile_/astrology': typeof ProfileAstrologyRoute
+  '/profile_/subscription': typeof ProfileSubscriptionRoute
   '/readers_/$id': typeof ReadersIdRoute
   '/shop_/$slug': typeof ShopSlugRoute
 }
@@ -229,6 +238,7 @@ export interface FileRouteTypes {
     | '/verify-email'
     | '/blog/$slug'
     | '/profile/astrology'
+    | '/profile/subscription'
     | '/readers/$id'
     | '/shop/$slug'
   fileRoutesByTo: FileRoutesByTo
@@ -252,6 +262,7 @@ export interface FileRouteTypes {
     | '/verify-email'
     | '/blog/$slug'
     | '/profile/astrology'
+    | '/profile/subscription'
     | '/readers/$id'
     | '/shop/$slug'
   id:
@@ -275,6 +286,7 @@ export interface FileRouteTypes {
     | '/verify-email'
     | '/blog/$slug'
     | '/profile_/astrology'
+    | '/profile_/subscription'
     | '/readers_/$id'
     | '/shop_/$slug'
   fileRoutesById: FileRoutesById
@@ -299,6 +311,7 @@ export interface RootRouteChildren {
   VerifyEmailRoute: typeof VerifyEmailRoute
   BlogSlugRoute: typeof BlogSlugRoute
   ProfileAstrologyRoute: typeof ProfileAstrologyRoute
+  ProfileSubscriptionRoute: typeof ProfileSubscriptionRoute
   ReadersIdRoute: typeof ReadersIdRoute
   ShopSlugRoute: typeof ShopSlugRoute
 }
@@ -438,6 +451,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReadersIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/profile_/subscription': {
+      id: '/profile_/subscription'
+      path: '/profile/subscription'
+      fullPath: '/profile/subscription'
+      preLoaderRoute: typeof ProfileSubscriptionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile_/astrology': {
       id: '/profile_/astrology'
       path: '/profile/astrology'
@@ -475,6 +495,7 @@ const rootRouteChildren: RootRouteChildren = {
   VerifyEmailRoute: VerifyEmailRoute,
   BlogSlugRoute: BlogSlugRoute,
   ProfileAstrologyRoute: ProfileAstrologyRoute,
+  ProfileSubscriptionRoute: ProfileSubscriptionRoute,
   ReadersIdRoute: ReadersIdRoute,
   ShopSlugRoute: ShopSlugRoute,
 }

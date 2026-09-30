@@ -90,7 +90,7 @@ export function PendingReadersTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {pendingReaders.map((reader) => (
+            {pendingReaders.map((reader: PendingReaderApplication) => (
               <TableRow key={reader.id}>
                 <TableCell className="flex items-center gap-2">
                   <Avatar className="h-8 w-8">
@@ -123,7 +123,7 @@ export function PendingReadersTable() {
                   {new Date(reader.createdAt).toLocaleDateString()}
                 </TableCell>
                 <TableCell>
-                  <Badge variant="warning">Pending</Badge>
+                  <Badge variant="outline">Pending</Badge>
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-1">

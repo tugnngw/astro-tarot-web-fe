@@ -7,6 +7,7 @@ import type {
   ReaderStats,
   ReaderFilter,
   Review,
+  Availability,
 } from "../types/reader.types";
 
 export const readersApi = {

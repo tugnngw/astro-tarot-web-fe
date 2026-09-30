@@ -105,14 +105,14 @@ export function TarotDraw() {
         <Button onClick={handleDraw} disabled={isDrawing || cardsLoading}>
           {isDrawing ? "Drawing..." : "Draw Cards ✨"}
         </Button>
-        {drawnCards.length > 0 && (
+        {drawnCards && drawnCards.length > 0 && (
           <Button variant="outline" onClick={handleInterpret}>
             Save Reading
           </Button>
         )}
       </div>
 
-      {drawnCards.length > 0 && (
+      {drawnCards && drawnCards.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {drawnCards.map((card) => (
             <TarotCard
@@ -125,7 +125,7 @@ export function TarotDraw() {
         </div>
       )}
 
-      {drawnCards.length > 0 && (
+      {drawnCards && drawnCards.length > 0 && (
         <Card>
           <CardContent className="p-4">
             <h3 className="font-semibold mb-2">Interpretation</h3>

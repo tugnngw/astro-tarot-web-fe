@@ -174,20 +174,17 @@ function pieWhiteLabel(props: {
  * Số trắng trên đỉnh cột — cùng style với pie; bỏ cột = 0.
  * Dùng với <LabelList content={...} /> trên mọi BarChart.
  */
-function barWhiteLabel(props: {
-  x?: number;
-  y?: number;
-  width?: number;
-  value?: number | string;
-  format?: (n: number) => string;
-}) {
+function barWhiteLabel(props: any) {
   const { x = 0, y = 0, width = 0, value, format = nf } = props;
+  const numX = Number(x) || 0;
+  const numY = Number(y) || 0;
+  const numW = Number(width) || 0;
   const n = Number(value) || 0;
   if (n <= 0) return null;
   return (
     <text
-      x={x + width / 2}
-      y={y - 6}
+      x={numX + numW / 2}
+      y={numY - 6}
       fill="#ffffff"
       textAnchor="middle"
       dominantBaseline="auto"

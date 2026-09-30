@@ -44,7 +44,7 @@ function readerIdFor(_email: string): string {
 function ReaderPage() {
   // RoleGuard đã bảo đảm user tồn tại và có quyền quản lý hồ sơ Reader.
   const { user } = useAuth();
-  const readerId = readerIdFor(user!.email); // map account → reader_profiles.id
+  const readerId = readerIdFor(user?.email || ""); // map account → reader_profiles.id
   const slots = useSlots(readerId); // lịch trống do reader tự thêm
   const bookings = useBookings().filter((b) => b.readerId === readerId);
   const [date, setDate] = useState(""); // input ngày khi thêm slot mới

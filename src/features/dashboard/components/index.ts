@@ -1,3 +1,3 @@
 // Exports all UI components for dashboard feature.
-export * from "./DashboardStats";
+export { DashboardStatsView } from "./DashboardStats";
 export * from "./RecentActivity";
