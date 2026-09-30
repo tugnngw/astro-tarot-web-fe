@@ -60,6 +60,9 @@ export const subscriptionApi = {
   getActivePlans: () =>
     apiFetch<SubscriptionPlan[]>('/api/admin/subscriptions/plans/active'),
 
+  getAllPlans: () =>
+    apiFetch<SubscriptionPlan[]>('/api/admin/subscriptions/plans'),
+
   purchase: (data: CreatePurchaseRequest) =>
     apiFetch<AIPlanResponse>('/api/admin/subscriptions/purchase', {
       method: 'POST',

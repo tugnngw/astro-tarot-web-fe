@@ -10,6 +10,7 @@ import {
   CalendarCheck,
   LifeBuoy,
   Star,
+  Zap,
   Menu,
   X,
   LayoutDashboard,
@@ -264,6 +265,14 @@ export function Header() {
                         },
                       },
                       {
+                        ic: Zap,
+                        l: "Gói cước AI",
+                        a: () => {
+                          setOpen(false);
+                          navigate({ to: "/profile/subscription" });
+                        },
+                      },
+                      {
                         ic: History,
                         l: "Lịch sử trải bài",
                         a: () => {
@@ -369,16 +378,27 @@ export function Header() {
                 );
               })}
               {user && (
-                <Link
-                  to="/bookings"
-                  onClick={() => setMobileOpen(false)}
-                  className={mobileNavLinkClass(
-                    pathname === "/bookings" ||
-                      pathname.startsWith("/bookings/"),
-                  )}
-                >
-                  Lịch hẹn của tôi
-                </Link>
+                <>
+                  <Link
+                    to="/bookings"
+                    onClick={() => setMobileOpen(false)}
+                    className={mobileNavLinkClass(
+                      pathname === "/bookings" ||
+                        pathname.startsWith("/bookings/"),
+                    )}
+                  >
+                    Lịch hẹn của tôi
+                  </Link>
+                  <Link
+                    to="/profile/subscription"
+                    onClick={() => setMobileOpen(false)}
+                    className={mobileNavLinkClass(
+                      pathname === "/profile/subscription",
+                    )}
+                  >
+                    Gói cước AI
+                  </Link>
+                </>
               )}
               {coLichKhachDat && (
                 <Link

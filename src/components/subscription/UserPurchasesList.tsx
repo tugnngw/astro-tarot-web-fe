@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth-context";
 import { subscriptionApi } from "@/api/subscription";
+import { Clock, Zap, CheckCircle2, History, AlertCircle } from "lucide-react";
 
 export const subscriptionQueryKeys = {
   all: ["subscriptions"] as const,
@@ -12,6 +13,7 @@ interface UserPurchasesListProps {
   showExpired?: boolean;
   maxItems?: number;
   className?: string;
+  onExplorePlans?: () => void;
 }
 
 export function UserPurchasesList({
@@ -19,24 +21,25 @@ export function UserPurchasesList({
   showExpired = false,
   maxItems,
   className = "",
+  onExplorePlans,
 }: UserPurchasesListProps) {
   const { user } = useAuth();
   const targetUserId = userId || user?.id;
 
   const { data: purchases, isLoading, isError, error } = useQuery({
     queryKey: subscriptionQueryKeys.userPurchases(targetUserId || ""),
-    queryFn: () => targetUserId ? subscriptionApi.getUserActivePurchases(targetUserId) : Promise.resolve([]),
+    queryFn: () => (targetUserId ? subscriptionApi.getUserActivePurchases(targetUserId) : Promise.resolve([])),
     enabled: !!targetUserId,
     staleTime: 5 * 60 * 1000,
   });
 
   if (isLoading) {
     return (
-      <div className={`p-4 ${className}`}>
-        <h3 className="text-base font-medium mb-3">Gói dịch vụ của bạn</h3>
-        <div className="animate-pulse space-y-2">
-          <div className="h-12 bg-gray-200 rounded"></div>
-          <div className="h-12 bg-gray-200 rounded"></div>
+      <div className={`glass rounded-2xl border-gold/15 p-5 animate-pulse ${className}`}>
+        <div className="h-4 bg-white/10 rounded w-36 mb-3" />
+        <div className="space-y-2">
+          <div className="h-14 bg-white/5 rounded-xl" />
+          <div className="h-14 bg-white/5 rounded-xl" />
         </div>
       </div>
     );
@@ -44,20 +47,38 @@ export function UserPurchasesList({
 
   if (isError) {
     return (
-      <div className={`p-4 text-center text-gray-500 ${className}`}>
-        <p className="text-sm">Không tải được danh sách gói</p>
-        <p className="text-xs text-gray-400 mt-1">{(error as any)?.message || ""}</p>
+      <div className={`glass rounded-2xl border-red-500/20 p-5 text-center ${className}`}>
+        <AlertCircle className="mx-auto h-6 w-6 text-red-400 mb-2" />
+        <p className="text-sm text-foreground">Không thể tải danh sách gói đã mua</p>
+        <p className="text-xs text-muted-foreground mt-1">{(error as any)?.message || ""}</p>
       </div>
     );
   }
 
-  const displayPurchases = purchases?.filter(p => p.status === 'ACTIVE') || [];
+  const activePurchases = purchases?.filter((p) => p.status === "ACTIVE") || [];
+  const displayPurchases = showExpired ? purchases || [] : activePurchases;
 
   if (displayPurchases.length === 0) {
     return (
-      <div className={`p-4 text-center ${className}`}>
-        <h3 className="text-base font-medium mb-2">Chưa có gói AI</h3>
-        <p className="text-sm text-gray-500">Bạn đang dùng gói FREE mặc định (3 lượt AI/ngày)</p>
+      <div className={`glass rounded-2xl border-gold/15 p-6 text-center ${className}`}>
+        <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-gold/10 text-gold mb-3">
+          <Zap className="h-6 w-6" />
+        </div>
+        <h4 className="font-display text-base font-semibold text-foreground">
+          Chưa có gói đăng ký trả phí
+        </h4>
+        <p className="mt-1 text-xs text-muted-foreground max-w-sm mx-auto">
+          Tài khoản của bạn hiện đang áp dụng gói FREE mặc định với 3 lượt hỏi AI mỗi ngày.
+        </p>
+        {onExplorePlans && (
+          <button
+            type="button"
+            onClick={onExplorePlans}
+            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-gold/15 px-4 py-2 text-xs font-medium text-gold hover:bg-gold/25 transition"
+          >
+            Khám phá các gói AI
+          </button>
+        )}
       </div>
     );
   }
@@ -74,53 +95,74 @@ export function UserPurchasesList({
     .slice(0, maxItems);
 
   return (
-    <div className={`p-4 rounded-lg bg-white border border-gray-200 shadow-sm ${className}`}>
-      <h3 className="text-base font-medium mb-3">Gói dịch vụ hoạt động</h3>
-
-      <div className="space-y-2">
-        {sorted.map(purchase => (
-          <div key={purchase.id} className="flex items-center justify-between p-3 rounded-lg bg-gray-50 border border-gray-200">
-            <div className="flex-1 mr-3">
-              <h4 className="text-sm font-medium text-gray-900">
-                {purchase.planNameSnapshot}
-              </h4>
-
-              <div className="flex items-center gap-3 mt-1">
-                <span className="text-xs text-gray-500">
-                  {purchase.dailyQuotaSnapshot} lượt/ngày
-                </span>
-                <span className="text-xs text-gray-400">
-                  {getRemainingDays(purchase.endAt)} ngày còn lại
-                </span>
-              </div>
-
-              {new Date(purchase.endAt).getTime() <= new Date().getTime() && (
-                <span className="inline-block mt-1 px-2 py-0.5 bg-red-100 text-red-800 text-xs rounded-full">
-                  Hết hạn
-                </span>
-              )}
-            </div>
-
-            <div className="text-right flex-shrink-0">
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
-                Hoạt động
-              </span>
-            </div>
-          </div>
-        ))}
+    <div className={`glass rounded-2xl border border-gold/20 p-5 ${className}`}>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <History className="h-4 w-4 text-gold" />
+          <h3 className="font-display text-base font-semibold text-foreground">
+            Gói dịch vụ đã đăng ký
+          </h3>
+        </div>
+        <span className="text-xs text-muted-foreground">
+          {activePurchases.length} gói đang hoạt động
+        </span>
       </div>
 
-      {/* Tổng hợp quota */}
-      <div className="mt-3 pt-3 border-t border-gray-200">
-        <div className="flex items-center justify-between text-sm text-gray-600">
-          <span>Tổng quota:</span>
-          <span className="font-medium">
-            {purchases?.length
-              ? Math.max(...purchases.map(p => p.dailyQuotaSnapshot))
-              : 3} lượt AI/ngày
-          </span>
-        </div>
+      <div className="space-y-2.5">
+        {sorted.map((purchase) => {
+          const daysLeft = getRemainingDays(purchase.endAt);
+          const isExpired = daysLeft === 0;
+
+          return (
+            <div
+              key={purchase.id}
+              className={`flex items-center justify-between rounded-xl border p-3.5 transition ${
+                isExpired
+                  ? "border-white/5 bg-white/[0.02] opacity-60"
+                  : "border-gold/20 bg-gold/[0.03] hover:border-gold/40"
+              }`}
+            >
+              <div className="flex-1 mr-3">
+                <div className="flex items-center gap-2">
+                  <h4 className="text-sm font-semibold text-foreground">
+                    {purchase.planNameSnapshot}
+                  </h4>
+                  <span className="rounded-full border border-gold/30 bg-gold/10 px-2 py-0.5 text-[10px] font-medium text-gold">
+                    {purchase.purchaseType}
+                  </span>
+                </div>
+
+                <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1 text-gold">
+                    <Zap className="h-3 w-3" />
+                    <strong>{purchase.dailyQuotaSnapshot}</strong> lượt / ngày
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-3 w-3" />
+                    {isExpired ? (
+                      <span className="text-red-400">Đã hết hạn</span>
+                    ) : (
+                      <span>Còn {daysLeft} ngày (hết hạn: {new Date(purchase.endAt).toLocaleDateString("vi-VN")})</span>
+                    )}
+                  </span>
+                </div>
+              </div>
+
+              <div className="text-right shrink-0">
+                {isExpired ? (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-red-500/20 bg-red-500/10 px-2.5 py-1 text-[11px] text-red-400">
+                    Đã hết hạn
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-medium text-emerald-400">
+                    <CheckCircle2 className="h-3 w-3" />
+                    Đang dùng
+                  </span>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

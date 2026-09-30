@@ -4,6 +4,7 @@ import {
   CalendarCheck,
   History,
   Star,
+  Zap,
   ShoppingBag,
   ArrowRight,
   BookOpen,
@@ -42,6 +43,12 @@ const QUICK_LINKS = [
     title: "Trải bài Tarot AI",
     desc: "Hỏi bài theo bản đồ sao — tối đa 2 người (sao đôi).",
     to: "/tarot" as const,
+  },
+  {
+    icon: Zap,
+    title: "Gói cước AI Tarot",
+    desc: "Mở rộng số lượt hỏi AI, nâng hạn mức hàng ngày.",
+    to: "/profile/subscription" as const,
   },
   {
     icon: CalendarCheck,
