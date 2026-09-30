@@ -1,5 +1,6 @@
 // src/api/tarot.ts
-import { apiFetch } from "./client";
+import { ApiError, apiFetch } from "./client";
+import { thongDiepLoi } from "@/components/ListError";
 
 // ============================================================
 // REQUEST DTO - Khớp với StartTarotReadingRequest của BE
@@ -58,6 +59,54 @@ export async function startAiTarotReading(
     method: "POST",
     body: JSON.stringify(payload),
   });
+}
+
+export interface ChatResponse {
+  reply?: string;
+  response?: string;
+}
+
+export function sendChat(message: string, readingId: string | null) {
+  return apiFetch<ChatResponse>("/api/chat", {
+    method: "POST",
+    body: JSON.stringify({ message, readingId }),
+  });
+}
+
+/** Câu fallback thân thiện khi lỗi không phân loại được. */
+const CHAT_FALLBACK =
+  "Xin lỗi cậu, mình đang gặp vấn đề kết nối. Cậu có thể thử lại sau nhé! 💫";
+
+/**
+ * Dịch lỗi chat sang câu người dùng đọc được.
+ *
+ * ApiError (mạng / timeout / backend) dùng translator có sẵn `thongDiepLoi`.
+ * Lỗi thô của browser (TypeError "Failed to fetch", AbortError…) KHÔNG được
+ * in ra — trả về câu fallback thân thiện thay vì lộ kỹ thuật vào bubble chat.
+ */
+export function chatErrorReply(
+  error: unknown,
+  readingId: string | null,
+): string {
+  if (error instanceof ApiError) {
+    if (error.status === 404 && readingId) {
+      return "⚠️ Không tìm thấy phiên chat. Vui lòng rút bài lại.";
+    }
+    if (error.status === 503 || error.message.includes("high demand")) {
+      return "🔮 Dịch vụ AI đang quá tải. Vui lòng thử lại sau vài phút.";
+    }
+    if (error.status === 401 || error.message.includes("Unauthorized")) {
+      return "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.";
+    }
+    // status 0 NETWORK/TIMEOUT → thongDiepLoi đã có câu tiếng Việt chuẩn.
+    // status 5xx → câu "máy chủ đang bận", KHÔNG phải câu mạng.
+    // Còn lại → giữ message backend nếu có.
+    return thongDiepLoi(error, CHAT_FALLBACK);
+  }
+
+  // TypeError("Failed to fetch"), AbortError, DOMException… — không lộ kỹ thuật.
+  // AbortError không có cancel path riêng trong chat hiện tại → coi như lỗi mạng.
+  return CHAT_FALLBACK;
 }
 
 // ============================================================

@@ -32,14 +32,19 @@ import { Header } from "@/components/Header";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
 import { TAROT_DECK, getCardMeaning } from "@/lib/mock-data";
-import { startAiTarotReading, type TarotReadingResult } from "@/api/tarot";
+import {
+  chatErrorReply,
+  sendChat,
+  startAiTarotReading,
+  type TarotReadingResult,
+} from "@/api/tarot";
 import { createAstrologyProfile } from "@/api/astrology";
 import {
   convertToISODate,
   convertToISOTime,
   getUserTimezone,
 } from "@/lib/utils";
-import { API_BASE } from "@/api/client";
+import { tokenStore } from "@/api/client";
 import { searchPlaces } from "@/lib/geocode";
 
 const DrawStage = lazy(() =>
@@ -368,59 +373,19 @@ async function getTimezoneInfo(
 }
 
 // ============================================================
-// 🔥 CALL GENERAL CHAT API - CHAT THƯỜNG (KHÔNG TAROT)
+// 🔥 CALL CHAT API
 // ============================================================
-async function callGeneralChat(message: string): Promise<string> {
+async function callChat(message: string, readingId: string | null): Promise<string> {
+  if (!tokenStore.getAccess()) {
+    console.warn("⚠️ No access token found");
+    return "Xin lỗi, bạn cần đăng nhập để sử dụng tính năng này.";
+  }
+
   try {
-    const token = localStorage.getItem("astrotarot_access_token");
+    console.log(`📤 Sending chat${readingId ? ` to reading: ${readingId}` : ""}`);
 
-    if (!token) {
-      console.warn("⚠️ No access token found");
-      return "Xin lỗi, bạn cần đăng nhập để sử dụng tính năng này.";
-    }
-
-    console.log(`📤 Sending general chat: ${message}`);
-
-    const response = await fetch(`${API_BASE}/api/chat`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        message,
-        readingId: null, // 🔥 QUAN TRỌNG: null = chat thường
-      }),
-    });
-
-    console.log(`📥 General chat response status: ${response.status}`);
-
-    if (!response.ok) {
-      let errorMessage = "Không thể lấy phản hồi từ AI";
-      try {
-        const errorData = await response.json();
-        console.error("❌ General chat API error:", errorData);
-        errorMessage =
-          errorData?.message || errorData?.data?.message || errorMessage;
-      } catch (e) {
-        console.error("❌ Failed to parse error response:", e);
-      }
-
-      if (response.status === 401) {
-        return "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.";
-      }
-      if (response.status === 503) {
-        return "🔮 Dịch vụ AI đang quá tải. Vui lòng thử lại sau vài phút.";
-      }
-
-      throw new Error(errorMessage);
-    }
-
-    const data = await response.json();
-    console.log("✅ General chat response data:", data);
-
-    // BE trả về ApiResponse<ChatResponse>
-    const reply = data?.data?.reply || data?.data?.response || data?.reply;
+    const data = await sendChat(message, readingId);
+    const reply = data?.reply || data?.response;
 
     if (!reply) {
       console.warn("⚠️ No reply in response:", data);
@@ -428,120 +393,22 @@ async function callGeneralChat(message: string): Promise<string> {
     }
 
     return reply;
-  } catch (error: any) {
-    console.error("❌ General chat error:", error);
-
-    if (
-      error.message?.includes("503") ||
-      error.message?.includes("high demand")
-    ) {
-      return "🔮 Dịch vụ AI đang quá tải. Vui lòng thử lại sau vài phút.";
-    }
-
-    if (
-      error.message?.includes("401") ||
-      error.message?.includes("Unauthorized")
-    ) {
-      return "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.";
-    }
-
-    return (
-      error.message ||
-      "Xin lỗi cậu, mình đang gặp vấn đề kết nối. Cậu có thể thử lại sau nhé! 💫"
-    );
+  } catch (error: unknown) {
+    console.error("❌ Chat error:", error);
+    // Dùng translator có sẵn — không in error.message thô vào bubble chat.
+    return chatErrorReply(error, readingId);
   }
 }
 
-// ============================================================
-// 🔥 CALL TAROT CHAT API - CHAT SAU KHI RÚT BÀI
-// ============================================================
+async function callGeneralChat(message: string): Promise<string> {
+  return callChat(message, null);
+}
+
 async function callTarotChat(
   readingId: string,
   message: string,
 ): Promise<string> {
-  try {
-    const token = localStorage.getItem("astrotarot_access_token");
-
-    if (!token) {
-      console.warn("⚠️ No access token found");
-      return "Xin lỗi, bạn cần đăng nhập để sử dụng tính năng này.";
-    }
-
-    console.log(`📤 Sending tarot chat to reading: ${readingId}`);
-    console.log(`📤 Message: ${message}`);
-
-    const response = await fetch(`${API_BASE}/api/chat`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        message,
-        readingId: readingId, // 🔥 CÓ readingId = chat Tarot
-      }),
-    });
-
-    console.log(`📥 Tarot chat response status: ${response.status}`);
-
-    if (!response.ok) {
-      let errorMessage = "Không thể lấy phản hồi từ AI";
-      try {
-        const errorData = await response.json();
-        console.error("❌ Tarot chat API error:", errorData);
-        errorMessage =
-          errorData?.message || errorData?.data?.message || errorMessage;
-      } catch (e) {
-        console.error("❌ Failed to parse error response:", e);
-      }
-
-      if (response.status === 401) {
-        return "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.";
-      }
-      if (response.status === 404) {
-        return "⚠️ Không tìm thấy phiên chat. Vui lòng rút bài lại.";
-      }
-      if (response.status === 503) {
-        return "🔮 Dịch vụ AI đang quá tải. Vui lòng thử lại sau vài phút.";
-      }
-
-      throw new Error(errorMessage);
-    }
-
-    const data = await response.json();
-    console.log("✅ Tarot chat response data:", data);
-
-    // BE trả về ApiResponse<ChatResponse>
-    const reply = data?.data?.reply || data?.data?.response || data?.reply;
-
-    if (!reply) {
-      console.warn("⚠️ No reply in response:", data);
-      return "Xin lỗi, mình chưa hiểu ý cậu. Cậu có thể nói rõ hơn không?";
-    }
-
-    return reply;
-  } catch (error: any) {
-    console.error("❌ Tarot chat error:", error);
-
-    if (
-      error.message?.includes("503") ||
-      error.message?.includes("high demand")
-    ) {
-      return "🔮 Dịch vụ AI đang quá tải. Vui lòng thử lại sau vài phút.";
-    }
-
-    if (
-      error.message?.includes("401") ||
-      error.message?.includes("Unauthorized")
-    ) {
-      return "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.";
-    }
-
-    return (
-      error.message ||
-      "Xin lỗi cậu, mình đang gặp vấn đề kết nối. Cậu có thể thử lại sau nhé! 💫"
-    );
-  }
+  return callChat(message, readingId);
 }
 
 function TarotPage() {
