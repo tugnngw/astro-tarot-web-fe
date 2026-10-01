@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 export function SubscriptionManagement() {
-  const { user } = useAuth();
+  const { user, openAuth } = useAuth();
   const { data: activePlans, isLoading: isPlansLoading } = useActivePlans();
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
   const [isPurchaseModalOpen, setPurchaseModalOpen] = useState(false);
@@ -41,6 +41,10 @@ export function SubscriptionManagement() {
   }, [activePlans, planFilter]);
 
   const handlePlanSelect = (plan: SubscriptionPlan) => {
+    if (!user) {
+      openAuth("login");
+      return;
+    }
     setSelectedPlan(plan);
     setPurchaseModalOpen(true);
   };
@@ -52,9 +56,11 @@ export function SubscriptionManagement() {
   return (
     <div className="space-y-8">
       {/* Current Quota Header Banner */}
-      <section>
-        <QuotaDisplay variant="detailed" />
-      </section>
+      {user && (
+        <section>
+          <QuotaDisplay variant="detailed" />
+        </section>
+      )}
 
       {/* Package Selection Section */}
       <section className="space-y-5">
@@ -163,14 +169,16 @@ export function SubscriptionManagement() {
       </section>
 
       {/* User's Active Subscriptions History */}
-      <section>
-        <UserPurchasesList
-          userId={user?.id}
-          showExpired={false}
-          maxItems={10}
-          onExplorePlans={() => setPlanFilter("ALL")}
-        />
-      </section>
+      {user && (
+        <section>
+          <UserPurchasesList
+            userId={user?.id}
+            showExpired={false}
+            maxItems={10}
+            onExplorePlans={() => setPlanFilter("ALL")}
+          />
+        </section>
+      )}
 
       {/* FAQ & Value Proposition Banner */}
       <section className="glass rounded-2xl border border-gold/15 p-6 sm:p-8">

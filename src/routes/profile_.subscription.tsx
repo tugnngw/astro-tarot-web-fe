@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 import { Header } from "@/components/Header";
 import { SubscriptionManagement } from "@/components/subscription";
-import { Sparkles, ArrowLeft } from "lucide-react";
+import { ArrowLeft, Sparkles, LogIn } from "lucide-react";
 
 export const Route = createFileRoute("/profile_/subscription")({
   head: () => ({ meta: [{ title: "Gói cước AI Tarot — ASTROTAROT" }] }),
@@ -12,47 +12,66 @@ export const Route = createFileRoute("/profile_/subscription")({
 function SubscriptionPage() {
   const { user, openAuth } = useAuth();
 
-  if (!user) {
-    return (
-      <div className="relative min-h-screen">
-        <Header />
-        <main className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
-          <div className="glass rounded-3xl border-gold/20 p-12 sm:p-16 text-center">
-            <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-gold/15 text-gold mb-4">
-              <Sparkles className="h-7 w-7" />
-            </div>
-            <h1 className="font-display text-2xl font-bold sm:text-3xl text-foreground">
-              Đăng nhập để xem gói cước AI
-            </h1>
-            <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto">
-              Đăng nhập tài khoản ASTROTAROT để theo dõi hạn mức câu hỏi hàng ngày và đăng ký gói AI trải bài nâng cao.
-            </p>
-            <button
-              type="button"
-              onClick={() => openAuth("login")}
-              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-gold px-6 py-2.5 text-sm font-semibold text-background glow-gold transition hover:bg-gold/90"
-            >
-              Đăng nhập ngay
-            </button>
-          </div>
-        </main>
-      </div>
-    );
-  }
-
   return (
     <div className="relative min-h-screen pb-16">
       <Header />
       <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
         <div className="mb-6 flex items-center justify-between">
-          <Link
-            to="/profile"
-            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-gold transition"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            Quay lại Hồ sơ cá nhân
-          </Link>
+          {user ? (
+            <Link
+              to="/profile"
+              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-gold transition"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              Quay lại Hồ sơ cá nhân
+            </Link>
+          ) : (
+            <Link
+              to="/"
+              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-gold transition"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              Quay lại Trang chủ
+            </Link>
+          )}
+
+          {!user && (
+            <button
+              type="button"
+              onClick={() => openAuth("login")}
+              className="inline-flex items-center gap-1.5 rounded-full border border-gold/40 bg-gold/10 px-3.5 py-1.5 text-xs font-medium text-gold hover:bg-gold/20 transition"
+            >
+              <LogIn className="h-3.5 w-3.5" />
+              Đăng nhập tài khoản
+            </button>
+          )}
         </div>
+
+        {!user && (
+          <div className="glass rounded-2xl border-gold/25 p-4 sm:p-5 mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="grid h-10 w-10 place-items-center rounded-xl bg-gold/15 text-gold shrink-0">
+                <Sparkles className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="font-display text-base font-semibold text-foreground">
+                  Trải nghiệm Tarot AI không giới hạn
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  Đăng nhập tài khoản để nhận 3 lượt hỏi miễn phí mỗi ngày hoặc đăng ký gói cước mở rộng.
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => openAuth("login")}
+              className="rounded-xl bg-gold px-4 py-2 text-xs font-semibold text-background hover:bg-gold/90 transition shrink-0"
+            >
+              Đăng nhập ngay
+            </button>
+          </div>
+        )}
 
         <SubscriptionManagement />
       </main>

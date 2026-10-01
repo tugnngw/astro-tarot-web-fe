@@ -238,6 +238,7 @@ export function homePathFor(principal: Principal | null): HomePath {
 export const PUBLIC_NAV = [
   { to: "/", label: "Trang chủ" },
   { to: "/tarot", label: "Tarot AI" },
+  { to: "/profile/subscription", label: "Gói cước AI" },
   { to: "/readers", label: "Reader" },
   { to: "/shop", label: "Shop" },
   { to: "/blogs", label: "Blog" },
