@@ -28,6 +28,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShopSlugRouteImport } from './routes/shop_.$slug'
 import { Route as ReadersIdRouteImport } from './routes/readers_.$id'
+import { Route as ProfileWalletRouteImport } from './routes/profile_.wallet'
 import { Route as ProfileSubscriptionRouteImport } from './routes/profile_.subscription'
 import { Route as ProfileAstrologyRouteImport } from './routes/profile_.astrology'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
@@ -127,6 +128,11 @@ const ReadersIdRoute = ReadersIdRouteImport.update({
   path: '/readers/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProfileWalletRoute = ProfileWalletRouteImport.update({
+  id: '/profile_/wallet',
+  path: '/profile/wallet',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfileSubscriptionRoute = ProfileSubscriptionRouteImport.update({
   id: '/profile_/subscription',
   path: '/profile/subscription',
@@ -164,6 +170,7 @@ export interface FileRoutesByFullPath {
   '/blog/$slug': typeof BlogSlugRoute
   '/profile/astrology': typeof ProfileAstrologyRoute
   '/profile/subscription': typeof ProfileSubscriptionRoute
+  '/profile/wallet': typeof ProfileWalletRoute
   '/readers/$id': typeof ReadersIdRoute
   '/shop/$slug': typeof ShopSlugRoute
 }
@@ -188,6 +195,7 @@ export interface FileRoutesByTo {
   '/blog/$slug': typeof BlogSlugRoute
   '/profile/astrology': typeof ProfileAstrologyRoute
   '/profile/subscription': typeof ProfileSubscriptionRoute
+  '/profile/wallet': typeof ProfileWalletRoute
   '/readers/$id': typeof ReadersIdRoute
   '/shop/$slug': typeof ShopSlugRoute
 }
@@ -213,6 +221,7 @@ export interface FileRoutesById {
   '/blog/$slug': typeof BlogSlugRoute
   '/profile_/astrology': typeof ProfileAstrologyRoute
   '/profile_/subscription': typeof ProfileSubscriptionRoute
+  '/profile_/wallet': typeof ProfileWalletRoute
   '/readers_/$id': typeof ReadersIdRoute
   '/shop_/$slug': typeof ShopSlugRoute
 }
@@ -239,6 +248,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/profile/astrology'
     | '/profile/subscription'
+    | '/profile/wallet'
     | '/readers/$id'
     | '/shop/$slug'
   fileRoutesByTo: FileRoutesByTo
@@ -263,6 +273,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/profile/astrology'
     | '/profile/subscription'
+    | '/profile/wallet'
     | '/readers/$id'
     | '/shop/$slug'
   id:
@@ -287,6 +298,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/profile_/astrology'
     | '/profile_/subscription'
+    | '/profile_/wallet'
     | '/readers_/$id'
     | '/shop_/$slug'
   fileRoutesById: FileRoutesById
@@ -312,6 +324,7 @@ export interface RootRouteChildren {
   BlogSlugRoute: typeof BlogSlugRoute
   ProfileAstrologyRoute: typeof ProfileAstrologyRoute
   ProfileSubscriptionRoute: typeof ProfileSubscriptionRoute
+  ProfileWalletRoute: typeof ProfileWalletRoute
   ReadersIdRoute: typeof ReadersIdRoute
   ShopSlugRoute: typeof ShopSlugRoute
 }
@@ -451,6 +464,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReadersIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/profile_/wallet': {
+      id: '/profile_/wallet'
+      path: '/profile/wallet'
+      fullPath: '/profile/wallet'
+      preLoaderRoute: typeof ProfileWalletRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile_/subscription': {
       id: '/profile_/subscription'
       path: '/profile/subscription'
@@ -496,6 +516,7 @@ const rootRouteChildren: RootRouteChildren = {
   BlogSlugRoute: BlogSlugRoute,
   ProfileAstrologyRoute: ProfileAstrologyRoute,
   ProfileSubscriptionRoute: ProfileSubscriptionRoute,
+  ProfileWalletRoute: ProfileWalletRoute,
   ReadersIdRoute: ReadersIdRoute,
   ShopSlugRoute: ShopSlugRoute,
 }

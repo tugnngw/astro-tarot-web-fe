@@ -1,5 +1,6 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   ChevronDown,
   User as UserIcon,
@@ -14,15 +15,18 @@ import {
   Menu,
   X,
   LayoutDashboard,
+  Wallet,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { avatarUrl } from "@/api/profile";
+import { walletApi } from "@/api/wallet";
 import { PUBLIC_NAV, can, workspaceNavFor } from "@/lib/roles";
 import { cn } from "@/lib/utils";
 import { RoleBadge } from "./RoleBadge";
 import { NotificationBell } from "./NotificationBell";
 import { LogoutConfirm } from "./LogoutConfirm";
 import { ScrollProgress } from "./ScrollProgress";
+import { TopupModal } from "./wallet/TopupModal";
 import logo from "@/assets/logo-astrotarot.png";
 
 /** Class chung cho mục nav: muted khi chưa chọn, vàng + gạch chân khi active/hover. */
@@ -63,11 +67,18 @@ export function Header() {
   const coLichKhachDat = can(user, "READER_MANAGE_PROFILE");
   const [open, setOpen] = useState(false);
   const [logoutOpen, setLogoutOpen] = useState(false);
+  const [topupOpen, setTopupOpen] = useState(false);
   /** Cụm avatar + menu, để biết một cú bấm là trong hay ngoài. */
   const accountRef = useRef<HTMLDivElement>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  const walletQuery = useQuery({
+    queryKey: ["user-wallet"],
+    queryFn: walletApi.getMyWallet,
+    enabled: Boolean(user),
+  });
 
   // Đổi trang thì đóng cả hai menu, nếu không chúng treo lại trên trang mới.
   useEffect(() => {
@@ -170,6 +181,22 @@ export function Header() {
                 cần xử lý, và cùng chỉ có nghĩa khi đã đăng nhập. */}
             <NotificationBell />
 
+            {user && (
+              <button
+                type="button"
+                onClick={() => setTopupOpen(true)}
+                title="Số dư Ví ASTROTAROT — Bấm để nạp tiền"
+                className="flex items-center gap-1.5 rounded-full border border-gold/40 bg-card/60 px-2.5 py-1 text-xs font-medium transition hover:border-gold hover:bg-gold/10"
+              >
+                <Wallet className="h-3.5 w-3.5 text-gold shrink-0" />
+                <span className="font-semibold text-gradient-gold">
+                  {walletQuery.data
+                    ? (walletQuery.data.balance ?? 0).toLocaleString("vi-VN") + " ₫"
+                    : "0 ₫"}
+                </span>
+              </button>
+            )}
+
             {user ? (
               <div className="relative" ref={accountRef}>
                 <button
@@ -256,6 +283,14 @@ export function Header() {
                             },
                           ]
                         : []),
+                      {
+                        ic: Wallet,
+                        l: "Ví ASTROTAROT",
+                        a: () => {
+                          setOpen(false);
+                          navigate({ to: "/profile/wallet" });
+                        },
+                      },
                       {
                         ic: Star,
                         l: "Bản đồ sao",
@@ -380,6 +415,19 @@ export function Header() {
               {user && (
                 <>
                   <Link
+                    to="/profile/wallet"
+                    onClick={() => setMobileOpen(false)}
+                    className={mobileNavLinkClass(
+                      pathname === "/profile/wallet",
+                    )}
+                  >
+                    Ví ASTROTAROT (
+                    {walletQuery.data
+                      ? (walletQuery.data.balance ?? 0).toLocaleString("vi-VN") + " ₫"
+                      : "0 ₫"}
+                    )
+                  </Link>
+                  <Link
                     to="/bookings"
                     onClick={() => setMobileOpen(false)}
                     className={mobileNavLinkClass(
@@ -440,6 +488,7 @@ export function Header() {
         )}
       </header>
       <LogoutConfirm open={logoutOpen} onClose={() => setLogoutOpen(false)} />
+      <TopupModal open={topupOpen} onClose={() => setTopupOpen(false)} />
     </>
   );
 }
