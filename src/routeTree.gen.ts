@@ -9,103 +9,33 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as VerifyEmailRouteImport } from './routes/verify-email'
-import { Route as TarotHistoryRouteImport } from './routes/tarot-history'
-import { Route as TarotRouteImport } from './routes/tarot'
-import { Route as SupportRouteImport } from './routes/support'
-import { Route as StaffRouteImport } from './routes/staff'
-import { Route as ShopRouteImport } from './routes/shop'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as ReadersRouteImport } from './routes/readers'
-import { Route as ReaderHubRouteImport } from './routes/reader-hub'
-import { Route as ReaderRouteImport } from './routes/reader'
-import { Route as ProfileRouteImport } from './routes/profile'
-import { Route as ManagerRouteImport } from './routes/manager'
-import { Route as HomeRouteImport } from './routes/home'
-import { Route as BookingsRouteImport } from './routes/bookings'
-import { Route as BlogsRouteImport } from './routes/blogs'
-import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ShopSlugRouteImport } from './routes/shop_.$slug'
-import { Route as ReadersIdRouteImport } from './routes/readers_.$id'
-import { Route as ProfileWalletRouteImport } from './routes/profile_.wallet'
-import { Route as ProfileSubscriptionRouteImport } from './routes/profile_.subscription'
-import { Route as ProfileAstrologyRouteImport } from './routes/profile_.astrology'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as BlogsRouteImport } from './routes/blogs'
+import { Route as BookingsRouteImport } from './routes/bookings'
+import { Route as HomeRouteImport } from './routes/home'
+import { Route as ManagerRouteImport } from './routes/manager'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as ReaderRouteImport } from './routes/reader'
+import { Route as ReaderHubRouteImport } from './routes/reader-hub'
+import { Route as ReadersRouteImport } from './routes/readers'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as ShopRouteImport } from './routes/shop'
+import { Route as StaffRouteImport } from './routes/staff'
+import { Route as SupportRouteImport } from './routes/support'
+import { Route as TarotRouteImport } from './routes/tarot'
+import { Route as TarotHistoryRouteImport } from './routes/tarot-history'
+import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as ProfileAstrologyRouteImport } from './routes/profile_.astrology'
+import { Route as ProfileSubscriptionRouteImport } from './routes/profile_.subscription'
+import { Route as ProfileWalletRouteImport } from './routes/profile_.wallet'
+import { Route as ReadersIdRouteImport } from './routes/readers_.$id'
+import { Route as ShopSlugRouteImport } from './routes/shop_.$slug'
 
-const VerifyEmailRoute = VerifyEmailRouteImport.update({
-  id: '/verify-email',
-  path: '/verify-email',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TarotHistoryRoute = TarotHistoryRouteImport.update({
-  id: '/tarot-history',
-  path: '/tarot-history',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TarotRoute = TarotRouteImport.update({
-  id: '/tarot',
-  path: '/tarot',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SupportRoute = SupportRouteImport.update({
-  id: '/support',
-  path: '/support',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StaffRoute = StaffRouteImport.update({
-  id: '/staff',
-  path: '/staff',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ShopRoute = ShopRouteImport.update({
-  id: '/shop',
-  path: '/shop',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ReadersRoute = ReadersRouteImport.update({
-  id: '/readers',
-  path: '/readers',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ReaderHubRoute = ReaderHubRouteImport.update({
-  id: '/reader-hub',
-  path: '/reader-hub',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ReaderRoute = ReaderRouteImport.update({
-  id: '/reader',
-  path: '/reader',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProfileRoute = ProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ManagerRoute = ManagerRouteImport.update({
-  id: '/manager',
-  path: '/manager',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HomeRoute = HomeRouteImport.update({
-  id: '/home',
-  path: '/home',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BookingsRoute = BookingsRouteImport.update({
-  id: '/bookings',
-  path: '/bookings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BlogsRoute = BlogsRouteImport.update({
-  id: '/blogs',
-  path: '/blogs',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -113,29 +43,84 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const BlogsRoute = BlogsRouteImport.update({
+  id: '/blogs',
+  path: '/blogs',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ShopSlugRoute = ShopSlugRouteImport.update({
-  id: '/shop_/$slug',
-  path: '/shop/$slug',
+const BookingsRoute = BookingsRouteImport.update({
+  id: '/bookings',
+  path: '/bookings',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ReadersIdRoute = ReadersIdRouteImport.update({
-  id: '/readers_/$id',
-  path: '/readers/$id',
+const HomeRoute = HomeRouteImport.update({
+  id: '/home',
+  path: '/home',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProfileWalletRoute = ProfileWalletRouteImport.update({
-  id: '/profile_/wallet',
-  path: '/profile/wallet',
+const ManagerRoute = ManagerRouteImport.update({
+  id: '/manager',
+  path: '/manager',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProfileSubscriptionRoute = ProfileSubscriptionRouteImport.update({
-  id: '/profile_/subscription',
-  path: '/profile/subscription',
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReaderRoute = ReaderRouteImport.update({
+  id: '/reader',
+  path: '/reader',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReaderHubRoute = ReaderHubRouteImport.update({
+  id: '/reader-hub',
+  path: '/reader-hub',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReadersRoute = ReadersRouteImport.update({
+  id: '/readers',
+  path: '/readers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShopRoute = ShopRouteImport.update({
+  id: '/shop',
+  path: '/shop',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StaffRoute = StaffRouteImport.update({
+  id: '/staff',
+  path: '/staff',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SupportRoute = SupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TarotRoute = TarotRouteImport.update({
+  id: '/tarot',
+  path: '/tarot',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TarotHistoryRoute = TarotHistoryRouteImport.update({
+  id: '/tarot-history',
+  path: '/tarot-history',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VerifyEmailRoute = VerifyEmailRouteImport.update({
+  id: '/verify-email',
+  path: '/verify-email',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileAstrologyRoute = ProfileAstrologyRouteImport.update({
@@ -143,9 +128,24 @@ const ProfileAstrologyRoute = ProfileAstrologyRouteImport.update({
   path: '/profile/astrology',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BlogSlugRoute = BlogSlugRouteImport.update({
-  id: '/blog/$slug',
-  path: '/blog/$slug',
+const ProfileSubscriptionRoute = ProfileSubscriptionRouteImport.update({
+  id: '/profile_/subscription',
+  path: '/profile/subscription',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileWalletRoute = ProfileWalletRouteImport.update({
+  id: '/profile_/wallet',
+  path: '/profile/wallet',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReadersIdRoute = ReadersIdRouteImport.update({
+  id: '/readers_/$id',
+  path: '/readers/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShopSlugRoute = ShopSlugRouteImport.update({
+  id: '/shop_/$slug',
+  path: '/shop/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -331,109 +331,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/verify-email': {
-      id: '/verify-email'
-      path: '/verify-email'
-      fullPath: '/verify-email'
-      preLoaderRoute: typeof VerifyEmailRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/tarot-history': {
-      id: '/tarot-history'
-      path: '/tarot-history'
-      fullPath: '/tarot-history'
-      preLoaderRoute: typeof TarotHistoryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/tarot': {
-      id: '/tarot'
-      path: '/tarot'
-      fullPath: '/tarot'
-      preLoaderRoute: typeof TarotRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/support': {
-      id: '/support'
-      path: '/support'
-      fullPath: '/support'
-      preLoaderRoute: typeof SupportRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/staff': {
-      id: '/staff'
-      path: '/staff'
-      fullPath: '/staff'
-      preLoaderRoute: typeof StaffRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/shop': {
-      id: '/shop'
-      path: '/shop'
-      fullPath: '/shop'
-      preLoaderRoute: typeof ShopRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/readers': {
-      id: '/readers'
-      path: '/readers'
-      fullPath: '/readers'
-      preLoaderRoute: typeof ReadersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reader-hub': {
-      id: '/reader-hub'
-      path: '/reader-hub'
-      fullPath: '/reader-hub'
-      preLoaderRoute: typeof ReaderHubRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reader': {
-      id: '/reader'
-      path: '/reader'
-      fullPath: '/reader'
-      preLoaderRoute: typeof ReaderRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/profile': {
-      id: '/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof ProfileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/manager': {
-      id: '/manager'
-      path: '/manager'
-      fullPath: '/manager'
-      preLoaderRoute: typeof ManagerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/home': {
-      id: '/home'
-      path: '/home'
-      fullPath: '/home'
-      preLoaderRoute: typeof HomeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/bookings': {
-      id: '/bookings'
-      path: '/bookings'
-      fullPath: '/bookings'
-      preLoaderRoute: typeof BookingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/blogs': {
-      id: '/blogs'
-      path: '/blogs'
-      fullPath: '/blogs'
-      preLoaderRoute: typeof BlogsRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -443,39 +345,116 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/blogs': {
+      id: '/blogs'
+      path: '/blogs'
+      fullPath: '/blogs'
+      preLoaderRoute: typeof BlogsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/shop_/$slug': {
-      id: '/shop_/$slug'
-      path: '/shop/$slug'
-      fullPath: '/shop/$slug'
-      preLoaderRoute: typeof ShopSlugRouteImport
+    '/bookings': {
+      id: '/bookings'
+      path: '/bookings'
+      fullPath: '/bookings'
+      preLoaderRoute: typeof BookingsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/readers_/$id': {
-      id: '/readers_/$id'
-      path: '/readers/$id'
-      fullPath: '/readers/$id'
-      preLoaderRoute: typeof ReadersIdRouteImport
+    '/home': {
+      id: '/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof HomeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/profile_/wallet': {
-      id: '/profile_/wallet'
-      path: '/profile/wallet'
-      fullPath: '/profile/wallet'
-      preLoaderRoute: typeof ProfileWalletRouteImport
+    '/manager': {
+      id: '/manager'
+      path: '/manager'
+      fullPath: '/manager'
+      preLoaderRoute: typeof ManagerRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/profile_/subscription': {
-      id: '/profile_/subscription'
-      path: '/profile/subscription'
-      fullPath: '/profile/subscription'
-      preLoaderRoute: typeof ProfileSubscriptionRouteImport
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reader': {
+      id: '/reader'
+      path: '/reader'
+      fullPath: '/reader'
+      preLoaderRoute: typeof ReaderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reader-hub': {
+      id: '/reader-hub'
+      path: '/reader-hub'
+      fullPath: '/reader-hub'
+      preLoaderRoute: typeof ReaderHubRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/readers': {
+      id: '/readers'
+      path: '/readers'
+      fullPath: '/readers'
+      preLoaderRoute: typeof ReadersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shop': {
+      id: '/shop'
+      path: '/shop'
+      fullPath: '/shop'
+      preLoaderRoute: typeof ShopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/staff': {
+      id: '/staff'
+      path: '/staff'
+      fullPath: '/staff'
+      preLoaderRoute: typeof StaffRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/support': {
+      id: '/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof SupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tarot': {
+      id: '/tarot'
+      path: '/tarot'
+      fullPath: '/tarot'
+      preLoaderRoute: typeof TarotRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tarot-history': {
+      id: '/tarot-history'
+      path: '/tarot-history'
+      fullPath: '/tarot-history'
+      preLoaderRoute: typeof TarotHistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/verify-email': {
+      id: '/verify-email'
+      path: '/verify-email'
+      fullPath: '/verify-email'
+      preLoaderRoute: typeof VerifyEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile_/astrology': {
@@ -485,11 +464,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileAstrologyRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/blog/$slug': {
-      id: '/blog/$slug'
-      path: '/blog/$slug'
-      fullPath: '/blog/$slug'
-      preLoaderRoute: typeof BlogSlugRouteImport
+    '/profile_/subscription': {
+      id: '/profile_/subscription'
+      path: '/profile/subscription'
+      fullPath: '/profile/subscription'
+      preLoaderRoute: typeof ProfileSubscriptionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile_/wallet': {
+      id: '/profile_/wallet'
+      path: '/profile/wallet'
+      fullPath: '/profile/wallet'
+      preLoaderRoute: typeof ProfileWalletRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/readers_/$id': {
+      id: '/readers_/$id'
+      path: '/readers/$id'
+      fullPath: '/readers/$id'
+      preLoaderRoute: typeof ReadersIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shop_/$slug': {
+      id: '/shop_/$slug'
+      path: '/shop/$slug'
+      fullPath: '/shop/$slug'
+      preLoaderRoute: typeof ShopSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
