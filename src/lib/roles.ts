@@ -238,6 +238,7 @@ export function homePathFor(principal: Principal | null): HomePath {
 export const PUBLIC_NAV = [
   { to: "/", label: "Trang chủ" },
   { to: "/tarot", label: "Tarot AI" },
+  { to: "/profile/subscription", label: "Gói cước AI" },
   { to: "/readers", label: "Reader" },
   { to: "/shop", label: "Shop" },
   { to: "/blogs", label: "Blog" },
@@ -259,10 +260,15 @@ export type WorkspaceNavItem = (typeof WORKSPACE_NAV)[number];
 export function workspaceNavFor(
   principal: Principal | null,
 ): WorkspaceNavItem[] {
-  // Trước đây có thêm điều kiện `item.to !== homePathFor(principal)`: khu làm
-  // việc của chính mình bị bỏ khỏi danh sách, vì coi như "Trang chủ" đã dẫn
-  // tới đó rồi. Hệ quả là tài khoản Nhân viên không thấy chữ "Bàn làm việc" ở
-  // bất kỳ đâu — lối vào duy nhất là một cái nhãn ghi "Trang chủ". Ai cũng
-  // thấy đúng khu của mình, gọi đúng tên của nó.
-  return WORKSPACE_NAV.filter((item) => can(principal, item.permission));
+  if (!principal) return [];
+  switch (principal.role) {
+    case "admin":
+      return WORKSPACE_NAV.filter((item) => item.to === "/admin");
+    case "manager":
+      return WORKSPACE_NAV.filter((item) => item.to === "/manager");
+    case "staff":
+      return WORKSPACE_NAV.filter((item) => item.to === "/staff");
+    default:
+      return [];
+  }
 }

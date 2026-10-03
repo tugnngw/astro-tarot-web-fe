@@ -14,7 +14,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
-import { canAny, homePathFor, type Permission } from "@/lib/roles";
+import { canAny, homePathFor, type Permission, type Role } from "@/lib/roles";
 
 interface Props {
   /** Có ÍT NHẤT một trong các quyền này thì vào được. */
@@ -22,12 +22,21 @@ interface Props {
   children: ReactNode;
   /** Điểm đến khi bị từ chối. Mặc định về trang chủ đúng vai trò. */
   redirectTo?: string;
+  /** Các vai trò bị cấm vào route này (tự động chuyển về trang chủ của vai trò đó). */
+  disallowRoles?: Role[];
 }
 
-export function RoleGuard({ require: required, children, redirectTo }: Props) {
+export function RoleGuard({
+  require: required,
+  children,
+  redirectTo,
+  disallowRoles,
+}: Props) {
   const { user, openAuth, bootstrapping } = useAuth();
   const navigate = useNavigate();
-  const allowed = canAny(user, required);
+  const hasRequiredPermission = canAny(user, required);
+  const isDisallowed = user ? Boolean(disallowRoles?.includes(user.role)) : false;
+  const allowed = hasRequiredPermission && !isDisallowed;
   const fallback = redirectTo ?? homePathFor(user);
 
   useEffect(() => {
@@ -40,10 +49,12 @@ export function RoleGuard({ require: required, children, redirectTo }: Props) {
       return;
     }
     if (!allowed) {
-      toast.error("Bạn không có quyền truy cập trang này");
+      if (!isDisallowed) {
+        toast.error("Bạn không có quyền truy cập trang này");
+      }
       navigate({ to: fallback });
     }
-  }, [user, allowed, bootstrapping, navigate, openAuth, fallback]);
+  }, [user, allowed, isDisallowed, bootstrapping, navigate, openAuth, fallback]);
 
   if (bootstrapping) {
     return (
@@ -62,6 +73,7 @@ export function RoleGuard({ require: required, children, redirectTo }: Props) {
   if (!user) return <>{children}</>;
 
   if (!allowed) {
+    if (isDisallowed) return null;
     return (
       <div className="grid min-h-[60vh] place-items-center px-4 text-center">
         <div>

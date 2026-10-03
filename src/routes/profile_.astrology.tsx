@@ -26,7 +26,7 @@ import { PAGE_SIZE, PagedList, Pagination } from "@/components/Pagination";
 export const Route = createFileRoute("/profile_/astrology")({
   head: () => ({ meta: [{ title: "Bản đồ sao — ASTROTAROT" }] }),
   component: () => (
-    <RoleGuard require={["USER_BASIC"]}>
+    <RoleGuard require={["USER_BASIC"]} disallowRoles={["admin"]}>
       <AstrologyProfilesPage />
     </RoleGuard>
   ),

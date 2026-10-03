@@ -1,1 +1,1 @@
-// Exports all custom React hooks for admin feature.
+export * from "./useAdmin";

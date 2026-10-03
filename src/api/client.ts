@@ -344,5 +344,11 @@ export async function apiFetch<T>(
     );
   }
 
-  return envelope.data as T;
+  // Nếu BE bọc dữ liệu trong chuẩn ApiResponse ({ data: ... })
+  if (envelope !== null && typeof envelope === "object" && "data" in envelope) {
+    return envelope.data as T;
+  }
+
+  // Fallback an toàn nếu BE trả về mảng hoặc object trực tiếp chưa bọc envelope
+  return envelope as unknown as T;
 }

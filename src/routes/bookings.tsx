@@ -27,7 +27,7 @@ export const Route = createFileRoute("/bookings")({
   validateSearch: (search: Record<string, unknown>): { payment?: string } =>
     typeof search.payment === "string" ? { payment: search.payment } : {},
   component: () => (
-    <RoleGuard require={["USER_BASIC"]}>
+    <RoleGuard require={["USER_BASIC"]} disallowRoles={["admin"]}>
       <MyBookingsPage />
     </RoleGuard>
   ),

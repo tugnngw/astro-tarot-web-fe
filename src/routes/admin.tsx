@@ -24,7 +24,7 @@ import {
 } from "@/lib/roles";
 import { RoleBadge } from "@/components/RoleBadge";
 import { BlogReviewQueue } from "@/features/blog/components/BlogReviewQueue";
-import { MyBlogList } from "@/features/blog/components/MyBlogList";
+import { AIPlanManager } from "@/features/admin/components/AIPlanManager";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Quản trị — ASTROTAROT" }] }),
@@ -57,11 +57,6 @@ function AdminWorkspace() {
           render: () => <BlogReviewQueue />,
         },
         {
-          key: "my-blogs",
-          label: "Bài viết của tôi",
-          render: () => <MyBlogList />,
-        },
-        {
           key: "users",
           label: "Tài khoản",
           render: () => (
@@ -76,6 +71,11 @@ function AdminWorkspace() {
           key: "applications",
           label: "Hồ sơ Reader",
           render: () => <ReaderApplications />,
+        },
+        {
+          key: "ai-plans",
+          label: "Gói AI",
+          render: () => <AIPlanManager />,
         },
         {
           key: "payments",

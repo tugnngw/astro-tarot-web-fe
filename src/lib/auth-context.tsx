@@ -206,7 +206,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // — từ khi BE đăng nhập bằng email thì cách đó luôn sai.
   const login: AuthCtx["login"] = async (email, password) => {
     const res = await authApi.login({ email: email.trim(), password });
-    persist(toAuthUser(res.user, res.permissions));
+    const authUser = toAuthUser(res.user, res.permissions);
+    persist(authUser);
     // Lịch hẹn đang nằm ở trạng thái lỗi 401. Đăng nhập xong phải gọi lại,
     // không thì ô "phiên hết hạn" vẫn đứng đó với token mới.
     void queryClient.invalidateQueries();
@@ -216,15 +217,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // vẫn phủ lên trên.
     setAuthPrompt({ open: false });
 
-    // Đăng nhập xong thì Ở NGUYÊN trang đang đọc dở. Người dùng bấm đăng nhập
-    // giữa chừng là để làm tiếp việc đang làm, đá họ sang trang khác là bắt họ
-    // tự tìm đường quay lại.
-    //
-    // Trừ mấy trang chỉ tồn tại cho luồng xác thực: ở lại đó sau khi đăng nhập
-    // thì chẳng còn gì để xem, nên về trang chủ đúng vai trò.
-    if (AUTH_ONLY_ROUTES.some((p) => pathname.startsWith(p))) {
+    // Đăng nhập xong: Admin/Manager/Staff hoặc các trang xác thực được chuyển
+    // thẳng về workspace tương ứng (homePathFor). Thành viên thông thường ở
+    // nguyên trang hiện tại để tiếp tục trải nghiệm.
+    if (
+      authUser.role === "admin" ||
+      authUser.role === "manager" ||
+      authUser.role === "staff" ||
+      AUTH_ONLY_ROUTES.some((p) => pathname.startsWith(p))
+    ) {
       navigate({
-        to: homePathFor(toAuthUser(res.user, res.permissions)),
+        to: homePathFor(authUser),
       });
     }
     if (pendingAction) {

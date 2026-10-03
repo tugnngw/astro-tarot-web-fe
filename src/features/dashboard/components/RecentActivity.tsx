@@ -1,5 +1,6 @@
 // src/features/dashboard/components/RecentActivity.tsx
 import { useRecentActivity } from "../hooks";
+import type { Activity } from "../types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
@@ -50,7 +51,7 @@ export function RecentActivity() {
         <CardTitle className="text-sm">Recent Activity</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        {activities.map((activity) => (
+        {activities.map((activity: Activity) => (
           <div
             key={activity.id}
             className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted/30 transition-colors"

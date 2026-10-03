@@ -1,5 +1,6 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   ChevronDown,
   User as UserIcon,
@@ -10,18 +11,22 @@ import {
   CalendarCheck,
   LifeBuoy,
   Star,
+  Zap,
   Menu,
   X,
   LayoutDashboard,
+  Wallet,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { avatarUrl } from "@/api/profile";
+import { walletApi } from "@/api/wallet";
 import { PUBLIC_NAV, can, workspaceNavFor } from "@/lib/roles";
 import { cn } from "@/lib/utils";
 import { RoleBadge } from "./RoleBadge";
 import { NotificationBell } from "./NotificationBell";
 import { LogoutConfirm } from "./LogoutConfirm";
 import { ScrollProgress } from "./ScrollProgress";
+import { TopupModal } from "./wallet/TopupModal";
 import logo from "@/assets/logo-astrotarot.png";
 
 /** Class chung cho mục nav: muted khi chưa chọn, vàng + gạch chân khi active/hover. */
@@ -46,6 +51,7 @@ function mobileNavLinkClass(active: boolean) {
 
 export function Header() {
   const { user, openAuth } = useAuth();
+  const isAdmin = user?.role === "admin";
   // Link khu vực làm việc suy ra từ QUYỀN, không phải từ tên vai trò: thêm một
   // vai trò mới thì chỉ sửa bảng ở @/lib/roles, không phải sửa header.
   const workspaceLinks = workspaceNavFor(user);
@@ -62,11 +68,18 @@ export function Header() {
   const coLichKhachDat = can(user, "READER_MANAGE_PROFILE");
   const [open, setOpen] = useState(false);
   const [logoutOpen, setLogoutOpen] = useState(false);
+  const [topupOpen, setTopupOpen] = useState(false);
   /** Cụm avatar + menu, để biết một cú bấm là trong hay ngoài. */
   const accountRef = useRef<HTMLDivElement>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  const walletQuery = useQuery({
+    queryKey: ["user-wallet"],
+    queryFn: walletApi.getMyWallet,
+    enabled: Boolean(user && !isAdmin),
+  });
 
   // Đổi trang thì đóng cả hai menu, nếu không chúng treo lại trên trang mới.
   useEffect(() => {
@@ -110,6 +123,119 @@ export function Header() {
     return () => window.removeEventListener("keydown", onKey);
   }, [mobileOpen, open]);
 
+  const menuItems = isAdmin
+    ? [
+        {
+          ic: UserIcon,
+          l: "Hồ sơ cá nhân",
+          a: () => {
+            setOpen(false);
+            navigate({ to: "/profile" });
+          },
+        },
+        {
+          ic: Settings,
+          l: "Cài đặt tài khoản",
+          a: () => {
+            setOpen(false);
+            navigate({ to: "/profile" });
+          },
+        },
+      ]
+    : [
+        ...(coKhongGianThanhVien
+          ? [
+              {
+                ic: LayoutDashboard,
+                l: "Không gian của tôi",
+                a: () => {
+                  setOpen(false);
+                  navigate({ to: "/home" });
+                },
+              },
+            ]
+          : []),
+        {
+          ic: UserIcon,
+          l: "Hồ sơ cá nhân",
+          a: () => {
+            setOpen(false);
+            navigate({ to: "/profile" });
+          },
+        },
+        {
+          ic: CalendarClock,
+          l: "Lịch hẹn của tôi",
+          a: () => {
+            setOpen(false);
+            navigate({ to: "/bookings" });
+          },
+        },
+        ...(coLichKhachDat
+          ? [
+              {
+                ic: CalendarCheck,
+                l: "Lịch khách đặt với tôi",
+                a: () => {
+                  setOpen(false);
+                  navigate({
+                    to: "/staff",
+                    search: { tab: "bookings" },
+                  });
+                },
+              },
+            ]
+          : []),
+        {
+          ic: Wallet,
+          l: "Ví ASTROTAROT",
+          a: () => {
+            setOpen(false);
+            navigate({ to: "/profile/wallet" });
+          },
+        },
+        {
+          ic: Star,
+          l: "Bản đồ sao",
+          a: () => {
+            setOpen(false);
+            navigate({ to: "/profile/astrology" });
+          },
+        },
+        {
+          ic: Zap,
+          l: "Gói cước AI",
+          a: () => {
+            setOpen(false);
+            navigate({ to: "/profile/subscription" });
+          },
+        },
+        {
+          ic: History,
+          l: "Lịch sử trải bài",
+          a: () => {
+            setOpen(false);
+            navigate({ to: "/tarot-history" });
+          },
+        },
+        {
+          ic: LifeBuoy,
+          l: "Hỗ trợ",
+          a: () => {
+            setOpen(false);
+            navigate({ to: "/support" });
+          },
+        },
+        {
+          ic: Settings,
+          l: "Cài đặt tài khoản",
+          a: () => {
+            setOpen(false);
+            navigate({ to: "/profile" });
+          },
+        },
+      ];
+
   return (
     <>
       <ScrollProgress />
@@ -121,7 +247,7 @@ export function Header() {
           {/* min-w-0 + truncate: ở 375px, wordmark + giỏ + avatar + nút menu
               cộng lại rộng hơn màn hình và đẩy cả trang cuộn ngang. Cho phép
               phần thương hiệu co lại thay vì làm tràn layout. */}
-          <Link to="/" className="flex min-w-0 items-center gap-2">
+          <Link to={isAdmin ? "/admin" : "/"} className="flex min-w-0 items-center gap-2">
             <img
               src={logo}
               alt=""
@@ -129,6 +255,11 @@ export function Header() {
             />
             <span className="truncate font-display text-base font-semibold tracking-[0.1em] sm:text-xl sm:tracking-[0.18em]">
               <span className="text-gradient-gold">ASTROTAROT</span>
+              {isAdmin && (
+                <span className="ml-2 rounded-md border border-gold/40 bg-gold/15 px-1.5 py-0.5 text-[10px] font-sans font-medium tracking-normal text-gold uppercase">
+                  Admin
+                </span>
+              )}
             </span>
           </Link>
 
@@ -137,28 +268,29 @@ export function Header() {
               tràn ra ngoài. Dưới ngưỡng đó dùng menu thu gọn, vốn đã liệt kê
               đủ cả hai nhóm. */}
           <nav className="hidden items-center gap-5 lg:flex xl:gap-7">
-            {PUBLIC_NAV.map((l) => {
-              const active =
-                l.to === "/"
-                  ? pathname === "/"
-                  : pathname === l.to || pathname.startsWith(`${l.to}/`);
-              return (
-                <Link
-                  key={l.label}
-                  to={l.to}
-                  className={navLinkClass(active)}
-                  activeOptions={{ exact: l.to === "/" }}
-                >
-                  {l.label}
-                </Link>
-              );
-            })}
+            {!isAdmin &&
+              PUBLIC_NAV.map((l) => {
+                const active =
+                  l.to === "/"
+                    ? pathname === "/"
+                    : pathname === l.to || pathname.startsWith(`${l.to}/`);
+                return (
+                  <Link
+                    key={l.label}
+                    to={l.to}
+                    className={navLinkClass(active)}
+                    activeOptions={{ exact: l.to === "/" }}
+                  >
+                    {l.label}
+                  </Link>
+                );
+              })}
             {workspaceLinks.map((l) => {
               const active =
                 pathname === l.to || pathname.startsWith(`${l.to}/`);
               return (
                 <Link key={l.to} to={l.to} className={navLinkClass(active)}>
-                  {l.label}
+                  {isAdmin ? "Khu vực Quản trị" : l.label}
                 </Link>
               );
             })}
@@ -168,6 +300,22 @@ export function Header() {
             {/* Chuông thông báo. Đứng cạnh giỏ hàng vì cùng là chỉ báo có việc
                 cần xử lý, và cùng chỉ có nghĩa khi đã đăng nhập. */}
             <NotificationBell />
+
+            {user && !isAdmin && (
+              <button
+                type="button"
+                onClick={() => setTopupOpen(true)}
+                title="Số dư Ví ASTROTAROT — Bấm để nạp tiền"
+                className="flex items-center gap-1.5 rounded-full border border-gold/40 bg-card/60 px-2.5 py-1 text-xs font-medium transition hover:border-gold hover:bg-gold/10"
+              >
+                <Wallet className="h-3.5 w-3.5 text-gold shrink-0" />
+                <span className="font-semibold text-gradient-gold">
+                  {walletQuery.data
+                    ? (walletQuery.data.balance ?? 0).toLocaleString("vi-VN") + " ₫"
+                    : "0 ₫"}
+                </span>
+              </button>
+            )}
 
             {user ? (
               <div className="relative" ref={accountRef}>
@@ -211,89 +359,7 @@ export function Header() {
                       </div>
                       <RoleBadge role={user.role} className="mt-2" />
                     </div>
-                    {[
-                      ...(coKhongGianThanhVien
-                        ? [
-                            {
-                              ic: LayoutDashboard,
-                              l: "Không gian của tôi",
-                              a: () => {
-                                setOpen(false);
-                                navigate({ to: "/home" });
-                              },
-                            },
-                          ]
-                        : []),
-                      {
-                        ic: UserIcon,
-                        l: "Hồ sơ cá nhân",
-                        a: () => {
-                          setOpen(false);
-                          navigate({ to: "/profile" });
-                        },
-                      },
-                      {
-                        ic: CalendarClock,
-                        l: "Lịch hẹn của tôi",
-                        a: () => {
-                          setOpen(false);
-                          navigate({ to: "/bookings" });
-                        },
-                      },
-                      ...(coLichKhachDat
-                        ? [
-                            {
-                              ic: CalendarCheck,
-                              l: "Lịch khách đặt với tôi",
-                              a: () => {
-                                setOpen(false);
-                                navigate({
-                                  to: "/staff",
-                                  search: { tab: "bookings" },
-                                });
-                              },
-                            },
-                          ]
-                        : []),
-                      {
-                        ic: Star,
-                        l: "Bản đồ sao",
-                        a: () => {
-                          setOpen(false);
-                          navigate({ to: "/profile/astrology" });
-                        },
-                      },
-                      {
-                        ic: History,
-                        l: "Lịch sử trải bài",
-                        a: () => {
-                          setOpen(false);
-                          navigate({ to: "/tarot-history" });
-                        },
-                      },
-                      {
-                        ic: LifeBuoy,
-                        l: "Hỗ trợ",
-                        a: () => {
-                          setOpen(false);
-                          navigate({ to: "/support" });
-                        },
-                      },
-                      // "Cài đặt tài khoản" mở thẳng trang hồ sơ — nơi đổi
-                      // thông tin và ảnh đại diện. Ba mục cũ (Lịch sử tư vấn,
-                      // Bài viết đã lưu, Thông báo) đã bỏ: chúng là nút chết,
-                      // bấm không ra gì vì chưa có trang/endpoint phía sau, và
-                      // riêng "Thông báo" trùng với chuông ngay cạnh. Thà bớt
-                      // mục còn hơn để người dùng bấm vào khoảng không.
-                      {
-                        ic: Settings,
-                        l: "Cài đặt tài khoản",
-                        a: () => {
-                          setOpen(false);
-                          navigate({ to: "/profile" });
-                        },
-                      },
-                    ].map(({ ic: Ic, l, a }) => (
+                    {menuItems.map(({ ic: Ic, l, a }) => (
                       <button
                         key={l}
                         onClick={a}
@@ -351,75 +417,134 @@ export function Header() {
         {mobileOpen && (
           <nav className="border-t border-gold/20 px-4 py-3 lg:hidden">
             <div className="flex flex-col">
-              {PUBLIC_NAV.map((l) => {
-                const active =
-                  l.to === "/"
-                    ? pathname === "/"
-                    : pathname === l.to || pathname.startsWith(`${l.to}/`);
-                return (
+              {isAdmin ? (
+                <>
                   <Link
-                    key={l.label}
-                    to={l.to}
+                    to="/admin"
                     onClick={() => setMobileOpen(false)}
-                    className={mobileNavLinkClass(active)}
-                    activeOptions={{ exact: l.to === "/" }}
+                    className={mobileNavLinkClass(
+                      pathname === "/admin" || pathname.startsWith("/admin/"),
+                    )}
                   >
-                    {l.label}
+                    Khu vực Quản trị
                   </Link>
-                );
-              })}
-              {user && (
-                <Link
-                  to="/bookings"
-                  onClick={() => setMobileOpen(false)}
-                  className={mobileNavLinkClass(
-                    pathname === "/bookings" ||
-                      pathname.startsWith("/bookings/"),
+                  <Link
+                    to="/profile"
+                    onClick={() => setMobileOpen(false)}
+                    className={mobileNavLinkClass(pathname === "/profile")}
+                  >
+                    Hồ sơ cá nhân
+                  </Link>
+                  <button
+                    onClick={() => {
+                      setMobileOpen(false);
+                      setLogoutOpen(true);
+                    }}
+                    className="mt-1 rounded-lg px-3 py-2.5 text-left text-sm text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                  >
+                    Đăng xuất
+                  </button>
+                </>
+              ) : (
+                <>
+                  {PUBLIC_NAV.map((l) => {
+                    const active =
+                      l.to === "/"
+                        ? pathname === "/"
+                        : pathname === l.to || pathname.startsWith(`${l.to}/`);
+                    return (
+                      <Link
+                        key={l.label}
+                        to={l.to}
+                        onClick={() => setMobileOpen(false)}
+                        className={mobileNavLinkClass(active)}
+                        activeOptions={{ exact: l.to === "/" }}
+                      >
+                        {l.label}
+                      </Link>
+                    );
+                  })}
+                  {user && (
+                    <>
+                      <Link
+                        to="/profile/wallet"
+                        onClick={() => setMobileOpen(false)}
+                        className={mobileNavLinkClass(
+                          pathname === "/profile/wallet",
+                        )}
+                      >
+                        Ví ASTROTAROT (
+                        {walletQuery.data
+                          ? (walletQuery.data.balance ?? 0).toLocaleString("vi-VN") + " ₫"
+                          : "0 ₫"}
+                        )
+                      </Link>
+                      <Link
+                        to="/bookings"
+                        onClick={() => setMobileOpen(false)}
+                        className={mobileNavLinkClass(
+                          pathname === "/bookings" ||
+                            pathname.startsWith("/bookings/"),
+                        )}
+                      >
+                        Lịch hẹn của tôi
+                      </Link>
+                      <Link
+                        to="/profile/subscription"
+                        onClick={() => setMobileOpen(false)}
+                        className={mobileNavLinkClass(
+                          pathname === "/profile/subscription",
+                        )}
+                      >
+                        Gói cước AI
+                      </Link>
+                    </>
                   )}
-                >
-                  Lịch hẹn của tôi
-                </Link>
-              )}
-              {coLichKhachDat && (
-                <Link
-                  to="/staff"
-                  search={{ tab: "bookings" }}
-                  onClick={() => setMobileOpen(false)}
-                  className={mobileNavLinkClass(false)}
-                >
-                  Lịch khách đặt với tôi
-                </Link>
-              )}
-              {workspaceLinks.map((l) => {
-                const active =
-                  pathname === l.to || pathname.startsWith(`${l.to}/`);
-                return (
-                  <Link
-                    key={l.to}
-                    to={l.to}
-                    onClick={() => setMobileOpen(false)}
-                    className={mobileNavLinkClass(active)}
-                  >
-                    {l.label}
-                  </Link>
-                );
-              })}
-              {!user && (
-                <button
-                  onClick={() => {
-                    setMobileOpen(false);
-                    openAuth("login");
-                  }}
-                  className="mt-1 rounded-lg px-3 py-2.5 text-left text-sm text-gold transition hover:bg-gold/10"
-                >
-                  Đăng nhập
-                </button>
+                  {coLichKhachDat && (
+                    <Link
+                      to="/staff"
+                      search={{ tab: "bookings" }}
+                      onClick={() => setMobileOpen(false)}
+                      className={mobileNavLinkClass(false)}
+                    >
+                      Lịch khách đặt với tôi
+                    </Link>
+                  )}
+                  {workspaceLinks.map((l) => {
+                    const active =
+                      pathname === l.to || pathname.startsWith(`${l.to}/`);
+                    return (
+                      <Link
+                        key={l.to}
+                        to={l.to}
+                        onClick={() => setMobileOpen(false)}
+                        className={mobileNavLinkClass(active)}
+                      >
+                        {l.label}
+                      </Link>
+                    );
+                  })}
+                  {!user && (
+                    <button
+                      onClick={() => {
+                        setMobileOpen(false);
+                        openAuth("login");
+                      }}
+                      className="mt-1 rounded-lg px-3 py-2.5 text-left text-sm text-gold transition hover:bg-gold/10"
+                    >
+                      Đăng nhập
+                    </button>
+                  )}
+                </>
               )}
             </div>
           </nav>
         )}
       </header>
       <LogoutConfirm open={logoutOpen} onClose={() => setLogoutOpen(false)} />
+      {!isAdmin && (
+        <TopupModal open={topupOpen} onClose={() => setTopupOpen(false)} />
+      )}
     </>
   );
 }

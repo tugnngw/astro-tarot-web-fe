@@ -25,7 +25,7 @@ import {
 export const Route = createFileRoute("/tarot-history")({
   head: () => ({ meta: [{ title: "Lịch sử trải bài — ASTROTAROT" }] }),
   component: () => (
-    <RoleGuard require={["USER_BASIC"]}>
+    <RoleGuard require={["USER_BASIC"]} disallowRoles={["admin"]}>
       <TarotHistoryPage />
     </RoleGuard>
   ),

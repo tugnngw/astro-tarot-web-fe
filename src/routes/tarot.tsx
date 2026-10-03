@@ -1,5 +1,5 @@
 // src/routes/tarot.tsx
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   lazy,
   memo,
@@ -46,6 +46,7 @@ import {
 } from "@/lib/utils";
 import { tokenStore } from "@/api/client";
 import { searchPlaces } from "@/lib/geocode";
+import { QuotaDisplay } from "@/components/subscription";
 
 const DrawStage = lazy(() =>
   import("@/components/TarotDraw").then((m) => ({ default: m.TarotDraw })),
@@ -1153,12 +1154,22 @@ function TarotPage() {
           <p className="mt-1 text-sm text-muted-foreground">
             Trò chuyện cùng AI Tarot — cá nhân hoá theo bản đồ sao
           </p>
-          {!user && (
+          {user ? (
+            <div className="mt-3 flex items-center justify-center gap-3">
+              <QuotaDisplay variant="compact" />
+              <Link
+                to="/profile/subscription"
+                className="text-xs text-gold/80 hover:text-gold hover:underline transition"
+              >
+                + Nâng cấp gói
+              </Link>
+            </div>
+          ) : (
             <button
               onClick={() => openAuth("login")}
               className="mt-2 text-xs text-gold hover:underline"
             >
-              🔐 Đăng nhập để lưu lịch sử
+              🔐 Đăng nhập để lưu lịch sử và nhận 3 lượt hỏi AI miễn phí mỗi ngày
             </button>
           )}
         </div>

@@ -20,7 +20,7 @@ import {
 export const Route = createFileRoute("/support")({
   head: () => ({ meta: [{ title: "Hỗ trợ — ASTROTAROT" }] }),
   component: () => (
-    <RoleGuard require={["USER_BASIC"]}>
+    <RoleGuard require={["USER_BASIC"]} disallowRoles={["admin"]}>
       <SupportPage />
     </RoleGuard>
   ),

@@ -7,9 +7,11 @@ import {
   ROLE_PERMISSIONS,
   can,
   canAny,
+  homePathFor,
   permissionsOf,
   toAccountRole,
   toAppRole,
+  workspaceNavFor,
   type Principal,
   type Role,
 } from "./roles";
@@ -166,5 +168,45 @@ describe("Nhãn hiển thị", () => {
   it("mỗi vai trò một màu, không trùng nhau", () => {
     const mau = APP_ROLES.map((r) => ROLE_BADGE_CLASS[r]);
     expect(new Set(mau).size).toBe(APP_ROLES.length);
+  });
+});
+
+describe("homePathFor", () => {
+  it("trả về đúng trang chủ tương ứng với từng vai trò", () => {
+    expect(homePathFor(null)).toBe("/");
+    expect(homePathFor({ role: "guest" })).toBe("/");
+    expect(homePathFor({ role: "user" })).toBe("/home");
+    expect(homePathFor({ role: "staff" })).toBe("/staff");
+    expect(homePathFor({ role: "manager" })).toBe("/manager");
+    expect(homePathFor({ role: "admin" })).toBe("/admin");
+  });
+});
+
+describe("workspaceNavFor", () => {
+  it("admin chỉ nhận được liên kết workspace quản trị (/admin)", () => {
+    const nav = workspaceNavFor({ role: "admin" });
+    expect(nav).toEqual([
+      { to: "/admin", label: "Quản trị", permission: "USERS_MANAGE" },
+    ]);
+  });
+
+  it("manager chỉ nhận được liên kết workspace quản lý (/manager)", () => {
+    const nav = workspaceNavFor({ role: "manager" });
+    expect(nav).toEqual([
+      { to: "/manager", label: "Quản lý", permission: "STAFF_VIEW" },
+    ]);
+  });
+
+  it("staff chỉ nhận được liên kết bàn làm việc (/staff)", () => {
+    const nav = workspaceNavFor({ role: "staff" });
+    expect(nav).toEqual([
+      { to: "/staff", label: "Bàn làm việc", permission: "SUPPORT_VIEW" },
+    ]);
+  });
+
+  it("khách và thành viên thường không có liên kết workspace", () => {
+    expect(workspaceNavFor(null)).toEqual([]);
+    expect(workspaceNavFor({ role: "guest" })).toEqual([]);
+    expect(workspaceNavFor({ role: "user" })).toEqual([]);
   });
 });

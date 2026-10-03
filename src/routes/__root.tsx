@@ -12,7 +12,7 @@ import { Toaster } from "sonner";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { AuthProvider } from "@/lib/auth-context";
+import { AuthProvider, useAuth } from "@/lib/auth-context";
 import { CartProvider } from "@/lib/cart-context";
 import { RealtimeProvider } from "@/features/realtime/RealtimeProvider";
 import { StarrySky } from "@/components/StarrySky";
@@ -168,6 +168,21 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+function CustomerWidgets() {
+  const { user } = useAuth();
+  if (user?.role === "admin") return null;
+  return (
+    <>
+      <div className="fixed bottom-5 left-5 z-40">
+        <FeedbackPrompt />
+      </div>
+      <GocNoi>
+        <ChatDock />
+      </GocNoi>
+    </>
+  );
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
@@ -187,14 +202,9 @@ function RootComponent() {
 
               Cục trao đổi đặt ở đây (ngoài Outlet) để nó sống qua mọi lần đổi
               trang: nó nghe tin nhắn ở MỌI trang, và một cuộc đang mở không
-              bị dựng lại mỗi lần người dùng bấm sang chỗ khác.
+              bị dựng lại mỗi lần người dùng bấm sang chỗ khác. Ẩn với Quản trị viên.
             */}
-            <div className="fixed bottom-5 left-5 z-40">
-              <FeedbackPrompt />
-            </div>
-            <GocNoi>
-              <ChatDock />
-            </GocNoi>
+            <CustomerWidgets />
             {/*
               Góc dưới bên phải, không phải giữa trên cùng: vị trí cũ đè đúng
               thanh điều hướng, che mất menu ngay lúc người dùng vừa thao tác
