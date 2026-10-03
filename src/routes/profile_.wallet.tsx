@@ -29,7 +29,7 @@ import { Pagination, PAGE_SIZE } from "@/components/Pagination";
 export const Route = createFileRoute("/profile_/wallet")({
   head: () => ({ meta: [{ title: "Ví ASTROTAROT — Số dư & Giao dịch" }] }),
   component: () => (
-    <RoleGuard require={["USER_BASIC"]} disallowRoles={["admin"]}>
+    <RoleGuard require={["USER_BASIC"]}>
       <WalletPage />
     </RoleGuard>
   ),
