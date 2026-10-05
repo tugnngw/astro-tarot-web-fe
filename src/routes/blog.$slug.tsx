@@ -1,12 +1,11 @@
 // src/routes/blog.$slug.tsx
+// Layout đọc bài theo kiểu Medium: cột hẹp, ảnh hiện đủ khung (không crop).
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import {
   ArrowLeft,
   Calendar,
   Clock,
   Share2,
-  Sparkles,
-  Tag,
   User as UserIcon,
 } from "lucide-react";
 import { motion } from "framer-motion";
@@ -80,7 +79,6 @@ function BlogDetail() {
   const { blog: initialBlog } = Route.useLoaderData();
   const { slug } = Route.useParams();
 
-  // Keep live sync with react-query
   const blogQuery = useBlogBySlug(slug);
   const blog = blogQuery.data ?? initialBlog;
 
@@ -114,14 +112,13 @@ function BlogDetail() {
     <div className="relative min-h-screen">
       <Header />
 
-      <article className="mx-auto max-w-4xl px-4 sm:px-6 py-8 sm:py-12">
-        {/* Navigation & back */}
-        <div className="flex items-center justify-between gap-4 mb-6">
+      <article className="mx-auto max-w-3xl px-4 sm:px-6 py-6 sm:py-10">
+        <div className="mb-5 flex items-center justify-between gap-4">
           <Link
             to="/blogs"
             className="inline-flex items-center gap-2 text-xs sm:text-sm text-gold transition hover:text-gold-soft"
           >
-            <ArrowLeft className="h-4 w-4" /> Quay lại danh sách bài viết
+            <ArrowLeft className="h-4 w-4" /> Quay lại
           </Link>
 
           <button
@@ -134,147 +131,140 @@ function BlogDetail() {
         </div>
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="space-y-6"
+          transition={{ duration: 0.35 }}
+          className="space-y-5"
         >
-          {/* Header metadata */}
-          <div className="space-y-3">
-            <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+          <header className="space-y-3">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
               <span className="inline-flex items-center gap-1.5">
-                <Calendar className="h-3.5 w-3.5 text-gold/80" />{" "}
+                <Calendar className="h-3.5 w-3.5 text-gold/80" />
                 {formattedDate}
               </span>
-              <span>•</span>
+              <span aria-hidden>•</span>
               <span className="inline-flex items-center gap-1.5">
                 <Clock className="h-3.5 w-3.5 text-gold/80" /> {readTime} phút
                 đọc
               </span>
-              <span>•</span>
-              <span className="inline-flex items-center gap-1.5 text-foreground font-medium">
-                <UserIcon className="h-3.5 w-3.5 text-gold" />{" "}
+              <span aria-hidden>•</span>
+              <span className="inline-flex items-center gap-1.5 font-medium text-foreground">
+                <UserIcon className="h-3.5 w-3.5 text-gold" />
                 {blog.author?.fullName ||
                   blog.author?.username ||
                   "AstroTarot Contributor"}
               </span>
             </div>
 
-            <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl leading-tight text-gradient-gold">
+            <h1 className="font-display text-2xl sm:text-3xl lg:text-[2.15rem] leading-snug text-gradient-gold">
               {blog.title}
             </h1>
 
-            {blog.summary && (
-              <p className="text-base sm:text-lg italic text-muted-foreground leading-relaxed border-l-2 border-gold/40 pl-4 py-1">
+            {blog.summary ? (
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed border-l-2 border-gold/35 pl-3.5">
                 {blog.summary}
               </p>
-            )}
-          </div>
-
-          {/* Cover Art / Thumbnail */}
-          <div className="relative aspect-[16/9] w-full overflow-hidden rounded-3xl border border-gold/30 bg-muted/20 shadow-2xl shadow-gold/5">
-            {blog.thumbnailUrl ? (
-              <img
-                src={blog.thumbnailUrl}
-                alt={blog.title}
-                className="h-full w-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLElement).style.display = "none";
-                }}
-              />
             ) : null}
-            <div
-              className={`absolute inset-0 ${blog.thumbnailUrl ? "hidden" : "block"}`}
-            >
-              <CelestialArtwork
-                seed={blog.slug}
-                motif="moon"
-                frame={false}
-                className="h-full w-full"
-              />
-            </div>
-          </div>
+          </header>
 
-          {/* Main Article Content */}
-          <div className="pt-4 border-t border-gold/15">
-            <div className="prose prose-invert max-w-none text-foreground/90 whitespace-pre-wrap leading-relaxed text-base sm:text-lg">
+          {/* Ảnh hiện nguyên khung — không ép 16:9 crop lá bài dọc */}
+          <figure className="overflow-hidden rounded-2xl border border-gold/25 bg-muted/20">
+            <div className="flex max-h-[min(68vh,560px)] items-center justify-center p-3 sm:p-5">
+              {blog.thumbnailUrl ? (
+                <img
+                  src={blog.thumbnailUrl}
+                  alt={blog.title}
+                  className="max-h-[min(62vh,520px)] w-auto max-w-full object-contain"
+                  onError={(e) => {
+                    (e.target as HTMLElement).style.display = "none";
+                  }}
+                />
+              ) : (
+                <div className="aspect-[16/9] w-full">
+                  <CelestialArtwork
+                    seed={blog.slug}
+                    motif="moon"
+                    frame={false}
+                    className="h-full w-full"
+                  />
+                </div>
+              )}
+            </div>
+          </figure>
+
+          <div className="border-t border-gold/15 pt-6">
+            <div className="mx-auto max-w-2xl text-[1.05rem] sm:text-lg leading-[1.75] text-foreground/90 whitespace-pre-wrap">
               {blog.content}
             </div>
           </div>
 
-          {/* Author Card */}
-          <div className="mt-12 rounded-2xl border border-gold/20 bg-card/40 p-6 flex flex-col sm:flex-row items-center sm:items-start gap-4">
+          <div className="mt-8 flex flex-col gap-4 rounded-2xl border border-gold/20 bg-card/40 p-5 sm:flex-row sm:items-start">
             {blog.author?.avatar ? (
               <img
                 src={blog.author.avatar}
                 alt={blog.author.fullName || blog.author.username}
-                className="h-16 w-16 rounded-full object-cover border-2 border-gold/40 shrink-0"
+                className="h-14 w-14 shrink-0 rounded-full object-cover border-2 border-gold/40"
               />
             ) : (
-              <div className="h-16 w-16 rounded-full bg-gold/10 border-2 border-gold/40 flex items-center justify-center text-gold text-2xl shrink-0">
-                <UserIcon className="h-8 w-8" />
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-gold/40 bg-gold/10 text-gold">
+                <UserIcon className="h-7 w-7" />
               </div>
             )}
-            <div className="text-center sm:text-left flex-1">
-              <h4 className="font-display text-lg text-foreground font-semibold">
+            <div className="flex-1 text-center sm:text-left">
+              <h4 className="font-display text-base font-semibold text-foreground">
                 {blog.author?.fullName ||
                   blog.author?.username ||
                   "Tác giả AstroTarot"}
               </h4>
-              <p className="text-xs text-gold/80 mt-0.5">
+              <p className="mt-0.5 text-xs text-gold/80">
                 Tác giả & Đóng góp nội dung
               </p>
-              <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
-                Chia sẻ những hiểu biết sâu sắc và năng lượng tích cực qua từng
-                trải bài Tarot, bản đồ sao và chiêm nghiệm vũ trụ.
+              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                Chia sẻ góc nhìn về Tarot, chiêm tinh và hành trình hiểu mình.
               </p>
             </div>
           </div>
         </motion.div>
 
-        {/* Related Articles */}
         {related.length > 0 && (
-          <div className="mt-16 border-t border-gold/20 pt-10">
-            <h3 className="font-display text-2xl text-gradient-gold mb-6">
-              Bài viết cùng chuyên mục
+          <div className="mt-12 border-t border-gold/20 pt-8">
+            <h3 className="mb-5 font-display text-xl text-gradient-gold">
+              Đọc tiếp
             </h3>
-            <div className="grid gap-6 sm:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-3">
               {related.map((p) => (
                 <Link
                   key={p.id}
                   to="/blog/$slug"
                   params={{ slug: p.slug }}
-                  className="card-hover group flex flex-col overflow-hidden rounded-2xl border border-gold/20 bg-card/40 transition hover:border-gold/50"
+                  className="card-hover group flex flex-col overflow-hidden rounded-xl border border-gold/20 bg-card/40 transition hover:border-gold/50"
                 >
-                  <div className="relative aspect-[16/10] overflow-hidden bg-muted/20">
+                  <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-muted/20 p-2">
                     {p.thumbnailUrl ? (
                       <img
                         src={p.thumbnailUrl}
                         alt={p.title}
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="max-h-full max-w-full object-contain"
                         onError={(e) => {
                           (e.target as HTMLElement).style.display = "none";
                         }}
                       />
-                    ) : null}
-                    <div
-                      className={`absolute inset-0 ${p.thumbnailUrl ? "hidden" : "block"}`}
-                    >
+                    ) : (
                       <CelestialArtwork
                         seed={p.slug}
                         motif="cards"
                         frame={false}
                         className="h-full w-full"
                       />
-                    </div>
+                    )}
                   </div>
-                  <div className="p-4 flex-1 flex flex-col justify-between">
+                  <div className="flex flex-1 flex-col justify-between p-3.5">
                     <h5 className="line-clamp-2 text-sm font-medium text-foreground transition group-hover:text-gold">
                       {p.title}
                     </h5>
-                    <div className="mt-3 text-[11px] text-muted-foreground flex items-center justify-between">
+                    <div className="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
                       <span>{formatBlogDate(p.createdAt)}</span>
-                      <span>{estimateReadTime(p.content)} phút đọc</span>
+                      <span>{estimateReadTime(p.content)} phút</span>
                     </div>
                   </div>
                 </Link>
@@ -283,12 +273,12 @@ function BlogDetail() {
           </div>
         )}
 
-        <div className="mt-12 text-center">
+        <div className="mt-10 text-center">
           <Link
             to="/blogs"
-            className="inline-flex items-center gap-2 rounded-full border border-gold/50 px-6 py-2.5 text-xs sm:text-sm font-medium text-gold transition hover:bg-gold/10"
+            className="inline-flex items-center gap-2 rounded-full border border-gold/50 px-5 py-2 text-xs sm:text-sm font-medium text-gold transition hover:bg-gold/10"
           >
-            <ArrowLeft className="h-4 w-4" /> Xem toàn bộ kho lưu trữ bài viết
+            <ArrowLeft className="h-4 w-4" /> Tất cả bài viết
           </Link>
         </div>
       </article>

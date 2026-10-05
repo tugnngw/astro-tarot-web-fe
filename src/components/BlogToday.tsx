@@ -80,12 +80,12 @@ export function BlogToday() {
             params={{ slug: featured.slug }}
             className="card-hover group block overflow-hidden rounded-2xl border border-gold/20 bg-card/40 hover:border-gold/50 transition-all duration-300"
           >
-            <div className="relative aspect-[16/10] overflow-hidden bg-muted/20">
+            <div className="relative flex aspect-[16/10] items-center justify-center overflow-hidden bg-muted/20 p-3">
               {featured.thumbnailUrl ? (
                 <img
                   src={featured.thumbnailUrl}
                   alt={featured.title}
-                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="max-h-full max-w-full object-contain transition-transform duration-700 group-hover:scale-[1.02]"
                   onError={(e) => {
                     (e.target as HTMLElement).style.display = "none";
                   }}

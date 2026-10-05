@@ -47,22 +47,20 @@ function BlogsPage() {
     <div className="relative min-h-screen">
       <Header />
 
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
-        {/* Hero Section */}
-        <div className="text-center max-w-3xl mx-auto space-y-4 mb-12">
-          <div className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-card/60 px-4 py-1.5 text-xs uppercase tracking-[0.25em] text-gold">
+      <main className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        {/* Hero gọn — danh sách bài là trọng tâm, không chiếm nửa màn hình */}
+        <div className="mb-8 max-w-2xl space-y-3 sm:mb-10">
+          <div className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-card/60 px-3.5 py-1 text-[11px] uppercase tracking-[0.2em] text-gold">
             <Sparkles className="h-3.5 w-3.5" /> Nhật ký Vũ trụ
           </div>
-          <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl text-gradient-gold">
+          <h1 className="font-display text-3xl sm:text-4xl text-gradient-gold">
             Tri thức & Cảm hứng
           </h1>
-          <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
-            Nơi hội tụ những góc nhìn sâu sắc về biểu tượng Tarot, dòng chảy các
-            vì sao và hành trình thấu hiểu bản thân.
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Góc nhìn về Tarot, chiêm tinh và hành trình hiểu mình.
           </p>
 
-          {/* Search bar */}
-          <div className="pt-4 max-w-md mx-auto">
+          <div className="pt-1 max-w-md">
             <div className="relative">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gold/70" />
               <Input
@@ -71,8 +69,8 @@ function BlogsPage() {
                   setKeyword(e.target.value);
                   setPage(0);
                 }}
-                placeholder="Tìm kiếm bài viết, tác giả..."
-                className="pl-10 pr-9 h-11 rounded-full border-gold/30 bg-card/60 focus:border-gold text-sm shadow-inner"
+                placeholder="Tìm bài viết, tác giả..."
+                className="pl-10 pr-9 h-10 rounded-full border-gold/30 bg-card/60 focus:border-gold text-sm shadow-inner"
               />
               {keyword && (
                 <button
@@ -97,13 +95,13 @@ function BlogsPage() {
 
         {/* Loading state */}
         {blogsQuery.isLoading && (
-          <div className="space-y-8">
-            <div className="h-80 rounded-3xl border border-gold/20 bg-card/30 animate-pulse" />
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="space-y-6">
+            <div className="h-48 rounded-2xl border border-gold/20 bg-card/30 animate-pulse" />
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div
                   key={i}
-                  className="h-72 rounded-2xl border border-gold/15 bg-card/30 animate-pulse"
+                  className="h-56 rounded-2xl border border-gold/15 bg-card/30 animate-pulse"
                 />
               ))}
             </div>
@@ -140,17 +138,15 @@ function BlogsPage() {
 
         {/* Articles List */}
         {!blogsQuery.isLoading && blogs.length > 0 && (
-          <div className="space-y-10">
-            {/* Featured Blog */}
+          <div className="space-y-7">
             {featuredBlog && (
               <Reveal>
                 <BlogCard blog={featuredBlog} featured />
               </Reveal>
             )}
 
-            {/* Grid of regular blogs */}
             {regularBlogs.length > 0 && (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
                 {regularBlogs.map((blog, idx) => (
                   <Reveal key={blog.id} delay={idx * 0.05}>
                     <BlogCard blog={blog} />
