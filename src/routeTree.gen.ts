@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as XoaTaiKhoanRouteImport } from './routes/xoa-tai-khoan'
 import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as TarotHistoryRouteImport } from './routes/tarot-history'
 import { Route as TarotRouteImport } from './routes/tarot'
@@ -22,6 +23,7 @@ import { Route as ReaderRouteImport } from './routes/reader'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ManagerRouteImport } from './routes/manager'
 import { Route as HomeRouteImport } from './routes/home'
+import { Route as ChinhSachRiengTuRouteImport } from './routes/chinh-sach-rieng-tu'
 import { Route as BookingsRouteImport } from './routes/bookings'
 import { Route as BlogsRouteImport } from './routes/blogs'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -33,6 +35,11 @@ import { Route as ProfileSubscriptionRouteImport } from './routes/profile_.subsc
 import { Route as ProfileAstrologyRouteImport } from './routes/profile_.astrology'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 
+const XoaTaiKhoanRoute = XoaTaiKhoanRouteImport.update({
+  id: '/xoa-tai-khoan',
+  path: '/xoa-tai-khoan',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VerifyEmailRoute = VerifyEmailRouteImport.update({
   id: '/verify-email',
   path: '/verify-email',
@@ -98,6 +105,11 @@ const HomeRoute = HomeRouteImport.update({
   path: '/home',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ChinhSachRiengTuRoute = ChinhSachRiengTuRouteImport.update({
+  id: '/chinh-sach-rieng-tu',
+  path: '/chinh-sach-rieng-tu',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BookingsRoute = BookingsRouteImport.update({
   id: '/bookings',
   path: '/bookings',
@@ -154,6 +166,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/blogs': typeof BlogsRoute
   '/bookings': typeof BookingsRoute
+  '/chinh-sach-rieng-tu': typeof ChinhSachRiengTuRoute
   '/home': typeof HomeRoute
   '/manager': typeof ManagerRoute
   '/profile': typeof ProfileRoute
@@ -167,6 +180,7 @@ export interface FileRoutesByFullPath {
   '/tarot': typeof TarotRoute
   '/tarot-history': typeof TarotHistoryRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/xoa-tai-khoan': typeof XoaTaiKhoanRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/profile/astrology': typeof ProfileAstrologyRoute
   '/profile/subscription': typeof ProfileSubscriptionRoute
@@ -179,6 +193,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/blogs': typeof BlogsRoute
   '/bookings': typeof BookingsRoute
+  '/chinh-sach-rieng-tu': typeof ChinhSachRiengTuRoute
   '/home': typeof HomeRoute
   '/manager': typeof ManagerRoute
   '/profile': typeof ProfileRoute
@@ -192,6 +207,7 @@ export interface FileRoutesByTo {
   '/tarot': typeof TarotRoute
   '/tarot-history': typeof TarotHistoryRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/xoa-tai-khoan': typeof XoaTaiKhoanRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/profile/astrology': typeof ProfileAstrologyRoute
   '/profile/subscription': typeof ProfileSubscriptionRoute
@@ -205,6 +221,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/blogs': typeof BlogsRoute
   '/bookings': typeof BookingsRoute
+  '/chinh-sach-rieng-tu': typeof ChinhSachRiengTuRoute
   '/home': typeof HomeRoute
   '/manager': typeof ManagerRoute
   '/profile': typeof ProfileRoute
@@ -218,6 +235,7 @@ export interface FileRoutesById {
   '/tarot': typeof TarotRoute
   '/tarot-history': typeof TarotHistoryRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/xoa-tai-khoan': typeof XoaTaiKhoanRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/profile_/astrology': typeof ProfileAstrologyRoute
   '/profile_/subscription': typeof ProfileSubscriptionRoute
@@ -232,6 +250,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/blogs'
     | '/bookings'
+    | '/chinh-sach-rieng-tu'
     | '/home'
     | '/manager'
     | '/profile'
@@ -245,6 +264,7 @@ export interface FileRouteTypes {
     | '/tarot'
     | '/tarot-history'
     | '/verify-email'
+    | '/xoa-tai-khoan'
     | '/blog/$slug'
     | '/profile/astrology'
     | '/profile/subscription'
@@ -257,6 +277,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/blogs'
     | '/bookings'
+    | '/chinh-sach-rieng-tu'
     | '/home'
     | '/manager'
     | '/profile'
@@ -270,6 +291,7 @@ export interface FileRouteTypes {
     | '/tarot'
     | '/tarot-history'
     | '/verify-email'
+    | '/xoa-tai-khoan'
     | '/blog/$slug'
     | '/profile/astrology'
     | '/profile/subscription'
@@ -282,6 +304,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/blogs'
     | '/bookings'
+    | '/chinh-sach-rieng-tu'
     | '/home'
     | '/manager'
     | '/profile'
@@ -295,6 +318,7 @@ export interface FileRouteTypes {
     | '/tarot'
     | '/tarot-history'
     | '/verify-email'
+    | '/xoa-tai-khoan'
     | '/blog/$slug'
     | '/profile_/astrology'
     | '/profile_/subscription'
@@ -308,6 +332,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   BlogsRoute: typeof BlogsRoute
   BookingsRoute: typeof BookingsRoute
+  ChinhSachRiengTuRoute: typeof ChinhSachRiengTuRoute
   HomeRoute: typeof HomeRoute
   ManagerRoute: typeof ManagerRoute
   ProfileRoute: typeof ProfileRoute
@@ -321,6 +346,7 @@ export interface RootRouteChildren {
   TarotRoute: typeof TarotRoute
   TarotHistoryRoute: typeof TarotHistoryRoute
   VerifyEmailRoute: typeof VerifyEmailRoute
+  XoaTaiKhoanRoute: typeof XoaTaiKhoanRoute
   BlogSlugRoute: typeof BlogSlugRoute
   ProfileAstrologyRoute: typeof ProfileAstrologyRoute
   ProfileSubscriptionRoute: typeof ProfileSubscriptionRoute
@@ -331,6 +357,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/xoa-tai-khoan': {
+      id: '/xoa-tai-khoan'
+      path: '/xoa-tai-khoan'
+      fullPath: '/xoa-tai-khoan'
+      preLoaderRoute: typeof XoaTaiKhoanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/verify-email': {
       id: '/verify-email'
       path: '/verify-email'
@@ -422,6 +455,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HomeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/chinh-sach-rieng-tu': {
+      id: '/chinh-sach-rieng-tu'
+      path: '/chinh-sach-rieng-tu'
+      fullPath: '/chinh-sach-rieng-tu'
+      preLoaderRoute: typeof ChinhSachRiengTuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/bookings': {
       id: '/bookings'
       path: '/bookings'
@@ -500,6 +540,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   BlogsRoute: BlogsRoute,
   BookingsRoute: BookingsRoute,
+  ChinhSachRiengTuRoute: ChinhSachRiengTuRoute,
   HomeRoute: HomeRoute,
   ManagerRoute: ManagerRoute,
   ProfileRoute: ProfileRoute,
@@ -513,6 +554,7 @@ const rootRouteChildren: RootRouteChildren = {
   TarotRoute: TarotRoute,
   TarotHistoryRoute: TarotHistoryRoute,
   VerifyEmailRoute: VerifyEmailRoute,
+  XoaTaiKhoanRoute: XoaTaiKhoanRoute,
   BlogSlugRoute: BlogSlugRoute,
   ProfileAstrologyRoute: ProfileAstrologyRoute,
   ProfileSubscriptionRoute: ProfileSubscriptionRoute,

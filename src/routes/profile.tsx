@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useId, useRef, useState } from "react";
 import {
   Camera,
@@ -15,6 +15,7 @@ import { useAuth } from "@/lib/auth-context";
 import { ViDateInput } from "@/components/ViDateInput";
 import {
   useChangePassword,
+  useDeleteOwnAccount,
   useProfile,
   useRemoveAvatar,
   useUpdateProfile,
@@ -101,8 +102,130 @@ function ProfilePage() {
         <AvatarCard profile={profileQuery.data} onSync={syncLocalUser} />
         <InfoForm profile={profileQuery.data} onSync={syncLocalUser} />
         <PasswordCard />
+        <DeleteAccountCard />
       </div>
     </Shell>
+  );
+}
+
+// ============================================================
+// XOÁ TÀI KHOẢN
+// ============================================================
+/**
+ * CH Play và App Store đều bắt buộc có chức năng này cho sản phẩm cho phép
+ * đăng ký (Apple 5.1.1(v), Google "Xoá dữ liệu tài khoản"). Trước đây chỉ quản
+ * trị viên xoá được tài khoản người khác, chính chủ không có đường nào.
+ *
+ * Mặc định thu lại thành một dòng chữ. Mở sẵn một ô nhập mật khẩu màu đỏ ngay
+ * dưới phần đổi mật khẩu là mời người ta bấm nhầm vào thứ không lùi được.
+ */
+function DeleteAccountCard() {
+  const del = useDeleteOwnAccount();
+  const { logout } = useAuth();
+  const [moRong, setMoRong] = useState(false);
+  const [password, setPassword] = useState("");
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!password) return;
+    try {
+      await del.mutateAsync(password);
+      toast.success("Đã xoá tài khoản.");
+      await logout();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Không xoá được");
+    }
+  }
+
+  if (!moRong) {
+    return (
+      <div className="pt-2 text-center">
+        <button
+          type="button"
+          onClick={() => setMoRong(true)}
+          className="text-xs text-muted-foreground underline underline-offset-4 transition hover:text-rose-300"
+        >
+          Xoá tài khoản
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <section className="rounded-2xl border border-rose-500/30 bg-rose-500/5 p-6">
+      <h2 className="font-display text-lg text-rose-300">Xoá tài khoản</h2>
+      <p className="mt-1 text-sm font-medium text-foreground">
+        Việc này không hoàn tác được.
+      </p>
+
+      <dl className="mt-4 space-y-2 text-sm text-muted-foreground">
+        <div>
+          <dt className="inline font-medium text-foreground">Xoá hẳn: </dt>
+          <dd className="inline">
+            hồ sơ chiêm tinh (ngày, giờ, nơi sinh) và ảnh đại diện.
+          </dd>
+        </div>
+        <div>
+          <dt className="inline font-medium text-foreground">Gỡ tên khỏi: </dt>
+          <dd className="inline">
+            email, họ tên, số điện thoại. Email được trả lại nên về sau bạn vẫn
+            đăng ký mới được bằng chính địa chỉ đó.
+          </dd>
+        </div>
+        <div>
+          <dt className="inline font-medium text-foreground">Giữ lại: </dt>
+          <dd className="inline">
+            hoá đơn và các buổi xem đã diễn ra, ở dạng đã gỡ tên — đó là chứng
+            từ kế toán và là lịch sử làm việc của Reader.
+          </dd>
+        </div>
+      </dl>
+
+      <form onSubmit={submit} className="mt-5 space-y-3">
+        <div>
+          <label
+            htmlFor="xac-nhan-xoa"
+            className="text-xs text-muted-foreground"
+          >
+            Nhập mật khẩu để xác nhận
+          </label>
+          <input
+            id="xac-nhan-xoa"
+            type="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="mt-1 w-full rounded-xl border border-rose-500/30 bg-input/70 px-3 py-2 text-sm text-foreground outline-none transition focus:border-rose-400"
+          />
+        </div>
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={() => {
+              setMoRong(false);
+              setPassword("");
+            }}
+            className="rounded-xl border border-mystic/40 px-4 py-2 text-sm text-muted-foreground transition hover:text-foreground"
+          >
+            Thôi
+          </button>
+          <button
+            type="submit"
+            disabled={!password || del.isPending}
+            className="rounded-xl bg-rose-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-rose-500 disabled:opacity-50"
+          >
+            {del.isPending ? "Đang xoá…" : "Xoá tài khoản"}
+          </button>
+        </div>
+      </form>
+
+      <p className="mt-4 text-xs text-muted-foreground">
+        Chi tiết:{" "}
+        <Link to="/chinh-sach-rieng-tu" className="underline">
+          Chính sách riêng tư
+        </Link>
+      </p>
+    </section>
   );
 }
 
