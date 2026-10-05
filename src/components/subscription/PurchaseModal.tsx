@@ -77,12 +77,22 @@ export function PurchaseModal({
     mutationFn: (data: CreatePurchaseRequest) => subscriptionApi.purchase(data),
     onSuccess: (response: AIPlanResponse) => {
       setError(null);
-      // Invalidate all subscription and usage queries
       void queryClient.invalidateQueries({ queryKey: ["subscriptions"] });
       void queryClient.invalidateQueries({ queryKey: ["subscription"] });
       void queryClient.invalidateQueries({ queryKey: ["ai-usage"] });
       void queryClient.invalidateQueries({ queryKey: ["user-purchases"] });
       void queryClient.invalidateQueries({ queryKey: ["user-wallet"] });
+
+      if (response.paymentPending && response.checkoutUrl) {
+        toast.message("Đang mở cổng thanh toán PayOS…", {
+          description: "Gói sẽ kích hoạt tự động sau khi bạn thanh toán xong.",
+        });
+        window.open(response.checkoutUrl, "_blank", "noopener,noreferrer");
+        onPurchaseSuccess?.(response);
+        onClose();
+        return;
+      }
+
       toast.success(`Đã kích hoạt thành công gói ${response.planName}!`);
       onPurchaseSuccess?.(response);
       onClose();

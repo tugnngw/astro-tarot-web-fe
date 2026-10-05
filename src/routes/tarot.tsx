@@ -446,6 +446,8 @@ function TarotPage() {
   const [showCards, setShowCards] = useState(false);
   const [readingId, setReadingId] = useState<string | null>(null);
   const lastMsgRef = useRef<HTMLDivElement>(null);
+  // Khung cuộn của danh sách tin nhắn. Cuộn đúng nó, không cuộn cả trang.
+  const chatScrollRef = useRef<HTMLDivElement>(null);
 
   const [dateErrors, setDateErrors] = useState<{ [key: string]: string }>({});
   const [timeErrors, setTimeErrors] = useState<{ [key: string]: string }>({});
@@ -533,9 +535,19 @@ function TarotPage() {
     readingId,
   ]);
 
-  // Scroll to last message
+  // Cuộn xuống tin nhắn mới nhất — CHỈ trong khung chat.
+  //
+  // Bản trước gọi lastMsgRef.current.scrollIntoView(). Hàm ấy cuộn MỌI tổ tiên
+  // cuộn được, không riêng khung chứa phần tử. Trang này có hai vùng cuộn lồng
+  // nhau: khung tin nhắn (overflow-y-auto) nằm trong trang vốn cũng cuộn được.
+  // Nên mỗi lần có tin nhắn mới, hoặc chỉ cần chấm "đang suy ngẫm" bật tắt, cả
+  // TRANG bị kéo theo — người dùng đang đọc dở thì màn hình tự nhảy.
+  //
+  // Đặt thẳng scrollTop của đúng khung tin nhắn thì không đụng tới trang.
   useEffect(() => {
-    lastMsgRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    const khung = chatScrollRef.current;
+    if (!khung) return;
+    khung.scrollTo({ top: khung.scrollHeight, behavior: "smooth" });
   }, [messages, thinking]);
 
   const updateCount = (n: number) => {
@@ -1395,6 +1407,7 @@ function TarotPage() {
               clearChatHistory={clearChatHistory}
               headerName={headerName}
               lastMsgRef={lastMsgRef}
+              chatScrollRef={chatScrollRef}
               cardsDrawn={cardsDrawn}
               drawing={drawing}
               onDrawCards={drawCards}
@@ -1539,6 +1552,7 @@ interface ChatPanelProps {
   clearChatHistory: () => void;
   headerName: string;
   lastMsgRef: React.RefObject<HTMLDivElement | null>;
+  chatScrollRef: React.RefObject<HTMLDivElement | null>;
   cardsDrawn: boolean;
   drawing: boolean;
   onDrawCards: () => void;
@@ -1558,6 +1572,7 @@ function ChatPanel({
   clearChatHistory,
   headerName,
   lastMsgRef,
+  chatScrollRef,
   cardsDrawn,
   drawing,
   onDrawCards,
@@ -1677,7 +1692,10 @@ function ChatPanel({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-6 py-4 space-y-1 bg-gradient-to-b from-background/10 to-background/5 min-h-[300px]">
+      <div
+        ref={chatScrollRef}
+        className="flex-1 overflow-y-auto px-6 py-4 space-y-1 bg-gradient-to-b from-background/10 to-background/5 min-h-[300px]"
+      >
         {view.length === 0 && (
           <div className="flex h-full min-h-[300px] flex-col items-center justify-center text-center">
             <div className="text-4xl mb-3">💬</div>
