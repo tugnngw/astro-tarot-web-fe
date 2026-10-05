@@ -48,6 +48,8 @@ import {
 import { tokenStore } from "@/api/client";
 import { searchPlaces } from "@/lib/geocode";
 import { QuotaDisplay } from "@/components/subscription";
+import { useSubscription } from "@/features/tarot/hooks/useSubscription";
+import { useQueryClient } from "@tanstack/react-query";
 
 const DrawStage = lazy(() =>
   import("@/components/TarotDraw").then((m) => ({ default: m.TarotDraw })),
@@ -416,6 +418,8 @@ async function callTarotChat(
 function TarotPage() {
   const { user, openAuth } = useAuth();
   const uid = user?.id || "guest";
+  const queryClient = useQueryClient();
+  const { canUseAI, totalQuota, refetchUsage } = useSubscription();
   const [stage, setStage] = useState<Stage>("info");
   const [count, setCount] = useState(1);
   const [people, setPeople] = useState<Person[]>([
@@ -899,6 +903,21 @@ function TarotPage() {
     }
   };
 
+  const refreshQuota = () => {
+    void refetchUsage();
+    void queryClient.invalidateQueries({ queryKey: ["ai-usage"] });
+    void queryClient.invalidateQueries({ queryKey: ["subscription"] });
+  };
+
+  const ensureQuota = () => {
+    if (!user) return true;
+    if (canUseAI) return true;
+    toast.error(
+      `Đã hết ${totalQuota} lượt AI hôm nay. Nâng cấp gói hoặc đợi làm mới lúc 00:00 (giờ VN).`,
+    );
+    return false;
+  };
+
   // ============================================================
   // RÚT BÀI - LƯU READING ID
   // ============================================================
@@ -910,6 +929,7 @@ function TarotPage() {
       openAuth("login");
       return;
     }
+    if (!ensureQuota()) return;
 
     setDrawing(true);
     setShowCards(false);
@@ -979,8 +999,18 @@ function TarotPage() {
       });
 
       toast.success("✨ Đã rút bài thành công!");
+      refreshQuota();
     } catch (error: any) {
       console.error("Tarot API error:", error);
+      if (
+        error?.status === 429 ||
+        String(error?.message || "").toLowerCase().includes("hết lượt")
+      ) {
+        toast.error(error?.message || "Đã hết lượt dùng AI hôm nay.");
+        refreshQuota();
+        setDrawing(false);
+        return;
+      }
 
       const shuffled = [...TAROT_DECK]
         .sort(() => Math.random() - 0.5)
@@ -1040,6 +1070,7 @@ function TarotPage() {
     const scrollY = window.scrollY;
     const text = input.trim();
     if (!text || thinking) return;
+    if (user && !ensureQuota()) return;
 
     const messageId = generateUUID();
     setMessages((m) => [
@@ -1115,8 +1146,18 @@ function TarotPage() {
           ts: Date.now(),
         },
       ]);
+      refreshQuota();
     } catch (error: any) {
       console.error("❌ Chat error:", error);
+      if (
+        error?.status === 429 ||
+        String(error?.message || "").toLowerCase().includes("hết lượt")
+      ) {
+        toast.error(error?.message || "Đã hết lượt dùng AI hôm nay.");
+        refreshQuota();
+        setThinking(false);
+        return;
+      }
       const fallback =
         FALLBACK_REPLIES[Math.floor(Math.random() * FALLBACK_REPLIES.length)];
       setMessages((m) => [
