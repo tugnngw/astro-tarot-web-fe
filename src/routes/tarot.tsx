@@ -547,8 +547,29 @@ function TarotPage() {
   useEffect(() => {
     const khung = chatScrollRef.current;
     if (!khung) return;
-    khung.scrollTo({ top: khung.scrollHeight, behavior: "smooth" });
+    khung.scrollTop = khung.scrollHeight;
   }, [messages, thinking]);
+
+  // Khoá cuộn của cả trang khi đang ở màn chat.
+  //
+  // Chat panel gần bằng viewport + footer miễn trừ nằm dưới → trang cao hơn
+  // cửa sổ. Mỗi lần Enter gửi tin, trình duyệt scrollIntoView ô input theo
+  // trang ngoài, nên thanh cuộn bên phải nhảy xuống. overflow:hidden trên
+  // html/body thì không còn chỗ nào để trang cuộn.
+  useEffect(() => {
+    if (stage !== "chat") return;
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtml = html.style.overflow;
+    const prevBody = body.style.overflow;
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    window.scrollTo(0, 0);
+    return () => {
+      html.style.overflow = prevHtml;
+      body.style.overflow = prevBody;
+    };
+  }, [stage]);
 
   const updateCount = (n: number) => {
     const next = Math.min(Math.max(n, 1), 2);
@@ -1014,6 +1035,9 @@ function TarotPage() {
   // ============================================================
   const send = async (e?: React.FormEvent) => {
     e?.preventDefault();
+    // Giữ vị trí cuộn trang — Enter trên form dễ làm trình duyệt kéo trang
+    // xuống để lộ ô input / footer.
+    const scrollY = window.scrollY;
     const text = input.trim();
     if (!text || thinking) return;
 
@@ -1029,6 +1053,7 @@ function TarotPage() {
     ]);
     setInput("");
     setThinking(true);
+    requestAnimationFrame(() => window.scrollTo(0, scrollY));
 
     const lower = text.toLowerCase();
 
@@ -1156,10 +1181,11 @@ function TarotPage() {
   // RENDER
   // ============================================================
   return (
-    <div className="relative min-h-screen">
+    <div className={stage === "chat" ? "relative h-dvh overflow-hidden" : "relative min-h-screen"}>
       <Header />
 
-      <div className="mx-auto max-w-6xl px-4 py-6">
+      <div className={`mx-auto max-w-6xl px-4 ${stage === "chat" ? "py-3" : "py-6"}`}>
+        {stage !== "chat" && (
         <div className="mb-4 text-center">
           <h1 className="font-display text-3xl">
             <span className="text-gradient-gold">AI Tarot</span> Reader
@@ -1186,6 +1212,18 @@ function TarotPage() {
             </button>
           )}
         </div>
+        )}
+        {stage === "chat" && user && (
+          <div className="mb-2 flex items-center justify-center gap-3">
+            <QuotaDisplay variant="compact" />
+            <Link
+              to="/profile/subscription"
+              className="text-xs text-gold/80 hover:text-gold hover:underline transition"
+            >
+              + Nâng cấp gói
+            </Link>
+          </div>
+        )}
 
         {stage === "info" && (
           <div className="glass rounded-2xl p-6 max-w-3xl mx-auto">
@@ -1396,25 +1434,29 @@ function TarotPage() {
         )}
 
         {stage === "chat" && (
-          <div className="w-full">
-            <ChatPanel
-              messages={messages}
-              thinking={thinking}
-              input={input}
-              setInput={setInput}
-              send={send}
-              resetAll={resetAll}
-              clearChatHistory={clearChatHistory}
-              headerName={headerName}
-              lastMsgRef={lastMsgRef}
-              chatScrollRef={chatScrollRef}
-              cardsDrawn={cardsDrawn}
-              drawing={drawing}
-              onDrawCards={drawCards}
-              showCards={showCards}
-              drawnCards={drawnCards}
-            />
-            <AiContentFooter readingId={readingId} />
+          <div className="flex h-[calc(100dvh-9.5rem)] w-full flex-col overflow-hidden">
+            <div className="min-h-0 flex-1">
+              <ChatPanel
+                messages={messages}
+                thinking={thinking}
+                input={input}
+                setInput={setInput}
+                send={send}
+                resetAll={resetAll}
+                clearChatHistory={clearChatHistory}
+                headerName={headerName}
+                lastMsgRef={lastMsgRef}
+                chatScrollRef={chatScrollRef}
+                cardsDrawn={cardsDrawn}
+                drawing={drawing}
+                onDrawCards={drawCards}
+                showCards={showCards}
+                drawnCards={drawnCards}
+              />
+            </div>
+            <div className="shrink-0 pt-2">
+              <AiContentFooter readingId={readingId} />
+            </div>
           </div>
         )}
       </div>
@@ -1601,7 +1643,7 @@ function ChatPanel({
   }, []);
 
   return (
-    <div className="glass flex h-[calc(100vh-160px)] min-h-[520px] w-full flex-col overflow-hidden rounded-2xl">
+    <div className="glass flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl">
       <div className="flex items-center justify-between border-b border-gold/20 px-5 py-3 bg-background/30 shrink-0">
         <div className="flex items-center gap-2">
           <div className="relative">
