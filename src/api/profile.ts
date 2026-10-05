@@ -96,3 +96,16 @@ export function avatarUrl(avatar: string | null | undefined): string | null {
   if (/^https?:\/\//i.test(avatar)) return avatar;
   return `${API_BASE}${avatar}`;
 }
+
+/**
+ * Người dùng tự xoá tài khoản.
+ *
+ * Đòi mật khẩu trong THÂN yêu cầu, không đưa lên URL: mật khẩu trên URL sẽ lọt
+ * vào log máy chủ, lịch sử trình duyệt và header Referer.
+ */
+export function deleteOwnAccount(password: string) {
+  return apiFetch<void>(BASE, {
+    method: "DELETE",
+    body: JSON.stringify({ password }),
+  });
+}

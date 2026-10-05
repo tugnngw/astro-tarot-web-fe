@@ -56,3 +56,10 @@ export function useChangePassword() {
     }) => profileApi.changePassword(currentPassword, newPassword),
   });
 }
+
+/** Tự xoá tài khoản. Không invalidate cache vì sau đó sẽ đăng xuất hẳn. */
+export function useDeleteOwnAccount() {
+  return useMutation({
+    mutationFn: (password: string) => profileApi.deleteOwnAccount(password),
+  });
+}
