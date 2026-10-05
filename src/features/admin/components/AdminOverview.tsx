@@ -332,6 +332,16 @@ export function AdminOverview() {
       hint: s.moderation.pendingReports > 0 ? "Cần xem" : "Không tồn đọng",
       alert: s.moderation.pendingReports > 0,
     },
+    // Việc khác hẳn ô trên: kỷ luật một tài khoản, với sửa một lời nhắc của mô
+    // hình. Gộp chung một con số là trộn hai hàng chờ chẳng liên quan nhau.
+    {
+      icon: Flag,
+      label: "Báo cáo nội dung AI",
+      value: s.moderation.pendingAiReports ?? 0,
+      hint:
+        (s.moderation.pendingAiReports ?? 0) > 0 ? "Cần xem" : "Không tồn đọng",
+      alert: (s.moderation.pendingAiReports ?? 0) > 0,
+    },
     {
       icon: MousePointerClick,
       label: "Lượt sang sàn (30 ngày)",

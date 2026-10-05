@@ -34,6 +34,7 @@ import { useAuth } from "@/lib/auth-context";
 import { TAROT_DECK, getCardMeaning } from "@/lib/mock-data";
 import {
   chatErrorReply,
+  baoCaoNoiDungAi,
   sendChat,
   startAiTarotReading,
   type TarotReadingResult,
@@ -1400,9 +1401,127 @@ function TarotPage() {
               showCards={showCards}
               drawnCards={drawnCards}
             />
+            <AiContentFooter readingId={readingId} />
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+// ============================================================
+// CHÂN KHỐI AI — MIỄN TRỪ VÀ BÁO CÁO
+// ============================================================
+/**
+ * Lời miễn trừ và nút báo cáo, đặt ngay dưới khung trò chuyện.
+ *
+ * Hai thứ, hai lý do khác nhau, nhưng thuộc về cùng một chỗ — chỗ người ta
+ * đang đọc khi nhận ra lời giải có vấn đề.
+ *
+ * **Miễn trừ.** Sản phẩm đoán vận mệnh bằng AI. Hai chợ không cấm, nhưng nếu
+ * lời lẽ nghe như lời khuyên y tế, tài chính hay pháp lý thì dính ngay. Bản
+ * mobile đã có câu này từ trước, web thì chưa.
+ *
+ * **Báo cáo.** Chính sách AI tạo sinh của CH Play buộc ứng dụng có nội dung do
+ * AI sinh phải cho người dùng báo cáo nội dung không phù hợp ngay trong ứng
+ * dụng. Trước đây không có đường nào.
+ */
+const LY_DO_BAO_CAO: Record<string, string> = {
+  SAI_LECH: "Thông tin sai lệch",
+  XUC_PHAM: "Xúc phạm, thù ghét",
+  NGUY_HIEM: "Nguy hiểm, khuyến khích làm hại",
+  KHAC: "Lý do khác",
+};
+
+function AiContentFooter({ readingId }: { readingId: string | null }) {
+  const [moRong, setMoRong] = useState(false);
+  const [lyDo, setLyDo] = useState("SAI_LECH");
+  const [moTa, setMoTa] = useState("");
+  const [dangGui, setDangGui] = useState(false);
+
+  async function gui() {
+    if (!readingId) return;
+    setDangGui(true);
+    try {
+      await baoCaoNoiDungAi(readingId, lyDo, moTa);
+      toast.success("Đã nhận báo cáo. Cảm ơn bạn.");
+      setMoRong(false);
+      setMoTa("");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Không gửi được báo cáo");
+    } finally {
+      setDangGui(false);
+    }
+  }
+
+  return (
+    <div className="mx-auto mt-4 max-w-3xl space-y-2">
+      <p className="text-[11px] leading-relaxed text-muted-foreground">
+        Lời giải do AI viết, mang tính tham khảo và giải trí. Với các quyết định
+        về sức khoẻ, pháp lý hay tài chính, hãy hỏi người có chuyên môn.
+      </p>
+
+      {readingId &&
+        (moRong ? (
+          <div className="space-y-3 rounded-xl border border-border bg-card/40 p-4">
+            <p className="text-xs font-medium text-foreground">
+              Báo cáo nội dung này
+            </p>
+            <div className="space-y-1.5">
+              {Object.entries(LY_DO_BAO_CAO).map(([ma, nhan]) => (
+                <label
+                  key={ma}
+                  className="flex items-center gap-2 text-xs text-muted-foreground"
+                >
+                  <input
+                    type="radio"
+                    name="ly-do-bao-cao"
+                    value={ma}
+                    checked={lyDo === ma}
+                    onChange={() => setLyDo(ma)}
+                    disabled={dangGui}
+                    className="accent-gold"
+                  />
+                  {nhan}
+                </label>
+              ))}
+            </div>
+            <textarea
+              rows={2}
+              maxLength={2000}
+              value={moTa}
+              onChange={(e) => setMoTa(e.target.value)}
+              disabled={dangGui}
+              placeholder="Mô tả thêm (không bắt buộc)"
+              className="w-full resize-none rounded-lg border border-border bg-input/60 px-3 py-2 text-xs outline-none transition focus:border-gold"
+            />
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setMoRong(false)}
+                className="rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground transition hover:text-foreground"
+              >
+                Thôi
+              </button>
+              <button
+                type="button"
+                onClick={gui}
+                disabled={dangGui}
+                className="rounded-lg bg-gold/90 px-3 py-1.5 text-xs font-medium text-background transition hover:bg-gold disabled:opacity-50"
+              >
+                {dangGui ? "Đang gửi…" : "Gửi báo cáo"}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setMoRong(true)}
+            className="text-[11px] text-muted-foreground underline underline-offset-4 transition hover:text-foreground"
+          >
+            Báo cáo nội dung này
+          </button>
+        ))}
     </div>
   );
 }

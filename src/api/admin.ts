@@ -286,6 +286,8 @@ export interface AdminStats {
   };
   moderation: {
     pendingReports: number;
+    /** Báo cáo nội dung AI chờ xử lý. Optional vì BE cũ chưa trả. */
+    pendingAiReports?: number;
   };
   shop: {
     activeProducts: number;

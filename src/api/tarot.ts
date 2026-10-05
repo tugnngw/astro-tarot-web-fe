@@ -151,3 +151,23 @@ export function getReadingMessages(readingId: string) {
     `/api/ai-readings/${readingId}/chat/messages`,
   );
 }
+
+/**
+ * Báo một lời giải do AI sinh là không ổn.
+ *
+ * Chính sách AI tạo sinh của CH Play buộc ứng dụng có nội dung do AI sinh phải
+ * cho người dùng báo cáo nội dung không phù hợp ngay trong ứng dụng.
+ *
+ * Máy chủ trả êm cả khi người dùng bấm lại lần hai — với họ thì lần nào cũng
+ * là "đã báo rồi".
+ */
+export function baoCaoNoiDungAi(
+  readingId: string,
+  lyDo: string,
+  moTa: string,
+) {
+  return apiFetch<void>("/api/ai-readings/reports", {
+    method: "POST",
+    body: JSON.stringify({ readingId, lyDo, moTa: moTa.trim() }),
+  });
+}
