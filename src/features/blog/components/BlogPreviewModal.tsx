@@ -1,12 +1,10 @@
 // src/features/blog/components/BlogPreviewModal.tsx
+// Layout bài viết khớp trang public /blog/$slug (title → ảnh contain → nội dung).
 import {
   Calendar,
   Clock,
-  ExternalLink,
   ShieldCheck,
-  Tag,
   User as UserIcon,
-  X,
 } from "lucide-react";
 import {
   Dialog,
@@ -14,7 +12,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { BlogResponse } from "@/api/types";
 import { BLOG_STATUS_MAP, estimateReadTime, formatBlogDate } from "../utils";
@@ -53,6 +50,7 @@ export function BlogPreviewModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto border-gold/30 bg-background/95 backdrop-blur-2xl p-6 sm:p-8">
         <DialogHeader className="border-b border-gold/15 pb-4">
+          <DialogTitle className="sr-only">Xem trước: {blog.title}</DialogTitle>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <span
@@ -120,75 +118,80 @@ export function BlogPreviewModal({
           </div>
         )}
 
-        <article className="mt-4 space-y-6">
-          {/* Cover Artwork */}
-          <div className="relative aspect-[21/9] w-full overflow-hidden rounded-2xl border border-gold/20 bg-card/60">
-            {blog.thumbnailUrl ? (
-              <img
-                src={blog.thumbnailUrl}
-                alt={blog.title}
-                className="h-full w-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLElement).style.display = "none";
-                }}
-              />
-            ) : null}
-            <div
-              className={`absolute inset-0 ${blog.thumbnailUrl ? "hidden" : "block"}`}
-            >
-              <CelestialArtwork
-                seed={blog.slug}
-                motif="moon"
-                frame={false}
-                className="h-full w-full"
-              />
+        {/* Khớp layout public blog.$slug: meta → title → summary → ảnh contain → nội dung */}
+        <article className="mx-auto mt-4 max-w-3xl space-y-5">
+          <header className="space-y-3">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5">
+                <Calendar className="h-3.5 w-3.5 text-gold/80" />
+                {formattedDate}
+                {blog.updatedAt !== blog.createdAt ? (
+                  <span className="text-muted-foreground/80">
+                    {" "}
+                    (Cập nhật: {updatedDate})
+                  </span>
+                ) : null}
+              </span>
+              <span aria-hidden>•</span>
+              <span className="inline-flex items-center gap-1.5">
+                <Clock className="h-3.5 w-3.5 text-gold/80" /> {readTime} phút
+                đọc
+              </span>
+              <span aria-hidden>•</span>
+              <span className="inline-flex items-center gap-1.5 font-medium text-foreground">
+                <UserIcon className="h-3.5 w-3.5 text-gold" />
+                {blog.author?.fullName || blog.author?.username}
+              </span>
+              {blog.reviewer ? (
+                <>
+                  <span aria-hidden>•</span>
+                  <span className="inline-flex items-center gap-1 text-emerald-400">
+                    <ShieldCheck className="h-3.5 w-3.5" /> Duyệt bởi:{" "}
+                    {blog.reviewer?.fullName || blog.reviewer?.username}
+                  </span>
+                </>
+              ) : null}
             </div>
-          </div>
 
-          {/* Meta */}
-          <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground border-b border-gold/10 pb-4">
-            <span className="inline-flex items-center gap-1.5">
-              <Calendar className="h-3.5 w-3.5 text-gold/80" /> Ngày tạo:{" "}
-              {formattedDate}
-            </span>
-            {blog.updatedAt !== blog.createdAt && (
-              <span>(Cập nhật: {updatedDate})</span>
-            )}
-            <span>•</span>
-            <span className="inline-flex items-center gap-1.5">
-              <Clock className="h-3.5 w-3.5 text-gold/80" /> {readTime} phút đọc
-            </span>
-            <span>•</span>
-            <span className="inline-flex items-center gap-1.5 text-foreground font-medium">
-              <UserIcon className="h-3.5 w-3.5 text-gold" />{" "}
-              {blog.author?.fullName || blog.author?.username}
-            </span>
-            {blog.reviewer && (
-              <>
-                <span>•</span>
-                <span className="inline-flex items-center gap-1 text-emerald-400">
-                  <ShieldCheck className="h-3.5 w-3.5" /> Duyệt bởi:{" "}
-                  {blog.reviewer?.fullName || blog.reviewer?.username}
-                </span>
-              </>
-            )}
-          </div>
-
-          {/* Title & Summary */}
-          <div>
-            <h1 className="font-display text-3xl sm:text-4xl text-gradient-gold leading-tight">
+            <h1 className="font-display text-2xl sm:text-3xl lg:text-[2.15rem] leading-snug text-gradient-gold">
               {blog.title}
             </h1>
-            {blog.summary && (
-              <p className="mt-3 text-base sm:text-lg italic text-muted-foreground leading-relaxed border-l-2 border-gold/40 pl-4 py-1">
+
+            {blog.summary ? (
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed border-l-2 border-gold/35 pl-3.5">
                 {blog.summary}
               </p>
-            )}
-          </div>
+            ) : null}
+          </header>
 
-          {/* Content */}
-          <div className="prose prose-invert max-w-none text-foreground/90 whitespace-pre-wrap leading-relaxed text-sm sm:text-base border-t border-gold/10 pt-6">
-            {blog.content}
+          <figure className="overflow-hidden rounded-2xl border border-gold/25 bg-muted/20">
+            <div className="flex max-h-[min(68vh,560px)] items-center justify-center p-3 sm:p-5">
+              {blog.thumbnailUrl ? (
+                <img
+                  src={blog.thumbnailUrl}
+                  alt={blog.title}
+                  className="max-h-[min(62vh,520px)] w-auto max-w-full object-contain"
+                  onError={(e) => {
+                    (e.target as HTMLElement).style.display = "none";
+                  }}
+                />
+              ) : (
+                <div className="aspect-[16/9] w-full">
+                  <CelestialArtwork
+                    seed={blog.slug}
+                    motif="moon"
+                    frame={false}
+                    className="h-full w-full"
+                  />
+                </div>
+              )}
+            </div>
+          </figure>
+
+          <div className="border-t border-gold/15 pt-6">
+            <div className="mx-auto max-w-2xl text-[1.05rem] sm:text-lg leading-[1.75] text-foreground/90 whitespace-pre-wrap">
+              {blog.content}
+            </div>
           </div>
         </article>
       </DialogContent>
