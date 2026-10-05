@@ -2,10 +2,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   lazy,
-  memo,
   Suspense,
   useCallback,
-  useDeferredValue,
   useEffect,
   useMemo,
   useRef,
@@ -13,20 +11,12 @@ import {
 } from "react";
 import { motion } from "framer-motion";
 import {
-  Send,
-  Sparkles,
-  RotateCcw,
-  Users,
-  Search,
-  ChevronLeft,
-  ChevronRight,
-  Loader2,
-  Wand2,
-  MapPin,
-  Loader,
   Clock,
   Globe,
-  Trash2,
+  Loader,
+  Loader2,
+  MapPin,
+  Users,
 } from "lucide-react";
 import { Header } from "@/components/Header";
 import { toast } from "sonner";
@@ -48,6 +38,19 @@ import {
 import { tokenStore } from "@/api/client";
 import { searchPlaces } from "@/lib/geocode";
 import { QuotaDisplay } from "@/components/subscription";
+import { TarotChatPanel } from "@/features/tarot/components/TarotChatPanel";
+import {
+  cleanForeignVaults,
+  deleteSession as removeVaultSession,
+  emptySession,
+  loadVault,
+  saveVault,
+  titleFromMessages,
+  upsertActiveSession,
+  type ChatMessage,
+  type PersonSnapshot,
+  type TarotChatSession,
+} from "@/features/tarot/chatSessions";
 import { useSubscription } from "@/features/tarot/hooks/useSubscription";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -69,12 +72,6 @@ export const Route = createFileRoute("/tarot")({
   component: TarotPageWithErrorBoundary,
 });
 
-interface ChatMessage {
-  id: string;
-  role: "user" | "ai";
-  content: string;
-  ts: number;
-}
 interface Person {
   id: string;
   name: string;
@@ -101,6 +98,32 @@ interface TimezoneInfo {
   offset: number;
 }
 
+function asSnapshot(people: Person[]): PersonSnapshot[] {
+  return people.map((p) => ({ ...p }));
+}
+
+function sessionPayload(
+  id: string,
+  people: Person[],
+  messages: ChatMessage[],
+  drawnCards: string[],
+  readingResult: TarotReadingResult | null,
+  cardsDrawn: boolean,
+  readingId: string | null,
+): TarotChatSession {
+  return {
+    id,
+    title: titleFromMessages(messages),
+    updatedAt: Date.now(),
+    messages,
+    drawnCards,
+    readingResult,
+    cardsDrawn,
+    readingId,
+    people: asSnapshot(people),
+  };
+}
+
 // ============================================================
 // FALLBACK REPLIES - CHỈ DÙNG KHI API LỖI
 // ============================================================
@@ -109,27 +132,6 @@ const FALLBACK_REPLIES = [
   "Mình chưa hiểu ý cậu lắm. Cậu có thể nói rõ hơn được không?",
   "Có điều gì cậu muốn chia sẻ thêm không? Mình luôn sẵn sàng lắng nghe.",
 ];
-
-function storageKey(uid: string) {
-  return `astrotarot_chat_${uid}`;
-}
-
-// ============================================================
-// CLEAN OLD SESSIONS
-// ============================================================
-function cleanOldSessions(currentUid: string) {
-  try {
-    const currentKey = storageKey(currentUid);
-    Object.keys(localStorage)
-      .filter((key) => key.startsWith("astrotarot_chat_") && key !== currentKey)
-      .forEach((key) => {
-        console.log("🗑️ Removing old session:", key);
-        localStorage.removeItem(key);
-      });
-  } catch (e) {
-    console.warn("Failed to clean old sessions:", e);
-  }
-}
 
 // ============================================================
 // UUID GENERATOR
@@ -449,6 +451,8 @@ function TarotPage() {
   );
   const [showCards, setShowCards] = useState(false);
   const [readingId, setReadingId] = useState<string | null>(null);
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [sessionList, setSessionList] = useState<TarotChatSession[]>([]);
   const lastMsgRef = useRef<HTMLDivElement>(null);
   // Khung cuộn của danh sách tin nhắn. Cuộn đúng nó, không cuộn cả trang.
   const chatScrollRef = useRef<HTMLDivElement>(null);
@@ -472,14 +476,29 @@ function TarotPage() {
     [key: string]: boolean;
   }>({});
 
-  // Clean old sessions when user changes
+  // Clean vault của user khác
   useEffect(() => {
     if (user) {
-      cleanOldSessions(user.id);
+      cleanForeignVaults(user.id);
     }
   }, [user]);
 
-  // Load history
+  const applySession = useCallback((s: TarotChatSession) => {
+    setActiveSessionId(s.id);
+    setMessages(s.messages);
+    if (s.people?.length) {
+      const capped = s.people.slice(0, 2) as Person[];
+      setPeople(capped);
+      setCount(capped.length || 1);
+    }
+    setDrawnCards(s.drawnCards ?? []);
+    setReadingResult(s.readingResult ?? null);
+    setCardsDrawn(Boolean(s.cardsDrawn));
+    setReadingId(s.readingId ?? null);
+    setStage("chat");
+  }, []);
+
+  // Load vault
   useEffect(() => {
     if (!user) {
       setMessages([]);
@@ -488,45 +507,41 @@ function TarotPage() {
       setStage("info");
       setCardsDrawn(false);
       setReadingId(null);
+      setActiveSessionId(null);
+      setSessionList([]);
       return;
     }
 
-    try {
-      const raw = localStorage.getItem(storageKey(uid));
-      if (raw) {
-        const data = JSON.parse(raw);
-        if (Array.isArray(data?.messages) && data.messages.length) {
-          setMessages(data.messages);
-          if (data.people) {
-            const capped = data.people.slice(0, 2);
-            setPeople(capped);
-            setCount(capped.length || 1);
-          }
-          if (data.drawnCards) setDrawnCards(data.drawnCards);
-          if (data.readingResult) setReadingResult(data.readingResult);
-          if (data.cardsDrawn) setCardsDrawn(data.cardsDrawn);
-          if (data.readingId) setReadingId(data.readingId);
-          setStage("chat");
-        }
-      }
-    } catch {}
-  }, [uid, user]);
-
-  // Persist
-  useEffect(() => {
-    if (stage === "chat" && user) {
-      localStorage.setItem(
-        storageKey(uid),
-        JSON.stringify({
-          messages,
-          people,
-          drawnCards,
-          readingResult,
-          cardsDrawn,
-          readingId,
-        }),
-      );
+    const vault = loadVault(uid);
+    setSessionList(vault.sessions);
+    const active =
+      vault.sessions.find((s) => s.id === vault.activeId) ?? vault.sessions[0];
+    if (active && active.messages.length > 0) {
+      applySession(active);
+    } else if (active) {
+      setActiveSessionId(active.id);
     }
+  }, [uid, user, applySession]);
+
+  // Persist active session into vault
+  useEffect(() => {
+    if (stage !== "chat" || !user || !activeSessionId) return;
+
+    const next = sessionPayload(
+      activeSessionId,
+      people,
+      messages,
+      drawnCards,
+      readingResult,
+      cardsDrawn,
+      readingId,
+    );
+    const vault = upsertActiveSession(loadVault(uid), next);
+    saveVault(uid, vault);
+    setSessionList((prev) => {
+      if (JSON.stringify(prev) === JSON.stringify(vault.sessions)) return prev;
+      return vault.sessions;
+    });
   }, [
     messages,
     stage,
@@ -537,6 +552,7 @@ function TarotPage() {
     user,
     cardsDrawn,
     readingId,
+    activeSessionId,
   ]);
 
   // Cuộn xuống tin nhắn mới nhất — CHỈ trong khung chat.
@@ -783,42 +799,128 @@ function TarotPage() {
   };
 
   // ============================================================
-  // CLEAR CHAT HISTORY
+  // CLEAR / ĐỔI PHIÊN
   // ============================================================
   const clearChatHistory = () => {
-    if (user) {
-      localStorage.removeItem(storageKey(uid));
-      cleanOldSessions(user.id);
+    if (!user || !activeSessionId) {
+      setMessages([]);
+      return;
     }
-    setStage("info");
+    const cleared = sessionPayload(
+      activeSessionId,
+      people,
+      [],
+      [],
+      null,
+      false,
+      null,
+    );
+    cleared.title = "Phiên mới";
+    const vault = upsertActiveSession(
+      { activeId: activeSessionId, sessions: sessionList },
+      cleared,
+    );
+    saveVault(uid, vault);
+    setSessionList(vault.sessions);
     setMessages([]);
     setInput("");
     setDrawnCards([]);
     setReadingResult(null);
     setReadingId(null);
-    setPeople([
-      {
-        id: "p1",
-        name: "",
-        dob: "",
-        birthTime: "",
-        birthPlace: "",
-        lat: 0,
-        lng: 0,
-        altitude: 0,
-        timezone: "",
-        timezoneOffset: 7,
-      },
-    ]);
-    setCount(1);
     setCardsDrawn(false);
     setShowCards(false);
-    setDateErrors({});
-    setTimeErrors({});
-    setSuggestions({});
-    setShowSuggestions({});
-    setSelectedPlace({});
-    toast.success("🗑️ Đã xóa lịch sử chat");
+    toast.success("Đã xóa tin nhắn phiên hiện tại");
+  };
+
+  const handleSelectSession = (id: string) => {
+    // Lưu phiên hiện tại trước khi đổi
+    if (user && activeSessionId && stage === "chat") {
+      const current = sessionPayload(
+        activeSessionId,
+        people,
+        messages,
+        drawnCards,
+        readingResult,
+        cardsDrawn,
+        readingId,
+      );
+      const vault = upsertActiveSession(
+        { activeId: activeSessionId, sessions: sessionList },
+        current,
+      );
+      const target = vault.sessions.find((s) => s.id === id);
+      if (target) {
+        saveVault(uid, { ...vault, activeId: id });
+        setSessionList(vault.sessions);
+        applySession(target);
+        toast.success("Đã chuyển phiên");
+      }
+      return;
+    }
+    const target = sessionList.find((s) => s.id === id);
+    if (target) applySession(target);
+  };
+
+  const handleNewSession = () => {
+    if (!user) {
+      toast.error("Vui lòng đăng nhập");
+      return;
+    }
+    // Archive phiên hiện tại nếu còn tin
+    let vault = loadVault(uid);
+    if (activeSessionId && messages.length > 0) {
+      vault = upsertActiveSession(
+        vault,
+        sessionPayload(
+          activeSessionId,
+          people,
+          messages,
+          drawnCards,
+          readingResult,
+          cardsDrawn,
+          readingId,
+        ),
+      );
+    }
+    const fresh = emptySession(asSnapshot(people));
+    vault = upsertActiveSession(vault, fresh);
+    saveVault(uid, vault);
+    setSessionList(vault.sessions);
+    setActiveSessionId(fresh.id);
+    setMessages([]);
+    setInput("");
+    setDrawnCards([]);
+    setReadingResult(null);
+    setReadingId(null);
+    setCardsDrawn(false);
+    setShowCards(false);
+    setStage("info");
+    toast.success("Đã tạo phiên mới — điền thông tin rồi bắt đầu chat");
+  };
+
+  const handleDeleteSession = (id: string) => {
+    if (!user) return;
+    const vault = removeVaultSession(
+      { activeId: activeSessionId, sessions: sessionList },
+      id,
+    );
+    saveVault(uid, vault);
+    setSessionList(vault.sessions);
+    if (id === activeSessionId) {
+      const next = vault.sessions[0];
+      if (next) {
+        applySession(next);
+      } else {
+        setActiveSessionId(null);
+        setMessages([]);
+        setStage("info");
+        setReadingId(null);
+        setCardsDrawn(false);
+        setDrawnCards([]);
+        setReadingResult(null);
+      }
+    }
+    toast.success("Đã xóa phiên");
   };
 
   // ============================================================
@@ -879,16 +981,31 @@ function TarotPage() {
       await createAstrologyProfile(profileData);
       toast.success("📊 Đã lưu thông tin chiêm tinh!");
 
-      cleanOldSessions(user.id);
-
-      setMessages([
-        {
-          id: generateUUID(),
-          role: "ai",
-          content: `Chào cậu, hôm nay mọi việc có suôn sẻ không, và trong lòng cậu có đang bình yên không? Mình biết đôi khi cuộc sống có nhiều áp lực và những điều không như ý khiến cậu mệt nhọc. Nếu lúc nào đó cậu cảm thấy chông chênh hay có điều gì muốn tâm sự, đừng ngần ngại nhắn cho mình nhé. Mình không hứa sẽ giải quyết được mọi vấn đề, nhưng mình hứa sẽ luôn ở đây, lắng nghe cậu bằng cả trái tim để cậu không bao giờ phải chịu đựng mọi thứ một mình.`,
-          ts: Date.now(),
-        },
-      ]);
+      const sid = activeSessionId ?? generateUUID();
+      const welcome: ChatMessage = {
+        id: generateUUID(),
+        role: "ai",
+        content: `Chào cậu, hôm nay mọi việc có suôn sẻ không, và trong lòng cậu có đang bình yên không? Mình biết đôi khi cuộc sống có nhiều áp lực và những điều không như ý khiến cậu mệt nhọc. Nếu lúc nào đó cậu cảm thấy chông chênh hay có điều gì muốn tâm sự, đừng ngần ngại nhắn cho mình nhé. Mình không hứa sẽ giải quyết được mọi vấn đề, nhưng mình hứa sẽ luôn ở đây, lắng nghe cậu bằng cả trái tim để cậu không bao giờ phải chịu đựng mọi thứ một mình.`,
+        ts: Date.now(),
+      };
+      const session = sessionPayload(
+        sid,
+        people,
+        [welcome],
+        [],
+        null,
+        false,
+        null,
+      );
+      session.title = "Phiên mới";
+      const vault = upsertActiveSession(
+        { activeId: sid, sessions: sessionList },
+        session,
+      );
+      saveVault(uid, vault);
+      setSessionList(vault.sessions);
+      setActiveSessionId(sid);
+      setMessages([welcome]);
       setStage("chat");
       setCardsDrawn(false);
       setDrawnCards([]);
@@ -1178,35 +1295,7 @@ function TarotPage() {
   // RESET
   // ============================================================
   const resetAll = () => {
-    setStage("info");
-    setMessages([]);
-    setInput("");
-    setDrawnCards([]);
-    setReadingResult(null);
-    setReadingId(null);
-    setPeople([
-      {
-        id: "p1",
-        name: "",
-        dob: "",
-        birthTime: "",
-        birthPlace: "",
-        lat: 0,
-        lng: 0,
-        altitude: 0,
-        timezone: "",
-        timezoneOffset: 7,
-      },
-    ]);
-    setCount(1);
-    setCardsDrawn(false);
-    setShowCards(false);
-    setDateErrors({});
-    setTimeErrors({});
-    setSuggestions({});
-    setShowSuggestions({});
-    setSelectedPlace({});
-    toast.success("Đã bắt đầu phiên mới");
+    handleNewSession();
   };
 
   const headerName = useMemo(
@@ -1225,7 +1314,7 @@ function TarotPage() {
     <div className={stage === "chat" ? "relative h-dvh overflow-hidden" : "relative min-h-screen"}>
       <Header />
 
-      <div className={`mx-auto max-w-6xl px-4 ${stage === "chat" ? "py-3" : "py-6"}`}>
+      <div className={`mx-auto max-w-7xl px-3 sm:px-4 ${stage === "chat" ? "py-2 sm:py-3" : "py-6"}`}>
         {stage !== "chat" && (
         <div className="mb-4 text-center">
           <h1 className="font-display text-3xl">
@@ -1475,9 +1564,9 @@ function TarotPage() {
         )}
 
         {stage === "chat" && (
-          <div className="flex h-[calc(100dvh-9.5rem)] w-full flex-col overflow-hidden">
+          <div className="flex h-[calc(100dvh-8.5rem)] w-full flex-col overflow-hidden sm:h-[calc(100dvh-9rem)]">
             <div className="min-h-0 flex-1">
-              <ChatPanel
+              <TarotChatPanel
                 messages={messages}
                 thinking={thinking}
                 input={input}
@@ -1491,8 +1580,11 @@ function TarotPage() {
                 cardsDrawn={cardsDrawn}
                 drawing={drawing}
                 onDrawCards={drawCards}
-                showCards={showCards}
-                drawnCards={drawnCards}
+                sessions={sessionList}
+                activeSessionId={activeSessionId}
+                onSelectSession={handleSelectSession}
+                onNewSession={handleNewSession}
+                onDeleteSession={handleDeleteSession}
               />
             </div>
             <div className="shrink-0 pt-2">
@@ -1621,264 +1713,6 @@ function AiContentFooter({ readingId }: { readingId: string | null }) {
     </div>
   );
 }
-
-// ============================================================
-// CHAT PANEL
-// ============================================================
-interface ChatPanelProps {
-  messages: ChatMessage[];
-  thinking: boolean;
-  input: string;
-  setInput: (v: string) => void;
-  send: (e?: React.FormEvent) => void;
-  resetAll: () => void;
-  clearChatHistory: () => void;
-  headerName: string;
-  lastMsgRef: React.RefObject<HTMLDivElement | null>;
-  chatScrollRef: React.RefObject<HTMLDivElement | null>;
-  cardsDrawn: boolean;
-  drawing: boolean;
-  onDrawCards: () => void;
-  showCards: boolean;
-  drawnCards: string[];
-}
-
-const PAGE_SIZE = 50;
-
-function ChatPanel({
-  messages,
-  thinking,
-  input,
-  setInput,
-  send,
-  resetAll,
-  clearChatHistory,
-  headerName,
-  lastMsgRef,
-  chatScrollRef,
-  cardsDrawn,
-  drawing,
-  onDrawCards,
-  showCards,
-  drawnCards,
-}: ChatPanelProps) {
-  const [query, setQuery] = useState("");
-  const deferredQuery = useDeferredValue(query);
-  const [page, setPage] = useState(0);
-
-  const filtered = useMemo(() => {
-    if (!deferredQuery.trim()) return messages;
-    const q = deferredQuery.toLowerCase();
-    return messages.filter((m) => m.content.toLowerCase().includes(q));
-  }, [messages, deferredQuery]);
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const pageSafe = Math.min(page, totalPages - 1);
-  const start = Math.max(0, filtered.length - (pageSafe + 1) * PAGE_SIZE);
-  const end = filtered.length - pageSafe * PAGE_SIZE;
-  const view = filtered.slice(start, end);
-
-  const onSearch = useCallback((v: string) => {
-    setQuery(v);
-    setPage(0);
-  }, []);
-
-  return (
-    <div className="glass flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl">
-      <div className="flex items-center justify-between border-b border-gold/20 px-5 py-3 bg-background/30 shrink-0">
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <div className="grid h-8 w-8 place-items-center rounded-full bg-gold/20 text-gold">
-              <Sparkles className="h-4 w-4" />
-            </div>
-            <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-400 ring-1 ring-background"></span>
-          </div>
-          <div>
-            <div className="font-display text-base text-gold-soft">
-              Tarot AI
-            </div>
-            <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-              <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
-              Đang trực tuyến • {headerName}
-              {cardsDrawn && (
-                <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-gold/20 px-2 py-0.5 text-[9px] text-gold">
-                  🃏 Đã rút bài
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          {!cardsDrawn && !drawing && (
-            <button
-              onClick={onDrawCards}
-              className="inline-flex items-center gap-1.5 rounded-full bg-gold px-3 py-1.5 text-xs font-medium text-primary-foreground glow-gold transition hover:scale-105"
-            >
-              <Wand2 className="h-3 w-3" /> Rút bài
-            </button>
-          )}
-          {drawing && (
-            <button
-              disabled
-              className="inline-flex items-center gap-1.5 rounded-full bg-gold/60 px-3 py-1.5 text-xs font-medium text-primary-foreground"
-            >
-              <Loader2 className="h-3 w-3 animate-spin" /> Đang rút...
-            </button>
-          )}
-          <button
-            onClick={resetAll}
-            className="inline-flex items-center gap-1.5 rounded-full border border-gold/40 px-3 py-1.5 text-xs text-gold transition hover:bg-gold/10 hover:border-gold"
-          >
-            <RotateCcw className="h-3 w-3" /> Phiên mới
-          </button>
-          <button
-            onClick={() => {
-              if (confirm("Bạn có muốn xóa toàn bộ lịch sử chat?")) {
-                clearChatHistory();
-              }
-            }}
-            className="inline-flex items-center gap-1.5 rounded-full border border-red-500/40 px-3 py-1.5 text-xs text-red-400 transition hover:bg-red-500/10 hover:border-red-500"
-          >
-            <Trash2 className="h-3 w-3" /> Xóa lịch sử
-          </button>
-        </div>
-      </div>
-
-      <div className="flex items-center gap-2 border-b border-gold/15 bg-background/30 px-3 py-2 shrink-0">
-        <div className="flex flex-1 items-center gap-2 rounded-full border border-gold/30 bg-input/50 px-3 focus-within:border-gold/70 transition-colors">
-          <Search className="h-3.5 w-3.5 text-muted-foreground" />
-          <input
-            value={query}
-            onChange={(e) => onSearch(e.target.value)}
-            placeholder="Tìm trong lịch sử chat…"
-            className="flex-1 bg-transparent py-1.5 text-xs outline-none placeholder:text-muted-foreground/60"
-          />
-        </div>
-        <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
-          <button
-            disabled={pageSafe >= totalPages - 1}
-            onClick={() => setPage((p) => p + 1)}
-            className="rounded p-1 hover:bg-gold/10 disabled:opacity-30 transition"
-          >
-            <ChevronLeft className="h-3 w-3" />
-          </button>
-          <span className="min-w-[40px] text-center text-xs">
-            {pageSafe + 1}/{totalPages}
-          </span>
-          <button
-            disabled={pageSafe <= 0}
-            onClick={() => setPage((p) => p - 1)}
-            className="rounded p-1 hover:bg-gold/10 disabled:opacity-30 transition"
-          >
-            <ChevronRight className="h-3 w-3" />
-          </button>
-        </div>
-      </div>
-
-      <div
-        ref={chatScrollRef}
-        className="flex-1 overflow-y-auto px-6 py-4 space-y-1 bg-gradient-to-b from-background/10 to-background/5 min-h-[300px]"
-      >
-        {view.length === 0 && (
-          <div className="flex h-full min-h-[300px] flex-col items-center justify-center text-center">
-            <div className="text-4xl mb-3">💬</div>
-            <p className="text-sm text-muted-foreground">
-              Chưa có tin nhắn nào
-            </p>
-            <p className="text-xs text-muted-foreground/60">
-              Hãy đặt câu hỏi để bắt đầu
-            </p>
-          </div>
-        )}
-        {view.map((m, idx) => (
-          <div
-            key={m.id}
-            ref={idx === view.length - 1 && pageSafe === 0 ? lastMsgRef : null}
-            className="animate-in fade-in slide-in-from-bottom-2 duration-300"
-            style={{ animationDelay: `${idx * 50}ms` }}
-          >
-            <Bubble role={m.role} content={m.content} />
-          </div>
-        ))}
-        {pageSafe === 0 && thinking && (
-          <div className="flex justify-start animate-in fade-in duration-200">
-            <div className="inline-flex items-center gap-2 rounded-2xl rounded-bl-sm border border-gold/25 bg-card/60 px-4 py-2.5 text-sm text-muted-foreground">
-              <div className="flex gap-1">
-                <span
-                  className="h-2 w-2 rounded-full bg-gold animate-bounce"
-                  style={{ animationDelay: "0ms" }}
-                />
-                <span
-                  className="h-2 w-2 rounded-full bg-gold animate-bounce"
-                  style={{ animationDelay: "150ms" }}
-                />
-                <span
-                  className="h-2 w-2 rounded-full bg-gold animate-bounce"
-                  style={{ animationDelay: "300ms" }}
-                />
-              </div>
-              <span className="ml-1 text-xs">Đang suy ngẫm...</span>
-            </div>
-          </div>
-        )}
-      </div>
-
-      <form
-        onSubmit={send}
-        className="flex gap-2 border-t border-gold/20 bg-background/30 p-3 shrink-0"
-      >
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Nhập câu hỏi của bạn cho vũ trụ…"
-          className="flex-1 rounded-full border border-gold/30 bg-input/60 px-4 py-2.5 text-sm outline-none transition focus:border-gold focus:ring-1 focus:ring-gold/30 placeholder:text-muted-foreground/60"
-        />
-        <button
-          type="submit"
-          disabled={!input.trim() || thinking}
-          className="inline-flex items-center justify-center gap-1.5 rounded-full bg-gold px-6 py-2.5 text-sm font-medium text-primary-foreground glow-gold transition hover:scale-[1.02] hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
-        >
-          <Send className="h-4 w-4" />
-          <span className="hidden sm:inline">Gửi</span>
-        </button>
-      </form>
-    </div>
-  );
-}
-
-// ============================================================
-// BUBBLE
-// ============================================================
-const Bubble = memo(function Bubble({
-  role,
-  content,
-}: {
-  role: "user" | "ai";
-  content: string;
-}) {
-  const formattedContent = content
-    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-    .replace(/\n/g, "<br />");
-
-  return (
-    <div
-      className={`flex ${role === "user" ? "justify-end" : "justify-start"} mb-3`}
-    >
-      <div
-        className={`max-w-[80%] px-4 py-3 text-sm leading-relaxed ${
-          role === "user"
-            ? "rounded-2xl rounded-br-sm bg-gold text-primary-foreground"
-            : "rounded-2xl rounded-bl-sm border border-gold/20 bg-card/80 text-foreground/90"
-        }`}
-      >
-        <div
-          className="whitespace-pre-wrap break-words"
-          dangerouslySetInnerHTML={{ __html: formattedContent }}
-        />
-      </div>
-    </div>
-  );
-});
 
 // ============================================================
 // FIELD
