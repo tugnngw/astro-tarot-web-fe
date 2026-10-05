@@ -31,11 +31,35 @@ interface PlanCardProps {
   plan: SubscriptionPlan;
   isPopular?: boolean;
   isCurrent?: boolean;
+  /** Có gói tháng đang active và gói này không phải nâng cấp. */
+  upgradeOnlyBlocked?: boolean;
+  isUpgrade?: boolean;
   onSelect: (plan: SubscriptionPlan) => void;
 }
 
-export function PlanCard({ plan, isPopular, isCurrent, onSelect }: PlanCardProps) {
+export function PlanCard({
+  plan,
+  isPopular,
+  isCurrent,
+  upgradeOnlyBlocked,
+  isUpgrade,
+  onSelect,
+}: PlanCardProps) {
   const isFree = plan.planType === "FREE";
+  const disabled = isCurrent || upgradeOnlyBlocked || !plan.isActive || isFree;
+
+  let cta: string;
+  if (isCurrent) {
+    cta = "Đang sử dụng";
+  } else if (isFree) {
+    cta = "Gói mặc định";
+  } else if (upgradeOnlyBlocked) {
+    cta = "Chỉ nâng cấp";
+  } else if (isUpgrade) {
+    cta = `Nâng cấp — ${formatVND(plan.price)}`;
+  } else {
+    cta = `Đăng ký gói — ${formatVND(plan.price)}`;
+  }
 
   return (
     <div
@@ -112,23 +136,17 @@ export function PlanCard({ plan, isPopular, isCurrent, onSelect }: PlanCardProps
 
       <button
         type="button"
-        disabled={isCurrent || !plan.isActive}
+        disabled={disabled}
         onClick={() => onSelect(plan)}
         className={`mt-6 w-full rounded-xl py-2.5 text-sm font-medium transition-all ${
-          isCurrent
+          isCurrent || upgradeOnlyBlocked || isFree
             ? "border border-gold/30 bg-gold/10 text-gold cursor-default"
-            : isFree
-              ? "border border-white/10 bg-white/5 text-muted-foreground hover:bg-white/10"
-              : isPopular
-                ? "bg-gold text-background shadow-md hover:bg-gold/90"
-                : "border border-gold/40 bg-card/60 text-gold hover:bg-gold/10"
+            : isPopular
+              ? "bg-gold text-background shadow-md hover:bg-gold/90"
+              : "border border-gold/40 bg-card/60 text-gold hover:bg-gold/10"
         }`}
       >
-        {isCurrent
-          ? "Đang sử dụng"
-          : isFree
-            ? "Gói mặc định"
-            : `Đăng ký gói — ${formatVND(plan.price)}`}
+        {cta}
       </button>
     </div>
   );

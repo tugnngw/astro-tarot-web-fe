@@ -34,6 +34,25 @@ export function SubscriptionManagement() {
     return new Set(activePurchases?.map((p) => p.planId) || []);
   }, [activePurchases]);
 
+  /** Gói tháng đang dùng (nếu có) — để chỉ cho nâng cấp. */
+  const currentMonthly = useMemo(() => {
+    if (!activePurchases?.length || !activePlans?.length) return null;
+    const monthlyPurchases = activePurchases
+      .map((p) => {
+        const plan = activePlans.find((ap) => ap.id === p.planId);
+        if (!plan || plan.planType !== "MONTHLY") return null;
+        return { purchase: p, plan };
+      })
+      .filter(Boolean) as Array<{
+      purchase: NonNullable<typeof activePurchases>[number];
+      plan: SubscriptionPlan;
+    }>;
+    if (!monthlyPurchases.length) return null;
+    return monthlyPurchases.sort(
+      (a, b) => b.plan.dailyQuota - a.plan.dailyQuota || b.plan.price - a.plan.price,
+    )[0];
+  }, [activePurchases, activePlans]);
+
   const filteredPlans = useMemo(() => {
     if (!activePlans) return [];
     if (planFilter === "ALL") return activePlans;
@@ -43,6 +62,9 @@ export function SubscriptionManagement() {
   const handlePlanSelect = (plan: SubscriptionPlan) => {
     if (!user) {
       openAuth("login");
+      return;
+    }
+    if (plan.planType === "FREE" || plan.price <= 0) {
       return;
     }
     setSelectedPlan(plan);
@@ -137,10 +159,22 @@ export function SubscriptionManagement() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {filteredPlans.map((plan) => {
               const isCurrent = activePlanIds.has(plan.id);
-              // Highlight popular packages: Monthly with 20 quota or name contains "Pro" / "Phổ biến"
               const isPopular =
                 plan.planType === "MONTHLY" &&
                 (plan.dailyQuota >= 15 || plan.name.toLowerCase().includes("pro"));
+
+              const isUpgrade =
+                !!currentMonthly &&
+                plan.planType === "MONTHLY" &&
+                !isCurrent &&
+                (plan.dailyQuota > currentMonthly.plan.dailyQuota ||
+                  plan.price > currentMonthly.plan.price);
+
+              const upgradeOnlyBlocked =
+                !!currentMonthly &&
+                plan.planType === "MONTHLY" &&
+                !isCurrent &&
+                !isUpgrade;
 
               return (
                 <PlanCard
@@ -148,6 +182,8 @@ export function SubscriptionManagement() {
                   plan={plan}
                   isPopular={isPopular}
                   isCurrent={isCurrent}
+                  isUpgrade={isUpgrade}
+                  upgradeOnlyBlocked={upgradeOnlyBlocked}
                   onSelect={handlePlanSelect}
                 />
               );
@@ -194,7 +230,9 @@ export function SubscriptionManagement() {
               <span>Hạn mức tính thế nào?</span>
             </div>
             <p>
-              Hệ thống áp dụng hạn mức cao nhất trong tất cả các gói bạn đang kích hoạt. Hạn mức tự động hồi phục 100% vào lúc 00:00 (giờ Việt Nam) mỗi ngày.
+              Hệ thống lấy hạn mức cao nhất giữa các gói đang hiệu lực. Khi đã có gói tháng,
+              bạn chỉ được nâng cấp lên gói cao hơn — không mua chồng gói tháng ngang hoặc thấp hơn.
+              Hạn mức hồi 00:00 (giờ VN) mỗi ngày.
             </p>
           </div>
 
