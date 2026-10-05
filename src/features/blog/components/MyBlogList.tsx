@@ -261,7 +261,7 @@ export function MyBlogList() {
                         {statusMeta.label}
                       </span>
                       <span className="text-[11px] text-muted-foreground">
-                        Slug:{" "}
+                        Đường dẫn:{" "}
                         <code className="text-gold font-mono">
                           /blog/{blog.slug}
                         </code>
