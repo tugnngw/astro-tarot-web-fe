@@ -304,6 +304,24 @@ export interface AdminStats {
     tokensByModel: Record<string, number>;
   };
   /**
+   * Việc BÁN gói AI — khác hẳn `ai` ở trên vốn chỉ đếm token đã tiêu.
+   *
+   * Trước 05/10/2026 không có khối này: màn Tổng quan cho biết AI tốn bao
+   * nhiêu token mà không cho biết bán được bao nhiêu gói, tức là biết chi phí
+   * mà không biết doanh thu của đúng tính năng ấy.
+   *
+   * Mọi con số đã lọc bỏ gói Free ở phía BE.
+   */
+  subscriptions?: {
+    plansOnSale: number;
+    purchasesTotal: number;
+    purchasesLast30Days: number;
+    activeNow: number;
+    revenueTotal: number;
+    revenueLast30Days: number;
+    purchasesByPlan: Record<string, number>;
+  };
+  /**
    * Tiền vào, tiền ra và phần còn lại của nền tảng. Optional vì BE cũ chưa trả.
    *
    * Lưu ý `netProfit` KHÔNG phải doanh thu gộp: phần lớn tiền khách trả là của

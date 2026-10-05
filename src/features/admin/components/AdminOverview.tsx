@@ -14,6 +14,7 @@ import {
   MousePointerClick,
   Package,
   AlertCircle,
+  BadgeCheck,
   Sparkles,
   Bot,
   Wallet,
@@ -231,6 +232,21 @@ function aiStats(s: AdminStats): NonNullable<AdminStats["ai"]> {
   );
 }
 
+/** BE cũ chưa trả khối `subscriptions` thì coi như chưa bán được gì. */
+function subStats(s: AdminStats): NonNullable<AdminStats["subscriptions"]> {
+  return (
+    s.subscriptions ?? {
+      plansOnSale: 0,
+      purchasesTotal: 0,
+      purchasesLast30Days: 0,
+      activeNow: 0,
+      revenueTotal: 0,
+      revenueLast30Days: 0,
+      purchasesByPlan: {},
+    }
+  );
+}
+
 /** BE cũ chưa có khối `traction` thì coi như 0. */
 function tractionStats(s: AdminStats): NonNullable<AdminStats["traction"]> {
   return (
@@ -286,6 +302,7 @@ export function AdminOverview() {
 
   const s = query.data;
   const ai = aiStats(s);
+  const sub = subStats(s);
   const traction = tractionStats(s);
 
   const kpis = [
@@ -326,6 +343,14 @@ export function AdminOverview() {
       label: "Token Tarot AI",
       value: ai.totalTokens,
       hint: `${nf(ai.tokensLast30Days)} trong 30 ngày · ~${usd(ai.estimatedCostUsd)}`,
+    },
+    // Ô token ở trên cho biết AI TỐN bao nhiêu. Thiếu ô này thì màn Tổng quan
+    // chỉ có chi phí của tính năng mà không có doanh thu của nó.
+    {
+      icon: BadgeCheck,
+      label: "Gói AI đã bán",
+      value: sub.purchasesTotal,
+      hint: `${nf(sub.purchasesLast30Days)} trong 30 ngày · ${vnd(sub.revenueTotal)}`,
     },
   ];
 
