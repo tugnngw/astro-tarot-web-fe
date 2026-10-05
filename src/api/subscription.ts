@@ -29,14 +29,18 @@ export interface UserPlanPurchase {
 }
 
 export interface AIPlanResponse {
-  purchaseId: string;
+  purchaseId: string | null;
   planName: string;
   dailyQuota: number;
   price: number;
-  startAt: string;
-  endAt: string;
+  startAt?: string;
+  endAt?: string;
   remainingDays: number;
   isActive: boolean;
+  /** Có khi mua bằng PayOS — mở link này để thanh toán; gói kích hoạt sau webhook. */
+  checkoutUrl?: string | null;
+  qrCode?: string | null;
+  paymentPending?: boolean;
 }
 
 export interface CreatePurchaseRequest {
