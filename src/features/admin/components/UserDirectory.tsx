@@ -1,3 +1,4 @@
+import { AnhDaiDien } from "@/components/AnhDaiDien";
 import { useEffect, useId, useState, useRef } from "react";
 import {
   Lock,
@@ -30,7 +31,6 @@ import {
   type ManagedUser,
 } from "@/api/admin";
 import { ROLE_DESCRIPTION, toAppRole, type AccountRole } from "@/lib/roles";
-import { avatarUrl } from "@/api/profile";
 
 import { ListError, useTaiLau, SlowHint } from "@/components/ListError";
 import { useRowBusy } from "@/lib/row-busy";
@@ -411,27 +411,7 @@ export function UserDirectory({
 
                       <td className="py-3 pr-3">
                         <div className="flex items-center gap-3">
-                          {u.avatar ? (
-                            <img
-                              src={avatarUrl(u.avatar) ?? ""}
-                              alt=""
-                              className="h-9 w-9 shrink-0 rounded-full object-cover ring-1 ring-gold/30"
-                              onError={(e) => {
-                                e.currentTarget.style.display = "none";
-                                const fallback = e.currentTarget.nextElementSibling;
-                                if (fallback instanceof HTMLElement) {
-                                  fallback.style.display = "grid";
-                                }
-                              }}
-                            />
-                          ) : null}
-                          <span
-                            aria-hidden="true"
-                            className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-mystic/20 text-xs text-gold"
-                            style={u.avatar ? { display: "none" } : undefined}
-                          >
-                            {u.fullName.charAt(0).toUpperCase()}
-                          </span>
+                          <AnhDaiDien avatar={u.avatar} ten={u.fullName} co={36} />
                           <div className="min-w-0">
                             <button
                               type="button"

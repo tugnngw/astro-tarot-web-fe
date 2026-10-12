@@ -18,7 +18,6 @@ import {
   Wallet,
   QrCode,
   ShieldCheck,
-  CreditCard,
   AlertCircle,
   Sparkles,
 } from "lucide-react";
@@ -153,12 +152,18 @@ export function PurchaseModal({
       sublabel: "Quét mã VietQR bằng app ngân hàng",
       icon: QrCode,
     },
-    {
-      type: "STRIPE",
-      label: "Thẻ Quốc Tế (Visa / Mastercard)",
-      sublabel: "Thanh toán an toàn qua cổng thẻ",
-      icon: CreditCard,
-    },
+    // Cố ý KHÔNG bày "Thẻ Quốc Tế (Stripe)".
+    //
+    // Backend từ chối thẳng kiểu thanh toán này:
+    //
+    //     case STRIPE -> throw new IllegalArgumentException(
+    //         "Thanh toán thẻ quốc tế chưa được hỗ trợ...");
+    //
+    // Bày một lựa chọn mà bấm vào là chắc chắn nhận lỗi thì tệ hơn không bày:
+    // người dùng chọn nó trước vì quen dùng thẻ, gặp lỗi, rồi nghĩ cả trang
+    // thanh toán hỏng chứ không nghĩ là mình chọn nhầm đường.
+    //
+    // Dựng được Stripe thật thì thêm lại ở đây, cùng lúc với nhánh backend.
   ];
 
   return (
