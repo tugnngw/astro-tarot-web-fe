@@ -48,6 +48,7 @@
     "@tanstack/react-router": "^1.170.40",
     "@tanstack/react-start": "^1.168.58",
     "@tanstack/router-plugin": "^1.168.35",
+    "@vercel/analytics": "^2.0.1",
     "axios": "^1.18.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

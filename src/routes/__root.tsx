@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 import { Toaster } from "sonner";
+import { Analytics } from "@vercel/analytics/react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -162,6 +163,27 @@ function RootShell({ children }: { children: ReactNode }) {
       </head>
       <body>
         {children}
+        {/*
+          Đo lượt truy cập.
+
+          Trước 12/10/2026 website KHÔNG đếm lượt xem trang nào. Thứ duy nhất
+          được ghi là `trackCta`, và nó chỉ gọi ở năm chỗ — toàn nút bấm. Một
+          người vào xem trang chủ, đọc blog, xem Reader rồi thoát thì không để
+          lại dấu vết nào. Hướng dẫn EXE201 ở Outcome 2 lại đòi đúng con số
+          lượt truy cập ấy.
+
+          Đặt ở RootShell chứ không ở RootComponent: nó phải chạy trên MỌI
+          trang, kể cả trang lỗi và trang chưa đăng nhập.
+
+          Thành phần này chỉ chèn một thẻ script; nó không hiện gì trên màn
+          hình và không đọc dữ liệu cá nhân nào. Vercel Analytics không dùng
+          cookie, nên không phải thêm banner xin phép.
+
+          CẦN BẬT THÊM MỘT CÔNG TẮC trong Vercel: dự án > Analytics > Enable.
+          Thiếu bước đó thì script tải về rồi trả 404 ở mọi lần tải trang —
+          đúng lý do bản tích hợp cũ bị gỡ đi, xem src/lib/track.ts.
+        */}
+        <Analytics />
         <Scripts />
       </body>
     </html>
