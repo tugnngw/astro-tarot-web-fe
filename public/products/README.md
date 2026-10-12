@@ -59,3 +59,13 @@ trong một migration mới. Nhãn "Ảnh minh hoạ" sẽ tự biến mất.
 - Mấy ảnh minh hoạ hiện tại là bản 960px tải thẳng từ Commons nên còn nặng
   (`khan-trai-bai-nhung.jpg` ~394KB). Chưa nén lại vì ảnh nào cũng sắp bị thay
   bằng ảnh thật; nếu giữ lâu thì nên convert sang WEBP.
+
+## Trang ghi công — ĐÃ CÓ (13/10/2026)
+
+Mục "Nghĩa vụ ghi công" ở trên nói cần một trang liệt kê tác giả + giấy phép
+"trước khi chạy thật". Trang đã chạy thật từ lâu mà chưa có, tức là đang nợ
+nghĩa vụ của CC BY và CC BY-SA trên năm ảnh.
+
+Nay có `src/routes/ghi-cong.tsx` → `/ghi-cong`, vào được từ chân trang và từ
+câu công bố hoa hồng ngay trên trang Shop. Bảng trong file đó là BẢN SAO của
+hai bảng trên; thay ảnh nào thì sửa cả hai chỗ.
