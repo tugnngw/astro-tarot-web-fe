@@ -31,7 +31,7 @@ export const Route = createFileRoute("/home")({
     ],
   }),
   component: () => (
-    <RoleGuard require={["USER_BASIC"]} disallowRoles={["admin"]}>
+    <RoleGuard require={["CUSTOMER_ACTIONS"]}>
       <UserHomePage />
     </RoleGuard>
   ),

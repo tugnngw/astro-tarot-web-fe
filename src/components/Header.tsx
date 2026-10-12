@@ -60,7 +60,10 @@ export function Header() {
   // là tràn. Nhưng mọi người đã đăng nhập đều phải có lối vào — trước đây
   // thành viên thường tới đó qua nhãn "Trang chủ", nên khi nhãn ấy trả về
   // đúng nghĩa thì /home mất lối vào nếu không bù chỗ này.
-  const coKhongGianThanhVien = can(user, "USER_BASIC");
+  // Khu thành viên chỉ dành cho KHÁCH. Nhân viên, Quản lý và Quản trị viên
+  // không còn mang CUSTOMER_ACTIONS nên thanh điều hướng của họ không bày lối
+  // vào nữa — trước đây bày, rồi bấm vào là gặp màn chặn.
+  const coKhongGianThanhVien = can(user, "CUSTOMER_ACTIONS");
   // Reader cần hai lối vào khác nhau: lịch HỌ đặt với người khác (/bookings) và
   // lịch KHÁCH đặt với họ (Bàn làm việc). Trước đây chỉ có cái đầu, và nó là
   // mục duy nhất mang chữ "Lịch hẹn" — nên Reader vừa nhận được lịch sẽ bấm

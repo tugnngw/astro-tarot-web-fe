@@ -4,7 +4,7 @@ import { Sparkles } from "lucide-react";
 import { Header } from "@/components/Header";
 import { RoleBadge } from "@/components/RoleBadge";
 import { useAuth } from "@/lib/auth-context";
-import { homePathFor } from "@/lib/roles";
+import { can, homePathFor } from "@/lib/roles";
 
 export interface WorkspaceTab {
   key: string;
@@ -68,10 +68,14 @@ export function WorkspaceShell({
     // lần ngược từng tab một.
     void navigate({ to: pathname, search: { tab: key }, replace: true });
   }
-  // Staff / manager / admin vẫn có USER_BASIC — họ có thể cần trải bài hoặc
-  // xem lịch cá nhân. "Trang chủ" của họ là khu làm việc, nên mở lối phụ sang
-  // hub thành viên thay vì bắt họ gõ URL.
-  const showMemberLink = user != null && homePathFor(user) !== "/home";
+  // Lối phụ sang khu thành viên, chỉ mở cho ai thật sự vào được.
+  //
+  // Trước 12/10/2026 chỗ này mở cho mọi vai trò có trang chủ khác /home, với
+  // lý do "staff có thể cần trải bài hoặc xem lịch cá nhân". Nay Nhân viên,
+  // Quản lý và Quản trị viên không còn mang CUSTOMER_ACTIONS, nên bày lối ấy
+  // ra là dẫn họ tới đúng một màn chặn.
+  const showMemberLink =
+    user != null && homePathFor(user) !== "/home" && can(user, "CUSTOMER_ACTIONS");
 
   return (
     <div className="relative min-h-screen">
