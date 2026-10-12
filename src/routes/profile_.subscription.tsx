@@ -1,5 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth-context";
 import { Header } from "@/components/Header";
 import { SubscriptionManagement } from "@/components/subscription";
@@ -13,12 +15,50 @@ export const Route = createFileRoute("/profile_/subscription")({
 function SubscriptionPage() {
   const { user, openAuth } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (user?.role === "admin") {
       navigate({ to: "/admin" });
     }
   }, [user, navigate]);
+
+  // Nhận kết quả quay về từ PayOS.
+  //
+  // Cổng thanh toán trả người dùng về đây kèm ?payment=success hoặc
+  // ?payment=cancel. Trước đây trang không đọc tham số ấy: trả tiền xong quay
+  // lại là thấy đúng màn hình cũ, không một lời nào. Người ta không biết tiền
+  // đã vào chưa, và hay trả thêm lần nữa.
+  //
+  // Gói do webhook của máy chủ kích hoạt chứ không do trang này, nên chỉ cần
+  // nạp lại danh sách lượt mua. Webhook có thể tới chậm hơn người dùng vài
+  // giây — vì vậy câu thông báo nói "đang xác nhận" chứ không khẳng định đã
+  // xong, để lúc danh sách chưa kịp đổi thì người đọc cũng không hoang mang.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const kq = new URLSearchParams(window.location.search).get("payment");
+    if (!kq) return;
+
+    if (kq === "success") {
+      toast.success("Đã nhận thanh toán, đang xác nhận gói của bạn…");
+      // Đúng những khoá mà PurchaseModal làm mới sau một lượt mua bằng ví.
+      // Đặt sai khoá thì lệnh làm mới chạy mà chẳng truy vấn nào nghe thấy.
+      for (const khoa of [
+        ["subscriptions"],
+        ["subscription"],
+        ["ai-usage"],
+        ["user-wallet"],
+      ]) {
+        void queryClient.invalidateQueries({ queryKey: khoa });
+      }
+    } else if (kq === "cancel") {
+      toast("Bạn đã huỷ thanh toán. Gói chưa được kích hoạt.");
+    }
+
+    // Dọn tham số khỏi thanh địa chỉ, không thì người dùng tải lại trang là
+    // thông báo hiện lần nữa.
+    window.history.replaceState({}, "", window.location.pathname);
+  }, [queryClient]);
 
   if (user?.role === "admin") return null;
 

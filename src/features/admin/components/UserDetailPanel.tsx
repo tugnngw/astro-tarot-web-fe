@@ -1,3 +1,4 @@
+import { AnhDaiDien } from "@/components/AnhDaiDien";
 import { useEffect, useRef, useState } from "react";
 import {
   KeyRound,
@@ -21,7 +22,6 @@ import {
 } from "@/features/admin/queries";
 import { useAuth } from "@/lib/auth-context";
 import { formatVND } from "@/lib/mock-data";
-import { avatarUrl } from "@/api/profile";
 
 /**
  * Bảng chi tiết một tài khoản, trượt vào từ cạnh phải.
@@ -161,27 +161,12 @@ export function UserDetailPanel({
         ) : (
           <div className="flex flex-col gap-6 p-5">
             <div className="flex items-center gap-3">
-              {user.avatar ? (
-                <img
-                  src={avatarUrl(user.avatar) ?? ""}
-                  alt=""
-                  className="h-14 w-14 rounded-full object-cover ring-1 ring-gold/30"
-                  onError={(e) => {
-                    e.currentTarget.style.display = "none";
-                    const fallback = e.currentTarget.nextElementSibling;
-                    if (fallback instanceof HTMLElement) {
-                      fallback.style.display = "grid";
-                    }
-                  }}
-                />
-              ) : null}
-              <span
-                aria-hidden="true"
-                className="grid h-14 w-14 place-items-center rounded-full bg-mystic/20 font-display text-xl text-gold"
-                style={user.avatar ? { display: "none" } : undefined}
-              >
-                {user.fullName.charAt(0).toUpperCase()}
-              </span>
+              <AnhDaiDien
+                avatar={user.avatar}
+                ten={user.fullName}
+                co={56}
+                className="font-display"
+              />
               <div className="flex flex-wrap items-center gap-2">
                 <RoleBadge role={user.role} />
                 <span className="text-xs text-muted-foreground">
