@@ -262,7 +262,37 @@ function Landing() {
               <Link to="/shop" className="transition hover:text-gold">
                 Cửa hàng
               </Link>
+              <Link to="/blogs" className="transition hover:text-gold">
+                Blog
+              </Link>
+              {/*
+               * Chính sách và liên hệ ở CHÂN TRANG, không chỉ nằm trong tài
+               * khoản. Đây là chỗ đầu tiên người ta nhìn khi muốn biết đứng
+               * sau trang này là ai — kể cả người thật lẫn bên đối tác đang
+               * đối chiếu hồ sơ.
+               */}
+              <Link
+                to="/chinh-sach-rieng-tu"
+                className="transition hover:text-gold"
+              >
+                Chính sách riêng tư
+              </Link>
+              <Link to="/support" className="transition hover:text-gold">
+                Liên hệ
+              </Link>
             </nav>
+            {/*
+             * Công bố hoa hồng ở chân trang CHỨ KHÔNG chỉ ở trang Shop.
+             *
+             * Các chương trình tiếp thị liên kết đều buộc phải công bố rõ, và
+             * người đọc có thể vào thẳng một trang sản phẩm từ kết quả tìm
+             * kiếm mà chưa từng đi qua trang Shop — lúc ấy câu công bố nằm
+             * trên trang Shop không giúp được gì cho họ.
+             */}
+            <p className="mx-auto mt-6 max-w-2xl text-xs leading-relaxed text-muted-foreground/80">
+              Mục Cửa hàng dùng liên kết tiếp thị. Bạn mua trên sàn với giá
+              không đổi; ASTROTAROT nhận một phần hoa hồng từ sàn.
+            </p>
             <KenhCongDong className="mt-8" />
             <p className="mt-8 text-xs text-muted-foreground">
               © 2026 ASTROTAROT — Khám phá năng lượng vũ trụ
