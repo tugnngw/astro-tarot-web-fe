@@ -280,6 +280,9 @@ function Landing() {
               <Link to="/support" className="transition hover:text-gold">
                 Liên hệ
               </Link>
+              <Link to="/ghi-cong" className="transition hover:text-gold">
+                Nguồn ảnh
+              </Link>
             </nav>
             {/*
              * Công bố hoa hồng ở chân trang CHỨ KHÔNG chỉ ở trang Shop.

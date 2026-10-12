@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { ExternalLink } from "lucide-react";
 import { PLATFORM_LABEL, trackAffiliateClick, type Product } from "@/api/shop";
 import { trackCta } from "@/lib/track";
@@ -105,7 +106,20 @@ export function AffiliateDisclosure({
     <p className={`text-xs leading-relaxed text-muted-foreground ${className}`}>
       Đây là các liên kết tiếp thị. Bạn mua hàng trên sàn với giá không đổi;
       ASTROTAROT nhận một phần hoa hồng từ sàn. Giá và tình trạng còn hàng do
-      người bán trên sàn quyết định, có thể khác với thông tin hiển thị ở đây.
+      người bán trên sàn quyết định, có thể khác với thông tin hiển thị ở đây.{" "}
+      {/*
+       * Đường dẫn tới trang ghi công đặt ngay cạnh nhãn "Ảnh minh hoạ" mà
+       * người đọc vừa nhìn thấy — đó là lúc họ thắc mắc ảnh ở đâu ra. Giấy
+       * phép CC BY và CC BY-SA bắt buộc ghi công ở nơi người xem thấy được,
+       * nên liên kết này không phải tuỳ chọn.
+       */}
+      <Link
+        to="/ghi-cong"
+        className="text-gold/80 underline-offset-2 hover:underline"
+      >
+        Nguồn ảnh minh hoạ
+      </Link>
+      .
     </p>
   );
 }
