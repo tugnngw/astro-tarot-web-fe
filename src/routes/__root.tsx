@@ -24,6 +24,7 @@ import { FeedbackPrompt } from "@/components/FeedbackPrompt";
 import { ChatDock } from "@/features/booking/components/ChatDock";
 import { GocNoi } from "@/components/GocNoi";
 import { captureUtmFromUrl } from "@/lib/utm";
+import { SITE_URL } from "@/lib/site";
 
 function UtmCapture() {
   useEffect(() => {
@@ -113,14 +114,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
             "Trải bài Tarot AI cá nhân hoá & đặt lịch với Reader chuyên nghiệp.",
         },
         { property: "og:type", content: "website" },
-        {
-          property: "og:url",
-          content: "https://astro-tarot-web-fe.vercel.app/",
-        },
-        {
-          property: "og:image",
-          content: "https://astro-tarot-web-fe.vercel.app/favicon.png",
-        },
+        { property: "og:url", content: `${SITE_URL}/` },
+        { property: "og:image", content: `${SITE_URL}/favicon.png` },
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:title", content: "ASTROTAROT — Khám phá vận mệnh" },
         {
@@ -128,12 +123,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           content:
             "Trải bài Tarot AI cá nhân hoá & đặt lịch với Reader chuyên nghiệp.",
         },
-        {
-          name: "twitter:image",
-          content: "https://astro-tarot-web-fe.vercel.app/favicon.png",
-        },
+        { name: "twitter:image", content: `${SITE_URL}/favicon.png` },
       ],
       links: [
+        // Địa chỉ chính thức của trang, khai bằng chính tên miền đã đăng ký.
+        //
+        // Cùng một nội dung đang phục vụ ở HAI tên miền: astrotarot.date và
+        // bản *.vercel.app mà Vercel luôn giữ. Không khai canonical thì máy
+        // nào đọc trang cũng phải tự đoán đâu là bản chính, và chúng hay đoán
+        // ra bản vercel.app vì nó cũ hơn và được trỏ tới nhiều hơn.
+        { rel: "canonical", href: `${SITE_URL}/` },
         { rel: "icon", type: "image/png", href: "/favicon.png" },
         { rel: "preconnect", href: "https://fonts.googleapis.com" },
         {
