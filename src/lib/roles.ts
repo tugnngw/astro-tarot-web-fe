@@ -28,6 +28,17 @@ export type AccountRole = "USER" | "STAFF" | "MANAGER" | "ADMIN";
 
 export type Permission =
   | "USER_BASIC"
+  /**
+   * Việc chỉ KHÁCH làm: đặt lịch, trả tiền buổi xem, đánh giá Reader, mua
+   * hàng, hỏi Tarot AI.
+   *
+   * Tách khỏi USER_BASIC ngày 12/10/2026. Trước đó mọi vai trò đều mang
+   * USER_BASIC, nên một tài khoản Nhân viên đặt được lịch với chính đồng
+   * nghiệp mình rồi đánh giá họ. USER_BASIC nay chỉ còn nghĩa "đã đăng nhập":
+   * thông báo, hồ sơ của mình, phiếu hỗ trợ, và trò chuyện cùng gọi video
+   * trong buổi xem mà mình là một bên — những thứ Reader cần để hành nghề.
+   */
+  | "CUSTOMER_ACTIONS"
   | "READER_APPLY"
   | "READER_MANAGE_PROFILE"
   | "SUPPORT_VIEW"
@@ -54,7 +65,7 @@ export type Permission =
  */
 export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
   guest: [],
-  user: ["USER_BASIC", "READER_APPLY"],
+  user: ["USER_BASIC", "CUSTOMER_ACTIONS", "READER_APPLY"],
   staff: [
     "USER_BASIC",
     // Nhân viên cũng nộp đơn được — xem chú thích cùng nội dung ở
