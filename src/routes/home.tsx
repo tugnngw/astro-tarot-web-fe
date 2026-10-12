@@ -15,6 +15,7 @@ import { RoleGuard } from "@/components/RoleGuard";
 import { RoleBadge } from "@/components/RoleBadge";
 import { DailyCardDraw } from "@/components/DailyCardDraw";
 import { Reveal } from "@/components/Reveal";
+import { KenhCongDong } from "@/components/KenhCongDong";
 import { useAuth } from "@/lib/auth-context";
 import { MemberSnapshot } from "@/features/home/components/MemberSnapshot";
 import { homePathFor, type HomePath } from "@/lib/roles";
@@ -204,6 +205,12 @@ function UserHomePage() {
             </div>
           </Reveal>
         </div>
+
+        {/* Thành viên đăng nhập xong là vào thẳng đây, không đi qua trang giới
+            thiệu nữa — nên hai kênh cộng đồng phải có mặt ở cả hai nơi, chứ
+            đặt mỗi ở chân trang "/" thì đúng những người đang dùng sản phẩm
+            lại là những người không bao giờ nhìn thấy. */}
+        <KenhCongDong className="mt-12 border-t border-border/50 pt-8 text-center" />
       </main>
     </div>
   );

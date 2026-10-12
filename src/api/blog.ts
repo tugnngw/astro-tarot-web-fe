@@ -193,7 +193,10 @@ export async function listMyBlogs(
  */
 export async function deleteStaffBlog(id: string): Promise<void> {
   await apiFetch<void>(
-    `/staff/blogs/${id}`,
+    // Thiếu `${BASE}` ở đây làm hàm gọi vào `/staff/blogs/...` thay vì
+    // `/api/v1/staff/blogs/...`, nên xoá bản nháp của chính mình luôn 404 —
+    // mọi hàm khác trong file đều có tiền tố, chỉ sót đúng hàm này.
+    `${BASE}/staff/blogs/${id}`,
     {
       method: "DELETE",
     },

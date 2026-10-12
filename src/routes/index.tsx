@@ -8,6 +8,7 @@ import { FeaturedProducts } from "@/components/FeaturedProducts";
 import { Reveal } from "@/components/Reveal";
 import { WhatYouCanDo } from "@/components/WhatYouCanDo";
 import { FaqSection } from "@/components/FaqSection";
+import { KenhCongDong } from "@/components/KenhCongDong";
 import { useAuth } from "@/lib/auth-context";
 import { TarotWheel } from "@/components/TarotWheel";
 import { trackCta } from "@/lib/track";
@@ -262,7 +263,8 @@ function Landing() {
                 Cửa hàng
               </Link>
             </nav>
-            <p className="mt-6 text-xs text-muted-foreground">
+            <KenhCongDong className="mt-8" />
+            <p className="mt-8 text-xs text-muted-foreground">
               © 2026 ASTROTAROT — Khám phá năng lượng vũ trụ
             </p>
           </footer>
