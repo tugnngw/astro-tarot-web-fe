@@ -1038,7 +1038,15 @@ function TarotPage() {
   // ============================================================
   // RÚT BÀI - LƯU READING ID
   // ============================================================
-  const drawCards = async () => {
+  /**
+   * `cauHoi` là đúng câu người dùng vừa gõ, ví dụ "rút bài xem chuyện tình
+   * cảm giúp mình". Trước đây hàm này bỏ qua nó và gửi cho AI chuỗi
+   * "Xin chào, tôi là <tên>" — tức là mô hình nhận được một lời chào chứ
+   * không phải câu hỏi, nên lời đầu tiên nó trả về là chào hỏi xã giao chứ
+   * không luận bài. Phải nhắn thêm một câu nữa thì nó mới giải nghĩa, vì lúc
+   * đó mới có câu hỏi thật đi kèm bộ bài trong ngữ cảnh.
+   */
+  const drawCards = async (cauHoi?: string) => {
     if (cardsDrawn || drawing) return;
 
     if (!user) {
@@ -1055,15 +1063,19 @@ function TarotPage() {
       const primaryPerson = people[0];
       const name = primaryPerson?.name || "bạn";
 
-      setMessages((m) => [
-        ...m,
-        {
-          id: generateUUID(),
-          role: "user",
-          content: "Mình muốn rút bài Tarot để xem thử.",
-          ts: Date.now(),
-        },
-      ]);
+      // Gọi từ ô chat thì câu của người dùng đã nằm trong danh sách rồi; thêm
+      // câu mẫu nữa là bong bóng người dùng hiện hai lần.
+      if (!cauHoi?.trim()) {
+        setMessages((m) => [
+          ...m,
+          {
+            id: generateUUID(),
+            role: "user",
+            content: "Mình muốn rút bài Tarot để xem thử.",
+            ts: Date.now(),
+          },
+        ]);
+      }
 
       setMessages((m) => [
         ...m,
@@ -1075,8 +1087,14 @@ function TarotPage() {
         },
       ]);
 
+      // Bấm nút rút bài thì không có câu hỏi nào; khi ấy phải nói thẳng việc
+      // cần làm, đừng gửi lời chào — mô hình sẽ chào lại thay vì luận bài.
+      const cauHoiGui =
+        cauHoi?.trim() ||
+        `Mình là ${name}. Hãy luận giải trải bài Quá khứ – Hiện tại – Tương lai này cho mình.`;
+
       const result = await startAiTarotReading({
-        question: `Xin chào, tôi là ${name}`,
+        question: cauHoiGui,
         numberOfCards: 3,
         includeReversed: true,
         spreadName: "Past-Present-Future",
@@ -1212,7 +1230,8 @@ function TarotPage() {
       lower.includes("bói")
     ) {
       setThinking(false);
-      await drawCards();
+      // Chuyển nguyên câu người dùng vừa gõ xuống, đó mới là câu hỏi thật.
+      await drawCards(text);
       return;
     }
 
@@ -1579,7 +1598,7 @@ function TarotPage() {
                 chatScrollRef={chatScrollRef}
                 cardsDrawn={cardsDrawn}
                 drawing={drawing}
-                onDrawCards={drawCards}
+                onDrawCards={() => drawCards()}
                 sessions={sessionList}
                 activeSessionId={activeSessionId}
                 onSelectSession={handleSelectSession}
