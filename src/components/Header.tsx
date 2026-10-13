@@ -166,14 +166,21 @@ export function Header() {
             navigate({ to: "/profile" });
           },
         },
-        {
-          ic: CalendarClock,
-          l: "Lịch hẹn của tôi",
-          a: () => {
-            setOpen(false);
-            navigate({ to: "/bookings" });
-          },
-        },
+        // "Lịch hẹn của tôi" là lịch mình ĐẶT với Reader — `/bookings/me`,
+        // một endpoint đòi CUSTOMER_ACTIONS. Bày cho Nhân viên là dẫn họ tới
+        // đúng một màn chặn; lịch của họ nằm ở mục ngay bên dưới.
+        ...(coKhongGianThanhVien
+          ? [
+              {
+                ic: CalendarClock,
+                l: "Lịch hẹn của tôi",
+                a: () => {
+                  setOpen(false);
+                  navigate({ to: "/bookings" });
+                },
+              },
+            ]
+          : []),
         ...(coLichKhachDat
           ? [
               {
@@ -205,14 +212,26 @@ export function Header() {
             navigate({ to: "/profile/astrology" });
           },
         },
-        {
-          ic: Zap,
-          l: "Gói cước AI",
-          a: () => {
-            setOpen(false);
-            navigate({ to: "/profile/subscription" });
-          },
-        },
+        // Gói cước AI: mua gói đòi CUSTOMER_ACTIONS, và bản thân Tarot AI
+        // cũng vậy — với Nhân viên thì đây là trang bán một thứ họ không dùng
+        // được.
+        //
+        // Khác với Ví và Lịch sử trải bài ngay dưới đây, hai mục ấy chỉ HIỆN
+        // dữ liệu cũ của chính họ nên vẫn giữ: người từng là khách rồi được
+        // cất lên Nhân viên vẫn phải thấy tiền và những lời giải họ đã trả
+        // tiền để có.
+        ...(coKhongGianThanhVien
+          ? [
+              {
+                ic: Zap,
+                l: "Gói cước AI",
+                a: () => {
+                  setOpen(false);
+                  navigate({ to: "/profile/subscription" });
+                },
+              },
+            ]
+          : []),
         {
           ic: History,
           l: "Lịch sử trải bài",
@@ -482,25 +501,32 @@ export function Header() {
                           : "0 ₫"}
                         )
                       </Link>
-                      <Link
-                        to="/bookings"
-                        onClick={() => setMobileOpen(false)}
-                        className={mobileNavLinkClass(
-                          pathname === "/bookings" ||
-                            pathname.startsWith("/bookings/"),
-                        )}
-                      >
-                        Lịch hẹn của tôi
-                      </Link>
-                      <Link
-                        to="/profile/subscription"
-                        onClick={() => setMobileOpen(false)}
-                        className={mobileNavLinkClass(
-                          pathname === "/profile/subscription",
-                        )}
-                      >
-                        Gói cước AI
-                      </Link>
+                      {/* Hai mục này chỉ dành cho khách — xem chú thích ở
+                          danh sách menu tài khoản bên trên. Ví thì giữ cho
+                          mọi người: nó hiện tiền của chính họ. */}
+                      {coKhongGianThanhVien && (
+                        <>
+                          <Link
+                            to="/bookings"
+                            onClick={() => setMobileOpen(false)}
+                            className={mobileNavLinkClass(
+                              pathname === "/bookings" ||
+                                pathname.startsWith("/bookings/"),
+                            )}
+                          >
+                            Lịch hẹn của tôi
+                          </Link>
+                          <Link
+                            to="/profile/subscription"
+                            onClick={() => setMobileOpen(false)}
+                            className={mobileNavLinkClass(
+                              pathname === "/profile/subscription",
+                            )}
+                          >
+                            Gói cước AI
+                          </Link>
+                        </>
+                      )}
                     </>
                   )}
                   {coLichKhachDat && (

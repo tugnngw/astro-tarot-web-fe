@@ -29,7 +29,16 @@ import { Pagination, PAGE_SIZE } from "@/components/Pagination";
 export const Route = createFileRoute("/profile_/wallet")({
   head: () => ({ meta: [{ title: "Ví ASTROTAROT — Số dư & Giao dịch" }] }),
   component: () => (
-    <RoleGuard require={["CUSTOMER_ACTIONS"]}>
+    // USER_BASIC, cố ý KHÔNG phải CUSTOMER_ACTIONS.
+    //
+    // Backend để `/wallet/me` và `/wallet/transactions` ở `isAuthenticated()`
+    // cũng cố ý: người từng là khách rồi được cất lên Nhân viên vẫn phải nhìn
+    // thấy tiền cũ của mình. Gác trang này chặt hơn backend là khoá họ khỏi
+    // chính số dư của họ — và không có màn nào nói ra vì sao.
+    //
+    // Nạp ví và trả bằng ví thì backend vẫn đòi CUSTOMER_ACTIONS; chặn đúng
+    // chỗ đó là việc của nút, không phải của trang.
+    <RoleGuard require={["USER_BASIC"]}>
       <WalletPage />
     </RoleGuard>
   ),
