@@ -594,7 +594,8 @@ function KhungGio({
                 <p className="mb-1.5 text-[11px] uppercase tracking-wider text-muted-foreground/70">
                   {b.ten}
                 </p>
-                <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                {/* Hai cột trên điện thoại: nhãn giờ nay dài gấp đôi. */}
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                   {cua.map((s) => {
                     const mo = s.state === "FREE";
                     const dangChon = picked?.startTime === s.startTime;
@@ -613,6 +614,12 @@ function KhungGio({
                               : "border-mystic/30 text-muted-foreground/45"
                         }`}
                       >
+                        {/*
+                          Hiện cả giờ kết thúc, không chỉ giờ bắt đầu: nhìn một
+                          cột toàn giờ bắt đầu thì người dùng lấy khoảng cách
+                          giữa hai khung làm độ dài buổi xem và tưởng mình đặt
+                          hụt thời lượng đã chọn.
+                        */}
                         <span
                           className={
                             mo
@@ -620,7 +627,7 @@ function KhungGio({
                               : "line-through decoration-muted-foreground/40"
                           }
                         >
-                          {gioVn(s.startTime)}
+                          {gioVn(s.startTime)} – {gioVn(s.endTime)}
                         </span>
                         {!mo && (
                           <span className="mt-0.5 block text-[9px] font-normal no-underline">
