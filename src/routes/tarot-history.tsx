@@ -25,7 +25,11 @@ import {
 export const Route = createFileRoute("/tarot-history")({
   head: () => ({ meta: [{ title: "Lịch sử trải bài — ASTROTAROT" }] }),
   component: () => (
-    <RoleGuard require={["CUSTOMER_ACTIONS"]}>
+    // USER_BASIC, cố ý KHÔNG phải CUSTOMER_ACTIONS. Đây là lịch sử ĐÃ CÓ,
+    // không phải việc trải bài mới: `GET /api/ai-readings` không mang
+    // `@PreAuthorize` nào. Người từng trải bài rồi được cất lên Nhân viên vẫn
+    // phải đọc lại được những lời giải cũ của mình — họ đã trả tiền cho chúng.
+    <RoleGuard require={["USER_BASIC"]}>
       <TarotHistoryPage />
     </RoleGuard>
   ),

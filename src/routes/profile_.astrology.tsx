@@ -26,7 +26,12 @@ import { PAGE_SIZE, PagedList, Pagination } from "@/components/Pagination";
 export const Route = createFileRoute("/profile_/astrology")({
   head: () => ({ meta: [{ title: "Bản đồ sao — ASTROTAROT" }] }),
   component: () => (
-    <RoleGuard require={["CUSTOMER_ACTIONS"]}>
+    // USER_BASIC, cố ý KHÔNG phải CUSTOMER_ACTIONS: `AstrologyController`
+    // không có lấy một `@PreAuthorize` nào, nên nó rơi xuống
+    // `.anyRequest().authenticated()` — ai đăng nhập cũng xem được bản đồ sao
+    // của chính mình. Gác chặt hơn backend ở đây là bịa ra một hạn chế không
+    // tồn tại.
+    <RoleGuard require={["USER_BASIC"]}>
       <AstrologyProfilesPage />
     </RoleGuard>
   ),
