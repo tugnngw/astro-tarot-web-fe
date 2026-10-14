@@ -344,8 +344,8 @@ function ReaderProfilePage() {
             ) : (
               <>
                 <fieldset className="mt-4">
-                  <legend className="text-xs text-muted-foreground">
-                    Thời lượng
+                  <legend>
+                    <Buoc so={1}>Chọn thời lượng</Buoc>
                   </legend>
                   <div className="mt-2 flex gap-2">
                     {DURATIONS.map((d) => {
@@ -381,10 +381,13 @@ function ReaderProfilePage() {
                 </fieldset>
 
                 <div
-                  className="mt-4"
+                  className="mt-5"
                   aria-live="polite"
                   aria-busy={lich.isFetching}
                 >
+                  <div className="mb-2">
+                    <Buoc so={2}>Chọn ngày</Buoc>
+                  </div>
                   <DieuHuongThang
                     year={year}
                     month={month}
@@ -522,6 +525,24 @@ function Shell({ children }: { children: React.ReactNode }) {
   );
 }
 
+/**
+ * Nhãn một bước của luồng đặt lịch, có đánh số.
+ *
+ * Ba mục Thời lượng – Ngày – Giờ trước đây là ba dòng chữ xám bằng nhau,
+ * trông như ba ô lọc độc lập chứ không phải một trình tự. Đánh số thì nhìn
+ * phát biết còn mấy bước nữa mới xong.
+ */
+function Buoc({ so, children }: { so: number; children: React.ReactNode }) {
+  return (
+    <span className="flex items-center gap-2">
+      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-mystic/60 bg-gold/15 text-[11px] font-semibold text-gold">
+        {so}
+      </span>
+      <span className="text-sm font-semibold text-foreground">{children}</span>
+    </span>
+  );
+}
+
 function priceFor(
   r: {
     pricePer15m: number | null;
@@ -552,7 +573,7 @@ function KhungGio({
   const conTrong = hien.some((s) => s.state === "FREE");
   return (
     <div className="mt-4">
-      <p className="text-xs text-muted-foreground">Khung giờ</p>
+      <Buoc so={3}>Chọn giờ</Buoc>
       {dangTai ? (
         <div className="mt-2 grid grid-cols-3 gap-2" aria-hidden="true">
           {Array.from({ length: 6 }, (_, i) => (
