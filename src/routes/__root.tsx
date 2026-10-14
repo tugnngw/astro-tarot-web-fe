@@ -15,6 +15,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AuthProvider, useAuth } from "@/lib/auth-context";
 import { CartProvider } from "@/lib/cart-context";
+import { NguProvider } from "@/lib/ngon-ngu";
 import { RealtimeProvider } from "@/features/realtime/RealtimeProvider";
 import { StarrySky } from "@/components/StarrySky";
 import { AuthModal } from "@/components/AuthModal";
@@ -208,16 +209,17 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <RealtimeProvider>
-          <CartProvider>
-            <UtmCapture />
-            <BackendWarmBanner />
-            <StarrySky />
-            <Outlet />
-            <AuthModal />
-            <BecomeReaderModal />
-            {/*
+      <NguProvider>
+        <AuthProvider>
+          <RealtimeProvider>
+            <CartProvider>
+              <UtmCapture />
+              <BackendWarmBanner />
+              <StarrySky />
+              <Outlet />
+              <AuthModal />
+              <BecomeReaderModal />
+              {/*
               Góp ý ở góc trái, chat ở góc phải. Đứng cùng một cột thì nút
               Góp ý đè lên nút mở cuộc chat.
 
@@ -225,8 +227,8 @@ function RootComponent() {
               trang: nó nghe tin nhắn ở MỌI trang, và một cuộc đang mở không
               bị dựng lại mỗi lần người dùng bấm sang chỗ khác. Ẩn với Quản trị viên.
             */}
-            <CustomerWidgets />
-            {/*
+              <CustomerWidgets />
+              {/*
               Góc dưới bên phải, không phải giữa trên cùng: vị trí cũ đè đúng
               thanh điều hướng, che mất menu ngay lúc người dùng vừa thao tác
               xong và hay cần bấm tiếp.
@@ -234,25 +236,26 @@ function RootComponent() {
               2,5 giây thay cho 4 giây mặc định — đủ đọc một câu ngắn. Riêng
               toast lỗi thì nơi gọi tự đặt thời gian dài hơn nếu cần.
             */}
-            <Toaster
-              position="bottom-right"
-              /* Nhường chỗ cho cục trao đổi ở cùng góc: thiếu dòng này thì
+              <Toaster
+                position="bottom-right"
+                /* Nhường chỗ cho cục trao đổi ở cùng góc: thiếu dòng này thì
                  toast đè lên đúng cái nút, và bấm vào nút hoá ra bấm toast. */
-              offset="84px"
-              theme="dark"
-              richColors
-              duration={2500}
-              toastOptions={{
-                classNames: {
-                  toast: "!text-xs !py-2.5 !px-3",
-                  title: "!text-xs !font-medium",
-                  description: "!text-[11px]",
-                },
-              }}
-            />
-          </CartProvider>
-        </RealtimeProvider>
-      </AuthProvider>
+                offset="84px"
+                theme="dark"
+                richColors
+                duration={2500}
+                toastOptions={{
+                  classNames: {
+                    toast: "!text-xs !py-2.5 !px-3",
+                    title: "!text-xs !font-medium",
+                    description: "!text-[11px]",
+                  },
+                }}
+              />
+            </CartProvider>
+          </RealtimeProvider>
+        </AuthProvider>
+      </NguProvider>
     </QueryClientProvider>
   );
 }

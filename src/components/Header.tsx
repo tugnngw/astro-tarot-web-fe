@@ -22,6 +22,8 @@ import { avatarUrl } from "@/api/profile";
 import { walletApi } from "@/api/wallet";
 import { PUBLIC_NAV, can, workspaceNavFor } from "@/lib/roles";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/ngon-ngu";
+import { DoiNgonNgu } from "./DoiNgonNgu";
 import { RoleBadge } from "./RoleBadge";
 import { NotificationBell } from "./NotificationBell";
 import { LogoutConfirm } from "./LogoutConfirm";
@@ -50,6 +52,7 @@ function mobileNavLinkClass(active: boolean) {
 }
 
 export function Header() {
+  const t = useT();
   const { user, openAuth } = useAuth();
   const isAdmin = user?.role === "admin";
   // Link khu vực làm việc suy ra từ QUYỀN, không phải từ tên vai trò: thêm một
@@ -269,7 +272,10 @@ export function Header() {
           {/* min-w-0 + truncate: ở 375px, wordmark + giỏ + avatar + nút menu
               cộng lại rộng hơn màn hình và đẩy cả trang cuộn ngang. Cho phép
               phần thương hiệu co lại thay vì làm tràn layout. */}
-          <Link to={isAdmin ? "/admin" : "/"} className="flex min-w-0 items-center gap-2">
+          <Link
+            to={isAdmin ? "/admin" : "/"}
+            className="flex min-w-0 items-center gap-2"
+          >
             <img
               src={logo}
               alt=""
@@ -303,7 +309,7 @@ export function Header() {
                     className={navLinkClass(active)}
                     activeOptions={{ exact: l.to === "/" }}
                   >
-                    {l.label}
+                    {t(l.label)}
                   </Link>
                 );
               })}
@@ -333,7 +339,8 @@ export function Header() {
                 <Wallet className="h-3.5 w-3.5 text-gold shrink-0" />
                 <span className="font-semibold text-gradient-gold">
                   {walletQuery.data
-                    ? (walletQuery.data.balance ?? 0).toLocaleString("vi-VN") + " ₫"
+                    ? (walletQuery.data.balance ?? 0).toLocaleString("vi-VN") +
+                      " ₫"
                     : "0 ₫"}
                 </span>
               </button>
@@ -387,7 +394,7 @@ export function Header() {
                         onClick={a}
                         className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-foreground hover:bg-gold/10"
                       >
-                        <Ic className="h-4 w-4 text-gold" /> {l}
+                        <Ic className="h-4 w-4 text-gold" /> {t(l)}
                       </button>
                     ))}
                     <button
@@ -397,7 +404,7 @@ export function Header() {
                       }}
                       className="flex w-full items-center gap-2 border-t border-border/50 px-4 py-2 text-left text-sm text-muted-foreground hover:bg-destructive/10"
                     >
-                      <LogOut className="h-4 w-4" /> Đăng xuất
+                      <LogOut className="h-4 w-4" /> {t("Đăng xuất")}
                     </button>
                   </div>
                 )}
@@ -408,22 +415,24 @@ export function Header() {
                   onClick={() => openAuth("login")}
                   className="hidden rounded-full border border-gold/50 px-4 py-1.5 text-sm text-gold transition hover:bg-gold/10 sm:inline-block"
                 >
-                  Đăng nhập
+                  {t("Đăng nhập")}
                 </button>
                 <button
                   onClick={() => openAuth("register")}
                   className="rounded-full bg-gold px-3 py-1.5 text-sm font-medium text-primary-foreground glow-gold transition hover:scale-105 sm:px-4"
                 >
-                  Đăng ký
+                  {t("Đăng ký")}
                 </button>
               </>
             )}
+
+            <DoiNgonNgu className="hidden sm:inline-flex" />
 
             {/* Nút mở menu trên mobile. Trước đây nav bị ẩn hẳn dưới md
                 mà không có gì thay thế, nên điện thoại không điều hướng được. */}
             <button
               onClick={() => setMobileOpen((v) => !v)}
-              aria-label={mobileOpen ? "Đóng menu" : "Mở menu"}
+              aria-label={mobileOpen ? t("Đóng menu") : t("Mở menu")}
               aria-expanded={mobileOpen}
               className="grid h-9 w-9 place-items-center rounded-full border border-gold/40 bg-card/60 text-gold transition hover:border-gold lg:hidden"
             >
@@ -482,7 +491,7 @@ export function Header() {
                         className={mobileNavLinkClass(active)}
                         activeOptions={{ exact: l.to === "/" }}
                       >
-                        {l.label}
+                        {t(l.label)}
                       </Link>
                     );
                   })}
@@ -497,7 +506,9 @@ export function Header() {
                       >
                         Ví ASTROTAROT (
                         {walletQuery.data
-                          ? (walletQuery.data.balance ?? 0).toLocaleString("vi-VN") + " ₫"
+                          ? (walletQuery.data.balance ?? 0).toLocaleString(
+                              "vi-VN",
+                            ) + " ₫"
                           : "0 ₫"}
                         )
                       </Link>
@@ -549,7 +560,7 @@ export function Header() {
                         onClick={() => setMobileOpen(false)}
                         className={mobileNavLinkClass(active)}
                       >
-                        {l.label}
+                        {t(l.label)}
                       </Link>
                     );
                   })}
