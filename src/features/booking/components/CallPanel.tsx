@@ -88,7 +88,7 @@ export function CallPanel({ call }: { call: BookingCall }) {
             aria-label={`${ten} đang gọi`}
             className="w-full max-w-sm rounded-3xl bg-[#242526] px-6 py-8 text-center text-white shadow-2xl"
           >
-            <div className="mx-auto grid h-24 w-24 place-items-center rounded-full bg-[#3a3b3c] text-3xl font-semibold">
+            <div className="mx-auto grid h-24 w-24 place-items-center rounded-full bg-gold/15 text-3xl font-semibold text-gold">
               {ten.charAt(0).toUpperCase()}
             </div>
             <p className="mt-4 text-xl font-semibold">{ten}</p>
