@@ -311,7 +311,7 @@ export function ChatDock() {
           ) : (
             <>
               <div className="px-3 pb-2">
-                <label className="flex items-center gap-2 rounded-full bg-[#3a3b3c] px-3 py-2 text-sm text-white/80">
+                <label className="flex items-center gap-2 rounded-full border border-mystic/40 bg-card px-3 py-2 text-sm text-foreground/80">
                   <Search aria-hidden className="h-4 w-4 shrink-0" />
                   <input
                     value={tim}
@@ -336,7 +336,7 @@ export function ChatDock() {
                     className={`rounded-full px-3 py-1.5 text-sm font-medium ${
                       loc === khoa
                         ? "bg-[#2374e1] text-white"
-                        : "bg-[#3a3b3c] text-white/90 hover:bg-white/15"
+                        : "border border-mystic/40 bg-card text-foreground/90 hover:bg-gold/10"
                     }`}
                   >
                     {nhan}
@@ -507,7 +507,7 @@ function Anh({
   const chu = ten.trim().charAt(0).toUpperCase() || "?";
   return (
     <span
-      className={`grid shrink-0 place-items-center overflow-hidden rounded-full bg-[#3a3b3c] font-semibold ${
+      className={`grid shrink-0 place-items-center overflow-hidden rounded-full bg-gold/15 font-semibold text-gold ${
         nho ? "h-10 w-10 text-sm" : "h-14 w-14 text-lg"
       }`}
     >

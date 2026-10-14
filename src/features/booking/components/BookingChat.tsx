@@ -278,7 +278,7 @@ export function BookingChat({
       <header className="flex items-center justify-between gap-2 border-b border-gold px-4 py-3">
         <div className="flex min-w-0 items-center gap-2">
           {!gonGang && (
-            <span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full bg-[#3a3b3c] text-sm font-semibold text-white">
+            <span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full bg-gold/15 text-sm font-semibold text-gold">
               {anhPeer && !anhHong ? (
                 <img
                   src={anhPeer}
@@ -393,7 +393,7 @@ export function BookingChat({
                   className={`flex items-end gap-2 ${cuaToi ? "justify-end" : "justify-start"}`}
                 >
                   {!cuaToi && (
-                    <span className="grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-full bg-[#3a3b3c] text-xs font-semibold text-white">
+                    <span className="grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-full bg-gold/15 text-xs font-semibold text-gold">
                       {anhPeer && !anhHong ? (
                         <img
                           src={anhPeer}
@@ -406,15 +406,24 @@ export function BookingChat({
                       )}
                     </span>
                   )}
+                  {/*
+                    Màu theo bảng màu của sản phẩm, không phải xanh Messenger.
+                    Trước đây là #0084ff và #3a3b3c — lạc hẳn giữa một giao
+                    diện vàng trên nền tối.
+                  */}
                   <div
                     className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${
                       cuaToi
-                        ? "rounded-br-md bg-[#0084ff] text-white"
-                        : "rounded-bl-md bg-[#3a3b3c] text-white"
+                        ? "rounded-br-md bg-gold text-[#1A1206]"
+                        : "rounded-bl-md border border-mystic/40 bg-card text-foreground"
                     }`}
                   >
                     <p className="whitespace-pre-wrap break-words">{m.body}</p>
-                    <p className="mt-1 text-right text-[10px] text-white/60">
+                    <p
+                      className={`mt-1 text-right text-[10px] ${
+                        cuaToi ? "text-[#1A1206]/60" : "text-muted-foreground"
+                      }`}
+                    >
                       {gio(m.createdAt)}
                       {cuaToi && m.readAt ? " · đã xem" : ""}
                     </p>
