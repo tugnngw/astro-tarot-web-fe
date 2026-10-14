@@ -27,6 +27,21 @@ const BO_QUA = [
   /[/\\]scripts[/\\]/,
 ];
 
+/**
+ * Tệp dữ liệu — đếm riêng, KHÔNG gộp vào số "còn phải dịch".
+ *
+ * Ba tệp này chiếm hơn một phần năm tổng số chuỗi nhưng không phải nhãn giao
+ * diện, và dịch bừa thì hỏng:
+ *
+ *   • emote.ts, banks.ts — chữ tiếng Việt ở đó là TỪ KHOÁ TÌM ("ngân hàng
+ *     ngoại thương" gõ ra Vietcombank). Dịch sang tiếng Anh là người dùng
+ *     Việt không tìm được nữa.
+ *   • tarot-cards.ts — tên và nghĩa 78 lá bài. Đây là nội dung thật, dịch
+ *     được và nên dịch, nhưng là việc biên tập chứ không phải gắn nhãn, nên
+ *     tính thành hạng mục riêng.
+ */
+const DU_LIEU = [/[/\\]emote\.ts$/, /[/\\]banks\.ts$/, /[/\\]tarot-cards\.ts$/];
+
 function duyet(thuMuc, ra = []) {
   for (const ten of readdirSync(thuMuc)) {
     const d = join(thuMuc, ten);
@@ -52,7 +67,9 @@ const { EN } = await import(
   // en.ts là TypeScript, Node không nạp thẳng được. Đọc thô và bóc khoá.
   const tho = readFileSync(join(SRC, "lib", "tu-dien", "en.ts"), "utf8");
   const khoa = new Set();
-  for (const m of tho.matchAll(/^\s*(?:"((?:[^"\\]|\\.)*)"|([A-Za-zÀ-ỹ]+)):/gm)) {
+  for (const m of tho.matchAll(
+    /^\s*(?:"((?:[^"\\]|\\.)*)"|([A-Za-zÀ-ỹ]+)):/gm,
+  )) {
     khoa.add((m[1] ?? m[2]).replace(/\\"/g, '"'));
   }
   return { EN: Object.fromEntries([...khoa].map((k) => [k, true])) };
@@ -93,13 +110,19 @@ function ghi(cau, tep, chuaBoc = false) {
 }
 
 const tatCa = [...dem.entries()].sort((a, b) => b[1].soLan - a[1].soLan);
-const chuaBoc = tatCa.filter(([, v]) => v.chuaBoc);
+// Một chuỗi tính là "dữ liệu" khi nó CHỈ xuất hiện trong các tệp dữ liệu.
+// Câu nào vừa nằm ở đó vừa nằm trong một màn hình thì vẫn phải dịch.
+const laDuLieu = (v) => [...v.tep].every((f) => DU_LIEU.some((r) => r.test(f)));
+const chuaBocTatCa = tatCa.filter(([, v]) => v.chuaBoc);
+const duLieu = chuaBocTatCa.filter(([, v]) => laDuLieu(v));
+const chuaBoc = chuaBocTatCa.filter(([, v]) => !laDuLieu(v));
 const dichThieu = tatCa.filter(([, v]) => !v.chuaBoc);
 
 console.log(`Đã bọc t(): ${tongDaBoc} lượt`);
 console.log(`Đã có bản dịch: ${daDich.size} câu`);
 console.log(`Bọc t() rồi nhưng CHƯA dịch: ${dichThieu.length} câu`);
-console.log(`Chuỗi tiếng Việt CHƯA bọc t(): ${chuaBoc.length} câu\n`);
+console.log(`Chuỗi giao diện CHƯA bọc t(): ${chuaBoc.length} câu`);
+console.log(`Chuỗi trong tệp dữ liệu (đếm riêng): ${duLieu.length} câu\n`);
 
 if (process.argv.includes("--tep")) {
   const theoTep = new Map();
