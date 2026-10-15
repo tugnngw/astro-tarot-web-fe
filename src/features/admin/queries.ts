@@ -19,6 +19,7 @@ import {
   getAdminFeedbackStats,
   type AdminFeedbackQuery,
 } from "@/api/feedback";
+import { getGA4Report } from "@/api/analytics";
 
 export const adminKeys = {
   all: ["admin"] as const,
@@ -28,6 +29,8 @@ export const adminKeys = {
   feedbackStats: () => [...adminKeys.all, "feedback", "stats"] as const,
   feedbackList: (query: AdminFeedbackQuery) =>
     [...adminKeys.all, "feedback", "list", query] as const,
+  ga4Report: (startDate?: string, endDate?: string) =>
+    [...adminKeys.all, "analytics", "ga4", startDate, endDate] as const,
 };
 
 export function useManagedUsers(query: UserQuery, enabled = true) {
@@ -210,6 +213,24 @@ export function useAdminFeedbackList(
     queryKey: adminKeys.feedbackList(query),
     queryFn: () => getAdminFeedbackList(query),
     enabled,
+    placeholderData: keepPreviousData,
+  });
+}
+
+/**
+ * Báo cáo số liệu Google Analytics 4 cho trang Quản trị.
+ * Cache 5 phút (dữ liệu báo cáo GA4 không biến động theo từng giây).
+ */
+export function useGA4Report(
+  startDate = "30daysAgo",
+  endDate = "today",
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: adminKeys.ga4Report(startDate, endDate),
+    queryFn: () => getGA4Report(startDate, endDate),
+    enabled,
+    staleTime: 5 * 60 * 1000,
     placeholderData: keepPreviousData,
   });
 }

@@ -7,15 +7,22 @@ dist
 .tanstack
 .vercel
 
-# Environment
+# Environment & Secrets
 .env
 .env.local
 .env.*.local
 !.env.example
+*-sa*.json
+*credentials*.json
+*sa-key*.json
+ga4-*.json
+*-analytics-*.json
+service-account*.json
 
 # Editor
 .idea
 .vscode
+.claude
 
 # Logs
 *.log

@@ -27,6 +27,7 @@ import { BlogReviewQueue } from "@/features/blog/components/BlogReviewQueue";
 import { AIPlanManager } from "@/features/admin/components/AIPlanManager";
 import { AdminFeedbackManager } from "@/features/admin/components/AdminFeedbackManager";
 import { SystemCapabilitiesDashboard } from "@/features/admin/components/SystemCapabilitiesDashboard";
+import { AdminAnalyticsDashboard } from "@/features/admin/components/AdminAnalyticsDashboard";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Quản trị — ASTROTAROT" }] }),
@@ -62,6 +63,11 @@ function AdminWorkspace() {
           key: "feedback",
           label: "Đánh giá & Góp ý",
           render: () => <AdminFeedbackManager />,
+        },
+        {
+          key: "analytics",
+          label: "Lưu lượng & GA4",
+          render: () => <AdminAnalyticsDashboard />,
         },
         {
           key: "blogs",

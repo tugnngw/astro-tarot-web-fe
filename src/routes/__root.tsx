@@ -6,6 +6,7 @@ import {
   useRouter,
   HeadContent,
   Scripts,
+  type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 import { Toaster } from "sonner";
@@ -26,11 +27,29 @@ import { ChatDock } from "@/features/booking/components/ChatDock";
 import { GocNoi } from "@/components/GocNoi";
 import { captureUtmFromUrl } from "@/lib/utm";
 import { SITE_URL } from "@/lib/site";
+import { initGA, trackPageView } from "@/lib/analytics";
 
 function UtmCapture() {
   useEffect(() => {
     captureUtmFromUrl();
   }, []);
+  return null;
+}
+
+function GoogleAnalyticsTracker() {
+  const router = useRouter();
+  useEffect(() => {
+    initGA();
+    if (typeof window !== "undefined") {
+      trackPageView(
+        window.location.pathname + window.location.search,
+        document.title,
+      );
+    }
+    return router.subscribe("onResolved", ({ toLocation }) => {
+      trackPageView(toLocation.pathname + toLocation.search, document.title);
+    });
+  }, [router]);
   return null;
 }
 
@@ -58,7 +77,7 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error, reset }: ErrorComponentProps) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
@@ -214,6 +233,7 @@ function RootComponent() {
           <RealtimeProvider>
             <CartProvider>
               <UtmCapture />
+              <GoogleAnalyticsTracker />
               <BackendWarmBanner />
               <StarrySky />
               <Outlet />
