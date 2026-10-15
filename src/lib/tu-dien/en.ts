@@ -198,4 +198,158 @@ export const EN: Record<string, string> = {
   "Gửi lại thư xác minh": "Resend the verification email",
   "Không gửi lại được thư xác minh.":
     "Could not resend the verification email.",
+
+  // ---- Trang chủ, trải bài Tarot ----
+  "Ba lá": "Three cards",
+  "Thông điệp": "Message",
+  "Trải bài": "Draw",
+  xuôi: "upright",
+  ngược: "reversed",
+  "Xem tất cả": "See all",
+  "Bản đồ sao của bạn": "Your star chart",
+
+  // ---- Báo cáo nội dung AI ----
+  "Báo cáo": "Report",
+  "Báo cáo nội dung": "Report content",
+  "Báo cáo nội dung này": "Report this content",
+  "Thông tin sai lệch": "Misleading information",
+  "Xúc phạm, thù ghét": "Abusive or hateful",
+  "Nguy hiểm, khuyến khích làm hại": "Dangerous, encourages harm",
+  "Lý do khác": "Another reason",
+  "Mô tả thêm (không bắt buộc)": "Tell us more (optional)",
+  "Đã nhận báo cáo. Cảm ơn bạn.": "Report received. Thank you.",
+
+  // ---- Lịch hẹn ----
+  "Chưa có lịch hẹn nào": "No bookings yet",
+  "Huỷ lịch": "Cancel booking",
+  "Xác nhận huỷ": "Confirm cancellation",
+  "Buổi này chưa đặt cọc. Huỷ lúc này không mất tiền.":
+    "No deposit has been paid for this session. Cancelling now costs nothing.",
+  "Đã huỷ lịch hẹn": "Booking cancelled",
+  "Ví dụ: mình có việc đột xuất...": "For example: something came up...",
+  "Đánh giá": "Review",
+  "Chưa thanh toán": "Unpaid",
+  "Đã thanh toán": "Paid",
+  "Đã nhận": "Received",
+
+  // ---- Hồ sơ cá nhân ----
+  "Lưu hồ sơ": "Save profile",
+  "Đã lưu hồ sơ": "Profile saved",
+  "Họ và tên": "Full name",
+  "Tên đăng nhập": "Username",
+  "Giới tính": "Gender",
+  Nữ: "Female",
+  Khác: "Other",
+  "Không tiết lộ": "Prefer not to say",
+  "Quốc gia": "Country",
+  "Chưa chọn": "Not chosen",
+  "Số điện thoại gồm 10 chữ số và bắt đầu bằng 0":
+    "A phone number has 10 digits and starts with 0",
+  "Xác minh email": "Verify email",
+  "Đổi ảnh": "Change photo",
+  "Giới thiệu": "About",
+  "Đơn làm Reader đang chờ duyệt": "Your Reader application is under review",
+  "Đơn làm Reader chưa được duyệt": "Your Reader application was not approved",
+  "Thông báo": "Notifications",
+
+  // ---- Bản đồ sao / hồ sơ chiêm tinh ----
+  "Bản đồ sao của tôi": "My star chart",
+  "Bạn chưa có hồ sơ chiêm tinh nào": "You have no astrology profile yet",
+  "Thêm hồ sơ": "Add profile",
+  "Tạo hồ sơ": "Create profile",
+  "Sửa hồ sơ": "Edit profile",
+  "Xoá hồ sơ": "Delete profile",
+  "Tên hồ sơ": "Profile name",
+  "Hồ sơ chính": "Main profile",
+  "Đặt làm hồ sơ chính": "Set as main profile",
+  "Hồ sơ của ai": "Whose profile",
+  "Tên người được xem": "Name of the person",
+  "Chưa biết giờ": "Time unknown",
+  "Không biết giờ sinh": "I do not know my birth time",
+  "Múi giờ": "Time zone",
+  "Toạ độ": "Coordinates",
+  "Không lưu được hồ sơ.": "Could not save the profile.",
+  "Không xoá được hồ sơ.": "Could not delete the profile.",
+  "Không tải được danh sách hồ sơ. Thử lại sau.":
+    "Could not load your profiles. Try again later.",
+  "Không bắt buộc": "Optional",
+
+  // ---- Danh sách và hồ sơ Reader ----
+  "Thử từ khoá khác nhé.": "Try a different keyword.",
+  "đánh giá": "reviews",
+  "Đã đặt lịch": "Booked",
+
+  // ---- Gói AI, ví, thanh toán ----
+  "Chọn gói": "Choose a plan",
+  "Số dư ví": "Wallet balance",
+  "Nạp tiền": "Top up",
+  "Số tiền": "Amount",
+  "Chuyển khoản": "Bank transfer",
+  "Ngân hàng": "Bank",
+  "Số tài khoản": "Account number",
+  "Chủ tài khoản": "Account holder",
+  "Nội dung chuyển khoản": "Transfer reference",
+  "Chuyển đúng số tiền và đúng nội dung bên dưới. Chúng tôi đối soát rồi xác nhận, thường trong vài giờ làm việc.":
+    "Transfer the exact amount with the exact reference below. We reconcile and confirm, usually within a few working hours.",
+  "Chưa cấu hình": "Not configured",
+  "Tôi đã chuyển khoản": "I have made the transfer",
+  "Thanh toán PayOS": "PayOS payment",
+  "Thanh toán với PayOS": "Pay with PayOS",
+  "Mã đơn PayOS": "PayOS order code",
+  "Mở PayOS để quét VietQR hoặc chuyển khoản. Hệ thống xác nhận tự động sau khi nhận tiền.":
+    "Open PayOS to scan the VietQR code or transfer. Payment is confirmed automatically once received.",
+  "Quét bằng ứng dụng ngân hàng — số tiền và nội dung đã điền sẵn.":
+    "Scan with your banking app — the amount and reference are filled in already.",
+  "Đóng — trạng thái cập nhật ở trang Lịch hẹn":
+    "Close — the status updates on the Bookings page",
+  "Bạn thanh toán toàn bộ một lần, không đặt cọc.":
+    "You pay the full amount at once, with no deposit.",
+  "Đây là 50% còn lại. Reader đọc xong thì chuyển khoản nốt số này.":
+    "This is the remaining 50%. Transfer it once the Reader has finished.",
+
+  // ---- Màn Tài khoản ----
+  "Khám phá": "Explore",
+  "Khu quản lý": "Management area",
+  "Chính sách riêng tư": "Privacy policy",
+  "Nguồn ảnh": "Image credits",
+  "Nhập mật khẩu để xác nhận": "Enter your password to confirm",
+  bạn: "you",
+  "Ngày này đã qua giờ làm việc.": "That day's working hours have ended.",
+
+  // ---- Đăng ký, quên mật khẩu, liên kết trong email ----
+  "Mật khẩu mới": "New password",
+  "Đặt mật khẩu mới": "Set a new password",
+  "Nhập lại mật khẩu mới": "Repeat the new password",
+  "Mật khẩu nhập lại không khớp": "The repeated password does not match",
+  "Gửi liên kết": "Send link",
+  Dán: "Paste",
+  "Xác minh": "Verify",
+
+  // ---- Bài viết ----
+  "Tìm bài viết, tác giả...": "Search articles or authors...",
+  "Chưa có bài viết nào": "No articles yet",
+
+  // ---- Gian hàng ----
+  "Sản phẩm": "Product",
+  "Không tìm thấy sản phẩm": "Product not found",
+  "Thử từ khoá khác hoặc bỏ bộ lọc.":
+    "Try another keyword or clear the filter.",
+  "Sản phẩm này có thể đã ngừng bán hoặc đường dẫn không đúng.":
+    "This product may be discontinued, or the link is wrong.",
+  "Ảnh minh hoạ": "Illustrative photo",
+
+  // ---- Hỗ trợ ----
+  "Gửi yêu cầu": "Send request",
+
+  // ---- Góp ý ----
+  "Gửi phản hồi": "Send feedback",
+  "ASTROTAROT có giúp bạn không?": "Is ASTROTAROT helping you?",
+  "Đánh giá trải nghiệm (tuỳ chọn)": "Rate your experience (optional)",
+
+  // ---- Thông báo ----
+  "Chưa có thông báo nào": "No notifications yet",
+  "Ghim lên đầu": "Pin to top",
+  "Bỏ ghim": "Unpin",
+  "Không đổi được trạng thái.": "Could not change the status.",
+  "Tìm bộ bài, đá, phụ kiện...": "Search decks, crystals, accessories...",
 };
