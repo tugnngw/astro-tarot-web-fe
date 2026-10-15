@@ -354,6 +354,12 @@ export interface AdminStats {
     affiliateClicks30d: number;
     marketingEventsLast30Days: Record<string, number>;
   };
+  blogs?: {
+    total: number;
+    published: number;
+    pending: number;
+    draft: number;
+  };
 }
 
 export function getAdminStats() {

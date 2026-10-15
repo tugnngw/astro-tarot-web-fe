@@ -14,12 +14,20 @@ import {
 import * as adminApi from "@/api/admin";
 import type { AccountStatus, UserQuery } from "@/api/admin";
 import type { AccountRole } from "@/lib/roles";
+import {
+  getAdminFeedbackList,
+  getAdminFeedbackStats,
+  type AdminFeedbackQuery,
+} from "@/api/feedback";
 
 export const adminKeys = {
   all: ["admin"] as const,
   users: (query: UserQuery) => [...adminKeys.all, "users", query] as const,
   usersAll: () => [...adminKeys.all, "users"] as const,
   applications: () => [...adminKeys.all, "reader-applications"] as const,
+  feedbackStats: () => [...adminKeys.all, "feedback", "stats"] as const,
+  feedbackList: (query: AdminFeedbackQuery) =>
+    [...adminKeys.all, "feedback", "list", query] as const,
 };
 
 export function useManagedUsers(query: UserQuery, enabled = true) {
@@ -182,3 +190,27 @@ export function useAdminStats(enabled = true) {
     staleTime: 30_000,
   });
 }
+
+/** Thống kê tổng hợp phản hồi và đánh giá hệ thống (ADMIN/MANAGER). */
+export function useAdminFeedbackStats(enabled = true) {
+  return useQuery({
+    queryKey: adminKeys.feedbackStats(),
+    queryFn: getAdminFeedbackStats,
+    enabled,
+    staleTime: 30_000,
+  });
+}
+
+/** Danh sách phản hồi phân trang và lọc theo số sao / nguồn / từ khoá. */
+export function useAdminFeedbackList(
+  query: AdminFeedbackQuery = {},
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: adminKeys.feedbackList(query),
+    queryFn: () => getAdminFeedbackList(query),
+    enabled,
+    placeholderData: keepPreviousData,
+  });
+}
+

@@ -25,6 +25,8 @@ import {
 import { RoleBadge } from "@/components/RoleBadge";
 import { BlogReviewQueue } from "@/features/blog/components/BlogReviewQueue";
 import { AIPlanManager } from "@/features/admin/components/AIPlanManager";
+import { AdminFeedbackManager } from "@/features/admin/components/AdminFeedbackManager";
+import { SystemCapabilitiesDashboard } from "@/features/admin/components/SystemCapabilitiesDashboard";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Quản trị — ASTROTAROT" }] }),
@@ -50,6 +52,16 @@ function AdminWorkspace() {
           key: "overview",
           label: "Tổng quan",
           render: () => <AdminOverview />,
+        },
+        {
+          key: "capabilities",
+          label: "Năng lực hệ thống (Outcome 3)",
+          render: () => <SystemCapabilitiesDashboard />,
+        },
+        {
+          key: "feedback",
+          label: "Đánh giá & Góp ý",
+          render: () => <AdminFeedbackManager />,
         },
         {
           key: "blogs",
