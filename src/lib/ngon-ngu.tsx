@@ -49,6 +49,15 @@ type Ngu = {
 
 const Boi = createContext<Ngu | null>(null);
 
+/**
+ * Ngôn ngữ hiện tại, soi ra ngoài React.
+ *
+ * Có để `dich()` gọi được từ những chỗ KHÔNG phải component: hằng số ở đầu
+ * tệp, hàm phụ, bảng dữ liệu. Hook `useT()` không dùng được ở đó, mà hơn một
+ * nghìn chuỗi đang nằm rải khắp những chỗ như vậy.
+ */
+let hienTai: NgonNgu = "vi";
+
 export function NguProvider({ children }: { children: ReactNode }) {
   // Khởi tạo 'vi' rồi mới đọc localStorage trong useEffect, không đọc ngay ở
   // useState: trang này dựng sẵn ở máy chủ, đọc lệch nhau là React cảnh báo
@@ -71,6 +80,12 @@ export function NguProvider({ children }: { children: ReactNode }) {
       document.documentElement.lang = n;
     }
   }, []);
+
+  // Soi ngôn ngữ hiện tại ra một biến ngoài React, để `dich()` ở dưới dùng.
+  // Đặt trong lúc dựng chứ không trong useEffect: những nút gọi `dich()`
+  // được dựng CÙNG lượt với provider, nếu đợi effect thì lượt đầu đọc phải
+  // giá trị cũ và hiện sai một khung hình.
+  hienTai = ngonNgu;
 
   const t = useCallback(
     (cau: string) => (ngonNgu === "en" ? (EN[cau] ?? cau) : cau),
@@ -105,4 +120,16 @@ export function useNgu(): Ngu {
 /** Viết gọn cho trường hợp chỉ cần dịch. */
 export function useT(): (cau: string) => string {
   return useNgu().t;
+}
+
+/**
+ * Dịch mà không cần hook.
+ *
+ * Dùng ở hằng số đầu tệp, hàm phụ, chỗ nào không gọi hook được. Trong một
+ * component thì cứ dùng `useT()`: nó đăng ký với context nên chắc chắn dựng
+ * lại khi đổi ngôn ngữ, còn `dich()` chỉ đọc giá trị tại thời điểm gọi và
+ * phụ thuộc vào việc cây cha dựng lại.
+ */
+export function dich(cau: string): string {
+  return hienTai === "en" ? (EN[cau] ?? cau) : cau;
 }
