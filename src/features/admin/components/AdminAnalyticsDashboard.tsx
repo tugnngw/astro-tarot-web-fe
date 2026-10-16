@@ -23,6 +23,7 @@ import {
   YAxis,
 } from "recharts";
 import { useGA4Report } from "@/features/admin/queries";
+import { GA_MEASUREMENT_ID } from "@/lib/analytics";
 
 type DateRangeOption = "7d" | "14d" | "30d" | "90d";
 
@@ -91,8 +92,8 @@ export function AdminAnalyticsDashboard() {
             )}
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
-            Property ID: <code className="text-gold/90">{report?.propertyId || "559041870"}</code> • Measurement ID:{" "}
-            <code className="text-gold/90">G-6B0LQ5Q9D8</code> • Khoảng thời gian:{" "}
+            Property ID: <code className="text-gold/90">{report?.propertyId || "559341552"}</code> • Measurement ID:{" "}
+            <code className="text-gold/90">{GA_MEASUREMENT_ID}</code> • Khoảng thời gian:{" "}
             <span className="text-foreground font-medium">{label}</span>
           </p>
         </div>
