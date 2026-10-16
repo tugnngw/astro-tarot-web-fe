@@ -107,6 +107,24 @@ export function initGA(measurementId: string = GA_MEASUREMENT_ID): void {
 }
 
 /**
+ * Lấy đường dẫn để ghi nhận, từ một `location` của TanStack Router.
+ *
+ * KHÔNG ghép `pathname + search`. `search` của TanStack là object tạo bằng
+ * `Object.create(null)` — không có prototype, nên không có `toString`, và
+ * ghép chuỗi với nó ném thẳng `TypeError: Cannot convert object to primitive
+ * value`. Lỗi ấy ném ra bên trong listener của router, không hiện ở đâu cả,
+ * và hậu quả là MỌI lần đổi trang trong app đều không ghi nhận được gì.
+ *
+ * `href` đã là pathname kèm query dạng chuỗi, đúng thứ cần.
+ */
+export function duongDanTuRouter(loc: {
+  href?: string;
+  pathname?: string;
+}): string {
+  return loc.href || loc.pathname || "/";
+}
+
+/**
  * Ghi nhận sự kiện chuyển trang trong SPA lên GA4 sau khi đã khử khuẩn đường dẫn.
  */
 export function trackPageView(

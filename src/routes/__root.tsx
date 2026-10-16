@@ -27,7 +27,7 @@ import { ChatDock } from "@/features/booking/components/ChatDock";
 import { GocNoi } from "@/components/GocNoi";
 import { captureUtmFromUrl } from "@/lib/utm";
 import { SITE_URL } from "@/lib/site";
-import { initGA, trackPageView } from "@/lib/analytics";
+import { duongDanTuRouter, initGA, trackPageView } from "@/lib/analytics";
 
 function UtmCapture() {
   useEffect(() => {
@@ -47,7 +47,7 @@ function GoogleAnalyticsTracker() {
       );
     }
     return router.subscribe("onResolved", ({ toLocation }) => {
-      trackPageView(toLocation.pathname + toLocation.search, document.title);
+      trackPageView(duongDanTuRouter(toLocation), document.title);
     });
   }, [router]);
   return null;
