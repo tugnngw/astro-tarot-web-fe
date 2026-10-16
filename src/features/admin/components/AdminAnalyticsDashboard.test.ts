@@ -3,6 +3,7 @@ import {
   formatDuration,
   formatPercent,
   nf,
+  trangThaiGa4,
 } from "./AdminAnalyticsDashboard";
 import { sanitizePath, GA_MEASUREMENT_ID } from "@/lib/analytics";
 
@@ -10,6 +11,36 @@ describe("AdminAnalyticsDashboard & GA4 Analytics Module", () => {
   describe("Measurement ID & Configuration", () => {
     it("sử dụng GA4 Measurement ID chuẩn của dự án", () => {
       expect(GA_MEASUREMENT_ID).toBe("G-XPERZQWF4T");
+    });
+  });
+
+  describe("trangThaiGa4 — badge phải nói thật", () => {
+    /**
+     * Cái bẫy: `GA4ReportResponse.error()` bên máy chủ đặt
+     * `configured = true`. Trang nào lấy cờ ấy làm căn cứ thì khi Google trả
+     * PERMISSION_DENIED vẫn khoe "Đã kết nối API" — đúng lúc cần biết hỏng
+     * thì nó báo đang ổn. Đã dính một lần: phải gọi tay API mới biết thật sự
+     * SUCCESS hay ERROR.
+     */
+    it("ERROR vẫn kèm configured=true — không được coi là ổn", () => {
+      const loi = { configured: true, status: "ERROR", message: "PERMISSION_DENIED" };
+      expect(loi.configured).toBe(true);
+      expect(trangThaiGa4(loi)).toBe("loi");
+    });
+
+    it("chỉ SUCCESS mới là đã kết nối", () => {
+      expect(trangThaiGa4({ status: "SUCCESS" })).toBe("ok");
+    });
+
+    it("NOT_CONFIGURED là chưa đặt khoá, khác với gọi API hỏng", () => {
+      expect(trangThaiGa4({ status: "NOT_CONFIGURED" })).toBe("chua-cau-hinh");
+    });
+
+    it("chưa tải xong hoặc trạng thái lạ thì không đoán là ổn", () => {
+      expect(trangThaiGa4(undefined)).toBe("chua-biet");
+      expect(trangThaiGa4(null)).toBe("chua-biet");
+      expect(trangThaiGa4({})).toBe("chua-biet");
+      expect(trangThaiGa4({ status: "GI_DO_LA" })).toBe("chua-biet");
     });
   });
 

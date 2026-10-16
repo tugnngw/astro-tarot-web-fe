@@ -54,6 +54,33 @@ export function formatPercent(rate: number | null | undefined): string {
   return `${val.toFixed(1)}%`;
 }
 
+/**
+ * Trạng thái thật của tích hợp GA4, suy từ `status` của máy chủ.
+ *
+ * KHÔNG dùng cờ `configured` làm căn cứ: `GA4ReportResponse.error()` bên máy
+ * chủ cũng đặt `configured = true`, nên lấy cờ ấy thì khi Google trả
+ * PERMISSION_DENIED trang vẫn khoe "Đã kết nối API" — đúng lúc cần biết hỏng
+ * thì nó báo đang ổn, còn câu lỗi thật nằm trong `message` thì không ai thấy.
+ */
+export type TrangThaiGa4 = "ok" | "loi" | "chua-cau-hinh" | "chua-biet";
+
+export function trangThaiGa4(
+  report?: { status?: string } | null,
+): TrangThaiGa4 {
+  switch (report?.status) {
+    case "SUCCESS":
+      return "ok";
+    case "ERROR":
+      return "loi";
+    case "NOT_CONFIGURED":
+      return "chua-cau-hinh";
+    default:
+      // Chưa tải xong, hoặc máy chủ trả một trạng thái lạ: không khẳng định
+      // gì cả, đừng đoán là ổn.
+      return "chua-biet";
+  }
+}
+
 export function AdminAnalyticsDashboard() {
   const [range, setRange] = useState<DateRangeOption>("30d");
   const { start, end, label } = DATE_RANGE_MAP[range];
@@ -67,7 +94,10 @@ export function AdminAnalyticsDashboard() {
     isFetching,
   } = useGA4Report(start, end);
 
-  const isConfigured = report?.configured ?? false;
+  const trangThai = trangThaiGa4(report);
+  const isConfigured = trangThai === "ok";
+  const isApiError = trangThai === "loi";
+  const chuaCauHinh = trangThai === "chua-cau-hinh";
   const overview = report?.overview;
   const timeSeries = report?.timeSeries || [];
   const trafficSources = report?.trafficSources || [];
@@ -81,11 +111,17 @@ export function AdminAnalyticsDashboard() {
         <div>
           <div className="flex items-center gap-2">
             <h2 className="font-display text-2xl text-foreground">Lưu lượng & Google Analytics 4</h2>
-            {isConfigured ? (
+            {isConfigured && (
               <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-400 border border-emerald-500/20">
                 <Radio className="h-3 w-3 animate-pulse" /> Đã kết nối API
               </span>
-            ) : (
+            )}
+            {isApiError && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-red-500/10 px-2.5 py-0.5 text-xs font-medium text-red-400 border border-red-500/20">
+                <AlertTriangle className="h-3 w-3" /> Gọi API lỗi
+              </span>
+            )}
+            {chuaCauHinh && (
               <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-medium text-amber-400 border border-amber-500/20">
                 <AlertTriangle className="h-3 w-3" /> Chưa cấu hình Key
               </span>
@@ -131,8 +167,32 @@ export function AdminAnalyticsDashboard() {
         </div>
       </div>
 
+      {/* Google trả lỗi: bày đúng câu máy chủ nhận được, đừng nuốt. */}
+      {isApiError && !isLoading && (
+        <section className="glass rounded-2xl border border-red-500/30 bg-red-500/5 p-5">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 shrink-0 text-red-400 mt-0.5" />
+            <div className="space-y-1 text-sm">
+              <h3 className="font-semibold text-red-300">
+                Máy chủ gọi Google Analytics Data API không thành công
+              </h3>
+              <p className="text-muted-foreground leading-relaxed">
+                {report?.message ||
+                  "Google không trả về dữ liệu. Xem log máy chủ để biết chi tiết."}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Hay gặp nhất: service account chưa được cấp quyền{" "}
+                <strong>Người xem</strong> trên tài sản{" "}
+                <code className="text-foreground">{report?.propertyId}</code>,
+                hoặc Google Analytics Data API chưa bật trong project Cloud.
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Cảnh báo chưa cấu hình service account */}
-      {!isConfigured && !isLoading && (
+      {chuaCauHinh && !isLoading && (
         <section className="glass rounded-2xl border border-amber-500/30 bg-amber-500/5 p-5">
           <div className="flex items-start gap-3">
             <AlertTriangle className="h-5 w-5 shrink-0 text-amber-400 mt-0.5" />
@@ -145,7 +205,7 @@ export function AdminAnalyticsDashboard() {
               </p>
               <ol className="list-decimal pl-5 space-y-1 text-xs text-muted-foreground">
                 <li>
-                  Tạo Service Account trên Google Cloud Project <code className="text-foreground">astra-tarot-analytics</code> và gán quyền <strong>Viewer</strong> trong GA4 Property <code className="text-foreground">559041870</code>.
+                  Tạo Service Account trên Google Cloud Project <code className="text-foreground">astrotarot-play</code> và gán quyền <strong>Người xem</strong> trong GA4 Property <code className="text-foreground">559341552</code>.
                 </li>
                 <li>
                   Trên máy dev local: lưu tệp JSON bên ngoài repository và đặt biến môi trường: <code className="text-gold">GA4_CREDENTIALS_PATH=đường_dẫn_tệp.json</code>.
@@ -156,7 +216,7 @@ export function AdminAnalyticsDashboard() {
               </ol>
               <div className="pt-2">
                 <a
-                  href="https://analytics.google.com/analytics/web/#/p559041870/reports/reportinghub"
+                  href="https://analytics.google.com/analytics/web/#/p559341552/reports/reportinghub"
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-1.5 text-xs text-gold hover:underline"
