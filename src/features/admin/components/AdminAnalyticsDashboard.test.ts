@@ -9,7 +9,7 @@ import { sanitizePath, GA_MEASUREMENT_ID } from "@/lib/analytics";
 describe("AdminAnalyticsDashboard & GA4 Analytics Module", () => {
   describe("Measurement ID & Configuration", () => {
     it("sử dụng GA4 Measurement ID chuẩn của dự án", () => {
-      expect(GA_MEASUREMENT_ID).toBe("G-6B0LQ5Q9D8");
+      expect(GA_MEASUREMENT_ID).toBe("G-XPERZQWF4T");
     });
   });
 

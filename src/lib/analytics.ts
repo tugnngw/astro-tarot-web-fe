@@ -13,7 +13,7 @@ declare global {
 export const GA_MEASUREMENT_ID: string =
   (typeof import.meta !== "undefined" &&
     import.meta.env?.VITE_GA_MEASUREMENT_ID) ||
-  "G-6B0LQ5Q9D8";
+  "G-XPERZQWF4T";
 
 /**
  * Danh sách tên tham số URL nhạy cảm cần loại bỏ trước khi gửi lên GA4.
