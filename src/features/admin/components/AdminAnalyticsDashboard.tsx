@@ -237,6 +237,26 @@ export function AdminAnalyticsDashboard() {
         </div>
       )}
 
+      {/* Số đang truy cập — con số DUY NHẤT nhúc nhích ngay.
+          Mọi ô bên dưới lấy từ báo cáo thường, mà báo cáo thường trễ 24–48
+          giờ với tài sản mới: hai ngày đầu chúng đứng im ở 0 dù web có khách,
+          nhìn vào rất dễ tưởng cấu hình hỏng. */}
+      {isConfigured && report && report.realtimeActiveUsers >= 0 && (
+        <section className="glass flex flex-wrap items-center gap-x-3 gap-y-1 rounded-2xl border border-emerald-500/25 bg-emerald-500/5 px-5 py-3">
+          <Radio className="h-4 w-4 shrink-0 animate-pulse text-emerald-400" />
+          <span className="text-sm text-muted-foreground">
+            Đang truy cập (30 phút qua):
+          </span>
+          <span className="font-display text-2xl text-emerald-300">
+            {nf(report.realtimeActiveUsers)}
+          </span>
+          <span className="text-xs text-muted-foreground">
+            Số này cập nhật tức thì. Các ô bên dưới lấy từ báo cáo thường của
+            Google, trễ 24–48 giờ với tài sản mới.
+          </span>
+        </section>
+      )}
+
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <KpiCard

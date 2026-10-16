@@ -31,6 +31,14 @@ export interface GA4ReportResponse {
   overview: GA4Overview;
   trafficSources: GA4TrafficSource[];
   timeSeries: GA4TimeSeries[];
+  /**
+   * Số người đang ở trên web trong 30 phút qua.
+   *
+   * Lấy từ lượt gọi thời gian thực, khác `overview.activeUsers` vốn lấy từ
+   * báo cáo thường — mà báo cáo thường trễ 24–48 giờ với tài sản mới.
+   * -1 nghĩa là không hỏi được.
+   */
+  realtimeActiveUsers: number;
   status: "SUCCESS" | "NOT_CONFIGURED" | "ERROR";
   message: string;
 }
