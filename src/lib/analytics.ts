@@ -46,7 +46,8 @@ export function sanitizePath(rawUrlOrPath: string): string {
 
   try {
     // Nếu là đường dẫn tương đối, thêm fake origin để dùng URL API
-    const isAbsolute = rawUrlOrPath.startsWith("http://") || rawUrlOrPath.startsWith("https://");
+    const isAbsolute =
+      rawUrlOrPath.startsWith("http://") || rawUrlOrPath.startsWith("https://");
     const parsed = isAbsolute
       ? new URL(rawUrlOrPath)
       : new URL(rawUrlOrPath, "https://astratarot.local");
@@ -78,8 +79,19 @@ export function initGA(measurementId: string = GA_MEASUREMENT_ID): void {
   if (document.getElementById("ga4-script")) return;
 
   window.dataLayer = window.dataLayer || [];
-  window.gtag = function gtag(...args: unknown[]) {
-    window.dataLayer?.push(args);
+  // Đẩy ĐÚNG đối tượng `arguments`, KHÔNG phải mảng.
+  //
+  // gtag.js duyệt dataLayer và chỉ coi những mục là `[object Arguments]` mới
+  // là lệnh của gtag; mục nào là mảng thường thì nó bỏ qua lặng lẽ. Viết
+  // `(...args) => push(args)` cho gọn là đẩy một MẢNG, nên `js`, `config` và
+  // mọi `event` đều rơi vào hư không: script vẫn tải, `window.gtag` vẫn có,
+  // dataLayer vẫn đầy lên — mà GA4 không nhận được một lượt nào.
+  //
+  // Đó đúng là cảnh đã xảy ra trên bản chạy thật: trang tải gtag.js xong,
+  // không có cookie `_ga` nào được tạo và không có lượt gửi nào đi.
+  window.gtag = function gtag() {
+    // eslint-disable-next-line prefer-rest-params
+    window.dataLayer?.push(arguments);
   };
 
   window.gtag("js", new Date());
@@ -100,14 +112,15 @@ export function initGA(measurementId: string = GA_MEASUREMENT_ID): void {
 export function trackPageView(
   rawPath: string,
   title?: string,
-  measurementId: string = GA_MEASUREMENT_ID
+  measurementId: string = GA_MEASUREMENT_ID,
 ): void {
   if (typeof window === "undefined" || !window.gtag) return;
 
   const cleanPath = sanitizePath(rawPath);
   window.gtag("event", "page_view", {
     page_path: cleanPath,
-    page_title: title || (typeof document !== "undefined" ? document.title : ""),
+    page_title:
+      title || (typeof document !== "undefined" ? document.title : ""),
     send_to: measurementId,
   });
 }
