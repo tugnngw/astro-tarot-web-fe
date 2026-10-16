@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
+  duongDanTuRouter,
   GA_MEASUREMENT_ID,
   initGA,
   sanitizePath,
@@ -84,6 +85,31 @@ describe("GA4", () => {
     // Màn chạy trước khi initGA kịp chạy — không được làm sập trang.
     expect(() => trackPageView("/")).not.toThrow();
     expect(window.dataLayer).toHaveLength(0);
+  });
+
+  describe("đường dẫn lấy từ router", () => {
+    /** Giống hệt `location` thật của TanStack: `search` không có prototype. */
+    function locationTanStack(href: string, pathname: string) {
+      const search = Object.create(null) as Record<string, string>;
+      search.tab = "lich";
+      return { href, pathname, search };
+    }
+
+    it("ghép pathname với search là ném lỗi — cái bẫy có thật", () => {
+      const loc = locationTanStack("/admin?tab=lich", "/admin");
+      expect(() => `${loc.pathname}${loc.search}`).toThrow(TypeError);
+    });
+
+    it("dùng href nên không ném, và giữ nguyên query", () => {
+      const loc = locationTanStack("/admin?tab=lich", "/admin");
+      expect(() => duongDanTuRouter(loc)).not.toThrow();
+      expect(duongDanTuRouter(loc)).toBe("/admin?tab=lich");
+    });
+
+    it("thiếu href thì rơi về pathname, thiếu cả hai thì về gốc", () => {
+      expect(duongDanTuRouter({ pathname: "/shop" })).toBe("/shop");
+      expect(duongDanTuRouter({})).toBe("/");
+    });
   });
 
   describe("khử tham số nhạy cảm", () => {
