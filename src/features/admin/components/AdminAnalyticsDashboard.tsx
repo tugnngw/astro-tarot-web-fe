@@ -27,12 +27,37 @@ import { GA_MEASUREMENT_ID } from "@/lib/analytics";
 
 type DateRangeOption = "7d" | "14d" | "30d" | "90d";
 
+/**
+ * Khoảng ngày gửi lên GA4, kết thúc ở HÔM QUA chứ không phải hôm nay.
+ *
+ * Hai lý do, cùng một gốc:
+ *
+ * 1. **Khớp với Google.** GA4 hiểu "7 ngày qua" là 7 ngày trọn vẹn tính đến
+ *    hết hôm qua. Trước đây chỗ này hỏi `7daysAgo..today`, tức có thêm ngày
+ *    hôm nay, nên bảng ở đây và bảng của Google luôn lệch nhau và không ai
+ *    hiểu bên nào sai. Đo thật ngày 19/10: `7daysAgo..today` ra 6 người /
+ *    26 lượt xem, còn `7daysAgo..yesterday` ra 4 / 24 — đúng bằng con số
+ *    Google hiện.
+ *
+ * 2. **Hôm nay là ngày dở dang.** GA4 còn đang xử lý, số nhảy liên tục trong
+ *    ngày rồi mới chốt. Gộp nó vào "7 ngày qua" là trộn một ngày chưa chốt
+ *    với sáu ngày đã chốt.
+ *
+ * Mất gì không: không. Hoạt động của hôm nay đã có dải "Đang truy cập (30
+ * phút qua)" ở đầu tab, lấy từ báo cáo thời gian thực nên còn nhanh hơn.
+ *
+ * Lưu ý về cách GA4 đếm: `NdaysAgo` là hôm nay trừ N ngày, và hai đầu đều
+ * TÍNH VÀO. Nên `7daysAgo..yesterday` đúng 7 ngày, còn `7daysAgo..today`
+ * là 8 ngày — nhãn ghi 7 mà hỏi 8.
+ */
 const DATE_RANGE_MAP: Record<DateRangeOption, { start: string; end: string; label: string }> = {
-  "7d": { start: "7daysAgo", end: "today", label: "7 ngày qua" },
-  "14d": { start: "14daysAgo", end: "today", label: "14 ngày qua" },
-  "30d": { start: "30daysAgo", end: "today", label: "30 ngày qua" },
-  "90d": { start: "90daysAgo", end: "today", label: "90 ngày qua" },
+  "7d": { start: "7daysAgo", end: "yesterday", label: "7 ngày qua" },
+  "14d": { start: "14daysAgo", end: "yesterday", label: "14 ngày qua" },
+  "30d": { start: "30daysAgo", end: "yesterday", label: "30 ngày qua" },
+  "90d": { start: "90daysAgo", end: "yesterday", label: "90 ngày qua" },
 };
+
+export { DATE_RANGE_MAP };
 
 export function nf(n: number | null | undefined): string {
   if (n == null || isNaN(n)) return "0";
@@ -251,8 +276,9 @@ export function AdminAnalyticsDashboard() {
             {nf(report.realtimeActiveUsers)}
           </span>
           <span className="text-xs text-muted-foreground">
-            Số này cập nhật tức thì. Các ô bên dưới lấy từ báo cáo thường của
-            Google, trễ 24–48 giờ với tài sản mới.
+            Số này cập nhật tức thì. Các ô bên dưới là báo cáo thường của
+            Google, tính đến hết hôm qua — khớp đúng con số trong Google
+            Analytics.
           </span>
         </section>
       )}
