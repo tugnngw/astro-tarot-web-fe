@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  DATE_RANGE_MAP,
   formatDuration,
   formatPercent,
   nf,
@@ -11,6 +12,31 @@ describe("AdminAnalyticsDashboard & GA4 Analytics Module", () => {
   describe("Measurement ID & Configuration", () => {
     it("sử dụng GA4 Measurement ID chuẩn của dự án", () => {
       expect(GA_MEASUREMENT_ID).toBe("G-XPERZQWF4T");
+    });
+  });
+
+  describe("khoảng ngày phải khớp với Google", () => {
+    /**
+     * GA4 hiểu "7 ngày qua" là 7 ngày trọn vẹn tính đến hết hôm qua. Bản cũ
+     * hỏi `7daysAgo..today` nên luôn đếm dư ngày hôm nay — một ngày còn dở
+     * dang, Google vẫn đang xử lý. Hậu quả: bảng ở đây và bảng của Google
+     * không bao giờ bằng nhau, và không ai biết bên nào sai.
+     *
+     * Đo thật ngày 19/10/2026: `7daysAgo..today` ra 6 người / 26 lượt xem,
+     * `7daysAgo..yesterday` ra 4 / 24 — đúng bằng con số Google hiện.
+     */
+    it("mọi khoảng đều kết thúc ở hôm qua, không lấy hôm nay", () => {
+      for (const [key, r] of Object.entries(DATE_RANGE_MAP)) {
+        expect(`${key}: ${r.end}`).toBe(`${key}: yesterday`);
+      }
+    });
+
+    it("số ngày trong nhãn khớp với mốc bắt đầu", () => {
+      // `NdaysAgo` tính cả hai đầu, nên `7daysAgo..yesterday` đúng 7 ngày.
+      expect(DATE_RANGE_MAP["7d"].start).toBe("7daysAgo");
+      expect(DATE_RANGE_MAP["14d"].start).toBe("14daysAgo");
+      expect(DATE_RANGE_MAP["30d"].start).toBe("30daysAgo");
+      expect(DATE_RANGE_MAP["90d"].start).toBe("90daysAgo");
     });
   });
 
