@@ -43,3 +43,25 @@ export function readStoredUtm(): UtmParams {
     return { utmSource: null, utmMedium: null, utmCampaign: null };
   }
 }
+
+/** Bốn giá trị máy chủ nhận cho trường `source` của góp ý. */
+export type NguonGopY = "TAROT_AI" | "BOOKING" | "GENERAL" | "LANDING";
+
+/**
+ * Suy nguồn góp ý từ trang người dùng đang đứng.
+ *
+ * Vì sao suy chứ không hỏi: nút Góp ý nổi ở mọi trang, và bắt người ta chọn
+ * "bạn đang góp ý về phần nào" là thêm một bước cho họ bỏ dở. Trang đang mở
+ * đã nói đủ rồi.
+ *
+ * Trước đây ô góp ý được gắn một lần ở gốc mà không truyền gì, nên MỌI góp ý
+ * thật đều rơi vào `GENERAL`; cột "Nguồn" trong trang quản trị trông có bốn
+ * loại chỉ vì dữ liệu mẫu được gieo đều cho đẹp.
+ */
+export function nguonGopY(pathname: string): NguonGopY {
+  const p = (pathname || "/").toLowerCase();
+  if (p === "/" || p === "/home") return "LANDING";
+  if (p.startsWith("/tarot")) return "TAROT_AI";
+  if (p.startsWith("/readers") || p.startsWith("/bookings")) return "BOOKING";
+  return "GENERAL";
+}

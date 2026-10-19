@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { captureUtmFromUrl, readStoredUtm } from "./utm";
+import { captureUtmFromUrl, nguonGopY, readStoredUtm } from "./utm";
 
 /**
  * Nhớ nguồn khách đến từ đâu.
@@ -120,5 +120,43 @@ describe("UTM", () => {
       utmMedium: null,
       utmCampaign: null,
     });
+  });
+});
+
+describe("nguồn góp ý suy từ trang", () => {
+  /**
+   * Nút Góp ý nổi ở mọi trang và không có ô chọn "bạn góp ý về phần nào" —
+   * cố ý, vì thêm một bước là thêm một chỗ người ta bỏ dở. Trang đang mở đã
+   * nói đủ.
+   *
+   * Trước đây ô góp ý gắn một lần ở gốc mà không truyền gì, nên MỌI góp ý
+   * thật đều rơi vào GENERAL. Cột "Nguồn" trong trang quản trị trông có đủ
+   * bốn loại chỉ vì dữ liệu mẫu được gieo đều cho đẹp.
+   */
+  it("trang chủ là LANDING", () => {
+    expect(nguonGopY("/")).toBe("LANDING");
+    expect(nguonGopY("/home")).toBe("LANDING");
+  });
+
+  it("các trang tarot là TAROT_AI", () => {
+    expect(nguonGopY("/tarot")).toBe("TAROT_AI");
+    expect(nguonGopY("/tarot-history")).toBe("TAROT_AI");
+  });
+
+  it("reader và lịch hẹn là BOOKING", () => {
+    expect(nguonGopY("/readers")).toBe("BOOKING");
+    expect(nguonGopY("/readers/abc-123")).toBe("BOOKING");
+    expect(nguonGopY("/bookings")).toBe("BOOKING");
+  });
+
+  it("còn lại là GENERAL", () => {
+    expect(nguonGopY("/shop")).toBe("GENERAL");
+    expect(nguonGopY("/blogs")).toBe("GENERAL");
+    expect(nguonGopY("/profile")).toBe("GENERAL");
+  });
+
+  it("không phân biệt hoa thường, thiếu đường dẫn thì về LANDING", () => {
+    expect(nguonGopY("/Tarot")).toBe("TAROT_AI");
+    expect(nguonGopY("")).toBe("LANDING");
   });
 });

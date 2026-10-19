@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
   type ErrorComponentProps,
@@ -25,7 +26,7 @@ import { BackendWarmBanner } from "@/components/BackendWarmBanner";
 import { FeedbackPrompt } from "@/components/FeedbackPrompt";
 import { ChatDock } from "@/features/booking/components/ChatDock";
 import { GocNoi } from "@/components/GocNoi";
-import { captureUtmFromUrl } from "@/lib/utm";
+import { captureUtmFromUrl, nguonGopY } from "@/lib/utm";
 import { SITE_URL } from "@/lib/site";
 import { duongDanTuRouter, initGA, trackPageView } from "@/lib/analytics";
 
@@ -211,11 +212,13 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function CustomerWidgets() {
   const { user } = useAuth();
+  // Trang đang đứng quyết định nguồn góp ý, không bắt người dùng tự chọn.
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
   if (user?.role === "admin") return null;
   return (
     <>
       <div className="fixed bottom-5 left-5 z-40">
-        <FeedbackPrompt />
+        <FeedbackPrompt defaultSource={nguonGopY(pathname)} />
       </div>
       <GocNoi>
         <ChatDock />
