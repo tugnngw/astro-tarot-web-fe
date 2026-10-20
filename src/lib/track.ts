@@ -1,4 +1,5 @@
 import { trackMarketingEvent } from "@/api/marketing";
+import { maKhach } from "@/lib/ma-khach";
 import { trackEvent } from "@/lib/analytics";
 import { readStoredUtm } from "@/lib/utm";
 
@@ -43,8 +44,24 @@ export function trackCta(
     utmSource: utm.utmSource,
     utmMedium: utm.utmMedium,
     utmCampaign: utm.utmCampaign,
+    visitorId: maKhach(),
     metadata: extra ? JSON.stringify(extra) : null,
   }).catch(() => {
     /* ignore */
   });
+}
+
+/**
+ * Ghi một lượt XEM TRANG.
+ *
+ * <p>Vì sao cần, dù đã có `trackCta`: `trackCta` chỉ ghi khi người ta bấm một
+ * nút đã gắn theo dõi. Ai vào xem vài trang rồi đi — phần lớn khách thật —
+ * không để lại dòng nào, nên bảng quản trị trông như chỉ có dăm bảy lượt và
+ * gần hết dồn vào "(không rõ nguồn)".
+ *
+ * <p>Có hàng xem trang thì mới dựng lại được hành trình: "vào từ Facebook,
+ * xem trang chủ, mở Tarot, rút một quẻ, rồi đi".
+ */
+export function trackXemTrang(duongDan: string) {
+  trackCta("xem_trang", { duong_dan: duongDan });
 }
