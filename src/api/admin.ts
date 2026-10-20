@@ -360,6 +360,29 @@ export interface AdminStats {
     pending: number;
     draft: number;
   };
+  /**
+   * Bốn con số hay bị hỏi nhất ở màn Tổng quan, mỗi con số kèm phần THẬT.
+   *
+   * Cơ sở dữ liệu đang chứa lẫn hàng trăm hàng gieo sẵn để demo. Một ô ghi
+   * "doanh thu" mà cộng cả hai thứ thì không dùng được vào việc gì: không
+   * phải tiền thật để báo cáo, cũng không phải tổng để kiểm thử.
+   *
+   * `danhGiaReader` và `gopYKhaoSat` được tách ra vì trước đây màn này gọi
+   * cả hai là "Đánh giá" — sao khách chấm cho Reader sau buổi xem, với phiếu
+   * góp ý về sản phẩm, là hai việc khác hẳn nhau.
+   */
+  tongQuan?: {
+    doanhThu: number;
+    doanhThuThat: number;
+    soGiaoDich: number;
+    soGiaoDichThat: number;
+    nguoiTraPhi: number;
+    nguoiTraPhiThat: number;
+    danhGiaReader: number;
+    danhGiaReaderThat: number;
+    gopYKhaoSat: number;
+    gopYKhaoSatThat: number;
+  };
 }
 
 export function getAdminStats() {

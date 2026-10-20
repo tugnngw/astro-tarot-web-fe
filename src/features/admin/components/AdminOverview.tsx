@@ -366,6 +366,8 @@ export function AdminOverview() {
 
   return (
     <div className="space-y-6">
+      {s.tongQuan && <BonSoLieuChinh tongQuan={s.tongQuan} />}
+
       <TractionStrip traction={traction} />
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-6">
@@ -418,6 +420,97 @@ export function AdminOverview() {
         <AiModelChart ai={ai} />
       </div>
     </div>
+  );
+}
+
+// ------------------------------------------------------------
+// Bốn số liệu chính — mỗi ô nói rõ nó đếm cái gì
+// ------------------------------------------------------------
+
+/**
+ * Doanh thu, giao dịch, người trả phí, đánh giá.
+ *
+ * Mỗi ô nói rõ nó ĐẾM CÁI GÌ — đó mới là chỗ hay gây hiểu nhầm, chứ không
+ * phải con số. "Giao dịch" với "người trả phí" nghe như nhau mà lệch nhau vài
+ * lần, vì một người nạp ví ba lần vẫn là một người.
+ *
+ * Số lớn là tổng, gồm cả dữ liệu gieo sẵn để demo. Dòng nhỏ bên dưới tách
+ * riêng phần không phải seed, để lúc nào cần biết thì có sẵn — không bắt phải
+ * dùng số nào. Máy chủ tách hai phần theo khuôn khoá chính của dữ liệu seed,
+ * xem `DuLieuThat` bên backend.
+ *
+ * Hai ô cuối từng bị gộp làm một dưới chữ "Đánh giá". Sao khách chấm cho
+ * Reader sau buổi xem, với phiếu góp ý về sản phẩm, là hai việc khác hẳn: một
+ * cái đánh giá CON NGƯỜI, một cái đánh giá SẢN PHẨM. Cộng lại là cộng táo với
+ * cam, và con số ấy không trả lời được câu hỏi nào.
+ */
+function BonSoLieuChinh({
+  tongQuan: t,
+}: {
+  tongQuan: NonNullable<AdminStats["tongQuan"]>;
+}) {
+  const o = [
+    {
+      nhan: "Doanh thu",
+      tong: vnd(t.doanhThu),
+      that: vnd(t.doanhThuThat),
+      giaiThich: "Tiền khách đã trả, chỉ tính giao dịch trạng thái SUCCESS.",
+    },
+    {
+      nhan: "Số lượng giao dịch",
+      tong: nf(t.soGiaoDich),
+      that: nf(t.soGiaoDichThat),
+      giaiThich: "Số LẦN trả tiền thành công, không phải số người.",
+    },
+    {
+      nhan: "Người dùng trả phí",
+      tong: nf(t.nguoiTraPhi),
+      that: nf(t.nguoiTraPhiThat),
+      giaiThich:
+        "Số NGƯỜI đã trả ít nhất một lần. Nạp ví ba lần vẫn là một người.",
+    },
+    {
+      nhan: "Đánh giá Reader",
+      tong: nf(t.danhGiaReader),
+      that: nf(t.danhGiaReaderThat),
+      giaiThich: "Sao khách chấm cho Reader sau buổi xem.",
+    },
+    {
+      nhan: "Góp ý sản phẩm",
+      tong: nf(t.gopYKhaoSat),
+      that: nf(t.gopYKhaoSatThat),
+      giaiThich: "Phiếu góp ý về hệ thống — việc khác với đánh giá Reader.",
+    },
+  ];
+
+  return (
+    <section className="glass rounded-2xl border border-gold/25 p-5">
+      <h2 className="font-display text-lg">Số liệu chính</h2>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Mỗi ô ghi rõ nó đếm cái gì. Số lớn là tổng, gồm cả dữ liệu gieo sẵn
+        để demo; dòng nhỏ tách riêng phần không phải seed, để lúc cần thì có
+        sẵn.
+      </p>
+      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        {o.map((it) => (
+          <div
+            key={it.nhan}
+            className="rounded-xl border border-gold/15 bg-mystic/5 px-3 py-3"
+          >
+            <div className="text-xs text-muted-foreground">{it.nhan}</div>
+            <div className="mt-1 font-display text-2xl leading-none text-gold">
+              {it.tong}
+            </div>
+            <div className="mt-1 text-[11px] text-muted-foreground/70">
+              Không tính seed: {it.that}
+            </div>
+            <p className="mt-2 text-[11px] leading-snug text-muted-foreground/80">
+              {it.giaiThich}
+            </p>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 
