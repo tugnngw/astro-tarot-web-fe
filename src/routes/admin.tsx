@@ -26,7 +26,6 @@ import { RoleBadge } from "@/components/RoleBadge";
 import { BlogReviewQueue } from "@/features/blog/components/BlogReviewQueue";
 import { AIPlanManager } from "@/features/admin/components/AIPlanManager";
 import { AdminFeedbackManager } from "@/features/admin/components/AdminFeedbackManager";
-import { SystemCapabilitiesDashboard } from "@/features/admin/components/SystemCapabilitiesDashboard";
 import { AdminAnalyticsDashboard } from "@/features/admin/components/AdminAnalyticsDashboard";
 
 export const Route = createFileRoute("/admin")({
@@ -53,11 +52,6 @@ function AdminWorkspace() {
           key: "overview",
           label: "Tổng quan",
           render: () => <AdminOverview />,
-        },
-        {
-          key: "capabilities",
-          label: "Năng lực hệ thống (Outcome 3)",
-          render: () => <SystemCapabilitiesDashboard />,
         },
         {
           key: "feedback",
