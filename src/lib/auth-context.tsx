@@ -9,6 +9,7 @@ import {
 } from "react";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
+import { trackCta } from "@/lib/track";
 import * as authApi from "@/api/auth";
 import { ApiError, ensureAccessToken, PHIEN_HET_HAN, tokenStore } from "@/api/client";
 import { getProfile } from "@/api/profile";
@@ -242,11 +243,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    * không cấp token. Trả kết quả về để giao diện hiện màn "kiểm tra hộp thư".
    */
   const register: AuthCtx["register"] = async (data) => {
-    return authApi.register({
+    const ketQua = await authApi.register({
       email: data.email.trim(),
       full_name: data.full_name,
       password: data.password,
     });
+    // Mốc quan trọng nhất của phễu: từ người xem thành người có tài khoản.
+    // Ghi SAU khi BE nhận, để không đếm những lần gõ sai mật khẩu.
+    trackCta("dang_ky_tai_khoan");
+    return ketQua;
   };
 
   // ============================================================

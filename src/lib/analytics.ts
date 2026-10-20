@@ -142,3 +142,31 @@ export function trackPageView(
     send_to: measurementId,
   });
 }
+
+/**
+ * Ghi một HÀNH ĐỘNG lên GA4, không phải một lần đổi trang.
+ *
+ * <p>Vì sao cần: trước đây mã này chỉ gửi `page_view`. Nghĩa là trong GA4 chỉ
+ * thấy được "người từ Facebook đã mở /tarot rồi mở /readers" — mở trang nào.
+ * Không thấy được họ CÓ LÀM GÌ không: mở /tarot rồi đóng, với mở /tarot rồi
+ * trải bài và nhắn mười câu, trông y hệt nhau.
+ *
+ * <p>GA4 tự gắn mọi sự kiện trong một phiên vào nguồn của phiên ấy, nên chỉ
+ * cần bắn sự kiện đúng chỗ là bảng "nguồn → hành động" tự có. Không phải
+ * đính kèm `utm_source` vào từng lần gọi.
+ *
+ * <p>Tên sự kiện viết thường, không dấu, nối bằng gạch dưới — GA4 phân biệt
+ * hoa thường và cắt tên dài quá 40 ký tự.
+ */
+export function trackEvent(
+  eventName: string,
+  params?: Record<string, string | number | boolean | undefined>,
+  measurementId: string = GA_MEASUREMENT_ID,
+): void {
+  if (typeof window === "undefined" || !window.gtag || !eventName) return;
+
+  window.gtag("event", eventName, {
+    ...(params ?? {}),
+    send_to: measurementId,
+  });
+}

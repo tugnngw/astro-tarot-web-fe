@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
   duongDanTuRouter,
+  trackEvent,
   GA_MEASUREMENT_ID,
   initGA,
   sanitizePath,
@@ -127,6 +128,53 @@ describe("GA4", () => {
 
     it("đường dẫn hỏng thì cắt query chứ không ném lỗi", () => {
       expect(sanitizePath("")).toBe("/");
+    });
+  });
+
+  describe("sự kiện hành động", () => {
+    /**
+     * Vì sao cần: trước đây chỉ gửi `page_view`, nên trong GA4 thấy được
+     * "người từ Facebook đã mở /tarot" nhưng không thấy họ CÓ LÀM GÌ không.
+     * Mở rồi đóng với mở rồi trải bài trông y hệt nhau.
+     */
+    function gaGia() {
+      const goi: unknown[][] = [];
+      window.gtag = (...args: unknown[]) => {
+        goi.push(args);
+      };
+      return goi;
+    }
+
+    it("gửi đúng tên sự kiện kèm tham số", () => {
+      const goi = gaGia();
+      trackEvent("rut_bai_tarot", { so_la: 3 });
+
+      expect(goi).toHaveLength(1);
+      expect(goi[0][0]).toBe("event");
+      expect(goi[0][1]).toBe("rut_bai_tarot");
+      expect(goi[0][2]).toMatchObject({ so_la: 3, send_to: GA_MEASUREMENT_ID });
+    });
+
+    it("không kèm utm_* — GA4 tự gắn sự kiện vào nguồn của phiên", () => {
+      // Tự thêm utm_source vào từng sự kiện là tạo một chiều TRÙNG với nguồn
+      // phiên mà GA4 đã có, và hai thứ ấy lệch nhau ngay khi khách quay lại
+      // qua một kênh khác.
+      const goi = gaGia();
+      trackEvent("bat_dau_chat_ai");
+
+      expect(Object.keys(goi[0][2] as object)).toEqual(["send_to"]);
+    });
+
+    it("chưa có gtag thì im lặng, không ném lỗi", () => {
+      // Người bấm nút trong khoảnh khắc trước khi gtag.js tải xong vẫn phải
+      // dùng được — theo dõi hỏng không được kéo theo tính năng.
+      expect(() => trackEvent("dang_ky_tai_khoan")).not.toThrow();
+    });
+
+    it("tên rỗng thì không gửi gì", () => {
+      const goi = gaGia();
+      trackEvent("");
+      expect(goi).toHaveLength(0);
     });
   });
 });

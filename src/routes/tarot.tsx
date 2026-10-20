@@ -37,6 +37,7 @@ import {
 } from "@/lib/utils";
 import { tokenStore } from "@/api/client";
 import { coDuLaSo } from "@/lib/la-so";
+import { trackCta } from "@/lib/track";
 import { searchPlaces } from "@/lib/geocode";
 import { QuotaDisplay } from "@/components/subscription";
 import { TarotChatPanel } from "@/features/tarot/components/TarotChatPanel";
@@ -988,6 +989,11 @@ function TarotPage() {
         }
       }
 
+      // Mở được màn chat là đã qua đăng nhập và qua màn thông tin — mốc
+      // đáng đếm. `co_la_so` cho biết bao nhiêu người vẫn chịu khai ngày sinh
+      // khi nó không còn bắt buộc.
+      trackCta("bat_dau_chat_ai", { co_la_so: coLaSo });
+
       const sid = activeSessionId ?? generateUUID();
       const loiMoiLaSo = coLaSo
         ? ""
@@ -1112,6 +1118,10 @@ function TarotPage() {
 
       console.log("✅ Reading result:", result);
       console.log("✅ Reading ID:", result.readingId);
+
+      // Ghi sau khi máy chủ trả bài: đếm lượt rút THÀNH CÔNG, không đếm
+      // những lần hết hạn mức hay mạng rớt giữa chừng.
+      trackCta("rut_bai_tarot");
 
       setReadingResult(result);
       setReadingId(result.readingId);

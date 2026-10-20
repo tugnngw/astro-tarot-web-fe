@@ -1,4 +1,5 @@
 import { trackMarketingEvent } from "@/api/marketing";
+import { trackEvent } from "@/lib/analytics";
 import { readStoredUtm } from "@/lib/utm";
 
 /**
@@ -11,6 +12,20 @@ import { readStoredUtm } from "@/lib/utm";
  * bảng điều khiển và một script bên thứ ba tải vô ích. Bật nó lên thì cũng chỉ
  * là chép lại thứ BE đã lưu.
  *
+ * <p>Đồng thời bắn lên GA4. Một lần gọi, hai nơi nhận, vì hai nơi trả lời hai
+ * câu hỏi khác nhau và đều cần:
+ *
+ * <ul>
+ *   <li>bảng của mình — hiện ngay, nối được với `user_id` nên đếm được NGƯỜI,
+ *       và không bị trình chặn quảng cáo cắt;</li>
+ *   <li>GA4 — có sẵn phễu, so sánh kênh, giữ lịch sử dài; đổi lại báo cáo
+ *       thường trễ 24–48 giờ.</li>
+ * </ul>
+ *
+ * <p>Giữ đúng MỘT chỗ gọi là để hai bên không lệch nhau. Bắn tay ở từng nơi
+ * thì sớm muộn cũng có nút chỉ ghi vào một bên, và lúc hai bảng ra số khác
+ * nhau thì không ai biết bên nào đúng.
+ *
  * <p>Lỗi mạng không làm hỏng UX — fire-and-forget.
  */
 export function trackCta(
@@ -18,6 +33,10 @@ export function trackCta(
   extra?: Record<string, string | number | boolean | null | undefined>,
 ) {
   const utm = readStoredUtm();
+
+  // GA4 tự gắn sự kiện vào nguồn của phiên, nên không gửi kèm utm_* ở đây.
+  trackEvent(eventName, extra as Record<string, string | number | boolean>);
+
   void trackMarketingEvent({
     eventName,
     path: typeof window !== "undefined" ? window.location.pathname : null,
