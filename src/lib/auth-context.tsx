@@ -21,6 +21,7 @@ import {
   type Role,
 } from "@/lib/roles";
 import type { User } from "@/api/types";
+import type { PhanHoiDoiMa } from "@/api/dang-nhap-google";
 
 // Re-export để những chỗ cũ `import type { Role } from "@/lib/auth-context"`
 // vẫn chạy; định nghĩa thật nằm ở @/lib/roles.
@@ -46,6 +47,8 @@ export interface AuthUser {
 interface AuthCtx {
   user: AuthUser | null;
   login: (email: string, password: string) => Promise<void>;
+  /** Hoàn tất đăng nhập Google sau khi đã đổi mã lấy token. */
+  dangNhapXongBangGoogle: (res: PhanHoiDoiMa) => void;
   /** Trả về email đã gửi mail xác minh; KHÔNG đăng nhập luôn. */
   register: (data: {
     email: string;
@@ -203,6 +206,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [pathname, bootstrapping, dangCoTen]);
 
+  /**
+   * Nhận kết quả đổi mã của luồng Google và đưa phiên vào trạng thái đã
+   * đăng nhập.
+   *
+   * <p>Tách khỏi `login` vì hai luồng khác nhau ở chỗ quan trọng: ở đây
+   * KHÔNG điều hướng. Người dùng vừa đi một vòng qua Google rồi quay về
+   * `/oauth-success`, và chính trang ấy quyết định đưa họ đi đâu tiếp. Gọi
+   * `navigate` thêm lần nữa ở đây là hai lần chuyển trang chồng nhau.
+   *
+   * <p>Phản hồi phẳng, không bọc `user` — nên dựng AuthUser tại chỗ thay vì
+   * mượn `toAuthUser`.
+   */
+  const dangNhapXongBangGoogle: AuthCtx["dangNhapXongBangGoogle"] = (res) => {
+    tokenStore.set(res.accessToken, res.refreshToken);
+    persist({
+      id: res.userId,
+      name: res.fullName ?? res.username,
+      full_name: res.fullName ?? res.username,
+      username: res.username,
+      email: res.email ?? undefined,
+      avatar: res.avatar ?? undefined,
+      role: toAppRole(res.role),
+      permissions: (res.permissions ?? []) as Permission[],
+      // Phản hồi đổi mã không có ngày tham gia. Lần gọi /me ngay sau đó sẽ
+      // điền đúng; để rỗng ở đây hơn là bịa một ngày hôm nay rồi hiện nhầm
+      // trên trang hồ sơ.
+      joinedAt: "",
+    });
+    void queryClient.invalidateQueries();
+    setAuthPrompt({ open: false });
+  };
+
   // Gửi thẳng email xuống BE. Bản cũ cắt lấy phần trước dấu @ để làm username
   // — từ khi BE đăng nhập bằng email thì cách đó luôn sai.
   const login: AuthCtx["login"] = async (email, password) => {
@@ -312,6 +347,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         login,
+    dangNhapXongBangGoogle,
         register,
         logout,
         updateProfile,

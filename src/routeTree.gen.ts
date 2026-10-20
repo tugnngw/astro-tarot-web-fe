@@ -17,6 +17,7 @@ import { Route as ChinhSachRiengTuRouteImport } from './routes/chinh-sach-rieng-
 import { Route as GhiCongRouteImport } from './routes/ghi-cong'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as ManagerRouteImport } from './routes/manager'
+import { Route as OauthSuccessRouteImport } from './routes/oauth-success'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ReaderRouteImport } from './routes/reader'
 import { Route as ReaderHubRouteImport } from './routes/reader-hub'
@@ -74,6 +75,11 @@ const HomeRoute = HomeRouteImport.update({
 const ManagerRoute = ManagerRouteImport.update({
   id: '/manager',
   path: '/manager',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OauthSuccessRoute = OauthSuccessRouteImport.update({
+  id: '/oauth-success',
+  path: '/oauth-success',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -176,6 +182,7 @@ export interface FileRoutesByFullPath {
   '/ghi-cong': typeof GhiCongRoute
   '/home': typeof HomeRoute
   '/manager': typeof ManagerRoute
+  '/oauth-success': typeof OauthSuccessRoute
   '/profile': typeof ProfileRoute
   '/reader': typeof ReaderRoute
   '/reader-hub': typeof ReaderHubRoute
@@ -204,6 +211,7 @@ export interface FileRoutesByTo {
   '/ghi-cong': typeof GhiCongRoute
   '/home': typeof HomeRoute
   '/manager': typeof ManagerRoute
+  '/oauth-success': typeof OauthSuccessRoute
   '/profile': typeof ProfileRoute
   '/reader': typeof ReaderRoute
   '/reader-hub': typeof ReaderHubRoute
@@ -233,6 +241,7 @@ export interface FileRoutesById {
   '/ghi-cong': typeof GhiCongRoute
   '/home': typeof HomeRoute
   '/manager': typeof ManagerRoute
+  '/oauth-success': typeof OauthSuccessRoute
   '/profile': typeof ProfileRoute
   '/reader': typeof ReaderRoute
   '/reader-hub': typeof ReaderHubRoute
@@ -263,6 +272,7 @@ export interface FileRouteTypes {
     | '/ghi-cong'
     | '/home'
     | '/manager'
+    | '/oauth-success'
     | '/profile'
     | '/reader'
     | '/reader-hub'
@@ -291,6 +301,7 @@ export interface FileRouteTypes {
     | '/ghi-cong'
     | '/home'
     | '/manager'
+    | '/oauth-success'
     | '/profile'
     | '/reader'
     | '/reader-hub'
@@ -319,6 +330,7 @@ export interface FileRouteTypes {
     | '/ghi-cong'
     | '/home'
     | '/manager'
+    | '/oauth-success'
     | '/profile'
     | '/reader'
     | '/reader-hub'
@@ -348,6 +360,7 @@ export interface RootRouteChildren {
   GhiCongRoute: typeof GhiCongRoute
   HomeRoute: typeof HomeRoute
   ManagerRoute: typeof ManagerRoute
+  OauthSuccessRoute: typeof OauthSuccessRoute
   ProfileRoute: typeof ProfileRoute
   ReaderRoute: typeof ReaderRoute
   ReaderHubRoute: typeof ReaderHubRoute
@@ -424,6 +437,13 @@ declare module '@tanstack/react-router' {
       path: '/manager'
       fullPath: '/manager'
       preLoaderRoute: typeof ManagerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/oauth-success': {
+      id: '/oauth-success'
+      path: '/oauth-success'
+      fullPath: '/oauth-success'
+      preLoaderRoute: typeof OauthSuccessRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -564,6 +584,7 @@ const rootRouteChildren: RootRouteChildren = {
   GhiCongRoute: GhiCongRoute,
   HomeRoute: HomeRoute,
   ManagerRoute: ManagerRoute,
+  OauthSuccessRoute: OauthSuccessRoute,
   ProfileRoute: ProfileRoute,
   ReaderRoute: ReaderRoute,
   ReaderHubRoute: ReaderHubRoute,

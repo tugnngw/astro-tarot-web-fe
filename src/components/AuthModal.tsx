@@ -1,4 +1,5 @@
 // src/components/AuthModal.tsx
+import { dangNhapBangGoogle } from "@/api/dang-nhap-google";
 import { useId, useState } from "react";
 import {
   X,
@@ -264,6 +265,8 @@ function LoginForm({
         <SubmitButton loading={loading}>Đăng nhập</SubmitButton>
       </form>
 
+      <NutGoogle />
+
       <p className="mt-4 text-center text-sm text-muted-foreground">
         Chưa có tài khoản?{" "}
         <button
@@ -274,6 +277,54 @@ function LoginForm({
           Đăng ký ngay
         </button>
       </p>
+    </>
+  );
+}
+
+/**
+ * Nút đăng nhập bằng Google.
+ *
+ * <p>Là một lần điều hướng thật của trình duyệt, không phải `fetch`: Google
+ * chặn hiện màn đăng nhập trong khung nhúng hay qua XHR, và luồng còn cần
+ * trình duyệt nhận cookie do máy chủ mình đặt để nhớ yêu cầu uỷ quyền.
+ *
+ * <p>Không có trạng thái "đang tải": bấm xong là rời khỏi trang ngay, nên
+ * một vòng xoay chỉ nháy lên rồi biến mất cùng cả trang.
+ */
+function NutGoogle() {
+  return (
+    <>
+      <div className="my-4 flex items-center gap-3">
+        <span className="h-px flex-1 bg-border" />
+        <span className="text-xs text-muted-foreground">hoặc</span>
+        <span className="h-px flex-1 bg-border" />
+      </div>
+
+      <button
+        type="button"
+        onClick={dangNhapBangGoogle}
+        className="flex w-full items-center justify-center gap-2.5 rounded-full border border-border bg-card/60 py-2.5 text-sm font-medium transition hover:border-gold/50"
+      >
+        <svg className="h-4 w-4" viewBox="0 0 48 48" aria-hidden="true">
+          <path
+            fill="#4285F4"
+            d="M45.1 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h11.8c-.5 2.7-2 5-4.3 6.6v5.5h7c4.1-3.8 6.6-9.4 6.6-16.1z"
+          />
+          <path
+            fill="#34A853"
+            d="M24 46c5.8 0 10.7-1.9 14.2-5.2l-7-5.5c-1.9 1.3-4.4 2.1-7.2 2.1-5.6 0-10.3-3.8-12-8.8h-7.2v5.7C8.3 41.4 15.6 46 24 46z"
+          />
+          <path
+            fill="#FBBC05"
+            d="M12 28.6c-.4-1.3-.7-2.7-.7-4.1s.2-2.8.7-4.1v-5.7H4.8C3.3 17.7 2.5 20.7 2.5 24s.8 6.3 2.3 9.3l7.2-4.7z"
+          />
+          <path
+            fill="#EA4335"
+            d="M24 10.5c3.2 0 6 1.1 8.2 3.2l6.2-6.2C34.7 4 29.8 2 24 2 15.6 2 8.3 6.6 4.8 14.7l7.2 5.7c1.7-5 6.4-8.8 12-8.9z"
+          />
+        </svg>
+        Tiếp tục với Google
+      </button>
     </>
   );
 }
