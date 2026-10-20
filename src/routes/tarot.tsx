@@ -36,6 +36,7 @@ import {
   getUserTimezone,
 } from "@/lib/utils";
 import { tokenStore } from "@/api/client";
+import { coDuLaSo } from "@/lib/la-so";
 import { searchPlaces } from "@/lib/geocode";
 import { QuotaDisplay } from "@/components/subscription";
 import { TarotChatPanel } from "@/features/tarot/components/TarotChatPanel";
@@ -767,16 +768,23 @@ function TarotPage() {
   // ============================================================
   // KIỂM TRA VALIDATION
   // ============================================================
+  /**
+   * Chỉ kiểm ĐỊNH DẠNG của những ô đã điền, không đòi phải điền.
+   *
+   * Trước đây ô trống cũng là lỗi, nên muốn nhắn một câu cho AI thì phải khai
+   * ngày sinh, giờ sinh, nơi sinh trước. Lá số chỉ làm câu trả lời sát hơn,
+   * chứ không phải điều kiện để trò chuyện: máy chủ nói rõ điều đó —
+   * `AstrologyContextServiceImpl` trả `Optional.empty()` khi chưa có lá số và
+   * "reading continues without context". Cổng ấy chỉ tồn tại ở giao diện web;
+   * app Flutter chưa bao giờ có, và chat trong app vẫn chạy.
+   */
   const validateAll = (): boolean => {
     let hasError = false;
     const newDateErrors: { [key: string]: string } = {};
     const newTimeErrors: { [key: string]: string } = {};
 
     people.forEach((p, i) => {
-      if (!p.dob) {
-        newDateErrors[i] = "Vui lòng nhập ngày sinh";
-        hasError = true;
-      } else {
+      if (p.dob) {
         const dateResult = formatAndValidateDate(p.dob);
         if (!dateResult.isValid) {
           newDateErrors[i] = dateResult.error || "Ngày sinh không hợp lệ";
@@ -934,58 +942,60 @@ function TarotPage() {
     }
 
     if (!validateAll()) {
-      toast.error("Vui lòng kiểm tra lại thông tin ngày sinh và giờ sinh");
+      toast.error("Ngày sinh hoặc giờ sinh chưa đúng định dạng");
       return;
     }
 
-    for (const p of people) {
-      if (!p.name.trim()) {
-        toast.error("Vui lòng nhập họ tên cho tất cả mọi người.");
-        return;
-      }
-    }
-
     setLoading(true);
-    setSavingProfile(true);
 
     try {
       const primaryPerson = people[0];
 
       const birthDateISO = convertToISODate(primaryPerson.dob);
       const birthTimeISO = convertToISOTime(primaryPerson.birthTime);
+      const coLaSo = coDuLaSo(birthDateISO);
 
-      if (!birthDateISO || !/^\d{4}-\d{2}-\d{2}$/.test(birthDateISO)) {
-        toast.error("Ngày sinh không hợp lệ. Vui lòng nhập DD-MM-YYYY");
-        setLoading(false);
-        setSavingProfile(false);
-        return;
+      // Lưu lá số là việc PHỤ, làm được thì tốt. Hỏng ở đây — mạng rớt, máy
+      // chủ ngủ dậy chậm, trùng profile — thì trước kia rơi hết vào `catch`
+      // phía dưới và người dùng không vào được chat, dù chat vốn chẳng cần
+      // tới lá số. Nên bọc riêng và chỉ nhắc nhẹ.
+      if (coLaSo) {
+        setSavingProfile(true);
+        try {
+          await createAstrologyProfile({
+            title: `Profile của ${primaryPerson.name || "bạn"}`,
+            targetName: primaryPerson.name || "Bạn",
+            birthDate: birthDateISO!,
+            birthTime: birthTimeISO || "12:00:00",
+            birthPlace: primaryPerson.birthPlace || "Chưa xác định",
+            latitude: primaryPerson.lat || 0,
+            longitude: primaryPerson.lng || 0,
+            // `altitude` và `timezoneOffset` từng được gửi kèm ở đây. Máy chủ
+            // không có hai trường ấy trong DTO nào cả, Jackson bỏ qua lặng
+            // lẽ, nên bỏ đi không đổi gì — chỉ hết đánh lừa người đọc.
+            timezone: primaryPerson.timezone || "Asia/Ho_Chi_Minh",
+            profileType: "SELF" as const,
+            isPrimary: true,
+          });
+          toast.success("📊 Đã lưu thông tin chiêm tinh!");
+        } catch (loi: any) {
+          console.error("Không lưu được lá số:", loi);
+          toast.warning(
+            "Chưa lưu được lá số, nhưng cậu vẫn trò chuyện được bình thường.",
+          );
+        } finally {
+          setSavingProfile(false);
+        }
       }
 
-      const profileData = {
-        title: `Profile của ${primaryPerson.name}`,
-        targetName: primaryPerson.name,
-        birthDate: birthDateISO,
-        birthTime: birthTimeISO || "12:00:00",
-        birthPlace: primaryPerson.birthPlace || "Chưa xác định",
-        latitude: primaryPerson.lat || 0,
-        longitude: primaryPerson.lng || 0,
-        altitude: primaryPerson.altitude || 0,
-        timezone: primaryPerson.timezone || "Asia/Ho_Chi_Minh",
-        timezoneOffset: primaryPerson.timezoneOffset ?? 7,
-        profileType: "SELF" as const,
-        isPrimary: true,
-      };
-
-      console.log("📤 Sending profile data:", profileData);
-
-      await createAstrologyProfile(profileData);
-      toast.success("📊 Đã lưu thông tin chiêm tinh!");
-
       const sid = activeSessionId ?? generateUUID();
+      const loiMoiLaSo = coLaSo
+        ? ""
+        : `\n\nÀ, mình chưa biết ngày sinh của cậu nên những gì mình nói sẽ là chung chung thôi. Lúc nào cậu muốn mình luận theo bản đồ sao riêng của cậu thì bấm "Phiên mới" rồi điền ngày sinh giúp mình nhé — không bắt buộc đâu.`;
       const welcome: ChatMessage = {
         id: generateUUID(),
         role: "ai",
-        content: `Chào cậu, hôm nay mọi việc có suôn sẻ không, và trong lòng cậu có đang bình yên không? Mình biết đôi khi cuộc sống có nhiều áp lực và những điều không như ý khiến cậu mệt nhọc. Nếu lúc nào đó cậu cảm thấy chông chênh hay có điều gì muốn tâm sự, đừng ngần ngại nhắn cho mình nhé. Mình không hứa sẽ giải quyết được mọi vấn đề, nhưng mình hứa sẽ luôn ở đây, lắng nghe cậu bằng cả trái tim để cậu không bao giờ phải chịu đựng mọi thứ một mình.`,
+        content: `Chào cậu, hôm nay mọi việc có suôn sẻ không, và trong lòng cậu có đang bình yên không? Mình biết đôi khi cuộc sống có nhiều áp lực và những điều không như ý khiến cậu mệt nhọc. Nếu lúc nào đó cậu cảm thấy chông chênh hay có điều gì muốn tâm sự, đừng ngần ngại nhắn cho mình nhé. Mình không hứa sẽ giải quyết được mọi vấn đề, nhưng mình hứa sẽ luôn ở đây, lắng nghe cậu bằng cả trái tim để cậu không bao giờ phải chịu đựng mọi thứ một mình.${loiMoiLaSo}`,
         ts: Date.now(),
       };
       const session = sessionPayload(
@@ -1376,8 +1386,15 @@ function TarotPage() {
 
         {stage === "info" && (
           <div className="glass rounded-2xl p-6 max-w-3xl mx-auto">
-            <div className="mb-5 flex items-center gap-2 rounded-lg border border-border bg-card/40 px-4 py-2 text-xs text-muted-foreground">
-              🔐 Ngày sinh được mã hoá end-to-end.
+            <div className="mb-5 rounded-lg border border-border bg-card/40 px-4 py-2.5 text-xs text-muted-foreground">
+              <p>
+                Muốn nhắn vài câu trước thì bấm luôn nút dưới — không cần điền
+                gì cả.
+              </p>
+              <p className="mt-1">
+                🔐 Điền ngày sinh thì AI luận theo bản đồ sao riêng của bạn.
+                Thông tin được mã hoá end-to-end.
+              </p>
             </div>
 
             <div className="mb-4">
@@ -1415,7 +1432,7 @@ function TarotPage() {
                   </div>
                   <div className="grid gap-3">
                     <Field
-                      label="Họ tên"
+                      label="Họ tên (không bắt buộc)"
                       value={p.name}
                       onChange={(v) => updatePerson(i, { name: v })}
                       placeholder="Nguyễn Văn A"
@@ -1423,7 +1440,10 @@ function TarotPage() {
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="mb-1 block text-xs uppercase tracking-wider text-muted-foreground">
-                          Ngày sinh
+                          Ngày sinh{" "}
+                          <span className="normal-case tracking-normal text-muted-foreground/60">
+                            (không bắt buộc)
+                          </span>
                         </label>
                         <input
                           value={p.dob}
