@@ -52,3 +52,31 @@ export function getGA4Report(startDate = "30daysAgo", endDate = "today") {
     `/api/v1/admin/analytics/report?${params.toString()}`
   );
 }
+
+/** Một hàng "tên → số" của bảng đang-online. */
+export interface DongSo {
+  ten: string;
+  so: number;
+}
+
+/**
+ * Ai đang ở trên web NGAY BÂY GIỜ.
+ *
+ * Cột "đến từ đâu" KHÔNG có ở đây, và đó không phải thiếu sót: Realtime API
+ * của GA4 chỉ nhận một tập chiều rất hẹp và không có `sessionSource`. Google
+ * biết đang có 3 người ở TP.HCM xem trang Tarot, nhưng không nói được họ đến
+ * từ Facebook hay tự gõ địa chỉ. Phần nguồn lấy từ bảng của mình.
+ */
+export interface DangOnline {
+  /** -1 = không hỏi được; 0 = hỏi được và đúng là không có ai. */
+  soNguoiDangOnline: number;
+  theoNoi: DongSo[];
+  theoTrang: DongSo[];
+  theoHanhDong: DongSo[];
+  theoThietBi: DongSo[];
+  thongDiep: string | null;
+}
+
+export function getDangOnline() {
+  return apiFetch<DangOnline>("/api/v1/admin/analytics/dang-online");
+}

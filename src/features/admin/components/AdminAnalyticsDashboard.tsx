@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getHanhTrinhTheoNguon } from "@/api/marketing";
+import { DangOnlineNgayBayGio } from "./DangOnlineNgayBayGio";
 import {
   Users,
   UserPlus,
@@ -499,6 +500,8 @@ export function AdminAnalyticsDashboard() {
           </table>
         </div>
       </section>
+
+      <DangOnlineNgayBayGio />
 
       <BangNguonVaHoatDong />
 
