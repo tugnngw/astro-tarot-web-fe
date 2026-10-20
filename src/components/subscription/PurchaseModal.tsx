@@ -1,3 +1,4 @@
+import { getGiaGoi } from "@/api/khuyen-mai";
 import { useState, useCallback, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth-context";
@@ -57,7 +58,16 @@ export function PurchaseModal({
   const [error, setError] = useState<string | null>(null);
 
   const walletBalance = wallet?.balance ?? 0;
-  const planPrice = selectedPlan?.price ?? 0;
+  // Giá SAU khuyến mãi — cùng con số máy chủ sẽ trừ. Dùng giá niêm yết ở
+  // đây thì ô "không đủ số dư" báo nhầm, và khách đi nạp thêm tiền trong khi
+  // ví đã đủ trả.
+  const { data: giaGoi } = useQuery({
+    queryKey: ["khuyen-mai", "gia-goi"],
+    queryFn: getGiaGoi,
+    staleTime: 60_000,
+  });
+  const giam = selectedPlan ? giaGoi?.[selectedPlan.id] : undefined;
+  const planPrice = giam ? giam.giaCuoi : (selectedPlan?.price ?? 0);
   const isWalletPayment = purchaseType === "WALLET";
   const isInsufficient = isWalletPayment && planPrice > 0 && walletBalance < planPrice;
   const shortageAmount = Math.max(0, planPrice - walletBalance);

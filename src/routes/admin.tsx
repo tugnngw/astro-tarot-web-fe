@@ -6,6 +6,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { RoleGuard } from "@/components/RoleGuard";
 import { WorkspaceShell } from "@/components/WorkspaceShell";
+import { AdminKhuyenMai } from "@/features/admin/components/AdminKhuyenMai";
 import { AdminOverview } from "@/features/admin/components/AdminOverview";
 import { UserDirectory } from "@/features/admin/components/UserDirectory";
 import { ReaderApplications } from "@/features/admin/components/ReaderApplications";
@@ -52,6 +53,11 @@ function AdminWorkspace() {
           key: "overview",
           label: "Tổng quan",
           render: () => <AdminOverview />,
+        },
+        {
+          key: "khuyen-mai",
+          label: "Khuyến mãi",
+          render: () => <AdminKhuyenMai />,
         },
         {
           key: "feedback",
