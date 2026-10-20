@@ -23,6 +23,7 @@ import { StarrySky } from "@/components/StarrySky";
 import { AuthModal } from "@/components/AuthModal";
 import { BecomeReaderModal } from "@/components/BecomeReaderModal";
 import { BackendWarmBanner } from "@/components/BackendWarmBanner";
+import { LoiChucDipLe } from "@/features/khuyenmai/LoiChucDipLe";
 import { FeedbackPrompt } from "@/components/FeedbackPrompt";
 import { ChatDock } from "@/features/booking/components/ChatDock";
 import { GocNoi } from "@/components/GocNoi";
@@ -217,6 +218,9 @@ function CustomerWidgets() {
   if (user?.role === "admin") return null;
   return (
     <>
+      {/* Lời chúc dịp lễ — máy chủ giữ sổ "đã chúc", nên hiện đúng một lần
+          cho mỗi tài khoản, không phụ thuộc trình duyệt hay thiết bị. */}
+      <LoiChucDipLe />
       <div className="fixed bottom-5 left-5 z-40">
         <FeedbackPrompt defaultSource={nguonGopY(pathname)} />
       </div>

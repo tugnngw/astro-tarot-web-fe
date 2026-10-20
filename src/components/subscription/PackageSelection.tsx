@@ -1,3 +1,4 @@
+import { getGiaGoi } from "@/api/khuyen-mai";
 import { useQuery } from "@tanstack/react-query";
 import { subscriptionApi } from "@/api/subscription";
 import type { SubscriptionPlan } from "@/api/subscription";
@@ -48,6 +49,18 @@ export function PlanCard({
   const isFree = plan.planType === "FREE";
   const disabled = isCurrent || upgradeOnlyBlocked || !plan.isActive || isFree;
 
+  // Giá sau khuyến mãi do MÁY CHỦ tính. Nhân phần trăm ở đây là bản cài đặt
+  // thứ hai của cùng một phép tính, và chỉ cần quên cái trần giảm là thẻ gói
+  // hiện một giá còn ví trừ một giá khác.
+  const { data: giaGoi } = useQuery({
+    queryKey: ["khuyen-mai", "gia-goi"],
+    queryFn: getGiaGoi,
+    staleTime: 60_000,
+  });
+  const giam = giaGoi?.[plan.id];
+  const coGiam = Boolean(giam && giam.tienGiam > 0);
+  const giaPhaiTra = coGiam ? giam!.giaCuoi : plan.price;
+
   let cta: string;
   if (isCurrent) {
     cta = "Đang sử dụng";
@@ -56,9 +69,9 @@ export function PlanCard({
   } else if (upgradeOnlyBlocked) {
     cta = "Chỉ nâng cấp";
   } else if (isUpgrade) {
-    cta = `Nâng cấp — ${formatVND(plan.price)}`;
+    cta = `Nâng cấp — ${formatVND(giaPhaiTra)}`;
   } else {
-    cta = `Đăng ký gói — ${formatVND(plan.price)}`;
+    cta = `Đăng ký gói — ${formatVND(giaPhaiTra)}`;
   }
 
   return (
@@ -97,14 +110,24 @@ export function PlanCard({
 
         <div className="mt-4 flex items-baseline gap-1">
           <span className="font-display text-2xl font-bold text-gradient-gold">
-            {formatVND(plan.price)}
+            {formatVND(giaPhaiTra)}
           </span>
+          {coGiam && (
+            <span className="text-sm text-muted-foreground line-through">
+              {formatVND(giam!.giaGoc)}
+            </span>
+          )}
           {!isFree && (
             <span className="text-xs text-muted-foreground">
               / {plan.planType === "MONTHLY" ? "tháng" : `${plan.durationDays} ngày`}
             </span>
           )}
         </div>
+        {coGiam && (
+          <p className="mt-1 text-xs text-emerald-300">
+            {giam!.tenDot} — bớt {formatVND(giam!.tienGiam)}
+          </p>
+        )}
 
         <div className="my-5 h-px bg-gold/10" />
 
