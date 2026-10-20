@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { getHanhTrinhTheoNguon } from "@/api/marketing";
 import {
   Users,
   UserPlus,
@@ -498,6 +500,8 @@ export function AdminAnalyticsDashboard() {
         </div>
       </section>
 
+      <BangNguonVaHoatDong />
+
       {/* Thông tin tích hợp & Tiêu chuẩn bảo vệ dữ liệu */}
       <section className="glass rounded-2xl p-5 border border-white/10">
         <div className="flex items-start gap-3">
@@ -514,6 +518,102 @@ export function AdminAnalyticsDashboard() {
         </div>
       </section>
     </div>
+  );
+}
+
+/**
+ * Khách đến từ đâu, rồi LÀM GÌ.
+ *
+ * Đây là chỗ trả lời câu hỏi mà bảng "Nguồn truy cập" của GA4 ở trên không
+ * trả lời được. Bảng kia nói Facebook mang về bao nhiêu phiên; bảng này nói
+ * những phiên ấy có trải bài, có đặt lịch, hay chỉ mở rồi đóng.
+ *
+ * Số liệu lấy từ bảng `marketing_events` của chính hệ thống chứ không gọi
+ * sang Google, vì ba lý do: hiện ngay (báo cáo thường của GA4 trễ 24–48
+ * giờ), không bị trình chặn quảng cáo cắt, và nối được với `user_id` nên
+ * đếm được NGƯỜI chứ không chỉ lượt.
+ *
+ * Cột "người" chỉ đếm được ai đã đăng nhập. Khách xem rồi đi không có
+ * `user_id`, nên con số ấy luôn nhỏ hơn số lượt — không phải lỗi.
+ */
+function BangNguonVaHoatDong() {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["marketing", "theo-nguon"],
+    queryFn: getHanhTrinhTheoNguon,
+  });
+
+  const hang = data ?? [];
+  // Mỗi nguồn làm những việc khác nhau, nên cột phải lấy hợp của tất cả.
+  const cotHoatDong = Array.from(
+    new Set(hang.flatMap((h) => Object.keys(h.theoHoatDong))),
+  );
+
+  return (
+    <section className="glass rounded-2xl border border-white/10 p-5">
+      <h3 className="font-medium">Khách đến từ đâu, rồi làm gì</h3>
+      <p className="mt-1 text-xs text-muted-foreground">
+        30 ngày gần nhất, lấy từ cơ sở dữ liệu của hệ thống nên hiện ngay —
+        không phải đợi 24–48 giờ như báo cáo của Google ở trên. Cột{" "}
+        <em>người</em> chỉ đếm tài khoản đã đăng nhập, nên luôn nhỏ hơn số
+        lượt.
+      </p>
+
+      {isLoading && (
+        <p className="mt-4 text-sm text-muted-foreground">Đang tải…</p>
+      )}
+      {isError && (
+        <p className="mt-4 text-sm text-rose-400">
+          Không đọc được số liệu. Thử tải lại trang.
+        </p>
+      )}
+      {!isLoading && !isError && hang.length === 0 && (
+        <p className="mt-4 text-sm text-muted-foreground">
+          Chưa có lượt nào trong 30 ngày. Bảng này chỉ có số khi khách bấm vào
+          những nút đã gắn theo dõi — đăng ký, bắt đầu chat, rút bài, đặt lịch,
+          gửi góp ý, sang Shopee.
+        </p>
+      )}
+
+      {hang.length > 0 && (
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full min-w-[640px] text-sm">
+            <thead>
+              <tr className="border-b border-white/10 text-left text-xs uppercase tracking-wider text-muted-foreground">
+                <th className="py-2 pr-4 font-medium">Nguồn</th>
+                <th className="py-2 pr-4 font-medium">Lượt</th>
+                <th className="py-2 pr-4 font-medium">Người</th>
+                {cotHoatDong.map((c) => (
+                  <th key={c} className="py-2 pr-4 font-medium">
+                    {c}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {hang.map((h) => (
+                <tr key={h.nguon} className="border-b border-white/5">
+                  <td className="py-2 pr-4 font-medium">{h.nguon}</td>
+                  <td className="py-2 pr-4">{nf(h.tongLuot)}</td>
+                  <td className="py-2 pr-4">{nf(h.soNguoiDangNhap)}</td>
+                  {cotHoatDong.map((c) => (
+                    <td
+                      key={c}
+                      className={
+                        h.theoHoatDong[c]
+                          ? "py-2 pr-4"
+                          : "py-2 pr-4 text-muted-foreground/40"
+                      }
+                    >
+                      {h.theoHoatDong[c] ? nf(h.theoHoatDong[c]) : "—"}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
   );
 }
 

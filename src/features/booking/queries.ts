@@ -10,6 +10,7 @@ import {
 } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import * as bookingApi from "@/api/booking";
+import { trackCta } from "@/lib/track";
 import * as notificationApi from "@/api/notifications";
 import { isRealtimeConnected, subscribeRealtimeStatus } from "@/lib/realtime";
 
@@ -161,7 +162,17 @@ function useBookingMutation<TArgs, TResult>(
 }
 
 export function useCreateBooking() {
-  return useBookingMutation(bookingApi.createBooking);
+  const goc = useBookingMutation(bookingApi.createBooking);
+  // Gắn ở tầng mutation chứ không ở nút bấm: màn đặt lịch và màn hồ sơ Reader
+  // cùng gọi hàm này, gắn vào nút thì sớm muộn cũng sót một lối.
+  return {
+    ...goc,
+    mutateAsync: (async (...thamSo) => {
+      const kq = await goc.mutateAsync(...thamSo);
+      trackCta("dat_lich_reader");
+      return kq;
+    }) as typeof goc.mutateAsync,
+  };
 }
 
 export function useConfirmBooking() {

@@ -11,6 +11,7 @@ import {
 } from "@/api/feedback";
 import { useAuth } from "@/lib/auth-context";
 import { readStoredUtm } from "@/lib/utm";
+import { trackCta } from "@/lib/track";
 import {
   DISMISS_KEY,
   RATING_LABELS,
@@ -110,6 +111,8 @@ export function FeedbackPrompt({
         utmMedium: utm.utmMedium,
         utmCampaign: utm.utmCampaign,
       });
+
+      trackCta("gui_gop_y", { nguon_gop_y: defaultSource, sao: rating ?? 0 });
 
       toast.success(
         alreadySubmitted
