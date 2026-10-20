@@ -430,11 +430,14 @@ export function AdminOverview() {
 /**
  * Doanh thu, giao dịch, người trả phí, đánh giá.
  *
- * Mỗi ô hiện số THẬT trước, tổng để sau. Lý do: cơ sở dữ liệu đang chứa lẫn
- * hàng trăm hàng gieo sẵn để demo, nên một con số gộp không dùng được vào
- * việc gì — không phải tiền thật để báo cáo, cũng không phải tổng để kiểm
- * thử. Máy chủ tách hai phần theo khuôn khoá chính của dữ liệu seed, xem
- * `DuLieuThat` bên backend.
+ * Mỗi ô nói rõ nó ĐẾM CÁI GÌ — đó mới là chỗ hay gây hiểu nhầm, chứ không
+ * phải con số. "Giao dịch" với "người trả phí" nghe như nhau mà lệch nhau vài
+ * lần, vì một người nạp ví ba lần vẫn là một người.
+ *
+ * Số lớn là tổng, gồm cả dữ liệu gieo sẵn để demo. Dòng nhỏ bên dưới tách
+ * riêng phần không phải seed, để lúc nào cần biết thì có sẵn — không bắt phải
+ * dùng số nào. Máy chủ tách hai phần theo khuôn khoá chính của dữ liệu seed,
+ * xem `DuLieuThat` bên backend.
  *
  * Hai ô cuối từng bị gộp làm một dưới chữ "Đánh giá". Sao khách chấm cho
  * Reader sau buổi xem, với phiếu góp ý về sản phẩm, là hai việc khác hẳn: một
@@ -449,33 +452,33 @@ function BonSoLieuChinh({
   const o = [
     {
       nhan: "Doanh thu",
-      that: vnd(t.doanhThuThat),
       tong: vnd(t.doanhThu),
+      that: vnd(t.doanhThuThat),
       giaiThich: "Tiền khách đã trả, chỉ tính giao dịch trạng thái SUCCESS.",
     },
     {
       nhan: "Số lượng giao dịch",
-      that: nf(t.soGiaoDichThat),
       tong: nf(t.soGiaoDich),
+      that: nf(t.soGiaoDichThat),
       giaiThich: "Số LẦN trả tiền thành công, không phải số người.",
     },
     {
       nhan: "Người dùng trả phí",
-      that: nf(t.nguoiTraPhiThat),
       tong: nf(t.nguoiTraPhi),
+      that: nf(t.nguoiTraPhiThat),
       giaiThich:
         "Số NGƯỜI đã trả ít nhất một lần. Nạp ví ba lần vẫn là một người.",
     },
     {
       nhan: "Đánh giá Reader",
-      that: nf(t.danhGiaReaderThat),
       tong: nf(t.danhGiaReader),
+      that: nf(t.danhGiaReaderThat),
       giaiThich: "Sao khách chấm cho Reader sau buổi xem.",
     },
     {
       nhan: "Góp ý sản phẩm",
-      that: nf(t.gopYKhaoSatThat),
       tong: nf(t.gopYKhaoSat),
+      that: nf(t.gopYKhaoSatThat),
       giaiThich: "Phiếu góp ý về hệ thống — việc khác với đánh giá Reader.",
     },
   ];
@@ -484,9 +487,9 @@ function BonSoLieuChinh({
     <section className="glass rounded-2xl border border-gold/25 p-5">
       <h2 className="font-display text-lg">Số liệu chính</h2>
       <p className="mt-1 text-xs text-muted-foreground">
-        Số lớn là phần <strong className="text-foreground">thật</strong>, đã
-        loại dữ liệu gieo sẵn để demo. Dòng nhỏ bên dưới là tổng kể cả seed —
-        chụp màn hình đi nộp thì dùng số lớn.
+        Mỗi ô ghi rõ nó đếm cái gì. Số lớn là tổng, gồm cả dữ liệu gieo sẵn
+        để demo; dòng nhỏ tách riêng phần không phải seed, để lúc cần thì có
+        sẵn.
       </p>
       <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
         {o.map((it) => (
@@ -496,10 +499,10 @@ function BonSoLieuChinh({
           >
             <div className="text-xs text-muted-foreground">{it.nhan}</div>
             <div className="mt-1 font-display text-2xl leading-none text-gold">
-              {it.that}
+              {it.tong}
             </div>
             <div className="mt-1 text-[11px] text-muted-foreground/70">
-              Kể cả seed: {it.tong}
+              Không tính seed: {it.that}
             </div>
             <p className="mt-2 text-[11px] leading-snug text-muted-foreground/80">
               {it.giaiThich}
