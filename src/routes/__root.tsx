@@ -28,6 +28,7 @@ import { FeedbackPrompt } from "@/components/FeedbackPrompt";
 import { ChatDock } from "@/features/booking/components/ChatDock";
 import { GocNoi } from "@/components/GocNoi";
 import { captureUtmFromUrl, nguonGopY } from "@/lib/utm";
+import { trackXemTrang } from "@/lib/track";
 import { SITE_URL } from "@/lib/site";
 import { duongDanTuRouter, initGA, trackPageView } from "@/lib/analytics";
 
@@ -43,13 +44,17 @@ function GoogleAnalyticsTracker() {
   useEffect(() => {
     initGA();
     if (typeof window !== "undefined") {
-      trackPageView(
-        window.location.pathname + window.location.search,
-        document.title,
-      );
+      const dau = window.location.pathname + window.location.search;
+      trackPageView(dau, document.title);
+      // Ghi cả vào bảng của mình, không chỉ GA4. Thiếu bước này thì ai vào
+      // xem vài trang rồi đi — phần lớn khách thật — không để lại dòng nào,
+      // và bảng quản trị trông như chỉ có dăm bảy lượt.
+      trackXemTrang(dau);
     }
     return router.subscribe("onResolved", ({ toLocation }) => {
-      trackPageView(duongDanTuRouter(toLocation), document.title);
+      const duongDan = duongDanTuRouter(toLocation);
+      trackPageView(duongDan, document.title);
+      trackXemTrang(duongDan);
     });
   }, [router]);
   return null;

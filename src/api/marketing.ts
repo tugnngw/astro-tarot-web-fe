@@ -6,6 +6,8 @@ export interface TrackMarketingPayload {
   utmSource?: string | null;
   utmMedium?: string | null;
   utmCampaign?: string | null;
+  /** Mã khách sinh ở trình duyệt — nối các hành động của cùng một người. */
+  visitorId?: string | null;
   metadata?: string | null;
 }
 
@@ -37,4 +39,36 @@ export interface HanhTrinhTheoNguon {
 
 export function getHanhTrinhTheoNguon() {
   return apiFetch<HanhTrinhTheoNguon[]>("/api/v1/marketing/events/theo-nguon");
+}
+
+/** Một bước trong hành trình của khách. */
+export interface BuocHanhTrinh {
+  hanhDong: string;
+  duongDan: string | null;
+  luc: string;
+}
+
+/**
+ * Một khách: vào từ đâu, rồi làm những gì, theo thứ tự.
+ *
+ * Khác bảng gộp theo nguồn ở chỗ không gộp: bảng kia nói "Facebook mang về
+ * 21 lượt", cái này nói "khách ab12cd vào từ Facebook lúc 20:14, xem trang
+ * chủ, mở Tarot, rút một quẻ, rồi đi".
+ */
+export interface HanhTrinhKhach {
+  maKhach: string;
+  nguon: string;
+  kenh: string | null;
+  chienDich: string | null;
+  tenNguoiDung: string | null;
+  batDau: string;
+  ketThuc: string;
+  soHanhDong: number;
+  cacBuoc: BuocHanhTrinh[];
+}
+
+export function getHanhTrinhKhach(so = 20) {
+  return apiFetch<HanhTrinhKhach[]>(
+    `/api/v1/marketing/events/hanh-trinh?so=${so}`,
+  );
 }
