@@ -1,5 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { captureUtmFromUrl, nguonGopY, readStoredUtm } from "./utm";
+import {
+  captureUtmFromUrl,
+  nguonGopY,
+  nguonTuReferrer,
+  readStoredUtm,
+} from "./utm";
 
 /**
  * Nhớ nguồn khách đến từ đâu.
@@ -71,6 +76,54 @@ describe("UTM", () => {
     captureUtmFromUrl();
 
     expect(readStoredUtm().utmSource).toBe("facebook");
+  });
+
+  function datReferrer(r: string) {
+    Object.defineProperty(document, "referrer", { value: r, configurable: true });
+  }
+
+  it("không có UTM thì lấy nguồn từ referrer", () => {
+    // Đây là nhánh chạy cho PHẦN LỚN khách thật: người ta chia sẻ lại bài,
+    // hoặc bấm từ trang Facebook, chứ không bấm đúng link mình đã gắn tay.
+    // Thiếu nhánh này thì bảng quản trị gom gần hết vào "(không rõ nguồn)".
+    dat("");
+    datReferrer("https://m.facebook.com/");
+
+    captureUtmFromUrl();
+
+    expect(readStoredUtm()).toEqual({
+      utmSource: "facebook",
+      utmMedium: "referral",
+      utmCampaign: null,
+    });
+  });
+
+  it("referrer KHÔNG ghi đè nguồn đã có", () => {
+    // Người đọc bài từ TikTok, hôm sau tìm lại qua Google. Để referrer ghi
+    // đè thì công của TikTok bị Google lấy mất, mà Google chỉ là chặng quay
+    // lại — đúng loại sai lệch làm người ta rót tiền nhầm kênh.
+    dat("?utm_source=tiktok&utm_campaign=video");
+    captureUtmFromUrl();
+
+    dat("");
+    datReferrer("https://www.google.com/search?q=astrotarot");
+    captureUtmFromUrl();
+
+    expect(readStoredUtm().utmSource).toBe("tiktok");
+  });
+
+  it("link UTM mới VẪN ghi đè, kể cả khi đã có nguồn từ referrer", () => {
+    // Hai nhánh ghi đè khác nhau: bấm một link chiến dịch là lần chạm mới
+    // có chủ đích, khác hẳn một cú quay lại tình cờ.
+    dat("");
+    datReferrer("https://www.facebook.com/");
+    captureUtmFromUrl();
+
+    dat("?utm_source=tiktok&utm_campaign=live");
+    datReferrer("");
+    captureUtmFromUrl();
+
+    expect(readStoredUtm().utmSource).toBe("tiktok");
   });
 
   it("vào bằng chiến dịch MỚI thì thay nguồn cũ", () => {
@@ -158,5 +211,62 @@ describe("nguồn góp ý suy từ trang", () => {
   it("không phân biệt hoa thường, thiếu đường dẫn thì về LANDING", () => {
     expect(nguonGopY("/Tarot")).toBe("TAROT_AI");
     expect(nguonGopY("")).toBe("LANDING");
+  });
+});
+
+describe("suy nguồn từ referrer", () => {
+  /**
+   * Vì sao phần này tồn tại: bảng "khách đến từ đâu" gom gần hết lưu lượng
+   * vào "(không rõ nguồn)" — 17 lượt — trong khi GA4 cùng lúc ghi rõ
+   * `facebook.com / referral`. Mình chỉ đọc `utm_source`, mà tham số ấy chỉ
+   * có khi khách bấm đúng một link đã gắn tay.
+   */
+  it("nhận ra Facebook kể cả qua tên miền phụ", () => {
+    // Facebook trả người dùng đến từ m./l./lm.facebook.com tuỳ chỗ bấm.
+    // Liệt kê từng cái là sót, và mỗi cái sót lại rơi vào "không rõ nguồn".
+    for (const r of [
+      "https://facebook.com/",
+      "https://www.facebook.com/somepage",
+      "https://m.facebook.com/",
+      "https://l.facebook.com/l.php?u=x",
+    ]) {
+      expect(nguonTuReferrer(r, "astrotarot.date")).toEqual({
+        utmSource: "facebook",
+        utmMedium: "referral",
+      });
+    }
+  });
+
+  it("tách mạng xã hội khỏi công cụ tìm kiếm", () => {
+    expect(nguonTuReferrer("https://www.tiktok.com/@x", "astrotarot.date"))
+      .toEqual({ utmSource: "tiktok", utmMedium: "referral" });
+    // GA4 gọi lưu lượng từ công cụ tìm kiếm là `organic`, không phải
+    // `referral` — gộp chung thì không tách được SEO khỏi mạng xã hội.
+    expect(nguonTuReferrer("https://www.google.com/search?q=tarot", "astrotarot.date"))
+      .toEqual({ utmSource: "google", utmMedium: "organic" });
+    expect(nguonTuReferrer("https://coccoc.com/search?q=tarot", "astrotarot.date"))
+      .toEqual({ utmSource: "coccoc", utmMedium: "organic" });
+  });
+
+  it("KHÔNG tính điều hướng trong chính site của mình", () => {
+    // Gán "nguồn" cho một cú bấm từ trang này sang trang kia là tự thổi
+    // phồng số liệu bằng chính khách của mình.
+    expect(nguonTuReferrer("https://astrotarot.date/tarot", "astrotarot.date")).toBeNull();
+    expect(nguonTuReferrer("https://www.astrotarot.date/", "astrotarot.date")).toBeNull();
+    expect(nguonTuReferrer("https://api.astrotarot.date/x", "astrotarot.date")).toBeNull();
+  });
+
+  it("referrer rỗng hoặc hỏng thì trả null, không ném", () => {
+    // Người tự gõ địa chỉ không có referrer — đó mới đúng là "không rõ nguồn".
+    expect(nguonTuReferrer(null, "astrotarot.date")).toBeNull();
+    expect(nguonTuReferrer("", "astrotarot.date")).toBeNull();
+    expect(nguonTuReferrer("khong-phai-url", "astrotarot.date")).toBeNull();
+  });
+
+  it("trang lạ vẫn ghi lại tên miền, không gộp vào không-rõ-nguồn", () => {
+    // Biết "có người dẫn về từ blog nào đó" vẫn hơn xếp chung rổ với người
+    // tự gõ địa chỉ.
+    expect(nguonTuReferrer("https://www.blogcuaai.vn/bai-viet", "astrotarot.date"))
+      .toEqual({ utmSource: "blogcuaai.vn", utmMedium: "referral" });
   });
 });
