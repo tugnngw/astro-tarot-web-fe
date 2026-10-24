@@ -58,7 +58,7 @@ function TrangQuayVeTuGoogle() {
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
-      <div className="glass max-w-sm rounded-2xl border border-gold/25 p-6 text-center">
+      <div className="glass max-w-sm rounded-2xl border border-gold/30 p-6 text-center">
         {loi ? (
           <>
             <p className="text-sm text-rose-300">{loi}</p>

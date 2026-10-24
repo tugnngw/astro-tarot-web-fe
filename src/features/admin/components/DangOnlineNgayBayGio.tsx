@@ -128,7 +128,7 @@ export function DangOnlineNgayBayGio() {
           {(nguon ?? []).slice(0, 8).map((n) => (
             <span
               key={n.nguon}
-              className="rounded-full border border-gold/25 bg-gold/5 px-3 py-1 text-xs"
+              className="rounded-full border border-gold/30 bg-gold/5 px-3 py-1 text-xs"
             >
               {n.nguon}{" "}
               <strong className="text-gold">{nf(n.tongLuot)}</strong> lượt
@@ -177,7 +177,7 @@ function Bang({
               </span>
               <span className="shrink-0 text-sm text-gold">
                 {nf(d.so)}{" "}
-                <span className="text-[10px] text-muted-foreground">
+                <span className="text-3xs text-muted-foreground">
                   {donVi}
                 </span>
               </span>

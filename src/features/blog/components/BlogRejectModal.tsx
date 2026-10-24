@@ -74,7 +74,7 @@ export function BlogRejectModal({
         </DialogHeader>
 
         {blog && (
-          <div className="my-2 rounded-lg border border-gold/15 bg-card/40 p-3 text-xs">
+          <div className="my-2 rounded-lg border border-gold/20 bg-card/40 p-3 text-xs">
             <p className="font-medium text-foreground line-clamp-1">
               {blog.title}
             </p>

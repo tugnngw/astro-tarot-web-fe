@@ -79,7 +79,7 @@ export function CreateUserDialog({
         role="dialog"
         aria-modal="true"
         aria-labelledby={`${formId}-title`}
-        className="panel-black relative w-full max-w-md rounded-2xl border border-gold/25 p-6 shadow-2xl"
+        className="panel-black relative w-full max-w-md rounded-2xl border border-gold/30 p-6 shadow-2xl"
       >
         <button
           type="button"
@@ -108,7 +108,7 @@ export function CreateUserDialog({
                 setForm((f) => ({ ...f, email: e.target.value }))
               }
               aria-invalid={Boolean(errors.email)}
-              className="mt-1 w-full rounded-lg border border-gold/25 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
+              className="mt-1 w-full rounded-lg border border-gold/30 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
             />
             {errors.email && (
               <span className="mt-1 block text-xs text-destructive">
@@ -125,7 +125,7 @@ export function CreateUserDialog({
                 setForm((f) => ({ ...f, fullName: e.target.value }))
               }
               aria-invalid={Boolean(errors.fullName)}
-              className="mt-1 w-full rounded-lg border border-gold/25 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
+              className="mt-1 w-full rounded-lg border border-gold/30 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
             />
             {errors.fullName && (
               <span className="mt-1 block text-xs text-destructive">
@@ -143,7 +143,7 @@ export function CreateUserDialog({
               onChange={(e) =>
                 setForm((f) => ({ ...f, phone: e.target.value }))
               }
-              className="mt-1 w-full rounded-lg border border-gold/25 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
+              className="mt-1 w-full rounded-lg border border-gold/30 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
             />
           </label>
 
@@ -154,7 +154,7 @@ export function CreateUserDialog({
               onChange={(e) =>
                 setForm((f) => ({ ...f, role: e.target.value as AccountRole }))
               }
-              className="mt-1 w-full rounded-lg border border-gold/25 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
+              className="mt-1 w-full rounded-lg border border-gold/30 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
             >
               {assignableRoles.map((r) => (
                 <option key={r} value={r}>

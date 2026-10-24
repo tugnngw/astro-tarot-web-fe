@@ -61,7 +61,7 @@ export function KenhCongDong({ className = "" }: { className?: string }) {
             // Nhãn đọc được: trình đọc màn hình đọc "Facebook" trống không thì
             // không biết là trang nào của ai.
             aria-label={`${ten} — ${moTa}`}
-            className="inline-flex items-center gap-2 rounded-full border border-gold/30 px-4 py-2 text-xs text-foreground/80 transition hover:border-gold/60 hover:bg-gold/10 hover:text-gold"
+            className="inline-flex items-center gap-2 rounded-full border border-gold/30 px-4 py-2 text-xs text-foreground/80 transition hover:border-gold/50 hover:bg-gold/10 hover:text-gold"
           >
             <Icon className="h-4 w-4" />
             <span className="font-medium">{ten}</span>

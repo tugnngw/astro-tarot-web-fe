@@ -74,8 +74,8 @@ export function PlanCard({
     <div
       className={`glass group relative flex flex-col justify-between rounded-2xl p-6 transition-all duration-300 ${
         isPopular
-          ? "border-gold/60 shadow-[0_0_24px_rgba(212,175,55,0.15)] hover:border-gold"
-          : "border-gold/15 hover:border-gold/40"
+          ? "border-gold/50 shadow-[0_0_24px_rgba(212,175,55,0.15)] hover:border-gold"
+          : "border-gold/20 hover:border-gold/50"
       }`}
     >
       {isPopular && (
@@ -87,7 +87,7 @@ export function PlanCard({
 
       <div>
         <div className="flex items-center justify-between">
-          <span className="rounded-full border border-gold/25 bg-gold/10 px-2.5 py-0.5 text-[11px] font-medium text-gold">
+          <span className="rounded-full border border-gold/30 bg-gold/10 px-2.5 py-0.5 text-2xs font-medium text-gold">
             {PLAN_TYPE_LABELS[plan.planType]}
           </span>
           <span className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -162,7 +162,7 @@ export function PlanCard({
             ? "border border-gold/30 bg-gold/10 text-gold cursor-default"
             : isPopular
               ? "bg-gold text-background shadow-md hover:bg-gold/90"
-              : "border border-gold/40 bg-card/60 text-gold hover:bg-gold/10"
+              : "border border-gold/50 bg-card/60 text-gold hover:bg-gold/10"
         }`}
       >
         {cta}

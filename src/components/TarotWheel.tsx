@@ -72,7 +72,7 @@ export function TarotWheel({ className = "" }: { className?: string }) {
                   decoding="async"
                   onMouseEnter={() => setHovered(i)}
                   onMouseLeave={() => setHovered((h) => (h === i ? null : h))}
-                  className="pointer-events-auto rounded-[5px] border border-gold/40 transition-[transform,opacity,box-shadow,border-color] duration-300"
+                  className="pointer-events-auto rounded-[5px] border border-gold/50 transition-[transform,opacity,box-shadow,border-color] duration-300"
                   style={{
                     // Chu vi vành khoảng 2400px với 22 lá -> mỗi lá được ~109px.
                     // Để lá rộng tới 104px thì chúng chạm nhau thành một bức

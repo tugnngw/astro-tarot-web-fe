@@ -48,7 +48,7 @@ const ROLE_CELL_HEIGHT = "h-8";
 const roleSelectTriggerClass = `${ROLE_CELL_HEIGHT} w-auto ${ROLE_CELL_WIDTH} gap-1.5 rounded-full border-gold/30 bg-input/70 px-3 py-0 text-xs text-foreground shadow-none focus:ring-1 focus:ring-gold/40 data-[state=open]:border-gold [&>span]:justify-start`;
 
 const roleSelectContentClass =
-  "rounded-xl border border-gold/25 bg-card text-foreground shadow-xl";
+  "rounded-xl border border-gold/30 bg-card text-foreground shadow-xl";
 
 const roleSelectItemClass =
   "cursor-pointer rounded-lg py-2 pl-3 pr-8 text-xs focus:bg-gold/15 focus:text-gold data-[state=checked]:bg-gold/10 data-[state=checked]:text-gold";
@@ -287,7 +287,7 @@ export function UserDirectory({
       {/* Thanh thao tác hàng loạt. Chỉ hiện khi đã chọn — một thanh trống
           thường trực chỉ chiếm chỗ và làm người dùng tưởng nó hỏng. */}
       {selected.size > 0 && (
-        <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-gold/40 bg-gold/5 px-4 py-3">
+        <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-gold/50 bg-gold/5 px-4 py-3">
           <span className="text-sm">
             Đã chọn <strong className="text-gold">{selected.size}</strong> tài
             khoản
@@ -355,7 +355,7 @@ export function UserDirectory({
             <PagedList pageSize={coTrang} listRef={listRef}>
               <table className="w-full min-w-[760px] border-collapse text-sm">
                 <thead>
-                  <tr className="border-b border-gold/15 text-left text-xs uppercase tracking-[0.15em] text-muted-foreground">
+                  <tr className="border-b border-gold/20 text-left text-xs uppercase tracking-[0.15em] text-muted-foreground">
                     <th scope="col" className="w-1 py-2 pr-3">
                       <input
                         type="checkbox"

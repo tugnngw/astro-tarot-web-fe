@@ -7,6 +7,13 @@
 //
 // Biểu đồ dùng Recharts: rê chuột vào cột / phần bánh để xem số liệu chi tiết.
 import {
+  DAY_MAU,
+  MAU,
+  MAU_TIEN,
+  MAU_TRANG_THAI_BOOKING,
+  MAU_VAI_TRO,
+} from "@/lib/mau-bieu-do";
+import {
   Users,
   UserCheck,
   CalendarClock,
@@ -58,19 +65,9 @@ const BOOKING_VI: Record<string, string> = {
   CANCELLED: "Đã huỷ",
 };
 
-const ROLE_COLORS: Record<string, string> = {
-  USER: "#38bdf8",
-  STAFF: "#34d399",
-  MANAGER: "#a78bfa",
-  ADMIN: "#d4a84b",
-};
+const ROLE_COLORS: Record<string, string> = MAU_VAI_TRO;
 
-const BOOKING_COLORS: Record<string, string> = {
-  PENDING: "#fbbf24",
-  CONFIRMED: "#38bdf8",
-  COMPLETED: "#34d399",
-  CANCELLED: "#fb7185",
-};
+const BOOKING_COLORS: Record<string, string> = MAU_TRANG_THAI_BOOKING;
 
 function nf(n: number) {
   return new Intl.NumberFormat("vi-VN").format(n);
@@ -162,7 +159,7 @@ function pieWhiteLabel(props: {
     <text
       x={x}
       y={y}
-      fill="#ffffff"
+      fill={MUC_TREN_LAT}
       textAnchor="middle"
       dominantBaseline="central"
       style={WHITE_LABEL_STYLE}
@@ -171,6 +168,15 @@ function pieWhiteLabel(props: {
     </text>
   );
 }
+
+/**
+ * Mực của nhãn nằm ĐÈ lên lát biểu đồ.
+ *
+ * Không nằm trong bảng màu: nó phải đọc được trên mọi lát, bất kể lát ấy màu
+ * gì, nên vai trò của nó là "mực tương phản" chứ không phải một sắc trong
+ * bảng. Đổi nó theo token nền là chữ chìm mất trên lát sáng.
+ */
+const MUC_TREN_LAT = "#ffffff";
 
 /**
  * Số trắng trên đỉnh cột — cùng style với pie; bỏ cột = 0.
@@ -187,7 +193,7 @@ function barWhiteLabel(props: any) {
     <text
       x={numX + numW / 2}
       y={numY - 6}
-      fill="#ffffff"
+      fill={MUC_TREN_LAT}
       textAnchor="middle"
       dominantBaseline="auto"
       style={WHITE_LABEL_STYLE}
@@ -485,7 +491,7 @@ function BonSoLieuChinh({
   ];
 
   return (
-    <section className="glass rounded-2xl border border-gold/25 p-5">
+    <section className="glass rounded-2xl border border-gold/30 p-5">
       <div className="flex items-center gap-1.5">
         <h2 className="font-display text-lg">Số liệu chính</h2>
         <ChuThich>
@@ -507,7 +513,7 @@ function BonSoLieuChinh({
             <div className="mt-1.5 font-display text-2xl leading-none text-gold">
               {it.tong}
             </div>
-            <div className="mt-1 text-[11px] text-muted-foreground/60">
+            <div className="mt-1 text-2xs text-muted-foreground/60">
               {it.that} không tính seed
             </div>
           </div>
@@ -537,7 +543,7 @@ function TractionStrip({
   const eventEntries = Object.entries(t.marketingEventsLast30Days ?? {});
 
   return (
-    <section className="glass rounded-2xl border border-gold/25 p-5">
+    <section className="glass rounded-2xl border border-gold/30 p-5">
       <div className="flex flex-wrap items-center gap-2">
         <Target className="h-4 w-4 text-gold" />
         <h2 className="font-display text-lg">Traction — chụp cho Pitch</h2>
@@ -673,7 +679,7 @@ function RevenueMonthChart({
   const tong = data.reduce((s, d) => s + d.count, 0);
 
   const config = {
-    count: { label: "Doanh thu", color: "#34d399" },
+    count: { label: "Doanh thu", color: MAU.luc },
   } satisfies ChartConfig;
 
   return (
@@ -768,15 +774,15 @@ function ProfitBreakdownChart({
       key: "reader",
       label: "Reader nhận",
       count: r.readerShare,
-      fill: "#38bdf8",
+      fill: MAU_TIEN.doanhThu,
     },
     {
       key: "fee",
       label: `Phí nền tảng ${r.platformFeePercent}%`,
       count: r.platformFee,
-      fill: "#d4a84b",
+      fill: MAU.vang,
     },
-    { key: "ai", label: "Chi phí AI", count: r.aiCostVnd, fill: "#fb7185" },
+    { key: "ai", label: "Chi phí AI", count: r.aiCostVnd, fill: MAU_TIEN.chiPhi },
   ].filter((d) => d.count > 0);
   const tong = data.reduce((s, d) => s + d.count, 0);
 
@@ -1017,7 +1023,7 @@ function BookingChart({ bookings }: { bookings: AdminStats["bookings"] }) {
   const total = bookings.total;
 
   const config = {
-    count: { label: "Lượt đặt", color: "#d4a84b" },
+    count: { label: "Lượt đặt", color: MAU.vang },
   } satisfies ChartConfig;
 
   return (
@@ -1103,18 +1109,18 @@ function ReaderChart({ readers }: { readers: AdminStats["readers"] }) {
       key: "pending",
       label: "Chờ duyệt",
       count: Number(readers.pendingApplications),
-      fill: "#fbbf24",
+      fill: MAU.hoPhach,
     },
     {
       key: "active",
       label: "Hồ sơ đang có",
       count: Number(readers.activeProfiles),
-      fill: "#d4a84b",
+      fill: MAU.vang,
     },
   ];
 
   const config = {
-    count: { label: "Số hồ sơ", color: "#d4a84b" },
+    count: { label: "Số hồ sơ", color: MAU.vang },
   } satisfies ChartConfig;
 
   return (
@@ -1189,24 +1195,24 @@ function ShopChart({ shop }: { shop: AdminStats["shop"] }) {
       key: "products",
       label: "Sản phẩm đang bán",
       count: Number(shop.activeProducts),
-      fill: "#a78bfa",
+      fill: MAU.tim,
     },
     {
       key: "clicks30",
       label: "Bấm 30 ngày",
       count: Number(shop.clicksLast30Days),
-      fill: "#38bdf8",
+      fill: MAU_TIEN.doanhThu,
     },
     {
       key: "clicksTotal",
       label: "Bấm tổng cộng",
       count: Number(shop.clicksTotal),
-      fill: "#d4a84b",
+      fill: MAU.vang,
     },
   ];
 
   const config = {
-    count: { label: "Số lượng", color: "#d4a84b" },
+    count: { label: "Số lượng", color: MAU.vang },
   } satisfies ChartConfig;
 
   return (
@@ -1278,14 +1284,9 @@ function ShopChart({ shop }: { shop: AdminStats["shop"] }) {
   );
 }
 
-const MODEL_COLORS = [
-  "#d4a84b",
-  "#38bdf8",
-  "#34d399",
-  "#a78bfa",
-  "#fb7185",
-  "#fbbf24",
-];
+// Biểu đồ theo model AI không có ý nghĩa màu riêng cho từng phần, nên dùng
+// thứ tự chung.
+const MODEL_COLORS = DAY_MAU;
 
 function AiTokenBreakdownChart({ ai }: { ai: NonNullable<AdminStats["ai"]> }) {
   const data = [
@@ -1293,30 +1294,30 @@ function AiTokenBreakdownChart({ ai }: { ai: NonNullable<AdminStats["ai"]> }) {
       key: "prompt",
       label: "Prompt (vào)",
       count: Number(ai.promptTokens),
-      fill: "#38bdf8",
+      fill: MAU_TIEN.doanhThu,
     },
     {
       key: "completion",
       label: "Completion (ra)",
       count: Number(ai.completionTokens),
-      fill: "#34d399",
+      fill: MAU.luc,
     },
     {
       key: "total",
       label: "Tổng token",
       count: Number(ai.totalTokens),
-      fill: "#d4a84b",
+      fill: MAU.vang,
     },
     {
       key: "last30",
       label: "30 ngày gần đây",
       count: Number(ai.tokensLast30Days),
-      fill: "#a78bfa",
+      fill: MAU.tim,
     },
   ];
 
   const config = {
-    count: { label: "Token", color: "#d4a84b" },
+    count: { label: "Token", color: MAU.vang },
   } satisfies ChartConfig;
 
   return (

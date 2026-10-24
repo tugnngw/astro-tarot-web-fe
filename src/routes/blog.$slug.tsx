@@ -44,7 +44,7 @@ export const Route = createFileRoute("/blog/$slug")({
   }),
   notFoundComponent: () => (
     <div className="min-h-screen grid place-items-center text-center px-4 bg-background">
-      <div className="max-w-md p-8 rounded-3xl border border-gold/20 bg-card/40 backdrop-blur-xl">
+      <div className="max-w-md p-8 rounded-2xl border border-gold/20 bg-card/40 backdrop-blur-xl">
         <div className="mx-auto w-16 h-16 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center text-gold mb-4 text-2xl">
           ✦
         </div>
@@ -64,7 +64,7 @@ export const Route = createFileRoute("/blog/$slug")({
           </Link>
           <Link
             to="/"
-            className="inline-block rounded-full border border-gold/40 px-6 py-2.5 text-xs sm:text-sm font-medium text-gold hover:bg-gold/10 transition"
+            className="inline-block rounded-full border border-gold/50 px-6 py-2.5 text-xs sm:text-sm font-medium text-gold hover:bg-gold/10 transition"
           >
             Về trang chủ
           </Link>
@@ -161,14 +161,14 @@ function BlogDetail() {
             </h1>
 
             {blog.summary ? (
-              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed border-l-2 border-gold/35 pl-3.5">
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed border-l-2 border-gold/30 pl-3.5">
                 {blog.summary}
               </p>
             ) : null}
           </header>
 
           {/* Ảnh hiện nguyên khung — không ép 16:9 crop lá bài dọc */}
-          <figure className="overflow-hidden rounded-2xl border border-gold/25 bg-muted/20">
+          <figure className="overflow-hidden rounded-2xl border border-gold/30 bg-muted/20">
             <div className="flex max-h-[min(68vh,560px)] items-center justify-center p-3 sm:p-5">
               {blog.thumbnailUrl ? (
                 <img
@@ -192,7 +192,7 @@ function BlogDetail() {
             </div>
           </figure>
 
-          <div className="border-t border-gold/15 pt-6">
+          <div className="border-t border-gold/20 pt-6">
             <div className="mx-auto max-w-2xl text-[1.05rem] sm:text-lg leading-[1.75] text-foreground/90 whitespace-pre-wrap">
               {blog.content}
             </div>
@@ -203,10 +203,10 @@ function BlogDetail() {
               <img
                 src={blog.author.avatar}
                 alt={blog.author.fullName || blog.author.username}
-                className="h-14 w-14 shrink-0 rounded-full object-cover border-2 border-gold/40"
+                className="h-14 w-14 shrink-0 rounded-full object-cover border-2 border-gold/50"
               />
             ) : (
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-gold/40 bg-gold/10 text-gold">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-gold/50 bg-gold/10 text-gold">
                 <UserIcon className="h-7 w-7" />
               </div>
             )}
@@ -262,7 +262,7 @@ function BlogDetail() {
                     <h5 className="line-clamp-2 text-sm font-medium text-foreground transition group-hover:text-gold">
                       {p.title}
                     </h5>
-                    <div className="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
+                    <div className="mt-2 flex items-center justify-between text-2xs text-muted-foreground">
                       <span>{formatBlogDate(p.createdAt)}</span>
                       <span>{estimateReadTime(p.content)} phút</span>
                     </div>

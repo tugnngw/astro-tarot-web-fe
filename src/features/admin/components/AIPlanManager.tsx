@@ -99,7 +99,7 @@ export function AIPlanManager() {
         <div className="overflow-x-auto">
           <table className="w-full min-w-[800px] text-sm">
             <thead>
-              <tr className="border-b border-gold/15">
+              <tr className="border-b border-gold/20">
                 <th className="px-4 py-3 text-left text-xs font-normal uppercase tracking-wider text-muted-foreground">Tên gói</th>
                 <th className="px-4 py-3 text-left text-xs font-normal uppercase tracking-wider text-muted-foreground">Loại</th>
                 <th className="px-4 py-3 text-right text-xs font-normal uppercase tracking-wider text-muted-foreground">Quota/ngày</th>

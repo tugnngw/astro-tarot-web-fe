@@ -53,7 +53,7 @@ export function ReportDialog({
         role="dialog"
         aria-modal="true"
         aria-labelledby="report-title"
-        className="panel-black relative w-full max-w-md rounded-2xl border border-gold/25 p-6 shadow-2xl"
+        className="panel-black relative w-full max-w-md rounded-2xl border border-gold/30 p-6 shadow-2xl"
       >
         <button
           type="button"
@@ -111,7 +111,7 @@ export function ReportDialog({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
-              className="mt-1 w-full rounded-lg border border-gold/25 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
+              className="mt-1 w-full rounded-lg border border-gold/30 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
               placeholder="Càng cụ thể thì càng xử lý nhanh: thời điểm, nội dung trao đổi..."
             />
           </label>

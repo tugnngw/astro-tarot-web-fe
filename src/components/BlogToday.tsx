@@ -22,7 +22,7 @@ export function BlogToday() {
       <div className="mx-auto w-full max-w-7xl">
         <div className="mb-8 flex items-end justify-between">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-card/60 px-4 py-1.5 text-xs uppercase tracking-[0.25em] text-gold">
+            <div className="inline-flex items-center gap-2 rounded-full border border-gold/50 bg-card/60 px-4 py-1.5 text-xs uppercase tracking-[0.25em] text-gold">
               <Sparkles className="h-3.5 w-3.5" /> Nhật ký Vũ trụ
             </div>
             <h3 className="mt-4 font-display text-4xl text-foreground md:text-5xl">
@@ -36,7 +36,7 @@ export function BlogToday() {
             {[1, 2, 3, 4].map((i) => (
               <div
                 key={i}
-                className="h-20 rounded-xl border border-gold/15 bg-card/30 animate-pulse"
+                className="h-20 rounded-xl border border-gold/20 bg-card/30 animate-pulse"
               />
             ))}
           </div>
@@ -56,7 +56,7 @@ export function BlogToday() {
     <div className="mx-auto w-full max-w-7xl">
       <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-card/60 px-4 py-1.5 text-xs uppercase tracking-[0.25em] text-gold">
+          <div className="inline-flex items-center gap-2 rounded-full border border-gold/50 bg-card/60 px-4 py-1.5 text-xs uppercase tracking-[0.25em] text-gold">
             <Sparkles className="h-3.5 w-3.5" /> Nhật ký Vũ trụ
           </div>
           <h3 className="mt-4 font-display text-4xl text-foreground md:text-5xl">
@@ -66,7 +66,7 @@ export function BlogToday() {
 
         <Link
           to="/blogs"
-          className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-card/40 px-5 py-2 text-xs font-medium text-gold hover:bg-gold/10 hover:border-gold transition self-start sm:self-auto"
+          className="inline-flex items-center gap-2 rounded-full border border-gold/50 bg-card/40 px-5 py-2 text-xs font-medium text-gold hover:bg-gold/10 hover:border-gold transition self-start sm:self-auto"
         >
           Xem tất cả bài viết <ArrowRight className="h-3.5 w-3.5" />
         </Link>
@@ -105,7 +105,7 @@ export function BlogToday() {
             </div>
 
             <div className="p-6">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-[10px] font-medium uppercase tracking-wider text-gold">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-gold/50 bg-gold/10 px-3 py-1 text-3xs font-medium uppercase tracking-wider text-gold">
                 <Sparkles className="h-3 w-3" /> Nổi bật
               </span>
               <h4 className="mt-3 font-display text-2xl text-foreground transition group-hover:text-gold md:text-3xl">
@@ -167,7 +167,7 @@ export function BlogToday() {
                   <h5 className="line-clamp-2 text-sm font-medium text-foreground transition group-hover:text-gold">
                     {b.title}
                   </h5>
-                  <div className="mt-2 flex items-center gap-2 text-[10px] text-muted-foreground">
+                  <div className="mt-2 flex items-center gap-2 text-3xs text-muted-foreground">
                     <span>{formatBlogDate(b.createdAt)}</span>
                     <span>•</span>
                     <span>{b.author?.fullName || b.author?.username}</span>

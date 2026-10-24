@@ -191,7 +191,7 @@ function HistoryItem({
       </button>
 
       {open && (
-        <div className="border-t border-gold/10 px-4 py-4">
+        <div className="border-t border-gold/20 px-4 py-4">
           {detail.isLoading ? (
             <div className="h-20 animate-pulse rounded-lg bg-mystic/10" />
           ) : aiMessages.length === 0 ? (

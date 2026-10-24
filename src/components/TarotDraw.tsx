@@ -41,7 +41,7 @@ export function TarotDraw({ drawnCards, revealed, onEnterChat }: Props) {
               transition={{ duration: 0.8, delay: 0.3 + i * 0.2 }}
             >
               {/* Mặt sau */}
-              <div className="absolute inset-0 grid place-items-center rounded-xl border border-gold/60 bg-gradient-to-br from-mystic to-card p-2 [backface-visibility:hidden] glow-mystic">
+              <div className="absolute inset-0 grid place-items-center rounded-xl border border-gold/50 bg-gradient-to-br from-mystic to-card p-2 [backface-visibility:hidden] glow-mystic">
                 <div className="text-3xl text-gold">✦</div>
               </div>
               {/* Mặt trước */}
@@ -50,7 +50,7 @@ export function TarotDraw({ drawnCards, revealed, onEnterChat }: Props) {
                 style={{ transform: "rotateY(180deg)" }}
               >
                 <div className="flex h-full flex-col items-center justify-between py-2">
-                  <span className="text-[9px] uppercase tracking-widest text-gold">
+                  <span className="text-3xs uppercase tracking-widest text-gold">
                     {["Quá khứ", "Hiện tại", "Tương lai"][i] ||
                       `Vị trí ${i + 1}`}
                   </span>

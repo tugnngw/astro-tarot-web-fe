@@ -192,7 +192,7 @@ function TarotPageWithErrorBoundary() {
             </button>
             <a
               href="/"
-              className="rounded-full border border-gold/40 px-6 py-2.5 text-sm font-medium text-gold transition hover:bg-gold/10"
+              className="rounded-full border border-gold/50 px-6 py-2.5 text-sm font-medium text-gold transition hover:bg-gold/10"
             >
               Về trang chủ
             </a>
@@ -1419,14 +1419,14 @@ function TarotPage() {
                     className={`flex-1 rounded-lg border py-2 text-sm transition ${
                       count === n
                         ? "border-gold bg-gold/10 text-gold"
-                        : "border-border text-muted-foreground hover:border-gold/40"
+                        : "border-border text-muted-foreground hover:border-gold/50"
                     }`}
                   >
                     {n === 1 ? "1 người" : "2 người (đôi)"}
                   </button>
                 ))}
               </div>
-              <p className="mt-1.5 text-[10px] text-muted-foreground/60">
+              <p className="mt-1.5 text-3xs text-muted-foreground/60">
                 Tối đa 2 người — phù hợp xem bản đồ sao đôi / tương hợp.
               </p>
             </div>
@@ -1466,11 +1466,11 @@ function TarotPage() {
                           }`}
                         />
                         {dateErrors[i] ? (
-                          <p className="mt-1 text-[10px] text-red-400">
+                          <p className="mt-1 text-3xs text-red-400">
                             {dateErrors[i]}
                           </p>
                         ) : (
-                          <p className="mt-1 text-[10px] text-muted-foreground/60">
+                          <p className="mt-1 text-3xs text-muted-foreground/60">
                             💡 4102000 → 04-10-2000
                           </p>
                         )}
@@ -1491,11 +1491,11 @@ function TarotPage() {
                           }`}
                         />
                         {timeErrors[i] ? (
-                          <p className="mt-1 text-[10px] text-red-400">
+                          <p className="mt-1 text-3xs text-red-400">
                             {timeErrors[i]}
                           </p>
                         ) : (
-                          <p className="mt-1 text-[10px] text-muted-foreground/60">
+                          <p className="mt-1 text-3xs text-muted-foreground/60">
                             💡 Không biết giờ sinh? Để trống — mặc định 12:00.
                             <br />
                             900 → 9:00 | 930 → 9:30 | 9 → 09:00 (khi rời)
@@ -1540,7 +1540,7 @@ function TarotPage() {
                                   <div className="truncate text-foreground">
                                     {suggestion.displayName.split(",")[0]}
                                   </div>
-                                  <div className="truncate text-[10px] text-muted-foreground">
+                                  <div className="truncate text-3xs text-muted-foreground">
                                     {suggestion.displayName
                                       .split(",")
                                       .slice(1)
@@ -1554,7 +1554,7 @@ function TarotPage() {
                         )}
 
                       {selectedPlace[i] && (
-                        <div className="mt-1 flex flex-wrap gap-2 text-[10px]">
+                        <div className="mt-1 flex flex-wrap gap-2 text-3xs">
                           <span className="inline-flex items-center gap-1 text-emerald-400">
                             <MapPin className="h-3 w-3" />{" "}
                             {selectedPlace[i]?.displayName.split(",")[0]}
@@ -1577,13 +1577,13 @@ function TarotPage() {
                       {!selectedPlace[i] &&
                         p.birthPlace &&
                         p.birthPlace.length >= 2 && (
-                          <p className="mt-1 text-[10px] text-muted-foreground/60">
+                          <p className="mt-1 text-3xs text-muted-foreground/60">
                             🔍 Chọn địa điểm từ danh sách gợi ý
                           </p>
                         )}
                       {!selectedPlace[i] &&
                         (!p.birthPlace || p.birthPlace.length < 2) && (
-                          <p className="mt-1 text-[10px] text-muted-foreground/60">
+                          <p className="mt-1 text-3xs text-muted-foreground/60">
                             📍 Nhập tên thành phố để tìm gợi ý
                           </p>
                         )}
@@ -1693,7 +1693,7 @@ function AiContentFooter({ readingId }: { readingId: string | null }) {
 
   return (
     <div className="mx-auto mt-4 max-w-3xl space-y-2">
-      <p className="text-[11px] leading-relaxed text-muted-foreground">
+      <p className="text-2xs leading-relaxed text-muted-foreground">
         Lời giải do AI viết, mang tính tham khảo và giải trí. Với các quyết định
         về sức khoẻ, pháp lý hay tài chính, hãy hỏi người có chuyên môn.
       </p>
@@ -1754,7 +1754,7 @@ function AiContentFooter({ readingId }: { readingId: string | null }) {
           <button
             type="button"
             onClick={() => setMoRong(true)}
-            className="text-[11px] text-muted-foreground underline underline-offset-4 transition hover:text-foreground"
+            className="text-2xs text-muted-foreground underline underline-offset-4 transition hover:text-foreground"
           >
             Báo cáo nội dung này
           </button>

@@ -157,7 +157,7 @@ function ReaderBookings() {
             type="button"
             onClick={() => setStatus(f.key)}
             aria-pressed={status === f.key}
-            className={`rounded-full border px-4 py-1.5 text-xs transition hover:border-gold/70 hover:bg-gold/10 active:scale-95 ${
+            className={`rounded-full border px-4 py-1.5 text-xs transition hover:border-gold/50 hover:bg-gold/10 active:scale-95 ${
               status === f.key
                 ? "border-gold bg-gold/20 text-gold"
                 : "border-mystic/50 bg-mystic/10 text-foreground/80"
@@ -199,7 +199,7 @@ function ReaderBookings() {
             soBuoi={demTheoNgay(loc)}
           />
         </div>
-        <p className="mt-2 text-[11px] text-muted-foreground">
+        <p className="mt-2 text-2xs text-muted-foreground">
           Số là số buổi trong ngày. Cùng một ngày nhiều khách đặt được, miễn
           khác khung giờ. Bấm ngày để xem tên khách.
         </p>

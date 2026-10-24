@@ -117,7 +117,7 @@ export function UserDetailPanel({
         role="dialog"
         aria-modal="true"
         aria-label="Chi tiết tài khoản"
-        className="panel-black relative flex h-full w-full max-w-md flex-col overflow-y-auto border-l border-gold/25 shadow-2xl"
+        className="panel-black relative flex h-full w-full max-w-md flex-col overflow-y-auto border-l border-gold/30 shadow-2xl"
       >
         <header className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-gold/20 bg-card/95 px-5 py-4 backdrop-blur">
           <div className="min-w-0">
@@ -182,7 +182,7 @@ export function UserDetailPanel({
 
             {/* Số liệu hoạt động: trả lời câu "khoá người này thì ảnh hưởng gì" */}
             <section>
-              <h3 className="mb-2 text-[11px] uppercase tracking-[0.15em] text-gold/70">
+              <h3 className="mb-2 text-2xs uppercase tracking-[0.15em] text-gold/70">
                 Hoạt động
               </h3>
               <dl className="grid grid-cols-3 gap-2">
@@ -205,7 +205,7 @@ export function UserDetailPanel({
             {/* Thông tin liên hệ */}
             <section>
               <div className="mb-2 flex items-center justify-between">
-                <h3 className="text-[11px] uppercase tracking-[0.15em] text-gold/70">
+                <h3 className="text-2xs uppercase tracking-[0.15em] text-gold/70">
                   Thông tin
                 </h3>
                 {user.editable && !editing && (
@@ -293,14 +293,14 @@ export function UserDetailPanel({
 
             {/* Quyền của vai trò hiện tại */}
             <section>
-              <h3 className="mb-2 text-[11px] uppercase tracking-[0.15em] text-gold/70">
+              <h3 className="mb-2 text-2xs uppercase tracking-[0.15em] text-gold/70">
                 Vai trò này được làm gì
               </h3>
               <ul className="flex flex-wrap gap-1.5">
                 {user.permissions.map((p) => (
                   <li
                     key={p}
-                    className="rounded border border-gold/20 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
+                    className="rounded border border-gold/20 px-1.5 py-0.5 font-mono text-3xs text-muted-foreground"
                   >
                     {p}
                   </li>
@@ -311,7 +311,7 @@ export function UserDetailPanel({
             {/* Thao tác */}
             {user.editable && (
               <section>
-                <h3 className="mb-2 text-[11px] uppercase tracking-[0.15em] text-gold/70">
+                <h3 className="mb-2 text-2xs uppercase tracking-[0.15em] text-gold/70">
                   Thao tác
                 </h3>
                 <div className="flex flex-col gap-2">
@@ -433,7 +433,7 @@ export function UserDetailPanel({
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg border border-gold/20 px-2.5 py-2">
-      <dt className="text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+      <dt className="text-3xs uppercase tracking-[0.1em] text-muted-foreground">
         {label}
       </dt>
       <dd className="mt-0.5 font-display text-base text-gold">{value}</dd>
@@ -471,7 +471,7 @@ function Field({
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1 w-full rounded-lg border border-gold/25 bg-input/70 px-3 py-2 text-sm text-foreground outline-none focus:border-gold"
+        className="mt-1 w-full rounded-lg border border-gold/30 bg-input/70 px-3 py-2 text-sm text-foreground outline-none focus:border-gold"
       />
     </label>
   );

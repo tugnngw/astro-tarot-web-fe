@@ -85,7 +85,7 @@ function ProductDetailPage() {
 
             <div className="flex flex-col">
               {product.categoryName && (
-                <p className="text-[11px] uppercase tracking-[0.25em] text-gold/70">
+                <p className="text-2xs uppercase tracking-[0.25em] text-gold/70">
                   {product.categoryName}
                 </p>
               )}

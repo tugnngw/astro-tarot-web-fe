@@ -177,7 +177,7 @@ export function ReaderApplications() {
                     {specialties.map((s) => (
                       <li
                         key={s}
-                        className="rounded-full border border-gold/25 px-2.5 py-0.5 text-[11px] text-gold/80"
+                        className="rounded-full border border-gold/30 px-2.5 py-0.5 text-2xs text-gold/80"
                       >
                         {s}
                       </li>
@@ -198,7 +198,7 @@ export function ReaderApplications() {
                       value={reason}
                       onChange={(e) => setReason(e.target.value)}
                       rows={2}
-                      className="mt-2 w-full rounded-lg border border-gold/25 bg-input/70 px-3 py-2 text-sm text-foreground outline-none focus:border-gold"
+                      className="mt-2 w-full rounded-lg border border-gold/30 bg-input/70 px-3 py-2 text-sm text-foreground outline-none focus:border-gold"
                       placeholder="Ví dụ: hồ sơ chưa nêu rõ kinh nghiệm thực tế..."
                     />
                     <div className="mt-3 flex justify-end gap-2">

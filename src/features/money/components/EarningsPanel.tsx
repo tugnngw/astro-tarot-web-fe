@@ -114,24 +114,24 @@ export function EarningsPanel() {
           <>
             <dl className="mt-4 grid gap-3 sm:grid-cols-2">
               <div className="rounded-xl border border-gold/30 bg-gold/5 px-4 py-3">
-                <dt className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+                <dt className="text-2xs uppercase tracking-[0.12em] text-muted-foreground">
                   Rút được
                 </dt>
                 <dd className="mt-1 font-display text-2xl text-gold">
                   {formatVND(e!.balance)}
                 </dd>
-                <p className="mt-1 text-[11px] text-muted-foreground">
+                <p className="mt-1 text-2xs text-muted-foreground">
                   Đã trừ phí nền tảng, dùng được ngay.
                 </p>
               </div>
-              <div className="rounded-xl border border-gold/15 px-4 py-3">
-                <dt className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+              <div className="rounded-xl border border-gold/20 px-4 py-3">
+                <dt className="text-2xs uppercase tracking-[0.12em] text-muted-foreground">
                   Đang giữ
                 </dt>
                 <dd className="mt-1 font-display text-2xl text-foreground/80">
                   {formatVND(e!.pendingBalance)}
                 </dd>
-                <p className="mt-1 text-[11px] text-muted-foreground">
+                <p className="mt-1 text-2xs text-muted-foreground">
                   Khách đã trả, buổi xem chưa hoàn tất.
                 </p>
               </div>
@@ -183,7 +183,7 @@ export function EarningsPanel() {
         {open && (
           <form
             onSubmit={submit}
-            className="mt-4 space-y-3 rounded-xl border border-gold/25 p-4"
+            className="mt-4 space-y-3 rounded-xl border border-gold/30 p-4"
           >
             <Field
               label={`Số tiền (tối đa ${formatVND(e?.balance ?? 0)})`}
@@ -200,7 +200,7 @@ export function EarningsPanel() {
                 onChange={(ev) =>
                   setForm((f) => ({ ...f, bankBin: ev.target.value }))
                 }
-                className="mt-1 w-full rounded-lg border border-white/10 bg-background/60 px-3 py-2 text-sm outline-none transition focus:border-gold/60"
+                className="mt-1 w-full rounded-lg border border-white/10 bg-background/60 px-3 py-2 text-sm outline-none transition focus:border-gold/50"
               >
                 <option value="">— Chọn ngân hàng —</option>
                 {DANH_SACH_NGAN_HANG.map((n) => (
@@ -220,7 +220,7 @@ export function EarningsPanel() {
               value={form.accountHolder}
               onChange={(v) => setForm((f) => ({ ...f, accountHolder: v }))}
             />
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-2xs text-muted-foreground">
               Số dư bị trừ ngay khi gửi lệnh. Nếu bị từ chối, tiền quay lại số
               dư.
             </p>
@@ -281,7 +281,7 @@ export function EarningsPanel() {
                     )}
                   </div>
                   <span
-                    className={`rounded-full border px-2.5 py-0.5 text-[11px] ${STATUS_CLASS[p.status]}`}
+                    className={`rounded-full border px-2.5 py-0.5 text-2xs ${STATUS_CLASS[p.status]}`}
                   >
                     {PAYOUT_STATUS_LABEL[p.status]}
                   </span>
@@ -330,7 +330,7 @@ function Field({
         inputMode={inputMode}
         onChange={(e) => onChange(e.target.value)}
         required
-        className="mt-1 w-full rounded-lg border border-gold/25 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
+        className="mt-1 w-full rounded-lg border border-gold/30 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
       />
     </label>
   );

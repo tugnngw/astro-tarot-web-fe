@@ -147,7 +147,7 @@ export function SubscriptionManagement() {
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="glass rounded-2xl border-gold/15 p-6 h-80 animate-pulse flex flex-col justify-between"
+                className="glass rounded-2xl border-gold/20 p-6 h-80 animate-pulse flex flex-col justify-between"
               >
                 <div className="space-y-3">
                   <div className="h-4 bg-white/10 rounded w-20" />
@@ -193,7 +193,7 @@ export function SubscriptionManagement() {
             })}
           </div>
         ) : (
-          <div className="glass rounded-2xl border-gold/15 p-12 text-center">
+          <div className="glass rounded-2xl border-gold/20 p-12 text-center">
             <Layers className="mx-auto h-8 w-8 text-gold/60 mb-2" />
             <p className="text-sm text-foreground">Không có gói dịch vụ nào trong mục này</p>
             <button
@@ -226,7 +226,7 @@ export function SubscriptionManagement() {
         đã mua gói và chỉ vào xem hạn mức. Accordion giữ nguyên nội dung mà
         mặc định chỉ còn ba dòng tiêu đề.
       */}
-      <section className="glass rounded-2xl border border-gold/15 p-6 sm:p-8">
+      <section className="glass rounded-2xl border border-gold/20 p-6 sm:p-8">
         <h3 className="flex items-center gap-2 font-display text-lg font-semibold text-foreground">
           <HelpCircle className="h-5 w-5 text-gold" />
           Câu hỏi thường gặp về gói cước

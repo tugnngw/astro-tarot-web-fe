@@ -35,7 +35,7 @@ export function UserPurchasesList({
 
   if (isLoading) {
     return (
-      <div className={`glass rounded-2xl border-gold/15 p-5 animate-pulse ${className}`}>
+      <div className={`glass rounded-2xl border-gold/20 p-5 animate-pulse ${className}`}>
         <div className="h-4 bg-white/10 rounded w-36 mb-3" />
         <div className="space-y-2">
           <div className="h-14 bg-white/5 rounded-xl" />
@@ -60,7 +60,7 @@ export function UserPurchasesList({
 
   if (displayPurchases.length === 0) {
     return (
-      <div className={`glass rounded-2xl border-gold/15 p-6 text-center ${className}`}>
+      <div className={`glass rounded-2xl border-gold/20 p-6 text-center ${className}`}>
         <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-gold/10 text-gold mb-3">
           <Zap className="h-6 w-6" />
         </div>
@@ -119,7 +119,7 @@ export function UserPurchasesList({
               className={`flex items-center justify-between rounded-xl border p-3.5 transition ${
                 isExpired
                   ? "border-white/5 bg-white/[0.02] opacity-60"
-                  : "border-gold/20 bg-gold/[0.03] hover:border-gold/40"
+                  : "border-gold/20 bg-gold/[0.03] hover:border-gold/50"
               }`}
             >
               <div className="flex-1 mr-3">
@@ -127,7 +127,7 @@ export function UserPurchasesList({
                   <h4 className="text-sm font-semibold text-foreground">
                     {purchase.planNameSnapshot}
                   </h4>
-                  <span className="rounded-full border border-gold/30 bg-gold/10 px-2 py-0.5 text-[10px] font-medium text-gold">
+                  <span className="rounded-full border border-gold/30 bg-gold/10 px-2 py-0.5 text-3xs font-medium text-gold">
                     {purchase.purchaseType}
                   </span>
                 </div>
@@ -150,11 +150,11 @@ export function UserPurchasesList({
 
               <div className="text-right shrink-0">
                 {isExpired ? (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-red-500/20 bg-red-500/10 px-2.5 py-1 text-[11px] text-red-400">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-red-500/20 bg-red-500/10 px-2.5 py-1 text-2xs text-red-400">
                     Đã hết hạn
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-medium text-emerald-400">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-2xs font-medium text-emerald-400">
                     <CheckCircle2 className="h-3 w-3" />
                     Đang dùng
                   </span>

@@ -171,7 +171,7 @@ export function BlogEditorModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[92vh] flex flex-col border-gold/30 bg-background/95 backdrop-blur-2xl p-6 sm:p-8">
-        <DialogHeader className="border-b border-gold/15 pb-4">
+        <DialogHeader className="border-b border-gold/20 pb-4">
           <DialogTitle className="font-display text-2xl text-gradient-gold flex items-center gap-2">
             <PenTool className="h-5 w-5 text-gold" />
             {isEditing ? "Sửa bài viết" : "Viết bài mới"}
@@ -192,7 +192,7 @@ export function BlogEditorModal({
               >
                 Tiêu đề <span className="text-rose-400">*</span>
               </Label>
-              <span className="text-[11px] text-muted-foreground">
+              <span className="text-2xs text-muted-foreground">
                 {title.length}/255
               </span>
             </div>
@@ -217,7 +217,7 @@ export function BlogEditorModal({
               >
                 Tóm tắt ngắn
               </Label>
-              <span className="text-[11px] text-muted-foreground">
+              <span className="text-2xs text-muted-foreground">
                 {summary.length}/500
               </span>
             </div>
@@ -258,12 +258,12 @@ export function BlogEditorModal({
               placeholder="Dán link ảnh (bắt đầu bằng https://...) — hoặc bỏ trống"
               className="border-gold/30 bg-card/40 focus:border-gold text-sm"
             />
-            <p className="text-[11px] text-muted-foreground leading-relaxed">
+            <p className="text-2xs text-muted-foreground leading-relaxed">
               Mở ảnh trên trình duyệt → chuột phải → Sao chép địa chỉ ảnh → dán
               vào đây. Không có ảnh thì trang sẽ dùng họa tiết mặc định.
             </p>
             {thumbnailUrl ? (
-              <div className="mt-1 relative h-28 w-full rounded-md border border-gold/20 overflow-hidden bg-muted/20">
+              <div className="mt-1 relative h-28 w-full rounded-lg border border-gold/20 overflow-hidden bg-muted/20">
                 <img
                   src={thumbnailUrl}
                   alt="Xem trước ảnh bìa"
@@ -307,7 +307,7 @@ export function BlogEditorModal({
 
             {tab === "edit" ? (
               <div className="space-y-2">
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-2xs text-muted-foreground">
                   Viết bình thường như Zalo/Word. Xuống dòng để tách đoạn — không
                   cần mã hay ký hiệu đặc biệt.
                 </p>
@@ -342,7 +342,7 @@ export function BlogEditorModal({
             )}
           </div>
 
-          <div className="rounded-lg border border-gold/15 bg-card/20">
+          <div className="rounded-lg border border-gold/20 bg-card/20">
             <button
               type="button"
               onClick={() => setShowAdvanced((v) => !v)}
@@ -354,12 +354,12 @@ export function BlogEditorModal({
               />
             </button>
             {showAdvanced ? (
-              <div className="space-y-2 border-t border-gold/10 px-3 pb-3 pt-2">
-                <p className="text-[11px] text-muted-foreground leading-relaxed">
+              <div className="space-y-2 border-t border-gold/20 px-3 pb-3 pt-2">
+                <p className="text-2xs text-muted-foreground leading-relaxed">
                   Hệ thống tự tạo đường dẫn từ tiêu đề. Chỉ sửa nếu bạn cần link
                   cụ thể (chữ thường, không dấu).
                 </p>
-                <div className="flex items-center rounded-md border border-gold/30 bg-card/40 px-3 focus-within:border-gold">
+                <div className="flex items-center rounded-lg border border-gold/30 bg-card/40 px-3 focus-within:border-gold">
                   <span className="text-xs text-muted-foreground select-none shrink-0">
                     /blog/
                   </span>
@@ -375,7 +375,7 @@ export function BlogEditorModal({
                 {autoSlug ? (
                   <button
                     type="button"
-                    className="text-[11px] text-gold hover:underline"
+                    className="text-2xs text-gold hover:underline"
                     onClick={() => setAutoSlug(false)}
                   >
                     Cho phép sửa tay
@@ -383,7 +383,7 @@ export function BlogEditorModal({
                 ) : (
                   <button
                     type="button"
-                    className="text-[11px] text-gold hover:underline"
+                    className="text-2xs text-gold hover:underline"
                     onClick={() => {
                       setAutoSlug(true);
                       setSlug(slugifyVietnamese(title));
@@ -400,7 +400,7 @@ export function BlogEditorModal({
           </div>
         </div>
 
-        <DialogFooter className="border-t border-gold/15 pt-4 gap-2 sm:gap-0">
+        <DialogFooter className="border-t border-gold/20 pt-4 gap-2 sm:gap-0">
           <Button
             type="button"
             variant="ghost"

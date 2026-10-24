@@ -239,7 +239,7 @@ function LoginForm({
         />
 
         {unverified && (
-          <div className="rounded-lg border border-gold/40 bg-gold/10 p-3 text-xs leading-relaxed text-foreground/90">
+          <div className="rounded-lg border border-gold/50 bg-gold/10 p-3 text-xs leading-relaxed text-foreground/90">
             Tài khoản này chưa xác minh email.{" "}
             <button
               type="button"
@@ -481,7 +481,7 @@ function CheckInbox({
 
   return (
     <div className="text-center">
-      <div className="mx-auto grid h-16 w-16 place-items-center rounded-full border border-gold/40 bg-gold/10">
+      <div className="mx-auto grid h-16 w-16 place-items-center rounded-full border border-gold/50 bg-gold/10">
         <MailCheck aria-hidden="true" className="h-7 w-7 text-gold" />
       </div>
       <h2 className="mt-5 font-display text-2xl text-gradient-gold">
@@ -548,7 +548,7 @@ function ForgotForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
   if (sent) {
     return (
       <div className="text-center">
-        <div className="mx-auto grid h-16 w-16 place-items-center rounded-full border border-gold/40 bg-gold/10">
+        <div className="mx-auto grid h-16 w-16 place-items-center rounded-full border border-gold/50 bg-gold/10">
           <MailCheck aria-hidden="true" className="h-7 w-7 text-gold" />
         </div>
         <h2 className="mt-5 font-display text-2xl text-gradient-gold">

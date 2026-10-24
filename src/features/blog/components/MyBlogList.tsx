@@ -173,7 +173,7 @@ export function MyBlogList() {
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="h-28 rounded-2xl border border-gold/15 bg-card/30 animate-pulse"
+              className="h-28 rounded-2xl border border-gold/20 bg-card/30 animate-pulse"
             />
           ))}
         </div>
@@ -256,11 +256,11 @@ export function MyBlogList() {
                   <div className="flex-1 min-w-0 space-y-1.5">
                     <div className="flex flex-wrap items-center gap-2">
                       <span
-                        className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-medium ${statusMeta.badgeClass}`}
+                        className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-2xs font-medium ${statusMeta.badgeClass}`}
                       >
                         {statusMeta.label}
                       </span>
-                      <span className="text-[11px] text-muted-foreground">
+                      <span className="text-2xs text-muted-foreground">
                         Đường dẫn:{" "}
                         <code className="text-gold font-mono">
                           /blog/{blog.slug}
@@ -278,7 +278,7 @@ export function MyBlogList() {
                       </p>
                     )}
 
-                    <div className="flex items-center gap-3 text-[11px] text-muted-foreground pt-0.5">
+                    <div className="flex items-center gap-3 text-2xs text-muted-foreground pt-0.5">
                       <span className="inline-flex items-center gap-1">
                         <Calendar className="h-3 w-3 text-gold/70" />{" "}
                         {formatBlogDate(blog.createdAt)}
@@ -298,7 +298,7 @@ export function MyBlogList() {
                           <AlertCircle className="h-3.5 w-3.5 shrink-0" />
                           Lý do từ chối:
                         </p>
-                        <p className="mt-0.5 pl-4 text-muted-foreground text-[11px]">
+                        <p className="mt-0.5 pl-4 text-muted-foreground text-2xs">
                           {blog.rejectionReason}
                         </p>
                       </div>
@@ -307,13 +307,13 @@ export function MyBlogList() {
                 </div>
 
                 {/* Right actions */}
-                <div className="flex flex-wrap md:flex-nowrap items-center gap-2 self-end md:self-center shrink-0 border-t md:border-t-0 border-gold/10 pt-3 md:pt-0 w-full md:w-auto justify-end">
+                <div className="flex flex-wrap md:flex-nowrap items-center gap-2 self-end md:self-center shrink-0 border-t md:border-t-0 border-gold/20 pt-3 md:pt-0 w-full md:w-auto justify-end">
                   {blog.status === "PUBLISHED" && (
                     <Link
                       to="/blog/$slug"
                       params={{ slug: blog.slug }}
                       target="_blank"
-                      className="inline-flex items-center gap-1 rounded-lg border border-gold/40 px-2.5 py-1.5 text-xs text-gold hover:bg-gold/10 transition"
+                      className="inline-flex items-center gap-1 rounded-lg border border-gold/50 px-2.5 py-1.5 text-xs text-gold hover:bg-gold/10 transition"
                     >
                       <ExternalLink className="h-3.5 w-3.5" /> Xem bài
                     </Link>

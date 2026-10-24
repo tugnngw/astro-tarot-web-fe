@@ -140,7 +140,7 @@ function MyBookingsPage() {
               type="button"
               onClick={() => setStatus(f.key)}
               aria-pressed={status === f.key}
-              className={`rounded-full border px-4 py-1.5 text-xs transition hover:border-gold/70 hover:bg-gold/10 active:scale-95 focus-visible:ring-2 focus-visible:ring-gold/40 ${
+              className={`rounded-full border px-4 py-1.5 text-xs transition hover:border-gold/50 hover:bg-gold/10 active:scale-95 focus-visible:ring-2 focus-visible:ring-gold/40 ${
                 status === f.key
                   ? "border-gold bg-gold/20 text-gold"
                   : "border-mystic/50 bg-mystic/10 text-foreground/80"
@@ -182,7 +182,7 @@ function MyBookingsPage() {
               soBuoi={demTheoNgay(loc)}
             />
           </div>
-          <p className="mt-2 text-[11px] text-muted-foreground">
+          <p className="mt-2 text-2xs text-muted-foreground">
             Số trên mỗi ngày là buổi chưa huỷ. Bấm một ngày để xem đúng ngày đó,
             bấm lại để xem cả tháng.
           </p>

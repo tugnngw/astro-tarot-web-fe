@@ -65,10 +65,10 @@ export function WhatYouCanDo() {
           <Reveal key={p.title} delay={i * 0.08}>
             <article className="card-hover glass flex h-full flex-col rounded-2xl p-6">
               <div className="flex items-start justify-between gap-3">
-                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-gold/40 bg-gold/10">
+                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-gold/50 bg-gold/10">
                   <p.icon aria-hidden="true" className="h-5 w-5 text-gold" />
                 </span>
-                <span className="rounded-full border border-gold/30 px-2.5 py-0.5 text-[10px] uppercase tracking-[0.15em] text-gold/80">
+                <span className="rounded-full border border-gold/30 px-2.5 py-0.5 text-3xs uppercase tracking-[0.15em] text-gold/80">
                   {p.tag}
                 </span>
               </div>

@@ -201,11 +201,11 @@ function AstrologyProfilesPage() {
                           <h3 className="flex flex-wrap items-center gap-2 font-display text-xl text-gold-soft">
                             {p.title}
                             {p.isPrimary && (
-                              <span className="rounded-full bg-gold/20 px-2 py-0.5 text-[11px] text-gold">
+                              <span className="rounded-full bg-gold/20 px-2 py-0.5 text-2xs text-gold">
                                 Hồ sơ chính
                               </span>
                             )}
-                            <span className="rounded-full border border-gold/25 px-2 py-0.5 text-[11px] text-gold/80">
+                            <span className="rounded-full border border-gold/30 px-2 py-0.5 text-2xs text-gold/80">
                               {PROFILE_TYPE_LABEL[p.profileType] ??
                                 p.profileType}
                             </span>
@@ -243,7 +243,7 @@ function AstrologyProfilesPage() {
                           <button
                             type="button"
                             onClick={() => setEditing(p)}
-                            className="inline-flex items-center gap-1.5 rounded-full border border-gold/40 px-3 py-1.5 text-sm text-gold transition hover:bg-gold/10"
+                            className="inline-flex items-center gap-1.5 rounded-full border border-gold/50 px-3 py-1.5 text-sm text-gold transition hover:bg-gold/10"
                           >
                             <Pencil className="h-3.5 w-3.5" />
                             Sửa

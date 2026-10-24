@@ -89,7 +89,7 @@ function SubscriptionPage() {
             <button
               type="button"
               onClick={() => openAuth("login")}
-              className="inline-flex items-center gap-1.5 rounded-full border border-gold/40 bg-gold/10 px-3.5 py-1.5 text-xs font-medium text-gold hover:bg-gold/20 transition"
+              className="inline-flex items-center gap-1.5 rounded-full border border-gold/50 bg-gold/10 px-3.5 py-1.5 text-xs font-medium text-gold hover:bg-gold/20 transition"
             >
               <LogIn className="h-3.5 w-3.5" />
               Đăng nhập tài khoản
@@ -98,7 +98,7 @@ function SubscriptionPage() {
         </div>
 
         {!user && (
-          <div className="glass rounded-2xl border-gold/25 p-4 sm:p-5 mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="glass rounded-2xl border-gold/30 p-4 sm:p-5 mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="grid h-10 w-10 place-items-center rounded-xl bg-gold/15 text-gold shrink-0">
                 <Sparkles className="h-5 w-5" />

@@ -151,7 +151,7 @@ function UpcomingBooking() {
                   <span className="block text-xs text-gold">
                     {b.totalAmount != null ? formatVND(b.totalAmount) : ""}
                   </span>
-                  <span className="mt-0.5 block text-[11px] text-muted-foreground">
+                  <span className="mt-0.5 block text-2xs text-muted-foreground">
                     {BOOKING_STATUS_LABEL[b.status as BookingStatus] ??
                       b.status}
                   </span>
@@ -308,7 +308,7 @@ function Empty({ text, to, cta }: { text: string; to: string; cta: string }) {
       <p className="text-sm text-muted-foreground">{text}</p>
       <Link
         to={to}
-        className="rounded-full border border-gold/40 px-4 py-1.5 text-xs text-gold transition hover:bg-gold/10"
+        className="rounded-full border border-gold/50 px-4 py-1.5 text-xs text-gold transition hover:bg-gold/10"
       >
         {cta}
       </Link>

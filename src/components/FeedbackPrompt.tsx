@@ -140,7 +140,7 @@ export function FeedbackPrompt({
       <button
         type="button"
         onClick={handleOpen}
-        className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-card/90 px-3.5 py-2 text-xs font-medium text-gold shadow-lg backdrop-blur transition hover:bg-gold/15 focus:outline-none focus:ring-2 focus:ring-gold/50"
+        className="inline-flex items-center gap-2 rounded-full border border-gold/50 bg-card/90 px-3.5 py-2 text-xs font-medium text-gold shadow-lg backdrop-blur transition hover:bg-gold/15 focus:outline-none focus:ring-2 focus:ring-gold/50"
         aria-label={
           alreadySubmitted
             ? "Xem và chỉnh sửa đánh giá của bạn"
@@ -266,7 +266,7 @@ export function FeedbackPrompt({
                   maxLength={2000}
                   onChange={(e) => setComment(e.target.value.slice(0, 2000))}
                   rows={4}
-                  className="mt-2 w-full rounded-xl border border-gold/25 bg-muted/20 p-3 text-sm text-foreground placeholder:text-muted-foreground/60 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
+                  className="mt-2 w-full rounded-xl border border-gold/30 bg-muted/20 p-3 text-sm text-foreground placeholder:text-muted-foreground/60 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
                   placeholder="Điều gì bạn thích hoặc cần chúng tôi cải thiện hơn? (Tối đa 2.000 ký tự)"
                 />
               </div>
@@ -297,7 +297,7 @@ export function FeedbackPrompt({
                           className={`h-7 w-7 rounded-lg text-xs font-medium transition ${
                             nps === i
                               ? "bg-gold text-background shadow-xs font-bold"
-                              : "border border-gold/25 text-foreground hover:bg-gold/15"
+                              : "border border-gold/30 text-foreground hover:bg-gold/15"
                           }`}
                         >
                           {i}
@@ -309,7 +309,7 @@ export function FeedbackPrompt({
               </div>
 
               {/* Footer controls */}
-              <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-gold/15 pt-4">
+              <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-gold/20 pt-4">
                 {!alreadySubmitted ? (
                   <button
                     type="button"
@@ -331,7 +331,7 @@ export function FeedbackPrompt({
                         href={EXTERNAL_FEEDBACK_FORM_URL}
                         target="_blank"
                         rel="noreferrer"
-                        className="rounded-full border border-gold/40 px-3.5 py-1.5 text-xs text-gold transition hover:bg-gold/10"
+                        className="rounded-full border border-gold/50 px-3.5 py-1.5 text-xs text-gold transition hover:bg-gold/10"
                       >
                         Form Google
                       </a>

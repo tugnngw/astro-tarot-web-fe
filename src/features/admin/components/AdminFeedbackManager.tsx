@@ -225,7 +225,7 @@ export function AdminFeedbackManager() {
                 >
                   <div className="flex items-center gap-2">
                     <span
-                      className={`inline-block rounded-md border px-2 py-0.5 text-xs font-medium ${colorClass}`}
+                      className={`inline-block rounded-lg border px-2 py-0.5 text-xs font-medium ${colorClass}`}
                     >
                       {SOURCE_VI[src] ?? src}
                     </span>
@@ -247,7 +247,7 @@ export function AdminFeedbackManager() {
 
       {/* Danh sách phản hồi chi tiết & Bộ lọc */}
       <section className="glass rounded-2xl p-5">
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-gold/15 pb-4">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-gold/20 pb-4">
           <div>
             <h2 className="font-display text-xl text-foreground">
               Danh sách phản hồi & góp ý
@@ -274,7 +274,7 @@ export function AdminFeedbackManager() {
               >
                 <SelectValue placeholder="Mọi mức sao" />
               </SelectTrigger>
-              <SelectContent className="rounded-xl border border-gold/25 bg-card text-foreground shadow-xl">
+              <SelectContent className="rounded-xl border border-gold/30 bg-card text-foreground shadow-xl">
                 <SelectItem value="__all__" className="text-xs">
                   Mọi mức sao
                 </SelectItem>
@@ -310,7 +310,7 @@ export function AdminFeedbackManager() {
               >
                 <SelectValue placeholder="Mọi nguồn gửi" />
               </SelectTrigger>
-              <SelectContent className="rounded-xl border border-gold/25 bg-card text-foreground shadow-xl">
+              <SelectContent className="rounded-xl border border-gold/30 bg-card text-foreground shadow-xl">
                 <SelectItem value="__all__" className="text-xs">
                   Mọi nguồn gửi
                 </SelectItem>
@@ -369,7 +369,7 @@ export function AdminFeedbackManager() {
               <button
                 type="button"
                 onClick={() => void listQuery.refetch()}
-                className="mt-3 rounded-full border border-gold/40 px-4 py-1.5 text-xs text-gold hover:bg-gold/10"
+                className="mt-3 rounded-full border border-gold/50 px-4 py-1.5 text-xs text-gold hover:bg-gold/10"
               >
                 Thử lại
               </button>
@@ -405,7 +405,7 @@ export function AdminFeedbackManager() {
                   <button
                     type="button"
                     onClick={handleResetFilters}
-                    className="mt-3 rounded-full border border-gold/40 px-3.5 py-1.5 text-xs text-gold hover:bg-gold/10"
+                    className="mt-3 rounded-full border border-gold/50 px-3.5 py-1.5 text-xs text-gold hover:bg-gold/10"
                   >
                     Xoá bộ lọc
                   </button>
@@ -427,7 +427,7 @@ export function AdminFeedbackManager() {
                     <col className="w-[10rem]" />
                   </colgroup>
                   <thead>
-                    <tr className="border-b border-gold/15 text-left text-xs font-normal uppercase tracking-wider text-muted-foreground">
+                    <tr className="border-b border-gold/20 text-left text-xs font-normal uppercase tracking-wider text-muted-foreground">
                       <th scope="col" className="py-2.5 pr-3">
                         Đánh giá
                       </th>
@@ -469,7 +469,7 @@ export function AdminFeedbackManager() {
                             </span>
                           </div>
                           <div className="mt-1">
-                            <span className="inline-block rounded-md bg-mystic/20 px-2 py-0.5 text-[11px] text-muted-foreground">
+                            <span className="inline-block rounded-lg bg-mystic/20 px-2 py-0.5 text-2xs text-muted-foreground">
                               NPS: {fb.nps}/10
                             </span>
                           </div>
@@ -501,11 +501,11 @@ export function AdminFeedbackManager() {
                                 {fb.userFullName || fb.username || "Thành viên"}
                               </p>
                               {fb.userEmail && (
-                                <p className="truncate text-[11px] text-muted-foreground">
+                                <p className="truncate text-2xs text-muted-foreground">
                                   {fb.userEmail}
                                 </p>
                               )}
-                              <span className="mt-0.5 inline-block text-[10px] text-gold/75">
+                              <span className="mt-0.5 inline-block text-3xs text-gold/75">
                                 @{fb.username}
                               </span>
                             </div>
@@ -516,7 +516,7 @@ export function AdminFeedbackManager() {
                         <td className="py-3 pr-3 align-top text-xs">
                           <div>
                             <span
-                              className={`inline-block rounded-md border px-2 py-0.5 text-[11px] font-medium ${
+                              className={`inline-block rounded-lg border px-2 py-0.5 text-2xs font-medium ${
                                 SOURCE_COLORS[fb.source] ??
                                 "bg-gold/15 text-gold border-gold/30"
                               }`}
@@ -525,7 +525,7 @@ export function AdminFeedbackManager() {
                             </span>
                           </div>
                           {(fb.utmSource || fb.utmCampaign) && (
-                            <div className="mt-1 space-y-0.5 text-[10px] text-muted-foreground/80">
+                            <div className="mt-1 space-y-0.5 text-3xs text-muted-foreground/80">
                               {fb.utmSource && (
                                 <p className="truncate">
                                   utm_source:{" "}
@@ -551,7 +551,7 @@ export function AdminFeedbackManager() {
                           <div>{formatDate(fb.createdAt)}</div>
                           {fb.updatedAt && fb.updatedAt !== fb.createdAt && (
                             <div
-                              className="mt-0.5 text-[10px] text-gold/70"
+                              className="mt-0.5 text-3xs text-gold/70"
                               title={`Sửa lúc ${formatDate(fb.updatedAt)}`}
                             >
                               Đã sửa

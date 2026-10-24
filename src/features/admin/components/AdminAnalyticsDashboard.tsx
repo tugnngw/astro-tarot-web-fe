@@ -1,3 +1,4 @@
+import { MAU } from "@/lib/mau-bieu-do";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getHanhTrinhTheoNguon } from "@/api/marketing";
@@ -55,6 +56,9 @@ type DateRangeOption = "7d" | "14d" | "30d" | "90d";
  * TÍNH VÀO. Nên `7daysAgo..yesterday` đúng 7 ngày, còn `7daysAgo..today`
  * là 8 ngày — nhãn ghi 7 mà hỏi 8.
  */
+/** Đường kẻ lưới: rất mờ, chỉ để mắt bám trục chứ không được tranh nét với dữ liệu. */
+const LUOI_BIEU_DO = "#ffffff10";
+
 const DATE_RANGE_MAP: Record<DateRangeOption, { start: string; end: string; label: string }> = {
   "7d": { start: "7daysAgo", end: "yesterday", label: "7 ngày qua" },
   "14d": { start: "14daysAgo", end: "yesterday", label: "14 ngày qua" },
@@ -172,7 +176,7 @@ export function AdminAnalyticsDashboard() {
                 key={key}
                 type="button"
                 onClick={() => setRange(key)}
-                className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
+                className={`px-3 py-1 text-xs font-medium rounded-lg transition-all ${
                   range === key
                     ? "bg-gold text-black shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
@@ -371,23 +375,23 @@ export function AdminAnalyticsDashboard() {
               <AreaChart data={timeSeries} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorSessions" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#34d399" stopOpacity={0.4} />
-                    <stop offset="95%" stopColor="#34d399" stopOpacity={0} />
+                    <stop offset="5%" stopColor={MAU.luc} stopOpacity={0.4} />
+                    <stop offset="95%" stopColor={MAU.luc} stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#c084fc" stopOpacity={0.4} />
-                    <stop offset="95%" stopColor="#c084fc" stopOpacity={0} />
+                    <stop offset="5%" stopColor={MAU.tim} stopOpacity={0.4} />
+                    <stop offset="95%" stopColor={MAU.tim} stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke={LUOI_BIEU_DO} vertical={false} />
                 <XAxis
                   dataKey="date"
                   tickLine={false}
-                  stroke="#888888"
+                  stroke={MAU.xam}
                   fontSize={11}
                   tickFormatter={(val) => (val.length >= 5 ? val.slice(5) : val)}
                 />
-                <YAxis tickLine={false} stroke="#888888" fontSize={11} allowDecimals={false} />
+                <YAxis tickLine={false} stroke={MAU.xam} fontSize={11} allowDecimals={false} />
                 <Tooltip
                   content={({ active, payload, label: xLabel }) => {
                     if (active && payload && payload.length) {
@@ -417,7 +421,7 @@ export function AdminAnalyticsDashboard() {
                   type="monotone"
                   dataKey="sessions"
                   name="sessions"
-                  stroke="#34d399"
+                  stroke={MAU.luc}
                   strokeWidth={2}
                   fillOpacity={1}
                   fill="url(#colorSessions)"
@@ -426,7 +430,7 @@ export function AdminAnalyticsDashboard() {
                   type="monotone"
                   dataKey="activeUsers"
                   name="activeUsers"
-                  stroke="#c084fc"
+                  stroke={MAU.tim}
                   strokeWidth={2}
                   fillOpacity={1}
                   fill="url(#colorUsers)"
@@ -473,7 +477,7 @@ export function AdminAnalyticsDashboard() {
                       <td className="py-2.5">
                         <div className="flex items-center gap-2">
                           <span className="font-medium text-foreground">{item.source || "(direct)"}</span>
-                          <span className="rounded bg-white/10 px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                          <span className="rounded bg-white/10 px-1.5 py-0.5 text-3xs text-muted-foreground">
                             {item.medium || "(none)"}
                           </span>
                         </div>
@@ -644,14 +648,14 @@ function KpiCard({
   return (
     <div className="glass rounded-xl p-3.5 border border-white/10 flex flex-col justify-between">
       <div className="flex items-center justify-between">
-        <span className="text-[11px] font-medium text-muted-foreground line-clamp-1">{title}</span>
+        <span className="text-2xs font-medium text-muted-foreground line-clamp-1">{title}</span>
         <div className={`rounded-lg p-1.5 ${bgColor}`}>
           <Icon className={`h-4 w-4 ${color}`} />
         </div>
       </div>
       <div className="mt-2">
         <div className="font-display text-xl text-foreground font-semibold">{value}</div>
-        <div className="text-[10px] text-muted-foreground/80">{hint}</div>
+        <div className="text-3xs text-muted-foreground/80">{hint}</div>
       </div>
     </div>
   );

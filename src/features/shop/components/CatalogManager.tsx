@@ -244,7 +244,7 @@ export function CatalogManager() {
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[820px] border-collapse text-sm">
                   <thead>
-                    <tr className="border-b border-gold/15 text-left text-xs uppercase tracking-[0.15em] text-muted-foreground">
+                    <tr className="border-b border-gold/20 text-left text-xs uppercase tracking-[0.15em] text-muted-foreground">
                       <th scope="col" className="py-2 pr-3 font-normal">
                         Sản phẩm
                       </th>
@@ -352,7 +352,7 @@ export function CatalogManager() {
                               type="button"
                               onClick={() => setEditing(p)}
                               aria-label={`Sửa ${p.name}`}
-                              className="inline-flex items-center gap-1 rounded-full border border-gold/40 px-3 py-1 text-xs text-gold transition hover:bg-gold/10"
+                              className="inline-flex items-center gap-1 rounded-full border border-gold/50 px-3 py-1 text-xs text-gold transition hover:bg-gold/10"
                             >
                               <Pencil aria-hidden="true" className="h-3 w-3" />{" "}
                               Sửa
@@ -547,7 +547,7 @@ function Stat({
     <div
       className={`rounded-xl border px-3 py-2 ${warn ? "border-amber-400/40" : "border-gold/20"}`}
     >
-      <dt className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+      <dt className="text-3xs uppercase tracking-[0.12em] text-muted-foreground">
         {label}
       </dt>
       <dd
@@ -618,7 +618,7 @@ function ProductDialog({
         role="dialog"
         aria-modal="true"
         aria-labelledby="product-dialog-title"
-        className="panel-black relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-gold/25 p-6 shadow-2xl"
+        className="panel-black relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-gold/30 p-6 shadow-2xl"
       >
         <button
           type="button"
@@ -654,7 +654,7 @@ function ProductDialog({
                 setForm((f) => ({ ...f, description: e.target.value }))
               }
               rows={3}
-              className="mt-1 w-full rounded-lg border border-gold/25 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
+              className="mt-1 w-full rounded-lg border border-gold/30 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
             />
           </label>
 
@@ -697,7 +697,7 @@ function ProductDialog({
             placeholder="https://shopee.vn/..."
           />
           {laLinkTimKiem(form.affiliateUrl) ? (
-            <p className="flex items-start gap-1.5 text-[11px] text-amber-300">
+            <p className="flex items-start gap-1.5 text-2xs text-amber-300">
               <AlertCircle
                 aria-hidden="true"
                 className="mt-px h-3 w-3 shrink-0"
@@ -709,7 +709,7 @@ function ProductDialog({
               </span>
             </p>
           ) : (
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-2xs text-muted-foreground">
               Dán link tiếp thị lấy từ chương trình đối tác của sàn, không phải
               link sản phẩm thường — link thường thì không ghi công hoa hồng cho
               mình.
@@ -727,7 +727,7 @@ function ProductDialog({
                     affiliatePlatform: e.target.value as Platform,
                   }))
                 }
-                className="mt-1 w-full rounded-lg border border-gold/25 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
+                className="mt-1 w-full rounded-lg border border-gold/30 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
               >
                 {PLATFORMS.map((p) => (
                   <option key={p} value={p}>
@@ -757,7 +757,7 @@ function ProductDialog({
               onChange={(e) =>
                 setForm((f) => ({ ...f, categoryId: e.target.value || null }))
               }
-              className="mt-1 w-full rounded-lg border border-gold/25 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
+              className="mt-1 w-full rounded-lg border border-gold/30 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
             >
               <option value="">— Chọn danh mục —</option>
               {(categories.data ?? []).map((c) => (
@@ -767,7 +767,7 @@ function ProductDialog({
               ))}
             </select>
           </label>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-2xs text-muted-foreground">
             Danh mục là thứ giữ cho cửa hàng bám đề tài. Món nào không xếp được
             vào năm danh mục này thì gần như chắc chắn không nên bán ở đây.
           </p>
@@ -833,7 +833,7 @@ function Field({
         inputMode={inputMode}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1 w-full rounded-lg border border-gold/25 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
+        className="mt-1 w-full rounded-lg border border-gold/30 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
       />
     </label>
   );
@@ -856,7 +856,7 @@ function ShopeeCommissionNote() {
         }}
         rows={2}
         placeholder="VD: Tháng 9/2026 — hoa hồng đã duyệt 125.000đ (screenshot báo cáo Shopee)"
-        className="mt-1 w-full rounded-lg border border-gold/25 bg-input/70 px-3 py-2 text-sm text-foreground outline-none focus:border-gold"
+        className="mt-1 w-full rounded-lg border border-gold/30 bg-input/70 px-3 py-2 text-sm text-foreground outline-none focus:border-gold"
       />
     </label>
   );

@@ -22,11 +22,11 @@ export function TarotCard({ card, isRevealed, delay = 0, label }: Props) {
           transition={{ duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] }}
         >
           {/* Back */}
-          <div className="absolute inset-0 rounded-xl border border-gold/60 bg-gradient-to-br from-mystic to-card p-3 [backface-visibility:hidden] glow-mystic">
-            <div className="flex h-full items-center justify-center rounded-lg border border-gold/40">
+          <div className="absolute inset-0 rounded-xl border border-gold/50 bg-gradient-to-br from-mystic to-card p-3 [backface-visibility:hidden] glow-mystic">
+            <div className="flex h-full items-center justify-center rounded-lg border border-gold/50">
               <div className="text-center">
                 <div className="text-3xl text-gold">✦</div>
-                <div className="mt-1 text-[10px] uppercase tracking-[0.3em] text-gold-soft">
+                <div className="mt-1 text-3xs uppercase tracking-[0.3em] text-gold-soft">
                   Astro Tarot
                 </div>
                 <div className="mt-2 text-2xl text-gold">☾</div>
@@ -39,7 +39,7 @@ export function TarotCard({ card, isRevealed, delay = 0, label }: Props) {
             style={{ transform: "rotateY(180deg)" }}
           >
             <div className="flex h-full flex-col items-center justify-between rounded-lg border border-gold/30 py-3">
-              <div className="text-[10px] uppercase tracking-widest text-gold">
+              <div className="text-3xs uppercase tracking-widest text-gold">
                 Major Arcana
               </div>
               <div className="text-5xl">🌙</div>

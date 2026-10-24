@@ -31,7 +31,7 @@ export function LogoutConfirm({
         <div className="mt-6 flex gap-3">
           <button
             onClick={onClose}
-            className="flex-1 rounded-full border border-gold/40 py-2.5 text-sm text-gold hover:bg-gold/10"
+            className="flex-1 rounded-full border border-gold/50 py-2.5 text-sm text-gold hover:bg-gold/10"
           >
             Hủy
           </button>

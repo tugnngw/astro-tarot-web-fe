@@ -54,7 +54,7 @@ export function CallPanel({ call }: { call: BookingCall }) {
     // Chỉ cảnh báo thiếu TURN, không chiếm chỗ khi mọi thứ bình thường.
     if (call.hasTurn) return null;
     return (
-      <p className="flex items-start gap-2 border-b border-amber-400/20 bg-amber-950/40 px-4 py-2 text-[11px] text-amber-100">
+      <p className="flex items-start gap-2 border-b border-amber-400/20 bg-amber-950/40 px-4 py-2 text-2xs text-amber-100">
         <TriangleAlert aria-hidden className="mt-0.5 h-3.5 w-3.5 shrink-0" />
         Cuộc gọi nối thẳng giữa hai máy. Không nối được thì nhắn tin vẫn
         dùng được.
@@ -86,7 +86,7 @@ export function CallPanel({ call }: { call: BookingCall }) {
             role="dialog"
             aria-modal="true"
             aria-label={`${ten} đang gọi`}
-            className="w-full max-w-sm rounded-3xl bg-[#242526] px-6 py-8 text-center text-white shadow-2xl"
+            className="w-full max-w-sm rounded-2xl bg-[#242526] px-6 py-8 text-center text-white shadow-2xl"
           >
             <div className="mx-auto grid h-24 w-24 place-items-center rounded-full bg-gold/15 text-3xl font-semibold text-gold">
               {ten.charAt(0).toUpperCase()}

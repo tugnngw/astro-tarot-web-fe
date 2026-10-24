@@ -50,7 +50,7 @@ function BlogsPage() {
       <main className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Hero gọn — danh sách bài là trọng tâm, không chiếm nửa màn hình */}
         <div className="mb-8 max-w-2xl space-y-3 sm:mb-10">
-          <div className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-card/60 px-3.5 py-1 text-[11px] uppercase tracking-[0.2em] text-gold">
+          <div className="inline-flex items-center gap-2 rounded-full border border-gold/50 bg-card/60 px-3.5 py-1 text-2xs uppercase tracking-[0.2em] text-gold">
             <Sparkles className="h-3.5 w-3.5" /> Nhật ký Vũ trụ
           </div>
           <h1 className="font-display text-3xl sm:text-4xl text-gradient-gold">
@@ -101,7 +101,7 @@ function BlogsPage() {
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div
                   key={i}
-                  className="h-56 rounded-2xl border border-gold/15 bg-card/30 animate-pulse"
+                  className="h-56 rounded-2xl border border-gold/20 bg-card/30 animate-pulse"
                 />
               ))}
             </div>
@@ -110,7 +110,7 @@ function BlogsPage() {
 
         {/* Empty state */}
         {!blogsQuery.isLoading && !blogsQuery.isError && blogs.length === 0 && (
-          <div className="rounded-3xl border border-gold/20 bg-card/30 p-16 text-center max-w-xl mx-auto my-8">
+          <div className="rounded-2xl border border-gold/20 bg-card/30 p-16 text-center max-w-xl mx-auto my-8">
             <div className="mx-auto w-14 h-14 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center text-gold mb-4">
               <BookOpen className="h-7 w-7" />
             </div>
@@ -128,7 +128,7 @@ function BlogsPage() {
               <button
                 type="button"
                 onClick={() => setKeyword("")}
-                className="mt-6 inline-flex items-center gap-2 rounded-full border border-gold/40 px-5 py-2 text-xs font-medium text-gold hover:bg-gold/10 transition"
+                className="mt-6 inline-flex items-center gap-2 rounded-full border border-gold/50 px-5 py-2 text-xs font-medium text-gold hover:bg-gold/10 transition"
               >
                 Xóa bộ lọc tìm kiếm
               </button>

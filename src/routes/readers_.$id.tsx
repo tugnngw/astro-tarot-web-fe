@@ -214,7 +214,7 @@ function ReaderProfilePage() {
                 {specialties.map((s) => (
                   <li
                     key={s}
-                    className="rounded-full border border-gold/25 px-3 py-1 text-xs text-gold/80"
+                    className="rounded-full border border-gold/30 px-3 py-1 text-xs text-gold/80"
                   >
                     {s}
                   </li>
@@ -228,7 +228,7 @@ function ReaderProfilePage() {
                   key={d}
                   className="rounded-xl border border-gold/20 px-3 py-2"
                 >
-                  <dt className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
+                  <dt className="text-2xs uppercase tracking-[0.15em] text-muted-foreground">
                     {d} phút
                   </dt>
                   <dd className="mt-1 font-display text-lg text-gold">
@@ -271,7 +271,7 @@ function ReaderProfilePage() {
                     {reviews.data!.content.map((rv) => (
                       <li
                         key={rv.id}
-                        className="rounded-xl border border-gold/15 p-4"
+                        className="rounded-xl border border-gold/20 p-4"
                       >
                         <div className="flex items-center justify-between gap-3">
                           <span className="text-sm text-foreground">
@@ -299,7 +299,7 @@ function ReaderProfilePage() {
                             {rv.comment}
                           </p>
                         )}
-                        <p className="mt-2 text-[11px] text-muted-foreground/70">
+                        <p className="mt-2 text-2xs text-muted-foreground/70">
                           {formatDate(rv.createdAt)}
                         </p>
                       </li>
@@ -370,7 +370,7 @@ function ReaderProfilePage() {
                               ? "Reader chưa đặt giá cho mốc này"
                               : undefined
                           }
-                          className={`flex-1 rounded-full border py-1.5 text-xs transition hover:border-gold/70 hover:bg-gold/10 active:scale-95 disabled:cursor-not-allowed disabled:opacity-30 ${
+                          className={`flex-1 rounded-full border py-1.5 text-xs transition hover:border-gold/50 hover:bg-gold/10 active:scale-95 disabled:cursor-not-allowed disabled:opacity-30 ${
                             chon
                               ? "border-gold bg-gold/20 text-gold"
                               : "border-mystic/50 text-foreground/80"
@@ -493,7 +493,7 @@ function ReaderProfilePage() {
                       : "Đăng nhập để đặt lịch"}
                 </button>
 
-                <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
+                <p className="mt-3 text-2xs leading-relaxed text-muted-foreground">
                   Đặt xong, chọn đặt cọc 50% hoặc trả hết ở trang{" "}
                   <Link to="/bookings" className="text-gold hover:underline">
                     Lịch hẹn của tôi
@@ -537,7 +537,7 @@ function Shell({ children }: { children: React.ReactNode }) {
 function Buoc({ so, children }: { so: number; children: React.ReactNode }) {
   return (
     <span className="flex items-center gap-2">
-      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-mystic/60 bg-gold/15 text-[11px] font-semibold text-gold">
+      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-mystic/60 bg-gold/15 text-2xs font-semibold text-gold">
         {so}
       </span>
       <span className="text-sm font-semibold text-foreground">{children}</span>
@@ -596,7 +596,7 @@ function KhungGio({
               {loiNgay(ngay, laHomNay)}
             </p>
           )}
-          <p className="mt-2 text-[11px] text-muted-foreground">
+          <p className="mt-2 text-2xs text-muted-foreground">
             Khung gạch ngang đã có người. Khung còn lại vẫn đặt được.
           </p>
           {/*
@@ -614,7 +614,7 @@ function KhungGio({
             if (cua.length === 0) return null;
             return (
               <div key={b.ten} className="mt-3">
-                <p className="mb-1.5 text-[11px] uppercase tracking-wider text-muted-foreground/70">
+                <p className="mb-1.5 text-2xs uppercase tracking-wider text-muted-foreground/70">
                   {b.ten}
                 </p>
                 {/* Hai cột trên điện thoại: nhãn giờ nay dài gấp đôi. */}
@@ -633,7 +633,7 @@ function KhungGio({
                           dangChon
                             ? "border-gold bg-gold/20 text-gold"
                             : mo
-                              ? "border-mystic/50 text-foreground/80 hover:border-gold/60 hover:bg-gold/10"
+                              ? "border-mystic/50 text-foreground/80 hover:border-gold/50 hover:bg-gold/10"
                               : "border-mystic/30 text-muted-foreground/45"
                         }`}
                       >
@@ -653,7 +653,7 @@ function KhungGio({
                           {gioVn(s.startTime)} – {gioVn(s.endTime)}
                         </span>
                         {!mo && (
-                          <span className="mt-0.5 block text-[9px] font-normal no-underline">
+                          <span className="mt-0.5 block text-3xs font-normal no-underline">
                             {s.state === "TAKEN" ? "Đã kín" : "Đã qua"}
                           </span>
                         )}

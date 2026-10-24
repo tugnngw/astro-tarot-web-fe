@@ -215,11 +215,11 @@ export function ChatDock() {
         }
         /* Vị trí do <GocNoi> quyết định — góc phải. Góp ý đứng bên trái,
            không cùng cột này. `relative` để cái huy hiệu đếm tin bám vào nút. */
-        className="relative grid h-14 w-14 place-items-center rounded-full border border-gold/40 bg-background/95 text-gold shadow-xl backdrop-blur transition hover:bg-gold/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50"
+        className="relative grid h-14 w-14 place-items-center rounded-full border border-gold/50 bg-background/95 text-gold shadow-xl backdrop-blur transition hover:bg-gold/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50"
       >
         <MessageCircle aria-hidden="true" className="h-6 w-6" />
         {tong > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 grid min-w-[22px] place-items-center rounded-full bg-gold px-1.5 py-0.5 text-[11px] font-semibold text-background">
+          <span className="absolute -right-0.5 -top-0.5 grid min-w-[22px] place-items-center rounded-full bg-gold px-1.5 py-0.5 text-2xs font-semibold text-background">
             {tong > 9 ? "9+" : tong}
           </span>
         )}
@@ -258,7 +258,7 @@ export function ChatDock() {
        để nút Góp ý (góc trái) hay nút chat (góc phải) thò ra giữa khung. */
     <LopPhu>
       <div className="fixed inset-x-3 bottom-3 z-50 sm:inset-x-auto sm:right-4 sm:w-[420px]">
-        <div className="flex h-[min(100dvh,760px)] flex-col overflow-hidden rounded-2xl border border-gold/70 bg-black text-white shadow-2xl">
+        <div className="flex h-[min(100dvh,760px)] flex-col overflow-hidden rounded-2xl border border-gold/50 bg-black text-white shadow-2xl">
           <div className="flex items-center justify-between gap-2 px-4 pb-1 pt-3">
             {daChon ? (
               <button
@@ -271,7 +271,7 @@ export function ChatDock() {
                   ten={tenDoiPhuong(daChon.b, daChon.laKhach)}
                   nho
                 />
-                <span className="truncate text-[15px] font-semibold">
+                <span className="truncate text-base font-semibold">
                   {tenDoiPhuong(daChon.b, daChon.laKhach)}
                 </span>
               </button>
@@ -375,11 +375,11 @@ export function ChatDock() {
                         >
                           <Anh src={nhom.anh} ten={nhom.ten} />
                           <span className="min-w-0 flex-1">
-                            <span className="block truncate text-[15px] font-semibold">
+                            <span className="block truncate text-base font-semibold">
                               {nhom.ten}
                             </span>
                             <span
-                              className={`block truncate text-[13px] ${
+                              className={`block truncate text-sm ${
                                 soChua
                                   ? "font-semibold text-white"
                                   : "text-white/55"
@@ -394,7 +394,7 @@ export function ChatDock() {
                             </span>
                           </span>
                           {soChua ? (
-                            <span className="grid h-5 min-w-5 shrink-0 place-items-center rounded-full bg-[#2374e1] px-1 text-[11px] font-semibold">
+                            <span className="grid h-5 min-w-5 shrink-0 place-items-center rounded-full bg-[#2374e1] px-1 text-2xs font-semibold">
                               {soChua > 9 ? "9+" : soChua}
                             </span>
                           ) : null}
@@ -480,7 +480,7 @@ function CacBuoi({
             type="button"
             onClick={() => onChon(b.id)}
             aria-pressed={chon}
-            className={`shrink-0 rounded-full px-3 py-1 text-[11px] ${
+            className={`shrink-0 rounded-full px-3 py-1 text-2xs ${
               chon ? "bg-gold text-black" : "bg-white/10 text-white/80"
             }`}
           >

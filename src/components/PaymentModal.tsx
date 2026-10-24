@@ -48,7 +48,7 @@ export function PaymentModal({
               />
             </div>
 
-            <p className="mt-4 flex items-center gap-2 rounded-md border border-border bg-muted/40 p-3 text-xs text-muted-foreground">
+            <p className="mt-4 flex items-center gap-2 rounded-lg border border-border bg-muted/40 p-3 text-xs text-muted-foreground">
               <span>🔒</span>
               Tiền được giữ trong tài khoản ký quỹ cho đến khi buổi xem kết
               thúc.

@@ -91,7 +91,7 @@ export function TicketThread({
   return (
     <div className="glass flex flex-col rounded-2xl">
       {/* Đầu luồng: tiêu đề + trạng thái + (nhân viên) ô đổi */}
-      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-gold/10 p-4">
+      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-gold/20 p-4">
         <div>
           <h3 className="font-display text-lg">{ticket.subject}</h3>
           <p className="mt-0.5 text-xs text-muted-foreground">
@@ -159,16 +159,16 @@ export function TicketThread({
 
       {/* Ô trả lời */}
       {closed ? (
-        <p className="border-t border-gold/10 p-4 text-center text-sm text-muted-foreground">
+        <p className="border-t border-gold/20 p-4 text-center text-sm text-muted-foreground">
           Yêu cầu đã đóng.
         </p>
       ) : !canRespond ? (
-        <p className="border-t border-gold/10 p-4 text-center text-sm text-muted-foreground">
+        <p className="border-t border-gold/20 p-4 text-center text-sm text-muted-foreground">
           Bạn xem được hàng chờ nhưng không trả lời khách — phần đó thuộc nhân
           viên hỗ trợ.
         </p>
       ) : (
-        <div className="flex items-end gap-2 border-t border-gold/10 p-3">
+        <div className="flex items-end gap-2 border-t border-gold/20 p-3">
           <textarea
             value={draft}
             onChange={(e) => setDraft(e.target.value)}

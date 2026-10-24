@@ -284,7 +284,7 @@ export function Header() {
             <span className="truncate font-display text-base font-semibold tracking-[0.1em] sm:text-xl sm:tracking-[0.18em]">
               <span className="text-gradient-gold">ASTROTAROT</span>
               {isAdmin && (
-                <span className="ml-2 rounded-md border border-gold/40 bg-gold/15 px-1.5 py-0.5 text-[10px] font-sans font-medium tracking-normal text-gold uppercase">
+                <span className="ml-2 rounded-lg border border-gold/50 bg-gold/15 px-1.5 py-0.5 text-3xs font-sans font-medium tracking-normal text-gold uppercase">
                   Admin
                 </span>
               )}
@@ -334,7 +334,7 @@ export function Header() {
                 type="button"
                 onClick={() => setTopupOpen(true)}
                 title="Số dư Ví ASTROTAROT — Bấm để nạp tiền"
-                className="flex items-center gap-1.5 rounded-full border border-gold/40 bg-card/60 px-2.5 py-1 text-xs font-medium transition hover:border-gold hover:bg-gold/10"
+                className="flex items-center gap-1.5 rounded-full border border-gold/50 bg-card/60 px-2.5 py-1 text-xs font-medium transition hover:border-gold hover:bg-gold/10"
               >
                 <Wallet className="h-3.5 w-3.5 text-gold shrink-0" />
                 <span className="font-semibold text-gradient-gold">
@@ -350,7 +350,7 @@ export function Header() {
               <div className="relative" ref={accountRef}>
                 <button
                   onClick={() => setOpen((v) => !v)}
-                  className="flex items-center gap-2 rounded-full border border-gold/40 bg-card/60 px-2 py-1.5 text-sm transition hover:border-gold sm:px-3"
+                  className="flex items-center gap-2 rounded-full border border-gold/50 bg-card/60 px-2 py-1.5 text-sm transition hover:border-gold sm:px-3"
                 >
                   <span className="grid h-7 w-7 place-items-center overflow-hidden rounded-full bg-gold text-primary-foreground">
                     {/*
@@ -434,7 +434,7 @@ export function Header() {
               onClick={() => setMobileOpen((v) => !v)}
               aria-label={mobileOpen ? t("Đóng menu") : t("Mở menu")}
               aria-expanded={mobileOpen}
-              className="grid h-9 w-9 place-items-center rounded-full border border-gold/40 bg-card/60 text-gold transition hover:border-gold lg:hidden"
+              className="grid h-9 w-9 place-items-center rounded-full border border-gold/50 bg-card/60 text-gold transition hover:border-gold lg:hidden"
             >
               {mobileOpen ? (
                 <X className="h-4 w-4" />

@@ -59,7 +59,7 @@ export function ReaderCard({ reader, compact = false }: ReaderCardProps) {
                   <div className="font-semibold text-primary">
                     ${pricePerReading}
                   </div>
-                  <div className="text-[10px] text-muted-foreground">
+                  <div className="text-3xs text-muted-foreground">
                     per reading
                   </div>
                 </div>

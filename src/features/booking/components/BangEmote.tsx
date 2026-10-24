@@ -39,7 +39,7 @@ export function BangEmote({ onChon }: { onChon: (ky: string) => void }) {
         ) : (
           nhom.map((n) => (
             <section key={n.ten} className="mb-2">
-              <p className="px-1 py-1 text-[11px] text-white/45">{n.ten}</p>
+              <p className="px-1 py-1 text-2xs text-white/45">{n.ten}</p>
               <div className="grid grid-cols-8 gap-0.5">
                 {n.muc.map((e) => (
                   <button
