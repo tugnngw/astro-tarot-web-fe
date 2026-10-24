@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getHanhTrinhTheoNguon } from "@/api/marketing";
+import { ChuThich } from "@/components/ChuThich";
 import { DangOnlineNgayBayGio } from "./DangOnlineNgayBayGio";
 import { HanhTrinhTungKhach } from "./HanhTrinhTungKhach";
 import {
@@ -508,21 +509,21 @@ export function AdminAnalyticsDashboard() {
 
       <BangNguonVaHoatDong />
 
-      {/* Thông tin tích hợp & Tiêu chuẩn bảo vệ dữ liệu */}
-      <section className="glass rounded-2xl p-5 border border-white/10">
-        <div className="flex items-start gap-3">
-          <ShieldCheck className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
-          <div className="space-y-1 text-xs text-muted-foreground">
-            <h4 className="font-medium text-foreground">Bảo vệ quyền riêng tư & Tuân thủ kỹ thuật</h4>
-            <p>
-              Hệ thống theo dõi SPA đã kích hoạt cơ chế <strong>khử khuẩn đường dẫn URL</strong>: tự động gỡ bỏ các tham số nhạy cảm (mã token xác thực, mật khẩu, email người dùng, câu hỏi trải bài AI, nội dung tin nhắn tư vấn) trước khi truyền phát sự kiện về Google Analytics 4.
-            </p>
-            <p>
-              Khóa API Service Account được bảo vệ nghiêm ngặt ở tầng backend máy chủ, không bao giờ được gửi về trình duyệt hay commit vào mã nguồn.
-            </p>
-          </div>
-        </div>
-      </section>
+      {/*
+        Hai đoạn dày đặc trước đây nói đúng nhưng không ai đọc tới lần thứ
+        hai — và nó nằm ngay dưới những con số người ta vào đây để xem. Rút
+        còn một dòng, phần chi tiết để sau dấu hỏi.
+      */}
+      <div className="flex items-center gap-2 px-1 text-xs text-muted-foreground/70">
+        <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-emerald-400/70" />
+        <span>Không gửi dữ liệu nhạy cảm sang Google.</span>
+        <ChuThich nhan="Chi tiết về bảo vệ dữ liệu">
+          Đường dẫn được khử trước khi gửi: token, mật khẩu, email, câu hỏi
+          trải bài và nội dung tin nhắn đều bị gỡ khỏi URL. Khoá service
+          account chỉ nằm ở máy chủ, không gửi về trình duyệt và không commit
+          vào mã nguồn.
+        </ChuThich>
+      </div>
     </div>
   );
 }
@@ -556,13 +557,15 @@ function BangNguonVaHoatDong() {
 
   return (
     <section className="glass rounded-2xl border border-white/10 p-5">
-      <h3 className="font-medium">Khách đến từ đâu, rồi làm gì</h3>
-      <p className="mt-1 text-xs text-muted-foreground">
-        30 ngày gần nhất, lấy từ cơ sở dữ liệu của hệ thống nên hiện ngay —
-        không phải đợi 24–48 giờ như báo cáo của Google ở trên. Cột{" "}
-        <em>người</em> chỉ đếm tài khoản đã đăng nhập, nên luôn nhỏ hơn số
-        lượt.
-      </p>
+      <div className="flex items-center gap-1.5">
+        <h3 className="font-medium">Khách đến từ đâu, rồi làm gì</h3>
+        <span className="text-xs text-muted-foreground/60">30 ngày</span>
+        <ChuThich>
+          Lấy từ cơ sở dữ liệu của hệ thống nên hiện ngay, không đợi 24–48 giờ
+          như báo cáo của Google ở trên. Cột <em>người</em> chỉ đếm tài khoản
+          đã đăng nhập nên luôn nhỏ hơn số lượt.
+        </ChuThich>
+      </div>
 
       {isLoading && (
         <p className="mt-4 text-sm text-muted-foreground">Đang tải…</p>

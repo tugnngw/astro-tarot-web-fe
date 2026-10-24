@@ -32,6 +32,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { ChuThich } from "@/components/ChuThich";
 import { useAdminStats } from "@/features/admin/queries";
 import type { AdminStats } from "@/api/admin";
 import {
@@ -485,28 +486,30 @@ function BonSoLieuChinh({
 
   return (
     <section className="glass rounded-2xl border border-gold/25 p-5">
-      <h2 className="font-display text-lg">Số liệu chính</h2>
-      <p className="mt-1 text-xs text-muted-foreground">
-        Mỗi ô ghi rõ nó đếm cái gì. Số lớn là tổng, gồm cả dữ liệu gieo sẵn
-        để demo; dòng nhỏ tách riêng phần không phải seed, để lúc cần thì có
-        sẵn.
-      </p>
+      <div className="flex items-center gap-1.5">
+        <h2 className="font-display text-lg">Số liệu chính</h2>
+        <ChuThich>
+          Số lớn là tổng, gồm cả dữ liệu gieo sẵn để demo. Dòng nhỏ bên dưới
+          tách riêng phần không phải seed.
+        </ChuThich>
+      </div>
+
       <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
         {o.map((it) => (
           <div
             key={it.nhan}
-            className="rounded-xl border border-gold/15 bg-mystic/5 px-3 py-3"
+            className="rounded-xl bg-mystic/10 px-3 py-3"
           >
-            <div className="text-xs text-muted-foreground">{it.nhan}</div>
-            <div className="mt-1 font-display text-2xl leading-none text-gold">
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <span className="truncate">{it.nhan}</span>
+              <ChuThich nhan={`${it.nhan} đếm gì`}>{it.giaiThich}</ChuThich>
+            </div>
+            <div className="mt-1.5 font-display text-2xl leading-none text-gold">
               {it.tong}
             </div>
-            <div className="mt-1 text-[11px] text-muted-foreground/70">
-              Không tính seed: {it.that}
+            <div className="mt-1 text-[11px] text-muted-foreground/60">
+              {it.that} không tính seed
             </div>
-            <p className="mt-2 text-[11px] leading-snug text-muted-foreground/80">
-              {it.giaiThich}
-            </p>
           </div>
         ))}
       </div>
@@ -547,7 +550,7 @@ function TractionStrip({
         {items.map((it) => (
           <div
             key={it.label}
-            className="rounded-xl border border-gold/15 bg-mystic/5 px-3 py-3"
+            className="rounded-xl bg-mystic/10 px-3 py-3"
           >
             <div className="font-display text-2xl leading-none">{it.value}</div>
             <div className="mt-1 text-xs text-muted-foreground">{it.label}</div>
