@@ -293,8 +293,8 @@ export function MyBlogList() {
 
                     {/* Rejection Alert Box */}
                     {blog.status === "REJECTED" && blog.rejectionReason && (
-                      <div className="mt-2 rounded-lg border border-rose-500/30 bg-rose-500/10 p-2.5 text-xs text-rose-200">
-                        <p className="font-semibold text-rose-300 flex items-center gap-1">
+                      <div className="mt-2 rounded-lg border border-destructive-soft/30 bg-destructive-soft/10 p-2.5 text-xs text-destructive-soft">
+                        <p className="font-semibold text-destructive-soft flex items-center gap-1">
                           <AlertCircle className="h-3.5 w-3.5 shrink-0" />
                           Lý do từ chối:
                         </p>
@@ -344,7 +344,7 @@ export function MyBlogList() {
                       size="sm"
                       onClick={() => setSubmittingId(blog.id)}
                       disabled={submitMutation.isPending}
-                      className="h-8 px-3 text-xs bg-amber-600 hover:bg-amber-700 text-white font-medium"
+                      className="h-8 px-3 text-xs bg-warning hover:bg-warning text-white font-medium"
                     >
                       <Send className="h-3.5 w-3.5 mr-1" />
                       {blog.status === "REJECTED" ? "Gửi lại" : "Gửi duyệt"}
@@ -357,7 +357,7 @@ export function MyBlogList() {
                       variant="ghost"
                       onClick={() => setDeletingId(blog.id)}
                       disabled={deleteMutation.isPending}
-                      className="h-8 px-2 text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/10"
+                      className="h-8 px-2 text-xs text-destructive-soft hover:text-destructive-soft hover:bg-destructive-soft/10"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>

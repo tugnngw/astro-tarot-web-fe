@@ -57,8 +57,8 @@ const filterSelectTriggerClass =
   "h-auto w-auto min-w-[9rem] gap-1.5 rounded-full border-gold/30 bg-input/70 px-4 py-2 text-sm text-foreground shadow-none focus:ring-1 focus:ring-gold/40 data-[state=open]:border-gold";
 
 const STATUS_CLASS: Record<AccountStatus, string> = {
-  PENDING: "text-amber-300",
-  ACTIVE: "text-emerald-300",
+  PENDING: "text-warning",
+  ACTIVE: "text-success",
   INACTIVE: "text-muted-foreground",
   BANNED: "text-destructive",
 };
@@ -423,7 +423,7 @@ export function UserDirectory({
                             <p className="truncate text-xs text-muted-foreground">
                               {u.email ?? `@${u.username}`}
                               {!u.emailVerified && u.email && (
-                                <span className="ml-2 text-amber-300/80">
+                                <span className="ml-2 text-warning/80">
                                   chưa xác minh
                                 </span>
                               )}
@@ -494,7 +494,7 @@ export function UserDirectory({
                               type="button"
                               disabled={dong.ban(u.id)}
                               onClick={() => void handleStatus(u, "ACTIVE")}
-                              className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/40 px-3 py-1 text-xs text-emerald-300 transition hover:bg-emerald-400/10 disabled:opacity-40"
+                              className="inline-flex items-center gap-1.5 rounded-full border border-success/30 px-3 py-1 text-xs text-success transition hover:bg-success/10 disabled:opacity-40"
                             >
                               <Unlock
                                 aria-hidden="true"

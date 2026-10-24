@@ -113,7 +113,7 @@ function DongSo({ t }: { t: EscrowTransaction }) {
   // nhích; gán cho chúng một dấu cộng hay trừ là nói sai.
   const { Icon, mau, dau } =
     huong === "tang"
-      ? { Icon: ArrowDownLeft, mau: "text-emerald-300", dau: "+" }
+      ? { Icon: ArrowDownLeft, mau: "text-success", dau: "+" }
       : huong === "giam"
         ? { Icon: ArrowUpRight, mau: "text-destructive", dau: "−" }
         : { Icon: Minus, mau: "text-muted-foreground", dau: "" };

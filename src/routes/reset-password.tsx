@@ -89,7 +89,7 @@ function ResetPasswordPage() {
             <div className="text-center">
               <CheckCircle2
                 aria-hidden="true"
-                className="mx-auto h-12 w-12 text-emerald-400"
+                className="mx-auto h-12 w-12 text-success"
               />
               <h1 className="mt-5 font-display text-2xl text-gradient-gold">
                 Đã đổi mật khẩu

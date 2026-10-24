@@ -155,17 +155,17 @@ export function AdminAnalyticsDashboard() {
           <div className="flex items-center gap-2">
             <h2 className="font-display text-2xl text-foreground">Lưu lượng & Google Analytics 4</h2>
             {isConfigured && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-400 border border-emerald-500/20">
+              <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-0.5 text-xs font-medium text-success border border-success/20">
                 <Radio className="h-3 w-3 animate-pulse" /> Đã kết nối API
               </span>
             )}
             {isApiError && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-red-500/10 px-2.5 py-0.5 text-xs font-medium text-red-400 border border-red-500/20">
+              <span className="inline-flex items-center gap-1 rounded-full bg-destructive-soft/10 px-2.5 py-0.5 text-xs font-medium text-destructive-soft border border-destructive-soft/20">
                 <AlertTriangle className="h-3 w-3" /> Gọi API lỗi
               </span>
             )}
             {chuaCauHinh && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-medium text-amber-400 border border-amber-500/20">
+              <span className="inline-flex items-center gap-1 rounded-full bg-warning/10 px-2.5 py-0.5 text-xs font-medium text-warning border border-warning/20">
                 <AlertTriangle className="h-3 w-3" /> Chưa cấu hình Key
               </span>
             )}
@@ -212,11 +212,11 @@ export function AdminAnalyticsDashboard() {
 
       {/* Google trả lỗi: bày đúng câu máy chủ nhận được, đừng nuốt. */}
       {isApiError && !isLoading && (
-        <section className="glass rounded-2xl border border-red-500/30 bg-red-500/5 p-5">
+        <section className="glass rounded-2xl border border-destructive-soft/30 bg-destructive-soft/10 p-5">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 shrink-0 text-red-400 mt-0.5" />
+            <AlertTriangle className="h-5 w-5 shrink-0 text-destructive-soft mt-0.5" />
             <div className="space-y-1 text-sm">
-              <h3 className="font-semibold text-red-300">
+              <h3 className="font-semibold text-destructive-soft">
                 Máy chủ gọi Google Analytics Data API không thành công
               </h3>
               <p className="text-muted-foreground leading-relaxed">
@@ -236,11 +236,11 @@ export function AdminAnalyticsDashboard() {
 
       {/* Cảnh báo chưa cấu hình service account */}
       {chuaCauHinh && !isLoading && (
-        <section className="glass rounded-2xl border border-amber-500/30 bg-amber-500/5 p-5">
+        <section className="glass rounded-2xl border border-warning/30 bg-warning/10 p-5">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 shrink-0 text-amber-400 mt-0.5" />
+            <AlertTriangle className="h-5 w-5 shrink-0 text-warning mt-0.5" />
             <div className="space-y-2 text-sm">
-              <h3 className="font-semibold text-amber-300">
+              <h3 className="font-semibold text-warning">
                 Chưa kích hoạt Google Analytics 4 Reporting API trên máy chủ
               </h3>
               <p className="text-muted-foreground leading-relaxed">
@@ -275,7 +275,7 @@ export function AdminAnalyticsDashboard() {
 
       {/* Lỗi truy vấn API */}
       {isError && (
-        <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-xs text-rose-300">
+        <div className="rounded-xl border border-destructive-soft/30 bg-destructive-soft/10 p-4 text-xs text-destructive-soft">
           {(error as Error)?.message || "Không thể tải dữ liệu báo cáo GA4 từ máy chủ."}
         </div>
       )}
@@ -285,12 +285,12 @@ export function AdminAnalyticsDashboard() {
           giờ với tài sản mới: hai ngày đầu chúng đứng im ở 0 dù web có khách,
           nhìn vào rất dễ tưởng cấu hình hỏng. */}
       {isConfigured && report && report.realtimeActiveUsers >= 0 && (
-        <section className="glass flex flex-wrap items-center gap-x-3 gap-y-1 rounded-2xl border border-emerald-500/25 bg-emerald-500/5 px-5 py-3">
-          <Radio className="h-4 w-4 shrink-0 animate-pulse text-emerald-400" />
+        <section className="glass flex flex-wrap items-center gap-x-3 gap-y-1 rounded-2xl border border-success/20 bg-success/10 px-5 py-3">
+          <Radio className="h-4 w-4 shrink-0 animate-pulse text-success" />
           <span className="text-sm text-muted-foreground">
             Đang truy cập (30 phút qua):
           </span>
-          <span className="font-display text-2xl text-emerald-300">
+          <span className="font-display text-2xl text-success">
             {nf(report.realtimeActiveUsers)}
           </span>
           <ChuThich>
@@ -323,8 +323,8 @@ export function AdminAnalyticsDashboard() {
           title="Phiên truy cập"
           value={nf(overview?.sessions)}
           icon={Activity}
-          color="text-emerald-400"
-          bgColor="bg-emerald-500/10"
+          color="text-success"
+          bgColor="bg-success/10"
           hint="Sessions"
         />
         <KpiCard
@@ -339,16 +339,16 @@ export function AdminAnalyticsDashboard() {
           title="Thời lượng TB / phiên"
           value={formatDuration(overview?.averageSessionDuration)}
           icon={Clock}
-          color="text-amber-400"
-          bgColor="bg-amber-500/10"
+          color="text-warning"
+          bgColor="bg-warning/10"
           hint="Avg Duration"
         />
         <KpiCard
           title="Tỷ lệ thoát"
           value={formatPercent(overview?.bounceRate)}
           icon={TrendingDown}
-          color="text-rose-400"
-          bgColor="bg-rose-500/10"
+          color="text-destructive-soft"
+          bgColor="bg-destructive-soft/10"
           hint="Bounce Rate"
         />
       </div>
@@ -364,7 +364,7 @@ export function AdminAnalyticsDashboard() {
           </div>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
             <span className="flex items-center gap-1.5">
-              <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
+              <span className="h-2.5 w-2.5 rounded-full bg-success" />
               Phiên
             </span>
             <span className="flex items-center gap-1.5">
@@ -372,7 +372,7 @@ export function AdminAnalyticsDashboard() {
               Người dùng
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
+              <span className="h-2.5 w-2.5 rounded-full bg-warning" />
               Lượt xem
             </span>
           </div>
@@ -528,7 +528,7 @@ export function AdminAnalyticsDashboard() {
         còn một dòng, phần chi tiết để sau dấu hỏi.
       */}
       <div className="flex items-center gap-2 px-1 text-xs text-muted-foreground/70">
-        <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-emerald-400/70" />
+        <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-success/70" />
         <span>Không gửi dữ liệu nhạy cảm sang Google.</span>
         <ChuThich nhan="Chi tiết về bảo vệ dữ liệu">
           Đường dẫn được khử trước khi gửi: token, mật khẩu, email, câu hỏi
@@ -584,7 +584,7 @@ function BangNguonVaHoatDong() {
         <p className="mt-4 text-sm text-muted-foreground">Đang tải…</p>
       )}
       {isError && (
-        <p className="mt-4 text-sm text-rose-400">
+        <p className="mt-4 text-sm text-destructive-soft">
           Không đọc được số liệu. Thử tải lại trang.
         </p>
       )}

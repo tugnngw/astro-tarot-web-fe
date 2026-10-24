@@ -49,13 +49,13 @@ export function DangOnlineNgayBayGio() {
   const khongHoiDuoc = soOnline < 0;
 
   return (
-    <section className="glass rounded-2xl border border-emerald-500/25 p-5">
+    <section className="glass rounded-2xl border border-success/20 p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <Radio
             className={
               soOnline > 0
-                ? "h-4 w-4 animate-pulse text-emerald-400"
+                ? "h-4 w-4 animate-pulse text-success"
                 : "h-4 w-4 text-muted-foreground"
             }
           />
@@ -73,7 +73,7 @@ export function DangOnlineNgayBayGio() {
       )}
 
       {(isError || khongHoiDuoc) && !isLoading && (
-        <p className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-sm text-amber-200/90">
+        <p className="mt-4 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-warning/90">
           {data?.thongDiep ??
             "Không đọc được số liệu thời gian thực. Kiểm hai biến GA4 trên Render."}
         </p>
@@ -82,7 +82,7 @@ export function DangOnlineNgayBayGio() {
       {!isLoading && !khongHoiDuoc && (
         <>
           <div className="mt-4 flex items-baseline gap-3">
-            <span className="font-display text-4xl leading-none text-emerald-400">
+            <span className="font-display text-4xl leading-none text-success">
               {so(soOnline)}
             </span>
             <span className="text-sm text-muted-foreground">

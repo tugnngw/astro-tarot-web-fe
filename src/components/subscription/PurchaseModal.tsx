@@ -143,11 +143,11 @@ export function PurchaseModal({
           ? walletBalance >= selectedPlan.price
             ? {
                 text: "Đủ số dư",
-                color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
+                color: "text-success bg-success/10 border-success/20",
               }
             : {
                 text: `Thiếu ${tien(shortageAmount)}`,
-                color: "text-amber-400 bg-amber-500/10 border-amber-500/20",
+                color: "text-warning bg-warning/10 border-warning/20",
               }
           : undefined,
       icon: Wallet,
@@ -184,8 +184,8 @@ export function PurchaseModal({
           </DialogHeader>
 
           {error && (
-            <div className="flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-300">
-              <AlertCircle className="h-4 w-4 shrink-0 text-red-400" />
+            <div className="flex items-center gap-2 rounded-xl border border-destructive-soft/30 bg-destructive-soft/10 p-3 text-xs text-destructive-soft">
+              <AlertCircle className="h-4 w-4 shrink-0 text-destructive-soft" />
               <span>{error}</span>
             </div>
           )}
@@ -303,12 +303,12 @@ export function PurchaseModal({
 
                   {/* Insufficient balance helper alert */}
                   {isInsufficient && (
-                    <div className="flex items-center justify-between gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200">
+                    <div className="flex items-center justify-between gap-3 rounded-xl border border-warning/30 bg-warning/10 p-3 text-xs text-warning">
                       <div className="flex items-center gap-2 min-w-0">
-                        <AlertCircle className="h-4 w-4 shrink-0 text-amber-400" />
+                        <AlertCircle className="h-4 w-4 shrink-0 text-warning" />
                         <span className="truncate">
                           Số dư ví không đủ. Còn thiếu{" "}
-                          <strong className="text-amber-300">
+                          <strong className="text-warning">
                             {shortageAmount.toLocaleString("vi-VN")} ₫
                           </strong>
                         </span>
@@ -327,7 +327,7 @@ export function PurchaseModal({
 
               {/* Notice / Security footnote */}
               <div className="flex items-start gap-2 rounded-xl bg-white/5 p-3 text-2xs text-muted-foreground">
-                <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-400 mt-0.5" />
+                <ShieldCheck className="h-4 w-4 shrink-0 text-success mt-0.5" />
                 <span>
                   Hạn mức được cộng dồn theo quy tắc lấy hạn mức cao nhất trong tất cả các gói đang hoạt động của bạn. Lượt AI được hồi phục vào 00:00 (Asia/Ho_Chi_Minh) hàng ngày.
                 </span>

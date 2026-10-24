@@ -46,7 +46,7 @@ export function ReaderCard({ reader, compact = false }: ReaderCardProps) {
                   <div className="font-medium">{displayName}</div>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <span className="flex items-center gap-0.5">
-                      <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
+                      <Star className="h-3 w-3 text-warning fill-warning" />
                       {rating.toFixed(1)}
                     </span>
                     <span>•</span>
@@ -112,7 +112,7 @@ export function ReaderCard({ reader, compact = false }: ReaderCardProps) {
                 <h3 className="text-xl font-semibold">{displayName}</h3>
                 <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground mt-1">
                   <span className="flex items-center gap-1">
-                    <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                    <Star className="h-4 w-4 text-warning fill-warning" />
                     {rating.toFixed(1)} ({totalReadings} reviews)
                   </span>
                   <span>•</span>

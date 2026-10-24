@@ -99,7 +99,7 @@ export function BackendWarmBanner() {
   return (
     <div
       role="status"
-      className="fixed inset-x-0 top-0 z-[60] border-b border-amber-400/30 bg-amber-950/95 px-4 py-2 text-center text-xs text-amber-100 backdrop-blur"
+      className="fixed inset-x-0 top-0 z-[60] border-b border-warning/30 bg-warning px-4 py-2 text-center text-xs text-warning backdrop-blur"
     >
       <span className="inline-flex items-center justify-center gap-2">
         <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />

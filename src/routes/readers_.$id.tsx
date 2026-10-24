@@ -179,9 +179,9 @@ function ReaderProfilePage() {
                     : "Reader mới"}
                   {" · "}
                   {r.isAvailable === false ? (
-                    <span className="text-amber-300">tạm ngưng nhận lịch</span>
+                    <span className="text-warning">tạm ngưng nhận lịch</span>
                   ) : (
-                    <span className="text-emerald-300">đang nhận lịch</span>
+                    <span className="text-success">đang nhận lịch</span>
                   )}
                 </p>
                 <p className="mt-2 flex items-center gap-1.5 text-sm">

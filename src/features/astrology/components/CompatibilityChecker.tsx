@@ -87,7 +87,7 @@ export function CompatibilityChecker() {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
               <div className="text-center p-3 rounded-lg bg-muted/30">
-                <Heart className="h-5 w-5 mx-auto text-red-500" />
+                <Heart className="h-5 w-5 mx-auto text-destructive-soft" />
                 <div className="text-sm font-medium mt-1">Love</div>
                 <div className="text-lg font-semibold">
                   {result.loveCompatibility}%
@@ -101,7 +101,7 @@ export function CompatibilityChecker() {
                 </div>
               </div>
               <div className="text-center p-3 rounded-lg bg-muted/30">
-                <Briefcase className="h-5 w-5 mx-auto text-emerald-500" />
+                <Briefcase className="h-5 w-5 mx-auto text-success" />
                 <div className="text-sm font-medium mt-1">Career</div>
                 <div className="text-lg font-semibold">
                   {result.careerCompatibility}%
@@ -113,7 +113,7 @@ export function CompatibilityChecker() {
               <p className="text-sm">{result.description}</p>
 
               <div>
-                <div className="text-sm font-medium text-emerald-500">
+                <div className="text-sm font-medium text-success">
                   Strengths
                 </div>
                 <div className="flex flex-wrap gap-1 mt-1">
@@ -130,7 +130,7 @@ export function CompatibilityChecker() {
               </div>
 
               <div>
-                <div className="text-sm font-medium text-amber-500">
+                <div className="text-sm font-medium text-warning">
                   Weaknesses
                 </div>
                 <div className="flex flex-wrap gap-1 mt-1">

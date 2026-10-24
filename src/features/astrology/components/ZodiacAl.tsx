@@ -27,8 +27,8 @@ export function ZodiacAl({ onSelect, selectedId, className }: ZodiacAlProps) {
 
   const getElementColor = (element: string): string => {
     const colors: Record<string, string> = {
-      fire: "bg-red-500/10 text-red-500 border-red-500/20",
-      earth: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+      fire: "bg-destructive-soft/10 text-destructive-soft border-destructive-soft/20",
+      earth: "bg-success/10 text-success border-success/20",
       air: "bg-blue-500/10 text-blue-500 border-blue-500/20",
       water: "bg-cyan-500/10 text-cyan-500 border-cyan-500/20",
     };

@@ -185,7 +185,7 @@ function PermissionMatrix() {
                         <span
                           className={
                             has
-                              ? "text-emerald-300"
+                              ? "text-success"
                               : "text-muted-foreground/30"
                           }
                         >

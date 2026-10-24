@@ -140,7 +140,7 @@ export function PaymentQueue() {
                         "Đã xác nhận thanh toán",
                       )
                     }
-                    className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/40 px-3.5 py-1.5 text-xs text-emerald-300 transition hover:bg-emerald-400/10 disabled:opacity-40"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-success/30 px-3.5 py-1.5 text-xs text-success transition hover:bg-success/10 disabled:opacity-40"
                   >
                     <Check aria-hidden="true" className="h-3.5 w-3.5" /> Đã nhận
                     tiền
@@ -303,7 +303,7 @@ export function PayoutQueue() {
                           "Đã duyệt lệnh rút",
                         )
                       }
-                      className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/40 px-3.5 py-1.5 text-xs text-emerald-300 transition hover:bg-emerald-400/10 disabled:opacity-40"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-success/30 px-3.5 py-1.5 text-xs text-success transition hover:bg-success/10 disabled:opacity-40"
                     >
                       <Check aria-hidden="true" className="h-3.5 w-3.5" /> Duyệt
                     </button>
@@ -479,8 +479,8 @@ export function ReportQueue() {
                     </p>
                   )}
                   {r.resolutionNote && (
-                    <p className="mt-2 rounded-lg border border-emerald-400/20 px-3 py-2 text-xs text-muted-foreground">
-                      <span className="text-emerald-300">Kết luận:</span>{" "}
+                    <p className="mt-2 rounded-lg border border-success/20 px-3 py-2 text-xs text-muted-foreground">
+                      <span className="text-success">Kết luận:</span>{" "}
                       {r.resolutionNote}
                       {r.handledByName && ` — ${r.handledByName}`}
                     </p>
@@ -698,9 +698,9 @@ function Badge({
 }) {
   const cls =
     tone === "ok"
-      ? "border-emerald-400/40 text-emerald-300"
+      ? "border-success/30 text-success"
       : tone === "warn"
-        ? "border-amber-400/40 text-amber-300"
+        ? "border-warning/30 text-warning"
         : "border-destructive/40 text-destructive";
   return (
     <span

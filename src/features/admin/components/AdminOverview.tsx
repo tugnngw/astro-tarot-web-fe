@@ -254,8 +254,8 @@ export function AdminOverview() {
 
   if (query.isError || !query.data) {
     return (
-      <section className="glass flex items-center gap-3 rounded-2xl border border-rose-400/30 p-5">
-        <AlertCircle className="h-5 w-5 shrink-0 text-rose-400" />
+      <section className="glass flex items-center gap-3 rounded-2xl border border-destructive-soft/30 p-5">
+        <AlertCircle className="h-5 w-5 shrink-0 text-destructive-soft" />
         <div>
           <p className="text-sm">Không tải được số liệu tổng quan.</p>
           <button
@@ -349,7 +349,7 @@ export function AdminOverview() {
                 <span
                   className={`rounded-lg p-2 ${
                     k.alert
-                      ? "bg-amber-400/15 text-amber-300"
+                      ? "bg-warning/10 text-warning"
                       : "bg-gold/10 text-gold"
                   }`}
                 >
@@ -605,7 +605,7 @@ function RevenueSummary({
               <span
                 className={
                   c.negative
-                    ? "inline-flex rounded-lg bg-rose-400/15 p-2 text-rose-300"
+                    ? "inline-flex rounded-lg bg-destructive-soft/10 p-2 text-destructive-soft"
                     : "inline-flex rounded-lg bg-gold/10 p-2 text-gold"
                 }
               >
@@ -614,7 +614,7 @@ function RevenueSummary({
               <div
                 className={
                   c.negative
-                    ? "mt-3 font-display text-2xl leading-none text-rose-300"
+                    ? "mt-3 font-display text-2xl leading-none text-destructive-soft"
                     : "mt-3 font-display text-2xl leading-none"
                 }
               >

@@ -11,15 +11,15 @@ export const BLOG_STATUS_MAP: Record<
   },
   PENDING: {
     label: "Chờ duyệt",
-    badgeClass: "border-amber-500/40 text-amber-400 bg-amber-500/10",
+    badgeClass: "border-warning/30 text-warning bg-warning/10",
   },
   APPROVED: {
     label: "Đã duyệt",
-    badgeClass: "border-emerald-500/40 text-emerald-400 bg-emerald-500/10",
+    badgeClass: "border-success/30 text-success bg-success/10",
   },
   REJECTED: {
     label: "Bị từ chối",
-    badgeClass: "border-rose-500/40 text-rose-400 bg-rose-500/10",
+    badgeClass: "border-destructive-soft/30 text-destructive-soft bg-destructive-soft/10",
   },
   PUBLISHED: {
     label: "Đã xuất bản",

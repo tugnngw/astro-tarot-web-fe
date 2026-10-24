@@ -142,20 +142,20 @@ export function BlogReviewQueue() {
 
       {/* Metrics Banner */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4">
-          <p className="text-xs text-amber-400/90 font-medium">
+        <div className="rounded-xl border border-warning/30 bg-warning/10 p-4">
+          <p className="text-xs text-warning/90 font-medium">
             Chờ kiểm duyệt
           </p>
-          <p className="text-2xl font-bold font-display text-amber-400 mt-1">
+          <p className="text-2xl font-bold font-display text-warning mt-1">
             {counts.pending}
           </p>
         </div>
 
-        <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4">
-          <p className="text-xs text-emerald-400/90 font-medium">
+        <div className="rounded-xl border border-success/30 bg-success/10 p-4">
+          <p className="text-xs text-success/90 font-medium">
             Đã duyệt (Chờ xuất bản)
           </p>
-          <p className="text-2xl font-bold font-display text-emerald-400 mt-1">
+          <p className="text-2xl font-bold font-display text-success mt-1">
             {counts.approved}
           </p>
         </div>
@@ -169,9 +169,9 @@ export function BlogReviewQueue() {
           </p>
         </div>
 
-        <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-4">
-          <p className="text-xs text-rose-400/90 font-medium">Bị từ chối</p>
-          <p className="text-2xl font-bold font-display text-rose-400 mt-1">
+        <div className="rounded-xl border border-destructive-soft/30 bg-destructive-soft/10 p-4">
+          <p className="text-xs text-destructive-soft/90 font-medium">Bị từ chối</p>
+          <p className="text-2xl font-bold font-display text-destructive-soft mt-1">
             {counts.rejected}
           </p>
         </div>
@@ -332,7 +332,7 @@ export function BlogReviewQueue() {
                       {blog.reviewer && (
                         <>
                           <span>•</span>
-                          <span className="text-emerald-400">
+                          <span className="text-success">
                             Duyệt bởi:{" "}
                             {blog.reviewer.fullName || blog.reviewer.username}
                           </span>
@@ -341,7 +341,7 @@ export function BlogReviewQueue() {
                     </div>
 
                     {blog.status === "REJECTED" && blog.rejectionReason && (
-                      <p className="text-2xs text-rose-300 italic line-clamp-1 mt-0.5">
+                      <p className="text-2xs text-destructive-soft italic line-clamp-1 mt-0.5">
                         Lý do từ chối: {blog.rejectionReason}
                       </p>
                     )}
@@ -377,7 +377,7 @@ export function BlogReviewQueue() {
                         size="sm"
                         onClick={() => setApprovingId(blog.id)}
                         disabled={reviewMutation.isPending}
-                        className="h-8 px-3 text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-medium"
+                        className="h-8 px-3 text-xs bg-success hover:bg-success text-white font-medium"
                       >
                         <Check className="h-3.5 w-3.5 mr-1" /> Duyệt
                       </Button>
@@ -387,7 +387,7 @@ export function BlogReviewQueue() {
                         variant="destructive"
                         onClick={() => handleOpenReject(blog)}
                         disabled={reviewMutation.isPending}
-                        className="h-8 px-2.5 text-xs bg-rose-600 hover:bg-rose-700 text-white font-medium"
+                        className="h-8 px-2.5 text-xs bg-destructive hover:bg-destructive text-white font-medium"
                       >
                         <X className="h-3.5 w-3.5 mr-1" /> Từ chối
                       </Button>
@@ -412,7 +412,7 @@ export function BlogReviewQueue() {
                     variant="ghost"
                     onClick={() => setDeletingId(blog.id)}
                     disabled={deleteAdminMutation.isPending}
-                    className="h-8 px-2 text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/10"
+                    className="h-8 px-2 text-xs text-destructive-soft hover:text-destructive-soft hover:bg-destructive-soft/10"
                     title="Xóa bài viết"
                   >
                     <Trash2 className="h-3.5 w-3.5" />

@@ -195,7 +195,7 @@ function ReaderCard({ reader }: { reader: ReaderProfile }) {
               ? `${reader.yearsExperience} năm kinh nghiệm`
               : "Reader mới"}
             {reader.isAvailable === false && (
-              <span className="ml-2 text-amber-300">tạm ngưng nhận lịch</span>
+              <span className="ml-2 text-warning">tạm ngưng nhận lịch</span>
             )}
           </p>
           <p className="mt-1 flex items-center gap-1.5 text-xs">

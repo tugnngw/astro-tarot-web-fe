@@ -37,9 +37,9 @@ import {
   thongDiepLoi,
 } from "@/components/ListError";
 const STATUS_CLASS: Record<BookingStatus, string> = {
-  PENDING: "border-amber-400/40 text-amber-300",
+  PENDING: "border-warning/30 text-warning",
   CONFIRMED: "border-sky-400/40 text-sky-300",
-  COMPLETED: "border-emerald-400/40 text-emerald-300",
+  COMPLETED: "border-success/30 text-success",
   CANCELLED: "border-destructive/40 text-destructive",
 };
 
@@ -231,7 +231,7 @@ export function BookingList({
                   {tien(b.totalAmount)}
                 </span>
                 {b.paymentStatus === "DEPOSIT_PAID" && (
-                  <span className="text-2xs text-amber-400">
+                  <span className="text-2xs text-warning">
                     Đã đặt cọc · Còn {tien(b.remainingAmount ?? 0)}
                   </span>
                 )}
@@ -254,7 +254,7 @@ export function BookingList({
                   onClick={() =>
                     void run(() => confirm.mutateAsync(b.id), "Đã nhận lịch")
                   }
-                  className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/40 px-3.5 py-1.5 text-xs text-emerald-300 transition hover:bg-emerald-400/10 disabled:opacity-40"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-success/30 px-3.5 py-1.5 text-xs text-success transition hover:bg-success/10 disabled:opacity-40"
                 >
                   <Check aria-hidden="true" className="h-3.5 w-3.5" /> Nhận lịch
                 </button>
@@ -294,7 +294,7 @@ export function BookingList({
               {side === "customer" &&
                 b.paymentStatus === "DEPOSIT_PAID" &&
                 b.status === "COMPLETED" && (
-                  <p className="w-full rounded-lg border border-amber-400/40 bg-amber-400/10 px-3 py-2 text-xs text-amber-100">
+                  <p className="w-full rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-xs text-warning">
                     Reader đã đọc xong. Thanh toán nốt 50% còn lại (
                     {tien(b.remainingAmount ?? 0)}).
                   </p>
@@ -345,7 +345,7 @@ export function BookingList({
                 )}
 
               {side === "customer" && b.paymentStatus === "PAID" && (
-                <span className="inline-flex items-center gap-1.5 text-xs text-emerald-300">
+                <span className="inline-flex items-center gap-1.5 text-xs text-success">
                   <Check aria-hidden="true" className="h-3.5 w-3.5" /> Đã thanh
                   toán
                 </span>
@@ -418,7 +418,7 @@ export function BookingList({
                   placeholder="Ví dụ: mình có việc đột xuất..."
                 />
                 {/* Hiển thị chính sách huỷ */}
-                <div className="mt-3 rounded-lg border border-amber-400/30 bg-amber-400/5 px-3 py-2 text-xs text-amber-300">
+                <div className="mt-3 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-xs text-warning">
                   <p className="font-medium">Hoàn cọc khi huỷ</p>
                   {side === "reader" ? (
                     <p className="mt-1">

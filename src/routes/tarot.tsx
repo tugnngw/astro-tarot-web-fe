@@ -1461,12 +1461,12 @@ function TarotPage() {
                           placeholder="DD-MM-YYYY (vd: 4-10-2000)"
                           className={`w-full rounded-lg border px-4 py-2.5 text-sm outline-none transition focus:border-gold bg-input/60 ${
                             dateErrors[i]
-                              ? "border-red-500 focus:border-red-500"
+                              ? "border-destructive-soft focus:border-destructive-soft"
                               : "border-border"
                           }`}
                         />
                         {dateErrors[i] ? (
-                          <p className="mt-1 text-3xs text-red-400">
+                          <p className="mt-1 text-3xs text-destructive-soft">
                             {dateErrors[i]}
                           </p>
                         ) : (
@@ -1486,12 +1486,12 @@ function TarotPage() {
                           placeholder="HH:MM (vd: 9:00 hoặc 900)"
                           className={`w-full rounded-lg border px-4 py-2.5 text-sm outline-none transition focus:border-gold bg-input/60 ${
                             timeErrors[i]
-                              ? "border-red-500 focus:border-red-500"
+                              ? "border-destructive-soft focus:border-destructive-soft"
                               : "border-border"
                           }`}
                         />
                         {timeErrors[i] ? (
-                          <p className="mt-1 text-3xs text-red-400">
+                          <p className="mt-1 text-3xs text-destructive-soft">
                             {timeErrors[i]}
                           </p>
                         ) : (
@@ -1521,7 +1521,7 @@ function TarotPage() {
                         {searchingPlace[i] || gettingLocationDetails[i] ? (
                           <Loader className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-gold" />
                         ) : selectedPlace[i] ? (
-                          <MapPin className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-emerald-400" />
+                          <MapPin className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-success" />
                         ) : null}
                       </div>
 
@@ -1555,7 +1555,7 @@ function TarotPage() {
 
                       {selectedPlace[i] && (
                         <div className="mt-1 flex flex-wrap gap-2 text-3xs">
-                          <span className="inline-flex items-center gap-1 text-emerald-400">
+                          <span className="inline-flex items-center gap-1 text-success">
                             <MapPin className="h-3 w-3" />{" "}
                             {selectedPlace[i]?.displayName.split(",")[0]}
                           </span>

@@ -359,7 +359,7 @@ export function AdminFeedbackManager() {
         {/* Bảng dữ liệu */}
         <div className="mt-4">
           {listQuery.isError ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center text-rose-400">
+            <div className="flex flex-col items-center justify-center py-12 text-center text-destructive-soft">
               <AlertCircle className="h-8 w-8" />
               <p className="mt-2 text-sm">
                 {listQuery.error instanceof Error

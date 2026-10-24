@@ -118,8 +118,8 @@ function TrangXoaTaiKhoan() {
             Chính xác thì cái gì mất, cái gì còn
           </h2>
 
-          <div className="rounded-xl border border-rose-500/25 bg-rose-500/5 p-5">
-            <h3 className="mb-2 text-sm font-semibold text-rose-300">
+          <div className="rounded-xl border border-destructive-soft/20 bg-destructive-soft/10 p-5">
+            <h3 className="mb-2 text-sm font-semibold text-destructive-soft">
               Xoá hẳn, không lấy lại được
             </h3>
             <ul className="list-disc space-y-1.5 pl-5 text-sm text-muted-foreground">

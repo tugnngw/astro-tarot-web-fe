@@ -23,8 +23,8 @@ const PLAN_TYPE_LABELS: Record<SubscriptionPlan["planType"], string> = {
 
 const PLAN_TYPE_COLORS: Record<SubscriptionPlan["planType"], string> = {
   MONTHLY: "bg-blue-500/20 text-blue-300 border-blue-500/30",
-  DAY_PASS: "bg-amber-500/20 text-amber-300 border-amber-500/30",
-  FREE: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+  DAY_PASS: "bg-warning/20 text-warning border-warning/30",
+  FREE: "bg-success/20 text-success border-success/30",
 };
 
 export function AIPlanManager() {
@@ -130,8 +130,8 @@ export function AIPlanManager() {
                   <td className="px-4 py-3 text-center">
                     <span className={`inline-flex rounded-full border px-2 py-0.5 text-xs ${
                       plan.isActive
-                        ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
-                        : "bg-red-500/20 text-red-400 border-red-500/30"
+                        ? "bg-success/20 text-success border-success/30"
+                        : "bg-destructive-soft/20 text-destructive-soft border-destructive-soft/30"
                     }`}>
                       {plan.isActive ? "Hoạt động" : "Tắt"}
                     </span>
@@ -271,7 +271,7 @@ function CreatePlanForm({ onSuccess }: { onSuccess: () => void }) {
         />
       </div>
       {createPlan.isError && (
-        <p className="text-sm text-red-400">Lỗi: {(createPlan.error as Error).message}</p>
+        <p className="text-sm text-destructive-soft">Lỗi: {(createPlan.error as Error).message}</p>
       )}
       <button
         type="submit"
@@ -358,7 +358,7 @@ function EditPlanForm({
           type="button"
           onClick={() => setForm({ ...form, isActive: !form.isActive })}
           className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors ${
-            form.isActive ? "bg-emerald-500" : "bg-white/20"
+            form.isActive ? "bg-success" : "bg-white/20"
           }`}
         >
           <span
@@ -369,7 +369,7 @@ function EditPlanForm({
         </button>
       </div>
       {updatePlan.isError && (
-        <p className="text-sm text-red-400">Lỗi: {(updatePlan.error as Error).message}</p>
+        <p className="text-sm text-destructive-soft">Lỗi: {(updatePlan.error as Error).message}</p>
       )}
       <button
         type="submit"

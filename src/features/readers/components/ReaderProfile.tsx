@@ -55,7 +55,7 @@ export function ReaderProfile({ readerId }: ReaderProfileProps) {
       icon: Star,
       label: "Rating",
       value: reader.rating.toFixed(1),
-      color: "text-yellow-500",
+      color: "text-warning",
     },
     {
       icon: Users,
@@ -67,7 +67,7 @@ export function ReaderProfile({ readerId }: ReaderProfileProps) {
       icon: Clock,
       label: "Experience",
       value: `${reader.experience} yrs`,
-      color: "text-emerald-500",
+      color: "text-success",
     },
     {
       icon: DollarSign,
@@ -178,7 +178,7 @@ export function ReaderProfile({ readerId }: ReaderProfileProps) {
                       <div className="flex items-center justify-between">
                         <div className="font-medium">{review.userName}</div>
                         <div className="flex items-center gap-1">
-                          <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                          <Star className="h-4 w-4 text-warning fill-warning" />
                           <span className="text-sm">{review.rating}</span>
                         </div>
                       </div>

@@ -200,7 +200,7 @@ export function FeedbackPrompt({
               <div className="mt-5">
                 <div className="flex items-center justify-between">
                   <label className="text-sm font-medium text-foreground">
-                    Mức độ hài lòng <span className="text-rose-400">*</span>
+                    Mức độ hài lòng <span className="text-destructive-soft">*</span>
                   </label>
                   {(hoverRating || rating) && (
                     <span className="text-xs font-semibold text-gold">
@@ -251,9 +251,9 @@ export function FeedbackPrompt({
                   <span
                     className={`text-xs ${
                       comment.length > 2000
-                        ? "font-semibold text-rose-500"
+                        ? "font-semibold text-destructive-soft"
                         : comment.length >= 1800
-                          ? "text-amber-500"
+                          ? "text-warning"
                           : "text-muted-foreground"
                     }`}
                   >

@@ -145,7 +145,7 @@ export function ReaderApplications() {
                       type="button"
                       disabled={dong.ban(id)}
                       onClick={() => void approve(app)}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/40 px-3.5 py-1.5 text-xs text-emerald-300 transition hover:bg-emerald-400/10 disabled:opacity-40"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-success/30 px-3.5 py-1.5 text-xs text-success transition hover:bg-success/10 disabled:opacity-40"
                     >
                       <Check aria-hidden="true" className="h-3.5 w-3.5" />
                       Duyệt

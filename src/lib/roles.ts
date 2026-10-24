@@ -203,7 +203,13 @@ export const ROLE_DESCRIPTION: Record<Role, string> = {
   admin: "Quản trị: trang chủ /admin — toàn quyền tài khoản, tiền, sản phẩm.",
 };
 
-/** Màu chip theo vai trò — dùng chung để một vai trò luôn có một màu. */
+/**
+ * Màu chip theo vai trò — dùng chung để một vai trò luôn có một màu.
+ *
+ * Màu phân loại, không phải màu trạng thái: "staff" không mang nghĩa thành
+ * công. Nên ở đây dùng bảng màu thô là có chủ đích, và `--success` để dành
+ * cho đúng nghĩa của nó.
+ */
 export const ROLE_BADGE_CLASS: Record<Role, string> = {
   guest: "border-muted-foreground/30 text-muted-foreground",
   user: "border-sky-400/40 text-sky-300",

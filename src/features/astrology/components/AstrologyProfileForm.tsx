@@ -223,7 +223,7 @@ export function AstrologyProfileForm({
               <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-gold" />
             ) : (
               lat != null && (
-                <MapPin className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-emerald-400" />
+                <MapPin className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-success" />
               )
             )}
           </div>

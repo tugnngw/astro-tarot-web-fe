@@ -23,9 +23,9 @@ const FILTERS: { key: TicketStatus | ""; label: string }[] = [
 ];
 
 const STATUS_DOT: Record<TicketStatus, string> = {
-  OPEN: "bg-amber-400",
+  OPEN: "bg-warning",
   PENDING: "bg-sky-400",
-  RESOLVED: "bg-emerald-400",
+  RESOLVED: "bg-success",
   CLOSED: "bg-muted-foreground",
 };
 

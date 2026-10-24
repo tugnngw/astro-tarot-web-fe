@@ -137,8 +137,8 @@ export function ReaderWorkspace() {
       {/* Hai điều kiện này tách rời nhau: thiếu một cái là khách không đặt
           được, mà giao diện cũ không nói ra nên Reader không biết đường sửa. */}
       {(noPrice || noSlots) && (
-        <div className="flex items-start gap-3 rounded-2xl border border-amber-400/40 bg-amber-400/5 p-4">
-          <TriangleAlert className="mt-0.5 h-5 w-5 shrink-0 text-amber-400" />
+        <div className="flex items-start gap-3 rounded-2xl border border-warning/30 bg-warning/10 p-4">
+          <TriangleAlert className="mt-0.5 h-5 w-5 shrink-0 text-warning" />
           <div className="text-sm">
             <p className="font-medium text-foreground">
               Hồ sơ chưa đủ điều kiện nhận khách

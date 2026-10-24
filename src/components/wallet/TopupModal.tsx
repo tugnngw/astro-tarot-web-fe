@@ -220,7 +220,7 @@ export function TopupModal({
                       className="p-1 hover:text-gold transition text-muted-foreground"
                     >
                       {copiedField === "content" ? (
-                        <Check className="h-3.5 w-3.5 text-emerald-400" />
+                        <Check className="h-3.5 w-3.5 text-success" />
                       ) : (
                         <Copy className="h-3.5 w-3.5" />
                       )}
@@ -244,7 +244,7 @@ export function TopupModal({
                       className="p-1 hover:text-gold transition text-muted-foreground"
                     >
                       {copiedField === "acc" ? (
-                        <Check className="h-3.5 w-3.5 text-emerald-400" />
+                        <Check className="h-3.5 w-3.5 text-success" />
                       ) : (
                         <Copy className="h-3.5 w-3.5" />
                       )}
