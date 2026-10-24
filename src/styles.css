@@ -68,7 +68,9 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-gold: var(--gold);
+  --color-gold-foreground: var(--gold-foreground);
   --color-gold-soft: var(--gold-soft);
+  --color-surface-raised: var(--surface-raised);
   --color-mystic: var(--mystic);
   --color-success: var(--success);
   --color-warning: var(--warning);
@@ -110,7 +112,16 @@
   --input: oklch(0.075 0.015 283);
   --ring: oklch(0.78 0.13 85);
   --gold: oklch(0.78 0.13 85);
+  /* Mực đặt TRÊN nền vàng. Vàng sáng (L .78) nên chữ trắng chỉ đạt ~1.6:1 —
+     dưới ngưỡng AA. Nâu rất tối cùng sắc vàng cho ~11:1 mà vẫn ấm, không
+     lạnh như đen thuần. Dùng ở bóng chat của mình và mọi nút nền vàng. */
+  --gold-foreground: oklch(0.189 0.026 77.5);
   --gold-soft: oklch(0.85 0.09 85);
+  /* Panel nổi trên lớp phủ tối (khung gọi, bảng emote). KHÔNG dùng --card
+     được: card ở L .09, gần như trùng với lớp phủ bg-black/65 nên mất viền
+     thị giác. Trước đây hai chỗ này tự chọn hai sắc xám gần giống nhau —
+     #242526 và #1c1c1e — lệch nhau vừa đủ để thấy khi mở cạnh nhau. */
+  --surface-raised: oklch(0.26 0.004 286);
   --mystic: oklch(0.45 0.18 295);
   --success: oklch(0.68 0.16 160);
   --warning: oklch(0.78 0.15 75);

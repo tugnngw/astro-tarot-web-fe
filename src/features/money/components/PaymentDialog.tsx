@@ -1,10 +1,10 @@
+import { tien } from "@/lib/tien";
 import { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { Check, Copy, ExternalLink, Landmark, X } from "lucide-react";
 import { Clock } from "lucide-react";
 import { toast } from "sonner";
 import type { PaymentInstruction } from "@/api/money";
-import { formatVND } from "@/lib/mock-data";
 
 /**
  * Hướng dẫn thanh toán: PayOS (link checkout) hoặc chuyển khoản tay.
@@ -114,7 +114,7 @@ export function PaymentDialog({
         )}
 
         <dl className="mt-5 space-y-3">
-          <Field label="Số tiền" value={formatVND(instruction.amount)} big />
+          <Field label="Số tiền" value={tien(instruction.amount)} big />
           {!isPayOs && (
             <Field
               label="Nội dung chuyển khoản"

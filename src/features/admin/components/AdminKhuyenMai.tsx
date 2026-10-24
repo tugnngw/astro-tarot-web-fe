@@ -17,8 +17,7 @@ import {
   khoangNgayGoiY,
   type MauDipLe,
 } from "@/lib/ngay-le-vn";
-
-const vnd = (n: number) => new Intl.NumberFormat("vi-VN").format(n) + " ₫";
+import { tien } from "@/lib/tien";
 
 interface Form {
   id: string | null;
@@ -193,8 +192,8 @@ export function AdminKhuyenMai() {
                   <div className="mt-1 text-sm text-foreground/80">
                     {k.loaiGiam === "PHAN_TRAM"
                       ? `Giảm ${k.giaTri}%` +
-                        (k.giamToiDa ? `, tối đa ${vnd(k.giamToiDa)}` : "")
-                      : `Giảm ${vnd(k.giaTri)}`}
+                        (k.giamToiDa ? `, tối đa ${tien(k.giamToiDa)}` : "")
+                      : `Giảm ${tien(k.giaTri)}`}
                   </div>
                   <div className="mt-1 text-xs text-muted-foreground">
                     {new Date(k.batDau).toLocaleString("vi-VN")} →{" "}

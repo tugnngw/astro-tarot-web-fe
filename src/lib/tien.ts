@@ -24,7 +24,14 @@
  * Tự nối ký hiệu thì chuỗi luôn giống hệt ở mọi nơi.
  */
 
-/** Chỉ nhóm hàng nghìn; ký hiệu tự nối để không phụ thuộc ICU. */
+/**
+ * Chỉ nhóm hàng nghìn; ký hiệu tự nối để không phụ thuộc ICU.
+ *
+ * Locale truyền tường minh, KHÔNG dùng `n.toLocaleString()` trần: Node (lúc
+ * SSR) và trình duyệt có thể resolve ra locale khác nhau, cho `"18.420"` ở
+ * máy chủ và `"18,420"` ở máy khách — React ném "Hydration failed because
+ * the server rendered text that didn't match the client".
+ */
 const NHOM = new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 0 });
 
 /**
@@ -44,4 +51,25 @@ export function tien(soTien: number, mienPhiKhiBang0 = false): string {
 export function so(n: number | null | undefined): string {
   if (n == null || !Number.isFinite(n)) return "—";
   return NHOM.format(n);
+}
+
+/**
+ * Tiền đô, cho chi phí gọi mô hình AI.
+ *
+ * Nhà cung cấp tính theo USD và đơn giá nhỏ tới mức cần bốn chữ số thập phân
+ * — `0.0003 $/1K token`. Làm tròn về 2 số là mọi dòng chi phí thành `0,00 $`,
+ * không đọc được gì.
+ *
+ * Đây là chỗ duy nhất trong sản phẩm KHÔNG phải tiền Việt, nên nó ở đây cùng
+ * {@link tien} thay vì nằm riêng trong màn quản trị: để sau này ai cần hiện
+ * tiền thì chỉ phải tìm một tệp.
+ */
+export function usd(n: number): string {
+  if (!Number.isFinite(n)) return "—";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 4,
+  }).format(n);
 }

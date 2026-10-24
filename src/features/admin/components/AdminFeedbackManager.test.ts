@@ -1,8 +1,8 @@
+import { so } from "@/lib/tien";
 import { describe, expect, it } from "vitest";
 import {
   FEEDBACK_PAGE_SIZE,
   formatDate,
-  nf,
   SOURCE_COLORS,
   SOURCE_VI,
 } from "../feedback-utils";
@@ -27,9 +27,9 @@ describe("AdminFeedbackManager helpers", () => {
   });
 
   it("định dạng số theo chuẩn vi-VN", () => {
-    expect(nf(0)).toBe("0");
-    expect(nf(1500)).toBe("1.500");
-    expect(nf(1000000)).toBe("1.000.000");
+    expect(so(0)).toBe("0");
+    expect(so(1500)).toBe("1.500");
+    expect(so(1000000)).toBe("1.000.000");
   });
 
   it("định dạng ngày tháng hợp lệ hoặc trả chuỗi gốc nếu lỗi", () => {

@@ -3,6 +3,7 @@
 // Ba thứ này quyết định Reader có nhận được khách hay không, nhưng trước đây
 // backend có đủ endpoint mà giao diện không gọi tới một cái nào — Reader mới
 // được duyệt sẽ ngồi im vì không có cách nào khai giá và lịch.
+import { tien } from "@/lib/tien";
 import { ChuThich } from "@/components/ChuThich";
 import { useState } from "react";
 import {
@@ -22,7 +23,6 @@ import { useReaderReviews } from "@/features/booking/queries";
 import { Pagination, PagedList } from "@/components/Pagination";
 import { ListError } from "@/components/ListError";
 import { ViDateInput } from "@/components/ViDateInput";
-import { formatVND } from "@/lib/mock-data";
 import { useAuth } from "@/lib/auth-context";
 import type { ReaderProfile } from "@/api/reader";
 import {
@@ -388,7 +388,7 @@ function PriceInput({
         className="rounded-lg border border-gold/30 bg-input/60 px-3 py-2 text-sm outline-none focus:border-gold"
       />
       <span className="text-2xs text-gold/80">
-        {n != null ? formatVND(n) : "Không nhận buổi này"}
+        {n != null ? tien(n) : "Không nhận buổi này"}
       </span>
     </label>
   );

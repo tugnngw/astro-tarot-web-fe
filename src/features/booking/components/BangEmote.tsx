@@ -18,7 +18,7 @@ export function BangEmote({ onChon }: { onChon: (ky: string) => void }) {
   );
 
   return (
-    <div className="absolute bottom-full right-0 z-20 mb-2 w-[min(100vw-2rem,320px)] overflow-hidden rounded-2xl border border-gold/50 bg-[#1c1c1e] text-white shadow-2xl">
+    <div className="absolute bottom-full right-0 z-20 mb-2 w-[min(100vw-2rem,320px)] overflow-hidden rounded-2xl border border-gold/50 bg-surface-raised text-white shadow-2xl">
       <label className="flex items-center gap-2 border-b border-white/10 px-3 py-2 text-sm text-white/70">
         <Search aria-hidden className="h-4 w-4 shrink-0" />
         <input

@@ -1,3 +1,4 @@
+import { tien } from "@/lib/tien";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { X } from "lucide-react";
@@ -91,9 +92,9 @@ export function LoiChucDipLe() {
         <p className="mt-4 rounded-lg border border-gold/30 bg-gold/5 px-3 py-2 text-xs text-gold/90">
           {dot.loaiGiam === "PHAN_TRAM"
             ? `Dịp này giảm ${dot.giaTri}% gói AI`
-            : `Dịp này giảm ${new Intl.NumberFormat("vi-VN").format(dot.giaTri)} ₫ gói AI`}
+            : `Dịp này giảm ${tien(dot.giaTri)} gói AI`}
           {dot.giamToiDa
-            ? `, tối đa ${new Intl.NumberFormat("vi-VN").format(dot.giamToiDa)} ₫`
+            ? `, tối đa ${tien(dot.giamToiDa)}`
             : ""}
           .
         </p>

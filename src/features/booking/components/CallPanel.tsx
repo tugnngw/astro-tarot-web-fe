@@ -86,7 +86,7 @@ export function CallPanel({ call }: { call: BookingCall }) {
             role="dialog"
             aria-modal="true"
             aria-label={`${ten} đang gọi`}
-            className="w-full max-w-sm rounded-2xl bg-[#242526] px-6 py-8 text-center text-white shadow-2xl"
+            className="w-full max-w-sm rounded-2xl bg-surface-raised px-6 py-8 text-center text-white shadow-2xl"
           >
             <div className="mx-auto grid h-24 w-24 place-items-center rounded-full bg-gold/15 text-3xl font-semibold text-gold">
               {ten.charAt(0).toUpperCase()}
@@ -99,7 +99,7 @@ export function CallPanel({ call }: { call: BookingCall }) {
               <button
                 type="button"
                 onClick={call.hangup}
-                className="grid h-16 w-16 place-items-center rounded-full bg-[#e41e3f] text-white"
+                className="grid h-16 w-16 place-items-center rounded-full bg-destructive text-white"
               >
                 <PhoneOff aria-hidden className="h-7 w-7" />
                 <span className="sr-only">Từ chối</span>
@@ -107,7 +107,7 @@ export function CallPanel({ call }: { call: BookingCall }) {
               <button
                 type="button"
                 onClick={() => void call.accept()}
-                className="grid h-16 w-16 place-items-center rounded-full bg-[#31a24c] text-white"
+                className="grid h-16 w-16 place-items-center rounded-full bg-success text-white"
               >
                 {call.withVideo ? (
                   <Video aria-hidden className="h-7 w-7" />

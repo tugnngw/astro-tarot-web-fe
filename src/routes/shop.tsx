@@ -1,8 +1,8 @@
+import { tien } from "@/lib/tien";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useId, useMemo, useState } from "react";
 import { Search, PackageX, AlertCircle } from "lucide-react";
 import { Header } from "@/components/Header";
-import { formatVND } from "@/lib/mock-data";
 import { ProductArtwork } from "@/components/ProductArtwork";
 import { IllustrativeNote } from "@/components/IllustrativeNote";
 import {
@@ -328,11 +328,11 @@ export function ProductCard({ product }: { product: Product }) {
 
         <div className="mt-1.5 flex items-baseline gap-2">
           <span className="font-display text-base text-gold">
-            {formatVND(product.price)}
+            {tien(product.price)}
           </span>
           {discount !== null && product.compareAtPrice && (
             <span className="text-xs text-muted-foreground line-through">
-              {formatVND(product.compareAtPrice)}
+              {tien(product.compareAtPrice)}
             </span>
           )}
         </div>

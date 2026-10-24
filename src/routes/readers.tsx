@@ -3,12 +3,12 @@
 // Trang này trước đây chạy trên mảng READERS trong mock-data.ts. Nó trông như
 // đã xong nên rất dễ bị bỏ quên, mà người dùng thật thì tin vào những cái tên
 // và mức giá bịa ra ở đó. Nay đọc từ GET /api/v1/readers.
+import { tien } from "@/lib/tien";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState, useRef } from "react";
 import { Search, Star, UserSearch } from "lucide-react";
 import { Header } from "@/components/Header";
 import { useReaders } from "@/features/readers/queries";
-import { formatVND } from "@/lib/mock-data";
 import type { ReaderProfile } from "@/api/reader";
 
 import { ListError, useTaiLau, SlowHint } from "@/components/ListError";
@@ -220,7 +220,7 @@ function ReaderCard({ reader }: { reader: ReaderProfile }) {
           <div className="shrink-0 text-right">
             <div className="text-2xs text-muted-foreground">chỉ từ</div>
             <div className="font-display text-base text-gold">
-              {formatVND(cheapest)}
+              {tien(cheapest)}
             </div>
           </div>
         )}

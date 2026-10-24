@@ -6,13 +6,8 @@
 // kéo bản ghi về đếm trong trình duyệt.
 //
 // Biểu đồ dùng Recharts: rê chuột vào cột / phần bánh để xem số liệu chi tiết.
-import {
-  DAY_MAU,
-  MAU,
-  MAU_TIEN,
-  MAU_TRANG_THAI_BOOKING,
-  MAU_VAI_TRO,
-} from "@/lib/mau-bieu-do";
+import { so, tien, usd } from "@/lib/tien";
+import { DAY_MAU, KHUNG, MAU, MAU_TIEN, MAU_TRANG_THAI_BOOKING, MAU_VAI_TRO } from "@/lib/mau-bieu-do";
 import {
   Users,
   UserCheck,
@@ -69,26 +64,6 @@ const ROLE_COLORS: Record<string, string> = MAU_VAI_TRO;
 
 const BOOKING_COLORS: Record<string, string> = MAU_TRANG_THAI_BOOKING;
 
-function nf(n: number) {
-  return new Intl.NumberFormat("vi-VN").format(n);
-}
-
-function usd(n: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 4,
-  }).format(n);
-}
-
-function vnd(n: number) {
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-    maximumFractionDigits: 0,
-  }).format(n);
-}
 
 /** Rút gọn số tiền trên trục Y: 1.2tr, 800k… */
 function vndTruc(n: number) {
@@ -106,21 +81,14 @@ const WHITE_LABEL_STYLE = {
   strokeWidth: 3,
 };
 
-/** Chữ trục X/Y — sáng hơn muted mặc định để đọc được trên nền tối. */
-const AXIS_TICK = { fontSize: 11, fill: "oklch(0.78 0.02 85)" };
+const AXIS_TICK = { fontSize: 11, fill: KHUNG.chuTruc };
 
-/**
- * Lưới ngang rõ trên nền tối.
- *
- * ChartContainer có CSS làm mờ stroke mặc định #ccc (~border/50). Đặt stroke
- * vàng nhạt tường minh thì selector đó không khớp — đường chỉ số hiện rõ.
- */
 function BarGrid() {
   return (
     <CartesianGrid
       vertical={false}
       strokeDasharray="3 5"
-      stroke="oklch(0.78 0.08 85 / 0.45)"
+      stroke={KHUNG.luoi}
       strokeWidth={1}
     />
   );
@@ -148,7 +116,7 @@ function pieWhiteLabel(props: {
     outerRadius = 0,
     value = 0,
     percent = 0,
-    format = nf,
+    format = so,
   } = props;
   if (value <= 0 || percent < 0.05) return null;
   const RADIAN = Math.PI / 180;
@@ -159,7 +127,7 @@ function pieWhiteLabel(props: {
     <text
       x={x}
       y={y}
-      fill={MUC_TREN_LAT}
+      fill={KHUNG.mucTrenLat}
       textAnchor="middle"
       dominantBaseline="central"
       style={WHITE_LABEL_STYLE}
@@ -169,21 +137,13 @@ function pieWhiteLabel(props: {
   );
 }
 
-/**
- * Mực của nhãn nằm ĐÈ lên lát biểu đồ.
- *
- * Không nằm trong bảng màu: nó phải đọc được trên mọi lát, bất kể lát ấy màu
- * gì, nên vai trò của nó là "mực tương phản" chứ không phải một sắc trong
- * bảng. Đổi nó theo token nền là chữ chìm mất trên lát sáng.
- */
-const MUC_TREN_LAT = "#ffffff";
 
 /**
  * Số trắng trên đỉnh cột — cùng style với pie; bỏ cột = 0.
  * Dùng với <LabelList content={...} /> trên mọi BarChart.
  */
 function barWhiteLabel(props: any) {
-  const { x = 0, y = 0, width = 0, value, format = nf } = props;
+  const { x = 0, y = 0, width = 0, value, format = so } = props;
   const numX = Number(x) || 0;
   const numY = Number(y) || 0;
   const numW = Number(width) || 0;
@@ -193,7 +153,7 @@ function barWhiteLabel(props: any) {
     <text
       x={numX + numW / 2}
       y={numY - 6}
-      fill={MUC_TREN_LAT}
+      fill={KHUNG.mucTrenLat}
       textAnchor="middle"
       dominantBaseline="auto"
       style={WHITE_LABEL_STYLE}
@@ -317,20 +277,20 @@ export function AdminOverview() {
       icon: Users,
       label: "Tài khoản",
       value: s.users.total,
-      hint: `+${nf(s.users.newLast7Days)} trong 7 ngày`,
+      hint: `+${so(s.users.newLast7Days)} trong 7 ngày`,
     },
     {
       icon: UserCheck,
       label: "Hồ sơ Reader chờ duyệt",
       value: s.readers.pendingApplications,
-      hint: `${nf(s.readers.activeProfiles)} hồ sơ đang có`,
+      hint: `${so(s.readers.activeProfiles)} hồ sơ đang có`,
       alert: s.readers.pendingApplications > 0,
     },
     {
       icon: CalendarClock,
       label: "Lượt đặt lịch",
       value: s.bookings.total,
-      hint: `${nf(s.bookings.byStatus.PENDING ?? 0)} đang chờ xác nhận`,
+      hint: `${so(s.bookings.byStatus.PENDING ?? 0)} đang chờ xác nhận`,
     },
     {
       icon: Flag,
@@ -353,13 +313,13 @@ export function AdminOverview() {
       icon: MousePointerClick,
       label: "Lượt sang sàn (30 ngày)",
       value: s.shop.clicksLast30Days,
-      hint: `${nf(s.shop.clicksTotal)} tổng cộng`,
+      hint: `${so(s.shop.clicksTotal)} tổng cộng`,
     },
     {
       icon: Sparkles,
       label: "Token Tarot AI",
       value: ai.totalTokens,
-      hint: `${nf(ai.tokensLast30Days)} trong 30 ngày · ~${usd(ai.estimatedCostUsd)}`,
+      hint: `${so(ai.tokensLast30Days)} trong 30 ngày · ~${usd(ai.estimatedCostUsd)}`,
     },
     // Ô token ở trên cho biết AI TỐN bao nhiêu. Thiếu ô này thì màn Tổng quan
     // chỉ có chi phí của tính năng mà không có doanh thu của nó.
@@ -367,7 +327,7 @@ export function AdminOverview() {
       icon: BadgeCheck,
       label: "Gói AI đã bán",
       value: sub.purchasesTotal,
-      hint: `${nf(sub.purchasesLast30Days)} trong 30 ngày · ${vnd(sub.revenueTotal)}`,
+      hint: `${so(sub.purchasesLast30Days)} trong 30 ngày · ${tien(sub.revenueTotal)}`,
     },
   ];
 
@@ -394,7 +354,7 @@ export function AdminOverview() {
                 </span>
               </div>
               <div className="mt-3 font-display text-3xl leading-none">
-                {nf(k.value)}
+                {so(k.value)}
               </div>
               <div className="mt-1.5 text-sm text-foreground/80">{k.label}</div>
               <div className="mt-0.5 text-xs text-muted-foreground">
@@ -459,33 +419,33 @@ function BonSoLieuChinh({
   const o = [
     {
       nhan: "Doanh thu",
-      tong: vnd(t.doanhThu),
-      that: vnd(t.doanhThuThat),
+      tong: tien(t.doanhThu),
+      that: tien(t.doanhThuThat),
       giaiThich: "Tiền khách đã trả, chỉ tính giao dịch trạng thái SUCCESS.",
     },
     {
       nhan: "Số lượng giao dịch",
-      tong: nf(t.soGiaoDich),
-      that: nf(t.soGiaoDichThat),
+      tong: so(t.soGiaoDich),
+      that: so(t.soGiaoDichThat),
       giaiThich: "Số LẦN trả tiền thành công, không phải số người.",
     },
     {
       nhan: "Người dùng trả phí",
-      tong: nf(t.nguoiTraPhi),
-      that: nf(t.nguoiTraPhiThat),
+      tong: so(t.nguoiTraPhi),
+      that: so(t.nguoiTraPhiThat),
       giaiThich:
         "Số NGƯỜI đã trả ít nhất một lần. Nạp ví ba lần vẫn là một người.",
     },
     {
       nhan: "Đánh giá Reader",
-      tong: nf(t.danhGiaReader),
-      that: nf(t.danhGiaReaderThat),
+      tong: so(t.danhGiaReader),
+      that: so(t.danhGiaReaderThat),
       giaiThich: "Sao khách chấm cho Reader sau buổi xem.",
     },
     {
       nhan: "Góp ý sản phẩm",
-      tong: nf(t.gopYKhaoSat),
-      that: nf(t.gopYKhaoSatThat),
+      tong: so(t.gopYKhaoSat),
+      that: so(t.gopYKhaoSatThat),
       giaiThich: "Phiếu góp ý về hệ thống — việc khác với đánh giá Reader.",
     },
   ];
@@ -533,12 +493,12 @@ function TractionStrip({
   traction: NonNullable<AdminStats["traction"]>;
 }) {
   const items = [
-    { label: "Người dùng", value: nf(t.registeredUsers) },
-    { label: "Thanh toán SUCCESS", value: nf(t.successfulPayments) },
-    { label: "Buổi hoàn tất", value: nf(t.completedBookings) },
-    { label: "Đánh giá Reader", value: nf(t.reviewsCount) },
-    { label: "Phản hồi khảo sát", value: nf(t.feedbackCount) },
-    { label: "Affiliate 30 ngày", value: nf(t.affiliateClicks30d) },
+    { label: "Người dùng", value: so(t.registeredUsers) },
+    { label: "Thanh toán SUCCESS", value: so(t.successfulPayments) },
+    { label: "Buổi hoàn tất", value: so(t.completedBookings) },
+    { label: "Đánh giá Reader", value: so(t.reviewsCount) },
+    { label: "Phản hồi khảo sát", value: so(t.feedbackCount) },
+    { label: "Affiliate 30 ngày", value: so(t.affiliateClicks30d) },
   ];
   const eventEntries = Object.entries(t.marketingEventsLast30Days ?? {});
 
@@ -593,32 +553,32 @@ function RevenueSummary({
     {
       icon: Wallet,
       label: "Doanh thu gộp",
-      value: vnd(r.grossRevenue),
+      value: tien(r.grossRevenue),
       hint:
-        nf(r.successfulPayments) +
+        so(r.successfulPayments) +
         " giao dịch · " +
-        vnd(r.grossRevenueLast30Days) +
+        tien(r.grossRevenueLast30Days) +
         " trong 30 ngày",
       negative: false,
     },
     {
       icon: TrendingUp,
       label: "Phí nền tảng (" + r.platformFeePercent + "%)",
-      value: vnd(r.platformFee),
-      hint: vnd(r.readerShare) + " còn lại là của Reader",
+      value: tien(r.platformFee),
+      hint: tien(r.readerShare) + " còn lại là của Reader",
       negative: false,
     },
     {
       icon: Bot,
       label: "Chi phí AI",
-      value: vnd(r.aiCostVnd),
+      value: tien(r.aiCostVnd),
       hint: "Quy đổi từ token đã tiêu thụ",
       negative: false,
     },
     {
       icon: TrendingUp,
       label: "Lợi nhuận ròng",
-      value: vnd(r.netProfit),
+      value: tien(r.netProfit),
       hint: "Phí nền tảng trừ chi phí AI",
       negative: r.netProfit < 0,
     },
@@ -629,8 +589,8 @@ function RevenueSummary({
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="font-display text-lg">Doanh thu và lợi nhuận</h2>
         <p className="text-xs text-muted-foreground">
-          Đã chi trả Reader {vnd(r.paidOut)}
-          {r.pendingPayout > 0 ? " · " + vnd(r.pendingPayout) + " chờ chi" : ""}
+          Đã chi trả Reader {tien(r.paidOut)}
+          {r.pendingPayout > 0 ? " · " + tien(r.pendingPayout) + " chờ chi" : ""}
         </p>
       </div>
 
@@ -690,7 +650,7 @@ function RevenueMonthChart({
         {tong > 0 ? (
           <>
             {" "}
-            · Tổng: <span className="font-medium text-gold">{vnd(tong)}</span>
+            · Tổng: <span className="font-medium text-gold">{tien(tong)}</span>
           </>
         ) : null}
         .
@@ -719,13 +679,13 @@ function RevenueMonthChart({
             />
             <YAxis
               tickLine={false}
-              axisLine={{ stroke: "oklch(0.78 0.08 85 / 0.35)" }}
+              axisLine={{ stroke: KHUNG.duongTruc }}
               width={44}
               tickFormatter={vndTruc}
               tick={{ fontSize: 10, fill: AXIS_TICK.fill }}
             />
             <ChartTooltip
-              cursor={{ fill: "oklch(0.75 0.12 85 / 0.12)" }}
+              cursor={{ fill: KHUNG.conTro }}
               content={
                 <ChartTooltipContent
                   labelKey="label"
@@ -736,7 +696,7 @@ function RevenueMonthChart({
                           ?.label ?? "Tháng"}
                       </span>
                       <span className="font-medium text-foreground">
-                        Doanh thu: {vnd(Number(value))}
+                        Doanh thu: {tien(Number(value))}
                       </span>
                     </div>
                   )}
@@ -802,7 +762,7 @@ function ProfitBreakdownChart({
           <>
             {" "}
             · Tổng phân bổ:{" "}
-            <span className="font-medium text-gold">{vnd(tong)}</span>
+            <span className="font-medium text-gold">{tien(tong)}</span>
           </>
         ) : null}
         .
@@ -832,7 +792,7 @@ function ProfitBreakdownChart({
                             {label}
                           </span>
                           <span className="font-mono tabular-nums text-muted-foreground">
-                            {vnd(n)} · {pct}%
+                            {tien(n)} · {pct}%
                           </span>
                         </div>
                       );
@@ -847,7 +807,7 @@ function ProfitBreakdownChart({
                 innerRadius={55}
                 outerRadius={95}
                 strokeWidth={2}
-                stroke="oklch(0.16 0.02 280)"
+                stroke={KHUNG.vienLat}
                 label={(props) =>
                   pieWhiteLabel({
                     ...props,
@@ -883,7 +843,7 @@ function ProfitBreakdownChart({
                     {d.label}
                   </span>
                   <span className="font-mono tabular-nums text-foreground">
-                    {vnd(d.count)}
+                    {tien(d.count)}
                     <span className="ml-1.5 text-muted-foreground">
                       ({pct}%)
                     </span>
@@ -974,7 +934,7 @@ function RoleChart({ users }: { users: AdminStats["users"] }) {
                       <div className="flex w-full items-center justify-between gap-4">
                         <span className="text-muted-foreground">{label}</span>
                         <span className="font-mono font-medium tabular-nums text-foreground">
-                          {nf(n)} · {pct}%
+                          {so(n)} · {pct}%
                         </span>
                       </div>
                     );
@@ -989,7 +949,7 @@ function RoleChart({ users }: { users: AdminStats["users"] }) {
               innerRadius={58}
               outerRadius={96}
               strokeWidth={2}
-              stroke="oklch(0.16 0.02 280)"
+              stroke={KHUNG.vienLat}
               label={pieWhiteLabel}
               labelLine={false}
             >
@@ -1033,7 +993,7 @@ function BookingChart({ bookings }: { bookings: AdminStats["bookings"] }) {
         <h2 className="font-display text-lg">Đặt lịch theo trạng thái</h2>
       </div>
       <p className="mt-1 text-xs text-muted-foreground">
-        Rê chuột vào cột để xem số lượt và tỉ lệ trên tổng {nf(total)}.
+        Rê chuột vào cột để xem số lượt và tỉ lệ trên tổng {so(total)}.
       </p>
 
       {total === 0 ? (
@@ -1061,12 +1021,12 @@ function BookingChart({ bookings }: { bookings: AdminStats["bookings"] }) {
             <YAxis
               allowDecimals={false}
               tickLine={false}
-              axisLine={{ stroke: "oklch(0.78 0.08 85 / 0.35)" }}
+              axisLine={{ stroke: KHUNG.duongTruc }}
               width={36}
               tick={AXIS_TICK}
             />
             <ChartTooltip
-              cursor={{ fill: "oklch(0.75 0.12 85 / 0.12)" }}
+              cursor={{ fill: KHUNG.conTro }}
               content={
                 <ChartTooltipContent
                   labelKey="label"
@@ -1082,7 +1042,7 @@ function BookingChart({ bookings }: { bookings: AdminStats["bookings"] }) {
                           {label}
                         </span>
                         <span className="font-mono tabular-nums text-muted-foreground">
-                          {nf(n)} lượt · {pct}% tổng
+                          {so(n)} lượt · {pct}% tổng
                         </span>
                       </div>
                     );
@@ -1152,12 +1112,12 @@ function ReaderChart({ readers }: { readers: AdminStats["readers"] }) {
           <YAxis
             allowDecimals={false}
             tickLine={false}
-            axisLine={{ stroke: "oklch(0.78 0.08 85 / 0.35)" }}
+            axisLine={{ stroke: KHUNG.duongTruc }}
             width={36}
             tick={AXIS_TICK}
           />
           <ChartTooltip
-            cursor={{ fill: "oklch(0.75 0.12 85 / 0.12)" }}
+            cursor={{ fill: KHUNG.conTro }}
             content={
               <ChartTooltipContent
                 formatter={(value, _name, item) => {
@@ -1169,7 +1129,7 @@ function ReaderChart({ readers }: { readers: AdminStats["readers"] }) {
                     <div className="flex w-full items-center justify-between gap-4">
                       <span className="text-muted-foreground">{label}</span>
                       <span className="font-mono font-medium tabular-nums">
-                        {nf(n)}
+                        {so(n)}
                       </span>
                     </div>
                   );
@@ -1245,12 +1205,12 @@ function ShopChart({ shop }: { shop: AdminStats["shop"] }) {
           <YAxis
             allowDecimals={false}
             tickLine={false}
-            axisLine={{ stroke: "oklch(0.78 0.08 85 / 0.35)" }}
+            axisLine={{ stroke: KHUNG.duongTruc }}
             width={40}
             tick={AXIS_TICK}
           />
           <ChartTooltip
-            cursor={{ fill: "oklch(0.75 0.12 85 / 0.12)" }}
+            cursor={{ fill: KHUNG.conTro }}
             content={
               <ChartTooltipContent
                 formatter={(value, _name, item) => {
@@ -1264,7 +1224,7 @@ function ShopChart({ shop }: { shop: AdminStats["shop"] }) {
                         {label}
                       </span>
                       <span className="font-mono tabular-nums text-muted-foreground">
-                        {nf(n)}
+                        {so(n)}
                       </span>
                     </div>
                   );
@@ -1329,7 +1289,7 @@ function AiTokenBreakdownChart({ ai }: { ai: NonNullable<AdminStats["ai"]> }) {
       <p className="mt-1 text-xs text-muted-foreground">
         Rê chuột vào cột để xem số token. Chi phí ước lượng:{" "}
         <span className="text-gold">{usd(ai.estimatedCostUsd)}</span> ·{" "}
-        {nf(ai.totalCalls)} lượt gọi ({nf(ai.callsLast30Days)} trong 30 ngày).
+        {so(ai.totalCalls)} lượt gọi ({so(ai.callsLast30Days)} trong 30 ngày).
       </p>
 
       {ai.totalTokens === 0 && ai.totalCalls === 0 ? (
@@ -1357,12 +1317,12 @@ function AiTokenBreakdownChart({ ai }: { ai: NonNullable<AdminStats["ai"]> }) {
             <YAxis
               allowDecimals={false}
               tickLine={false}
-              axisLine={{ stroke: "oklch(0.78 0.08 85 / 0.35)" }}
+              axisLine={{ stroke: KHUNG.duongTruc }}
               width={48}
               tick={AXIS_TICK}
             />
             <ChartTooltip
-              cursor={{ fill: "oklch(0.75 0.12 85 / 0.12)" }}
+              cursor={{ fill: KHUNG.conTro }}
               content={
                 <ChartTooltipContent
                   formatter={(value, _name, item) => {
@@ -1376,7 +1336,7 @@ function AiTokenBreakdownChart({ ai }: { ai: NonNullable<AdminStats["ai"]> }) {
                           {row?.label ?? "Token"}
                         </span>
                         <span className="font-mono tabular-nums text-gold">
-                          {nf(n)} token
+                          {so(n)} token
                         </span>
                         {row?.key === "total" && (
                           <span className="text-muted-foreground">
@@ -1456,7 +1416,7 @@ function AiModelChart({ ai }: { ai: NonNullable<AdminStats["ai"]> }) {
                           {label}
                         </span>
                         <span className="font-mono tabular-nums text-gold">
-                          {nf(n)} token · {pct}%
+                          {so(n)} token · {pct}%
                         </span>
                       </div>
                     );
@@ -1471,7 +1431,7 @@ function AiModelChart({ ai }: { ai: NonNullable<AdminStats["ai"]> }) {
               innerRadius={58}
               outerRadius={96}
               strokeWidth={2}
-              stroke="oklch(0.16 0.02 280)"
+              stroke={KHUNG.vienLat}
               label={pieWhiteLabel}
               labelLine={false}
             >

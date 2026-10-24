@@ -1,3 +1,4 @@
+import { tien } from "@/lib/tien";
 import { useState, useRef } from "react";
 import { AlertCircle, Banknote, Wallet } from "lucide-react";
 import { toast } from "sonner";
@@ -7,7 +8,6 @@ import {
   useMyEscrow,
   useMyPayouts,
 } from "@/features/money/queries";
-import { formatVND } from "@/lib/mock-data";
 import { DANH_SACH_NGAN_HANG, timNganHang } from "@/lib/banks";
 import { SoCaiKyQuy } from "./EscrowLedger";
 
@@ -118,7 +118,7 @@ export function EarningsPanel() {
                   Rút được
                 </dt>
                 <dd className="mt-1 font-display text-2xl text-gold">
-                  {formatVND(e!.balance)}
+                  {tien(e!.balance)}
                 </dd>
                 <p className="mt-1 text-2xs text-muted-foreground">
                   Đã trừ phí nền tảng, dùng được ngay.
@@ -129,7 +129,7 @@ export function EarningsPanel() {
                   Đang giữ
                 </dt>
                 <dd className="mt-1 font-display text-2xl text-foreground/80">
-                  {formatVND(e!.pendingBalance)}
+                  {tien(e!.pendingBalance)}
                 </dd>
                 <p className="mt-1 text-2xs text-muted-foreground">
                   Khách đã trả, buổi xem chưa hoàn tất.
@@ -140,17 +140,17 @@ export function EarningsPanel() {
             <dl className="mt-3 grid gap-3 sm:grid-cols-2 text-sm">
               <div className="flex justify-between rounded-lg border border-white/5 px-3 py-2">
                 <dt className="text-muted-foreground">Tổng đã nhận</dt>
-                <dd className="tabular-nums">{formatVND(e!.totalEarned)}</dd>
+                <dd className="tabular-nums">{tien(e!.totalEarned)}</dd>
               </div>
               <div className="flex justify-between rounded-lg border border-white/5 px-3 py-2">
                 <dt className="text-muted-foreground">Tổng đã rút</dt>
-                <dd className="tabular-nums">{formatVND(e!.totalWithdrawn)}</dd>
+                <dd className="tabular-nums">{tien(e!.totalWithdrawn)}</dd>
               </div>
             </dl>
 
             {(e!.penaltyOwed ?? 0) > 0 && (
               <p className="mt-3 rounded-xl border border-destructive/40 bg-destructive/5 px-4 py-3 text-xs text-destructive">
-                Bạn đang nợ {formatVND(e!.penaltyOwed!)} tiền phạt vi phạm. Số
+                Bạn đang nợ {tien(e!.penaltyOwed!)} tiền phạt vi phạm. Số
                 này sẽ tự trừ vào các buổi xem tới, nên thu nhập mấy lần sau sẽ
                 thấp hơn cho tới khi trừ hết.
               </p>
@@ -163,7 +163,7 @@ export function EarningsPanel() {
               aria-expanded={open}
               title={
                 e!.balance < e!.minimumPayout
-                  ? `Cần tối thiểu ${formatVND(e!.minimumPayout)} mới rút được`
+                  ? `Cần tối thiểu ${tien(e!.minimumPayout)} mới rút được`
                   : undefined
               }
               className="mt-4 inline-flex items-center gap-2 rounded-full bg-gold px-5 py-2 text-sm font-medium text-primary-foreground glow-gold transition disabled:cursor-not-allowed disabled:opacity-40"
@@ -173,7 +173,7 @@ export function EarningsPanel() {
             </button>
             {e!.balance < e!.minimumPayout && (
               <p className="mt-2 text-xs text-muted-foreground">
-                Mức rút tối thiểu là {formatVND(e!.minimumPayout)} — dưới mức đó
+                Mức rút tối thiểu là {tien(e!.minimumPayout)} — dưới mức đó
                 thì phí chuyển khoản ăn gần hết số tiền.
               </p>
             )}
@@ -186,7 +186,7 @@ export function EarningsPanel() {
             className="mt-4 space-y-3 rounded-xl border border-gold/30 p-4"
           >
             <Field
-              label={`Số tiền (tối đa ${formatVND(e?.balance ?? 0)})`}
+              label={`Số tiền (tối đa ${tien(e?.balance ?? 0)})`}
               value={form.amount}
               onChange={(v) =>
                 setForm((f) => ({ ...f, amount: v.replace(/[^0-9]/g, "") }))
@@ -269,7 +269,7 @@ export function EarningsPanel() {
                 >
                   <div className="min-w-0">
                     <p className="font-display text-lg text-gold">
-                      {formatVND(p.amount)}
+                      {tien(p.amount)}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {p.bankName} · {p.bankAccountMasked}
