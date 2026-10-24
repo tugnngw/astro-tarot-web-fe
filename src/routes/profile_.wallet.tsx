@@ -62,7 +62,7 @@ function getTxTypeMeta(type: WalletTransactionType) {
     case "TOPUP":
       return {
         label: "Nạp tiền ví",
-        color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
+        color: "text-success bg-success/10 border-success/20",
         icon: ArrowDownLeft,
         isPositive: true,
       };
@@ -76,7 +76,7 @@ function getTxTypeMeta(type: WalletTransactionType) {
     case "AI_SUBSCRIPTION":
       return {
         label: "Gói cước AI",
-        color: "text-amber-400 bg-amber-500/10 border-amber-500/20",
+        color: "text-warning bg-warning/10 border-warning/20",
         icon: Zap,
         isPositive: false,
       };
@@ -176,8 +176,8 @@ function WalletPage() {
                   </div>
                 </div>
 
-                <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-2xs font-medium text-emerald-400">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="inline-flex items-center gap-1 rounded-full border border-success/30 bg-success/10 px-2.5 py-1 text-2xs font-medium text-success">
+                  <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
                   Đang hoạt động
                 </span>
               </div>
@@ -226,7 +226,7 @@ function WalletPage() {
           <div className="space-y-4">
             <div className="rounded-2xl border border-gold/20 bg-card/60 p-4 backdrop-blur-sm">
               <div className="flex items-start gap-3">
-                <div className="grid h-8 w-8 place-items-center rounded-lg bg-emerald-500/10 text-emerald-400 shrink-0">
+                <div className="grid h-8 w-8 place-items-center rounded-lg bg-success/10 text-success shrink-0">
                   <ShieldCheck className="h-4 w-4" />
                 </div>
                 <div>
@@ -339,17 +339,17 @@ function WalletPage() {
                             {meta.label}
                           </span>
                           {tx.status === "SUCCESS" ? (
-                            <span className="inline-flex items-center gap-1 text-3xs text-emerald-400">
+                            <span className="inline-flex items-center gap-1 text-3xs text-success">
                               <CheckCircle2 className="h-3 w-3" />
                               Thành công
                             </span>
                           ) : tx.status === "PENDING" ? (
-                            <span className="inline-flex items-center gap-1 text-3xs text-amber-400">
+                            <span className="inline-flex items-center gap-1 text-3xs text-warning">
                               <Clock className="h-3 w-3" />
                               Đang xử lý
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 text-3xs text-red-400">
+                            <span className="inline-flex items-center gap-1 text-3xs text-destructive-soft">
                               <XCircle className="h-3 w-3" />
                               Thất bại
                             </span>
@@ -379,7 +379,7 @@ function WalletPage() {
                     <div className="text-left sm:text-right shrink-0 border-t sm:border-t-0 border-white/5 pt-2 sm:pt-0">
                       <span
                         className={`font-display text-base font-bold ${
-                          meta.isPositive ? "text-emerald-400" : "text-foreground"
+                          meta.isPositive ? "text-success" : "text-foreground"
                         }`}
                       >
                         {meta.isPositive ? "+" : "-"}

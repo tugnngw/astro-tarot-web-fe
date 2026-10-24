@@ -47,8 +47,8 @@ export function UserPurchasesList({
 
   if (isError) {
     return (
-      <div className={`glass rounded-2xl border-red-500/20 p-5 text-center ${className}`}>
-        <AlertCircle className="mx-auto h-6 w-6 text-red-400 mb-2" />
+      <div className={`glass rounded-2xl border-destructive-soft/20 p-5 text-center ${className}`}>
+        <AlertCircle className="mx-auto h-6 w-6 text-destructive-soft mb-2" />
         <p className="text-sm text-foreground">Không thể tải danh sách gói đã mua</p>
         <p className="text-xs text-muted-foreground mt-1">{(error as any)?.message || ""}</p>
       </div>
@@ -140,7 +140,7 @@ export function UserPurchasesList({
                   <span className="flex items-center gap-1">
                     <Clock className="h-3 w-3" />
                     {isExpired ? (
-                      <span className="text-red-400">Đã hết hạn</span>
+                      <span className="text-destructive-soft">Đã hết hạn</span>
                     ) : (
                       <span>Còn {daysLeft} ngày (hết hạn: {new Date(purchase.endAt).toLocaleDateString("vi-VN")})</span>
                     )}
@@ -150,11 +150,11 @@ export function UserPurchasesList({
 
               <div className="text-right shrink-0">
                 {isExpired ? (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-red-500/20 bg-red-500/10 px-2.5 py-1 text-2xs text-red-400">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-destructive-soft/20 bg-destructive-soft/10 px-2.5 py-1 text-2xs text-destructive-soft">
                     Đã hết hạn
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-2xs font-medium text-emerald-400">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-success/30 bg-success/10 px-2.5 py-1 text-2xs font-medium text-success">
                     <CheckCircle2 className="h-3 w-3" />
                     Đang dùng
                   </span>

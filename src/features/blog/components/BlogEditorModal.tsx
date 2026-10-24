@@ -190,7 +190,7 @@ export function BlogEditorModal({
                 htmlFor="blog-title"
                 className="text-xs font-semibold text-foreground"
               >
-                Tiêu đề <span className="text-rose-400">*</span>
+                Tiêu đề <span className="text-destructive-soft">*</span>
               </Label>
               <span className="text-2xs text-muted-foreground">
                 {title.length}/255
@@ -205,7 +205,7 @@ export function BlogEditorModal({
               className="border-gold/30 bg-card/40 focus:border-gold text-sm sm:text-base font-medium"
             />
             {errors.title && (
-              <p className="text-xs text-rose-400">{errors.title}</p>
+              <p className="text-xs text-destructive-soft">{errors.title}</p>
             )}
           </div>
 
@@ -235,7 +235,7 @@ export function BlogEditorModal({
               className="border-gold/30 bg-card/40 focus:border-gold text-sm resize-none"
             />
             {errors.summary && (
-              <p className="text-xs text-rose-400">{errors.summary}</p>
+              <p className="text-xs text-destructive-soft">{errors.summary}</p>
             )}
           </div>
 
@@ -275,14 +275,14 @@ export function BlogEditorModal({
               </div>
             ) : null}
             {errors.thumbnailUrl && (
-              <p className="text-xs text-rose-400">{errors.thumbnailUrl}</p>
+              <p className="text-xs text-destructive-soft">{errors.thumbnailUrl}</p>
             )}
           </div>
 
           <div className="space-y-1.5 pt-1">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <Label className="text-xs font-semibold text-foreground">
-                Nội dung bài <span className="text-rose-400">*</span>
+                Nội dung bài <span className="text-destructive-soft">*</span>
               </Label>
               <Tabs
                 value={tab}
@@ -338,7 +338,7 @@ export function BlogEditorModal({
               </div>
             )}
             {errors.content && (
-              <p className="text-xs text-rose-400">{errors.content}</p>
+              <p className="text-xs text-destructive-soft">{errors.content}</p>
             )}
           </div>
 
@@ -393,7 +393,7 @@ export function BlogEditorModal({
                   </button>
                 )}
                 {errors.slug && (
-                  <p className="text-xs text-rose-400">{errors.slug}</p>
+                  <p className="text-xs text-destructive-soft">{errors.slug}</p>
                 )}
               </div>
             ) : null}

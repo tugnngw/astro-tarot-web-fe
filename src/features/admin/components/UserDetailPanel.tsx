@@ -173,7 +173,7 @@ export function UserDetailPanel({
                   {ACCOUNT_STATUS_LABEL[user.status]}
                 </span>
                 {!user.emailVerified && (
-                  <span className="text-xs text-amber-300">
+                  <span className="text-xs text-warning">
                     chưa xác minh email
                   </span>
                 )}

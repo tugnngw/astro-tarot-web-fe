@@ -61,7 +61,7 @@ function TrangQuayVeTuGoogle() {
       <div className="glass max-w-sm rounded-2xl border border-gold/30 p-6 text-center">
         {loi ? (
           <>
-            <p className="text-sm text-rose-300">{loi}</p>
+            <p className="text-sm text-destructive-soft">{loi}</p>
             <button
               onClick={() => void navigate({ to: "/", replace: true })}
               className="mt-4 w-full rounded-full bg-gold py-2.5 text-sm font-medium text-primary-foreground"

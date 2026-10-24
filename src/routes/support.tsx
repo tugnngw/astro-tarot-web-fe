@@ -27,9 +27,9 @@ export const Route = createFileRoute("/support")({
 });
 
 const STATUS_PILL: Record<TicketStatus, string> = {
-  OPEN: "bg-amber-400/15 text-amber-300",
+  OPEN: "bg-warning/10 text-warning",
   PENDING: "bg-sky-400/15 text-sky-300",
-  RESOLVED: "bg-emerald-400/15 text-emerald-300",
+  RESOLVED: "bg-success/10 text-success",
   CLOSED: "bg-mystic/20 text-muted-foreground",
 };
 

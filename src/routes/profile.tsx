@@ -143,7 +143,7 @@ function DeleteAccountCard() {
         <button
           type="button"
           onClick={() => setMoRong(true)}
-          className="text-xs text-muted-foreground underline underline-offset-4 transition hover:text-rose-300"
+          className="text-xs text-muted-foreground underline underline-offset-4 transition hover:text-destructive-soft"
         >
           Xoá tài khoản
         </button>
@@ -152,8 +152,8 @@ function DeleteAccountCard() {
   }
 
   return (
-    <section className="rounded-2xl border border-rose-500/30 bg-rose-500/5 p-6">
-      <h2 className="font-display text-lg text-rose-300">Xoá tài khoản</h2>
+    <section className="rounded-2xl border border-destructive-soft/30 bg-destructive-soft/10 p-6">
+      <h2 className="font-display text-lg text-destructive-soft">Xoá tài khoản</h2>
       <p className="mt-1 text-sm font-medium text-foreground">
         Việc này không hoàn tác được.
       </p>
@@ -195,7 +195,7 @@ function DeleteAccountCard() {
             autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 w-full rounded-xl border border-rose-500/30 bg-input/70 px-3 py-2 text-sm text-foreground outline-none transition focus:border-rose-400"
+            className="mt-1 w-full rounded-xl border border-destructive-soft/30 bg-input/70 px-3 py-2 text-sm text-foreground outline-none transition focus:border-destructive-soft"
           />
         </div>
         <div className="flex gap-3">
@@ -212,7 +212,7 @@ function DeleteAccountCard() {
           <button
             type="submit"
             disabled={!password || del.isPending}
-            className="rounded-xl bg-rose-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-rose-500 disabled:opacity-50"
+            className="rounded-xl bg-destructive px-4 py-2 text-sm font-medium text-white transition hover:bg-destructive disabled:opacity-50"
           >
             {del.isPending ? "Đang xoá…" : "Xoá tài khoản"}
           </button>
@@ -348,7 +348,7 @@ function AvatarCard({
               {profile.role}
             </span>
             {profile.emailVerified ? (
-              <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/50 px-3 py-1 text-3xs text-emerald-400">
+              <span className="inline-flex items-center gap-1 rounded-full border border-success/50 px-3 py-1 text-3xs text-success">
                 <ShieldCheck aria-hidden="true" className="h-3 w-3" /> Đã xác
                 minh
               </span>

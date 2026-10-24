@@ -17,10 +17,10 @@ import {
   useCoTrangVuaManHinh,
 } from "@/components/Pagination";
 const STATUS_CLASS: Record<PayoutStatus, string> = {
-  PENDING: "border-amber-400/40 text-amber-300",
+  PENDING: "border-warning/30 text-warning",
   APPROVED: "border-sky-400/40 text-sky-300",
   REJECTED: "border-destructive/40 text-destructive",
-  PAID: "border-emerald-400/40 text-emerald-300",
+  PAID: "border-success/30 text-success",
 };
 
 /**

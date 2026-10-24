@@ -138,7 +138,7 @@ export function AdminKhuyenMai() {
           </button>
         </div>
 
-        <p className="mt-3 rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-200/90">
+        <p className="mt-3 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-xs text-warning/90">
           Gói AI mua trong app Android đi qua Google Play nên{" "}
           <strong>không giảm giá được</strong> — giá bên đó do Play Console
           quyết định. Đợt này áp cho ví (web và app) và PayOS (web).
@@ -161,7 +161,7 @@ export function AdminKhuyenMai() {
           <p className="text-sm text-muted-foreground">Đang tải…</p>
         )}
         {isError && (
-          <p className="text-sm text-rose-400">Không đọc được danh sách.</p>
+          <p className="text-sm text-destructive-soft">Không đọc được danh sách.</p>
         )}
         {!isLoading && !isError && (data ?? []).length === 0 && (
           <p className="text-sm text-muted-foreground">
@@ -180,7 +180,7 @@ export function AdminKhuyenMai() {
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="font-medium">{k.ten}</span>
                     {k.dangChay ? (
-                      <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-2xs text-emerald-300">
+                      <span className="rounded-full bg-success/10 px-2 py-0.5 text-2xs text-success">
                         Đang chạy
                       </span>
                     ) : (
@@ -217,7 +217,7 @@ export function AdminKhuyenMai() {
                     onClick={() => {
                       if (confirm(`Xoá đợt “${k.ten}”?`)) xoa.mutate(k.id);
                     }}
-                    className="rounded-lg border border-rose-500/30 p-2 text-rose-300"
+                    className="rounded-lg border border-destructive-soft/30 p-2 text-destructive-soft"
                     aria-label={`Xoá ${k.ten}`}
                   >
                     <Trash2 className="h-4 w-4" />
@@ -438,7 +438,7 @@ function FormDot({
         </label>
       </div>
 
-      {loi && <p className="mt-3 text-sm text-rose-400">{loi}</p>}
+      {loi && <p className="mt-3 text-sm text-destructive-soft">{loi}</p>}
 
       <div className="mt-4 flex gap-2">
         <button

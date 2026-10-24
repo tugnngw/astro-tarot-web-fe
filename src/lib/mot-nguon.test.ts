@@ -167,3 +167,63 @@ describe("một nguồn cho cỡ chữ", () => {
     expect(Object.keys(MIEN_TRU_CO_CHU).filter((f) => !con.has(f))).toEqual([]);
   });
 });
+
+/**
+ * Màu trạng thái.
+ *
+ * ## Vì sao cần
+ *
+ * Sản phẩm có sẵn `--success`, `--warning`, `--destructive`, nhưng đo ra thì
+ * `--success` được dùng **1** lần và `--warning` **0** lần, trong khi bảng màu
+ * thô của Tailwind được dùng 340 lần cho đúng ba vai trò ấy. Hậu quả nhìn
+ * thấy được:
+ *
+ * - "thành công" có hai sắc xanh: `emerald-300` và `emerald-400`
+ * - "nguy hiểm" có BA cách nói: `--destructive`, `red-*` và `rose-*` — mà đỏ
+ *   và hồng lệch hẳn sắc
+ * - riêng chữ báo lỗi dùng 6 sắc khác nhau, viền dùng 7 mức khác nhau
+ *
+ * Không ai cố ý: `text-emerald-400` đọc ra nghĩa ngay và gõ nhanh hơn là đi
+ * tra token tên gì. Nên lại là thứ chỉ test bắt được.
+ */
+describe("một nguồn cho màu trạng thái", () => {
+  /**
+   * Trang trí được phép dùng bảng màu thô.
+   *
+   * Màu theo nguyên tố của 12 cung, màu giấy lá tarot, quầng sáng — chúng
+   * KHÔNG mang nghĩa trạng thái. Ép `text-success` lên một cung Kim Ngưu là
+   * nói sai: xanh ở đó là nguyên tố Đất, không phải "thành công".
+   */
+  const MIEN_TRU_TRANG_THAI: Record<string, string> = {
+    "components/ZodiacCarousel.tsx": "màu theo nguyên tố của từng cung hoàng đạo",
+    "components/TopReaders.tsx": "gradient trang trí theo hạng",
+    "features/readers/components/TopReaders.tsx": "gradient trang trí theo hạng",
+    "features/astrology/components/AstroChart.tsx": "màu hành tinh trên vòng hoàng đạo",
+    "features/tarot/components/TarotCard.tsx": "sắc giấy của mặt lá tarot",
+    "features/admin/feedback-utils.ts":
+      "màu theo NGUỒN gửi phản hồi — phân loại, không phải trạng thái; " +
+      '"LANDING" không mang nghĩa thành công',
+    "lib/roles.ts":
+      "màu chip theo vai trò — phân loại, không phải trạng thái; " +
+      '"staff" không mang nghĩa thành công',
+  };
+
+  it("không dùng bảng màu thô của Tailwind cho trạng thái", () => {
+    const pham = TEP.filter((t) => {
+      if (MIEN_TRU_TRANG_THAI[t.ten]) return false;
+      return /\b[a-z-]+-(?:emerald|green|amber|yellow|red|rose)-[0-9]{2,3}\b/.test(
+        boBinhLuan(t.noiDung),
+      );
+    }).map((t) => t.ten);
+
+    expect(
+      pham,
+      "Dùng text-success / bg-warning/10 / border-destructive-soft/30 … thay vì emerald-400, amber-300, rose-400.",
+    ).toEqual([]);
+  });
+
+  it("mọi tệp miễn trừ màu trạng thái vẫn còn tồn tại", () => {
+    const con = new Set(TEP.map((t) => t.ten));
+    expect(Object.keys(MIEN_TRU_TRANG_THAI).filter((f) => !con.has(f))).toEqual([]);
+  });
+});

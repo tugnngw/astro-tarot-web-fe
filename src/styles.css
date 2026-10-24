@@ -70,6 +70,7 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
+  --color-destructive-soft: var(--destructive-soft);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
@@ -115,6 +116,17 @@
   --accent-foreground: oklch(0.98 0.01 80);
   --destructive: oklch(0.6 0.22 25);
   --destructive-foreground: oklch(0.98 0.01 80);
+  /* Đỏ dùng cho CHỮ và VIỀN báo lỗi trên nền tối, song song với
+     `--gold`/`--gold-soft`.
+
+     Vì sao không dùng thẳng `--destructive`: nó là nền nút đặc theo quy ước
+     shadcn, có `--destructive-foreground` gần trắng đặt lên. Trên nền tối
+     của sản phẩm, chữ màu ấy chỉ đạt 4.70:1 — vừa đủ AA và là màu yếu nhất
+     cả hệ. Sắc này đạt 7.24:1 ở cùng nền.
+
+     Giá trị bằng `rose-400`, đúng sắc mà phần lớn chữ báo lỗi đang dùng
+     trên thực tế, nên gom về đây gần như không đổi hiển thị. */
+  --destructive-soft: oklch(0.712 0.194 13.428);
   --border: oklch(0.35 0.06 285 / 50%);
   --input: oklch(0.075 0.015 283);
   --ring: oklch(0.78 0.13 85);

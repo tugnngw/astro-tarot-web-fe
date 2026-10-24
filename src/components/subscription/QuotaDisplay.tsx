@@ -104,10 +104,10 @@ export function QuotaDisplay({
         <div
           className={`h-full rounded-full transition-all duration-500 ${
             percentage >= 90
-              ? "bg-gradient-to-r from-red-500 to-amber-500"
+              ? "bg-gradient-to-r from-destructive-soft to-warning"
               : percentage >= 60
-                ? "bg-gradient-to-r from-amber-400 to-gold"
-                : "bg-gradient-to-r from-emerald-400 to-gold"
+                ? "bg-gradient-to-r from-warning to-gold"
+                : "bg-gradient-to-r from-success to-gold"
           }`}
           style={{ width: `${percentage}%` }}
         />
@@ -116,15 +116,15 @@ export function QuotaDisplay({
       <div className="mt-2.5 flex items-center justify-between text-2xs text-muted-foreground">
         <span>Đã dùng {percentage.toFixed(0)}%</span>
         {remaining === 0 ? (
-          <span className="font-medium text-red-400">
+          <span className="font-medium text-destructive-soft">
             Hết lượt hôm nay — nâng cấp gói để tiếp tục
           </span>
         ) : remaining <= 2 ? (
-          <span className="font-medium text-amber-300">
+          <span className="font-medium text-warning">
             Sắp hết hạn mức ({remaining} lượt cuối)
           </span>
         ) : (
-          <span className="text-emerald-400 font-medium">
+          <span className="text-success font-medium">
             Sẵn sàng trải bài ({remaining} lượt)
           </span>
         )}

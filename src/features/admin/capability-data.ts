@@ -46,8 +46,8 @@ export const CAPABILITY_STATUS_CONFIG: Record<
   TESTED: {
     label: "ĐÃ KIỂM THỬ (TESTED)",
     description: "Có mã nguồn và bộ kiểm thử tự động tương ứng đã vượt qua.",
-    badgeClass: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
-    dotColor: "bg-emerald-400",
+    badgeClass: "bg-success/10 text-success border-success/30",
+    dotColor: "bg-success",
   },
   "RUNTIME VERIFIED": {
     label: "XÁC MINH RUNTIME",
@@ -64,14 +64,14 @@ export const CAPABILITY_STATUS_CONFIG: Record<
   "PARTIALLY IMPLEMENTED": {
     label: "CÀI ĐẶT MỘT PHẦN",
     description: "Mới hoàn thành một phần yêu cầu hoặc đang trong quá trình phát triển.",
-    badgeClass: "bg-amber-500/15 text-amber-400 border-amber-500/30",
-    dotColor: "bg-amber-400",
+    badgeClass: "bg-warning/10 text-warning border-warning/30",
+    dotColor: "bg-warning",
   },
   BLOCKED: {
     label: "BỊ CHẶN (BLOCKED)",
     description: "Kiểm định hoặc vận hành bị chặn bởi phụ thuộc ngoại vi có tài liệu.",
-    badgeClass: "bg-rose-500/15 text-rose-400 border-rose-500/30",
-    dotColor: "bg-rose-400",
+    badgeClass: "bg-destructive-soft/10 text-destructive-soft border-destructive-soft/30",
+    dotColor: "bg-destructive",
   },
   "NOT VERIFIED": {
     label: "CHƯA XÁC MINH",

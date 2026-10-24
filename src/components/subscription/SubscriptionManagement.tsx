@@ -251,7 +251,7 @@ export function SubscriptionManagement() {
           <AccordionItem value="goi-ngay">
             <AccordionTrigger className="text-sm">
               <span className="flex items-center gap-2">
-                <Flame className="h-4 w-4 shrink-0 text-amber-400" />
+                <Flame className="h-4 w-4 shrink-0 text-warning" />
                 Gói Ngày là gì?
               </span>
             </AccordionTrigger>
@@ -264,7 +264,7 @@ export function SubscriptionManagement() {
           <AccordionItem value="thanh-toan" className="border-b-0">
             <AccordionTrigger className="text-sm">
               <span className="flex items-center gap-2">
-                <Shield className="h-4 w-4 shrink-0 text-emerald-400" />
+                <Shield className="h-4 w-4 shrink-0 text-success" />
                 Thanh toán thế nào?
               </span>
             </AccordionTrigger>

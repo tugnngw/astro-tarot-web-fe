@@ -71,9 +71,9 @@ describe("Blog utilities", () => {
 
     it("should have correct badge styling class for each status", () => {
       expect(BLOG_STATUS_MAP.DRAFT.badgeClass).toContain("muted");
-      expect(BLOG_STATUS_MAP.PENDING.badgeClass).toContain("amber");
-      expect(BLOG_STATUS_MAP.APPROVED.badgeClass).toContain("emerald");
-      expect(BLOG_STATUS_MAP.REJECTED.badgeClass).toContain("rose");
+      expect(BLOG_STATUS_MAP.PENDING.badgeClass).toContain("warning");
+      expect(BLOG_STATUS_MAP.APPROVED.badgeClass).toContain("success");
+      expect(BLOG_STATUS_MAP.REJECTED.badgeClass).toContain("destructive-soft");
       expect(BLOG_STATUS_MAP.PUBLISHED.badgeClass).toContain("gold");
     });
   });

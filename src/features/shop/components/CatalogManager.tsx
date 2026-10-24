@@ -319,7 +319,7 @@ export function CatalogManager() {
                               }
                               className={`inline-flex items-center gap-1 text-xs hover:underline ${
                                 laLinkTimKiem(p.affiliateUrl)
-                                  ? "text-amber-300"
+                                  ? "text-warning"
                                   : "text-gold"
                               }`}
                             >
@@ -334,7 +334,7 @@ export function CatalogManager() {
                                   ] ?? "Liên kết")}
                             </a>
                           ) : (
-                            <span className="text-xs text-amber-300">
+                            <span className="text-xs text-warning">
                               chưa gắn
                             </span>
                           )}
@@ -545,13 +545,13 @@ function Stat({
 }) {
   return (
     <div
-      className={`rounded-xl border px-3 py-2 ${warn ? "border-amber-400/40" : "border-gold/20"}`}
+      className={`rounded-xl border px-3 py-2 ${warn ? "border-warning/30" : "border-gold/20"}`}
     >
       <dt className="text-3xs uppercase tracking-[0.12em] text-muted-foreground">
         {label}
       </dt>
       <dd
-        className={`mt-1 font-display text-xl ${warn ? "text-amber-300" : "text-gold"}`}
+        className={`mt-1 font-display text-xl ${warn ? "text-warning" : "text-gold"}`}
       >
         {value}
       </dd>
@@ -697,7 +697,7 @@ function ProductDialog({
             placeholder="https://shopee.vn/..."
           />
           {laLinkTimKiem(form.affiliateUrl) ? (
-            <p className="flex items-start gap-1.5 text-2xs text-amber-300">
+            <p className="flex items-start gap-1.5 text-2xs text-warning">
               <AlertCircle
                 aria-hidden="true"
                 className="mt-px h-3 w-3 shrink-0"

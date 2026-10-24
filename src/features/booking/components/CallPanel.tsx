@@ -54,7 +54,7 @@ export function CallPanel({ call }: { call: BookingCall }) {
     // Chỉ cảnh báo thiếu TURN, không chiếm chỗ khi mọi thứ bình thường.
     if (call.hasTurn) return null;
     return (
-      <p className="flex items-start gap-2 border-b border-amber-400/20 bg-amber-950/40 px-4 py-2 text-2xs text-amber-100">
+      <p className="flex items-start gap-2 border-b border-warning/20 bg-warning/20 px-4 py-2 text-2xs text-warning">
         <TriangleAlert aria-hidden className="mt-0.5 h-3.5 w-3.5 shrink-0" />
         Cuộc gọi nối thẳng giữa hai máy. Không nối được thì nhắn tin vẫn
         dùng được.

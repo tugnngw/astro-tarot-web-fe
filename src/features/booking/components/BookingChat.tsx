@@ -314,7 +314,7 @@ export function BookingChat({
                   aria-hidden
                   className={`h-2 w-2 shrink-0 rounded-full ${
                     hienDien?.online
-                      ? "bg-emerald-400"
+                      ? "bg-success"
                       : "bg-muted-foreground/40"
                   }`}
                 />
@@ -322,7 +322,7 @@ export function BookingChat({
               </p>
             )}
             {!online && (
-              <p className="flex items-center gap-1 text-2xs text-amber-300">
+              <p className="flex items-center gap-1 text-2xs text-warning">
                 <WifiOff aria-hidden className="h-3 w-3 shrink-0" />
                 Mất kết nối tức thời — tin vẫn gửi được, chỉ chậm hơn
               </p>

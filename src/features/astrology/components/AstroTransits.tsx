@@ -33,9 +33,9 @@ export function AstroTransits() {
 
   const getImpactColor = (impact: string) => {
     const colors: Record<string, string> = {
-      positive: "text-emerald-500 bg-emerald-500/10",
+      positive: "text-success bg-success/10",
       neutral: "text-blue-500 bg-blue-500/10",
-      challenging: "text-amber-500 bg-amber-500/10",
+      challenging: "text-warning bg-warning/10",
     };
     return colors[impact] || "text-muted-foreground bg-muted/30";
   };

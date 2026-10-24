@@ -91,8 +91,8 @@ function Panel({ onClose }: { onClose: () => void }) {
   if (app?.status === "APPROVED") {
     return (
       <Shell onClose={onClose} title="Đơn đã được duyệt">
-        <div className="mt-5 flex items-start gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4">
-          <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-400" />
+        <div className="mt-5 flex items-start gap-3 rounded-xl border border-success/30 bg-success/10 p-4">
+          <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-success" />
           <p className="text-sm text-foreground">
             Bạn đã là Reader. Vào khu làm việc để đặt bảng giá và khai khung giờ
             rảnh — chưa có hai thứ đó thì khách không đặt lịch được.

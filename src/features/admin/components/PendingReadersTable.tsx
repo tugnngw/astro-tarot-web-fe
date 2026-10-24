@@ -137,7 +137,7 @@ export function PendingReadersTable() {
                     <Button
                       size="sm"
                       variant="default"
-                      className="bg-emerald-500 hover:bg-emerald-600"
+                      className="bg-success hover:bg-success"
                       onClick={() => handleApprove(reader.id)}
                     >
                       <Check className="h-3 w-3" />

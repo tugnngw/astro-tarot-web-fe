@@ -64,7 +64,7 @@ export function BlogRejectModal({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[500px] border-gold/30 bg-background/95 backdrop-blur-xl">
         <DialogHeader>
-          <DialogTitle className="font-display text-xl text-rose-400 flex items-center gap-2">
+          <DialogTitle className="font-display text-xl text-destructive-soft flex items-center gap-2">
             <AlertCircle className="h-5 w-5" /> Từ chối duyệt bài viết
           </DialogTitle>
           <DialogDescription className="text-muted-foreground text-sm">
@@ -89,7 +89,7 @@ export function BlogRejectModal({
             htmlFor="reject-reason"
             className="text-xs font-medium text-foreground"
           >
-            Lý do từ chối <span className="text-rose-400">*</span>
+            Lý do từ chối <span className="text-destructive-soft">*</span>
           </Label>
           <Textarea
             id="reject-reason"
@@ -102,7 +102,7 @@ export function BlogRejectModal({
             placeholder="Ví dụ: Nội dung chưa đúng định dạng, cần thêm hình ảnh minh họa, thông tin chưa chính xác..."
             className="border-gold/30 bg-card/50 text-sm focus:border-gold"
           />
-          {error && <p className="text-xs text-rose-400">{error}</p>}
+          {error && <p className="text-xs text-destructive-soft">{error}</p>}
         </div>
 
         <DialogFooter className="gap-2 sm:gap-0">
@@ -120,7 +120,7 @@ export function BlogRejectModal({
             variant="destructive"
             onClick={handleReject}
             disabled={reviewMutation.isPending}
-            className="bg-rose-600 hover:bg-rose-700 text-white"
+            className="bg-destructive hover:bg-destructive text-white"
           >
             {reviewMutation.isPending ? "Đang xử lý…" : "Xác nhận từ chối"}
           </Button>

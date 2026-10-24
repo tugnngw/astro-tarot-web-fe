@@ -73,7 +73,7 @@ export function BlogPreviewModal({
                       onOpenChange(false);
                       onApprove(blog);
                     }}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-8"
+                    className="bg-success hover:bg-success text-white text-xs h-8"
                   >
                     Duyệt bài
                   </Button>
@@ -86,7 +86,7 @@ export function BlogPreviewModal({
                       onOpenChange(false);
                       onReject(blog);
                     }}
-                    className="bg-rose-600 hover:bg-rose-700 text-white text-xs h-8"
+                    className="bg-destructive hover:bg-destructive text-white text-xs h-8"
                   >
                     Từ chối
                   </Button>
@@ -109,8 +109,8 @@ export function BlogPreviewModal({
         </DialogHeader>
 
         {blog.status === "REJECTED" && blog.rejectionReason && (
-          <div className="mt-4 rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-xs text-rose-200">
-            <p className="font-semibold text-rose-300 mb-1 flex items-center gap-1.5">
+          <div className="mt-4 rounded-xl border border-destructive-soft/30 bg-destructive-soft/10 p-4 text-xs text-destructive-soft">
+            <p className="font-semibold text-destructive-soft mb-1 flex items-center gap-1.5">
               <span>⚠️</span> Lý do từ chối:
             </p>
             <p className="whitespace-pre-wrap leading-relaxed">
@@ -146,7 +146,7 @@ export function BlogPreviewModal({
               {blog.reviewer ? (
                 <>
                   <span aria-hidden>•</span>
-                  <span className="inline-flex items-center gap-1 text-emerald-400">
+                  <span className="inline-flex items-center gap-1 text-success">
                     <ShieldCheck className="h-3.5 w-3.5" /> Duyệt bởi:{" "}
                     {blog.reviewer?.fullName || blog.reviewer?.username}
                   </span>

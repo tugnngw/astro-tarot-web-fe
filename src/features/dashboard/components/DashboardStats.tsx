@@ -36,13 +36,13 @@ export function DashboardStatsView() {
       icon: Star,
       label: "Reviews",
       value: stats.totalReviews,
-      color: "text-yellow-500 bg-yellow-500/10",
+      color: "text-warning bg-warning/10",
     },
     {
       icon: Users,
       label: "Streak",
       value: `${stats.readingStreak} days`,
-      color: "text-emerald-500 bg-emerald-500/10",
+      color: "text-success bg-success/10",
     },
   ];
 

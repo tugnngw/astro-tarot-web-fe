@@ -120,7 +120,7 @@ export function PlanCard({
           )}
         </div>
         {coGiam && (
-          <p className="mt-1 text-xs text-emerald-300">
+          <p className="mt-1 text-xs text-success">
             {giam!.tenDot} — bớt {tien(giam!.tienGiam, true)}
           </p>
         )}
@@ -137,16 +137,16 @@ export function PlanCard({
             </span>
           </li>
           <li className="flex items-center gap-2">
-            <Check className="h-3.5 w-3.5 text-emerald-400" />
+            <Check className="h-3.5 w-3.5 text-success" />
             <span>Phân tích Tarot & bản đồ sao kết hợp</span>
           </li>
           <li className="flex items-center gap-2">
-            <Check className="h-3.5 w-3.5 text-emerald-400" />
+            <Check className="h-3.5 w-3.5 text-success" />
             <span>Hạn mức làm mới 00:00 (giờ VN) hàng ngày</span>
           </li>
           {plan.dailyQuota >= 10 && (
             <li className="flex items-center gap-2">
-              <Check className="h-3.5 w-3.5 text-emerald-400" />
+              <Check className="h-3.5 w-3.5 text-success" />
               <span>Ưu tiên tốc độ xử lý AI cao</span>
             </li>
           )}

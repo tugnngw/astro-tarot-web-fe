@@ -169,7 +169,7 @@ export function TarotChatPanel({
                     e.stopPropagation();
                     if (confirm("Xóa phiên này?")) onDeleteSession(s.id);
                   }}
-                  className="mr-1 mt-1.5 rounded-lg p-1 text-muted-foreground opacity-0 transition hover:bg-red-500/10 hover:text-red-400 group-hover:opacity-100"
+                  className="mr-1 mt-1.5 rounded-lg p-1 text-muted-foreground opacity-0 transition hover:bg-destructive-soft/10 hover:text-destructive-soft group-hover:opacity-100"
                 >
                   <Trash2 className="h-3 w-3" />
                 </button>
@@ -215,7 +215,7 @@ export function TarotChatPanel({
               <div className="grid h-9 w-9 place-items-center rounded-full border border-gold/50 bg-gold/15 text-gold">
                 <Sparkles className="h-4 w-4" />
               </div>
-              <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-emerald-400 ring-2 ring-background" />
+              <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-success ring-2 ring-background" />
             </div>
             <div className="min-w-0">
               <div className="font-display text-sm text-gold-soft sm:text-base">
@@ -268,7 +268,7 @@ export function TarotChatPanel({
                   clearChatHistory();
                 }
               }}
-              className="inline-flex items-center gap-1 rounded-full border border-red-500/35 px-2.5 py-1.5 text-2xs text-red-400 transition hover:bg-red-500/10 sm:text-xs"
+              className="inline-flex items-center gap-1 rounded-full border border-destructive-soft/30 px-2.5 py-1.5 text-2xs text-destructive-soft transition hover:bg-destructive-soft/10 sm:text-xs"
             >
               <Trash2 className="h-3 w-3" />
               <span className="hidden sm:inline">Xóa</span>

@@ -81,7 +81,7 @@ export function HanhTrinhTungKhach() {
         <p className="mt-4 text-sm text-muted-foreground">Đang tải…</p>
       )}
       {isError && (
-        <p className="mt-4 text-sm text-rose-400">Không đọc được hành trình.</p>
+        <p className="mt-4 text-sm text-destructive-soft">Không đọc được hành trình.</p>
       )}
       {!isLoading && !isError && ds.length === 0 && (
         <p className="mt-4 text-sm text-muted-foreground">
@@ -113,7 +113,7 @@ function TheKhach({ khach: k }: { khach: HanhTrinhKhach }) {
           className={
             laKhongRo
               ? "rounded-full border border-white/10 px-2 py-0.5 text-xs text-muted-foreground"
-              : "rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-300"
+              : "rounded-full border border-success/30 bg-success/10 px-2 py-0.5 text-xs text-success"
           }
         >
           {k.nguon}
