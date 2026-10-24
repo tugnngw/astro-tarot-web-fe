@@ -3,6 +3,7 @@
 // Bản trước của trang này dựng trên mock-data.ts và một booking-store giả lưu
 // trong bộ nhớ trình duyệt: đặt lịch xong tải lại trang là mất, và Reader
 // không bao giờ nhìn thấy gì. Nay nối thẳng vào /api/v1/bookings.
+import { tien } from "@/lib/tien";
 import { ChuThich } from "@/components/ChuThich";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
@@ -22,7 +23,6 @@ import {
   type CalendarSlot,
   type Duration,
 } from "@/api/booking";
-import { formatVND } from "@/lib/mock-data";
 import {
   ChuThichDat,
   DieuHuongThang,
@@ -233,7 +233,7 @@ function ReaderProfilePage() {
                   </dt>
                   <dd className="mt-1 font-display text-lg text-gold">
                     {priceFor(r, d) != null
-                      ? formatVND(priceFor(r, d)!)
+                      ? tien(priceFor(r, d)!)
                       : "Chưa đặt giá"}
                   </dd>
                 </div>
@@ -475,7 +475,7 @@ function ReaderProfilePage() {
                       {gioVn(picked.startTime)} – {gioVn(picked.endTime)}
                     </p>
                     <p className="mt-1 font-display text-xl text-gold">
-                      {formatVND(picked.price)}
+                      {tien(picked.price)}
                     </p>
                   </div>
                 )}

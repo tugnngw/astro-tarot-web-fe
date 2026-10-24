@@ -1,7 +1,7 @@
+import { tien } from "@/lib/tien";
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import { formatVND } from "@/lib/mock-data";
 import { BuyOnPlatformButton } from "@/features/shop/components/BuyOnPlatformButton";
 import { ProductArtwork } from "@/components/ProductArtwork";
 import { IllustrativeNote } from "@/components/IllustrativeNote";
@@ -97,7 +97,7 @@ export function FeaturedProducts() {
                       {p.name}
                     </h3>
                     <p className="mt-2 font-display text-lg text-gold">
-                      {formatVND(p.price)}
+                      {tien(p.price)}
                     </p>
                   </div>
                 </Link>

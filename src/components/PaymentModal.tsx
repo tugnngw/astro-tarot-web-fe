@@ -1,5 +1,6 @@
+import { tien } from "@/lib/tien";
 import { motion, AnimatePresence } from "framer-motion";
-import { formatVND, type Reader } from "@/lib/mock-data";
+import { type Reader } from "@/lib/mock-data";
 
 interface Props {
   open: boolean;
@@ -43,7 +44,7 @@ export function PaymentModal({
               <div className="my-2 h-px bg-border" />
               <Row
                 label="Tổng cộng"
-                value={formatVND(reader.pricePer15m)}
+                value={tien(reader.pricePer15m)}
                 highlight
               />
             </div>

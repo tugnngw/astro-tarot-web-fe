@@ -1,3 +1,4 @@
+import { tien } from "@/lib/tien";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -338,10 +339,7 @@ export function Header() {
               >
                 <Wallet className="h-3.5 w-3.5 text-gold shrink-0" />
                 <span className="font-semibold text-gradient-gold">
-                  {walletQuery.data
-                    ? (walletQuery.data.balance ?? 0).toLocaleString("vi-VN") +
-                      " ₫"
-                    : "0 ₫"}
+                  {tien(walletQuery.data?.balance ?? 0)}
                 </span>
               </button>
             )}
@@ -505,11 +503,7 @@ export function Header() {
                         )}
                       >
                         Ví ASTROTAROT (
-                        {walletQuery.data
-                          ? (walletQuery.data.balance ?? 0).toLocaleString(
-                              "vi-VN",
-                            ) + " ₫"
-                          : "0 ₫"}
+                        {tien(walletQuery.data?.balance ?? 0)}
                         )
                       </Link>
                       {/* Hai mục này chỉ dành cho khách — xem chú thích ở

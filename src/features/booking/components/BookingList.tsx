@@ -1,3 +1,4 @@
+import { tien } from "@/lib/tien";
 import { useState, useEffect } from "react";
 import {
   CalendarX,
@@ -24,7 +25,6 @@ import {
   useReviewBooking,
   useSaveReaderNote,
 } from "@/features/booking/queries";
-import { formatVND } from "@/lib/mock-data";
 import { PaymentDialog } from "@/features/money/components/PaymentDialog";
 import { ReportDialog } from "@/features/money/components/ReportDialog";
 import { useCreatePaymentIntent } from "@/features/money/queries";
@@ -228,11 +228,11 @@ export function BookingList({
                   {BOOKING_STATUS_LABEL[b.status]}
                 </span>
                 <span className="font-display text-lg text-gold">
-                  {formatVND(b.totalAmount)}
+                  {tien(b.totalAmount)}
                 </span>
                 {b.paymentStatus === "DEPOSIT_PAID" && (
                   <span className="text-2xs text-amber-400">
-                    Đã đặt cọc · Còn {formatVND(b.remainingAmount ?? 0)}
+                    Đã đặt cọc · Còn {tien(b.remainingAmount ?? 0)}
                   </span>
                 )}
               </div>
@@ -296,7 +296,7 @@ export function BookingList({
                 b.status === "COMPLETED" && (
                   <p className="w-full rounded-lg border border-amber-400/40 bg-amber-400/10 px-3 py-2 text-xs text-amber-100">
                     Reader đã đọc xong. Thanh toán nốt 50% còn lại (
-                    {formatVND(b.remainingAmount ?? 0)}).
+                    {tien(b.remainingAmount ?? 0)}).
                   </p>
                 )}
 
@@ -313,7 +313,7 @@ export function BookingList({
                       <Landmark aria-hidden="true" className="h-3.5 w-3.5" />{" "}
                       {dangTra === `${b.id}:DEPOSIT`
                         ? "Đang mở thanh toán…"
-                        : `Đặt cọc 50% (${formatVND(b.depositAmount ?? 0)})`}
+                        : `Đặt cọc 50% (${tien(b.depositAmount ?? 0)})`}
                     </button>
                     <button
                       type="button"
@@ -323,7 +323,7 @@ export function BookingList({
                     >
                       {dangTra === `${b.id}:FULL`
                         ? "Đang mở thanh toán…"
-                        : `Thanh toán hết (${formatVND(b.totalAmount)})`}
+                        : `Thanh toán hết (${tien(b.totalAmount)})`}
                     </button>
                   </>
                 )}
@@ -340,7 +340,7 @@ export function BookingList({
                     <Landmark aria-hidden="true" className="h-3.5 w-3.5" />{" "}
                     {dangTra === `${b.id}:REMAINING`
                       ? "Đang mở thanh toán…"
-                      : `Thanh toán nốt (${formatVND(b.remainingAmount ?? 0)})`}
+                      : `Thanh toán nốt (${tien(b.remainingAmount ?? 0)})`}
                   </button>
                 )}
 
@@ -423,7 +423,7 @@ export function BookingList({
                   {side === "reader" ? (
                     <p className="mt-1">
                       Bạn huỷ thì khách được hoàn toàn bộ số đã trả
-                      {daTra(b) > 0 ? ` (${formatVND(daTra(b))})` : ""}.
+                      {daTra(b) > 0 ? ` (${tien(daTra(b))})` : ""}.
                     </p>
                   ) : daTra(b) === 0 ? (
                     <p className="mt-1">
@@ -431,13 +431,13 @@ export function BookingList({
                     </p>
                   ) : somHon12Gio(b) ? (
                     <p className="mt-1">
-                      Còn trước hạn 12 tiếng — hoàn lại {formatVND(daTra(b))}.
+                      Còn trước hạn 12 tiếng — hoàn lại {tien(daTra(b))}.
                     </p>
                   ) : (
                     <p className="mt-1">
                       Đã trong 12 tiếng trước buổi — mất cọc{" "}
-                      {formatVND(b.depositAmount ?? 0)}, hoàn{" "}
-                      {formatVND(
+                      {tien(b.depositAmount ?? 0)}, hoàn{" "}
+                      {tien(
                         Math.max(0, daTra(b) - (b.depositAmount ?? 0)),
                       )}
                       .

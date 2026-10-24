@@ -92,6 +92,3 @@ export function pickThreeCards(): string[] {
   return shuffled.slice(0, 3);
 }
 
-export function formatVND(n: number): string {
-  return new Intl.NumberFormat("vi-VN").format(n) + " ₫";
-}

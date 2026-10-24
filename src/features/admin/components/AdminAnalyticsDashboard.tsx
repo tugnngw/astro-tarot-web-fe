@@ -1,4 +1,5 @@
-import { MAU } from "@/lib/mau-bieu-do";
+import { so } from "@/lib/tien";
+import { KHUNG, MAU } from "@/lib/mau-bieu-do";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getHanhTrinhTheoNguon } from "@/api/marketing";
@@ -56,8 +57,7 @@ type DateRangeOption = "7d" | "14d" | "30d" | "90d";
  * TÍNH VÀO. Nên `7daysAgo..yesterday` đúng 7 ngày, còn `7daysAgo..today`
  * là 8 ngày — nhãn ghi 7 mà hỏi 8.
  */
-/** Đường kẻ lưới: rất mờ, chỉ để mắt bám trục chứ không được tranh nét với dữ liệu. */
-const LUOI_BIEU_DO = "#ffffff10";
+const LUOI_BIEU_DO = KHUNG.luoi;
 
 const DATE_RANGE_MAP: Record<DateRangeOption, { start: string; end: string; label: string }> = {
   "7d": { start: "7daysAgo", end: "yesterday", label: "7 ngày qua" },
@@ -68,9 +68,18 @@ const DATE_RANGE_MAP: Record<DateRangeOption, { start: string; end: string; labe
 
 export { DATE_RANGE_MAP };
 
+/**
+ * Số liệu GA4.
+ *
+ * Khác {@link so} ở một chỗ: thiếu giá trị thì hiện `"0"`, không phải `"—"`.
+ * GA4 bỏ trống một chỉ số khi KHÔNG CÓ sự kiện nào khớp — đó là số không
+ * thật, chứ không phải dữ liệu bị thiếu. Hiện "—" ở đây sẽ nói sai rằng
+ * chúng ta không biết, trong khi chúng ta biết: không có ai làm việc đó.
+ *
+ * Cách nhóm hàng nghìn vẫn dùng chung một nơi, để không lệch với phần còn lại.
+ */
 export function nf(n: number | null | undefined): string {
-  if (n == null || isNaN(n)) return "0";
-  return new Intl.NumberFormat("vi-VN").format(n);
+  return so(n == null || isNaN(n) ? 0 : n);
 }
 
 export function formatDuration(seconds: number | null | undefined): string {

@@ -137,7 +137,7 @@ export function PurchaseModal({
     {
       type: "WALLET",
       label: "Ví ASTROTAROT",
-      sublabel: `Số dư ví: ${walletBalance.toLocaleString("vi-VN")} ₫`,
+      sublabel: `Số dư ví: ${tien(walletBalance)}`,
       badge:
         selectedPlan && selectedPlan.price > 0
           ? walletBalance >= selectedPlan.price
@@ -146,7 +146,7 @@ export function PurchaseModal({
                 color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
               }
             : {
-                text: `Thiếu ${shortageAmount.toLocaleString("vi-VN")} ₫`,
+                text: `Thiếu ${tien(shortageAmount)}`,
                 color: "text-amber-400 bg-amber-500/10 border-amber-500/20",
               }
           : undefined,

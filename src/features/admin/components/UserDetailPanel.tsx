@@ -1,3 +1,4 @@
+import { tien } from "@/lib/tien";
 import { AnhDaiDien } from "@/components/AnhDaiDien";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -21,7 +22,6 @@ import {
   useUserDetail,
 } from "@/features/admin/queries";
 import { useAuth } from "@/lib/auth-context";
-import { formatVND } from "@/lib/mock-data";
 
 /**
  * Bảng chi tiết một tài khoản, trượt vào từ cạnh phải.
@@ -191,7 +191,7 @@ export function UserDetailPanel({
                   value={String(user.activeSessions)}
                 />
                 <Stat label="Đơn hàng" value={String(user.orderCount)} />
-                <Stat label="Đã chi" value={formatVND(user.totalSpent)} />
+                <Stat label="Đã chi" value={tien(user.totalSpent)} />
               </dl>
               {(user.hasReaderProfile || user.hasPendingReaderApplication) && (
                 <p className="mt-2 text-xs text-muted-foreground">

@@ -252,7 +252,7 @@ export function AstrologyProfileForm({
           type="checkbox"
           checked={isPrimary}
           onChange={(e) => setIsPrimary(e.target.checked)}
-          className="h-4 w-4 accent-[var(--color-gold,#d4af37)]"
+          className="h-4 w-4 accent-gold"
         />
         Đặt làm hồ sơ chính — đây là bản đồ sao AI dùng khi bạn trải bài.
       </label>

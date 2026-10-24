@@ -1,10 +1,10 @@
+import { so } from "@/lib/tien";
 import { useQuery } from "@tanstack/react-query";
 import { Radio } from "lucide-react";
 import { getDangOnline, type DongSo } from "@/api/analytics";
 import { getHanhTrinhTheoNguon } from "@/api/marketing";
 import { ChuThich } from "@/components/ChuThich";
 
-const nf = (n: number) => new Intl.NumberFormat("vi-VN").format(n);
 
 /** Làm mới mỗi 30 giây — đủ để thấy người vào ra mà không dội API. */
 const NHIP_LAM_MOI = 30_000;
@@ -45,8 +45,8 @@ export function DangOnlineNgayBayGio() {
     queryFn: getHanhTrinhTheoNguon,
   });
 
-  const so = data?.soNguoiDangOnline ?? -1;
-  const khongHoiDuoc = so < 0;
+  const soOnline = data?.soNguoiDangOnline ?? -1;
+  const khongHoiDuoc = soOnline < 0;
 
   return (
     <section className="glass rounded-2xl border border-emerald-500/25 p-5">
@@ -54,7 +54,7 @@ export function DangOnlineNgayBayGio() {
         <div className="flex items-center gap-2">
           <Radio
             className={
-              so > 0
+              soOnline > 0
                 ? "h-4 w-4 animate-pulse text-emerald-400"
                 : "h-4 w-4 text-muted-foreground"
             }
@@ -83,14 +83,14 @@ export function DangOnlineNgayBayGio() {
         <>
           <div className="mt-4 flex items-baseline gap-3">
             <span className="font-display text-4xl leading-none text-emerald-400">
-              {nf(so)}
+              {so(soOnline)}
             </span>
             <span className="text-sm text-muted-foreground">
               người trong 30 phút qua
             </span>
           </div>
 
-          {so === 0 && (
+          {soOnline === 0 && (
             <p className="mt-2 text-xs text-muted-foreground">
               Chưa có ai đang mở web.
             </p>
@@ -131,11 +131,11 @@ export function DangOnlineNgayBayGio() {
               className="rounded-full border border-gold/30 bg-gold/5 px-3 py-1 text-xs"
             >
               {n.nguon}{" "}
-              <strong className="text-gold">{nf(n.tongLuot)}</strong> lượt
+              <strong className="text-gold">{so(n.tongLuot)}</strong> lượt
               {n.soNguoiDangNhap > 0 && (
                 <span className="text-muted-foreground">
                   {" "}
-                  · {nf(n.soNguoiDangNhap)} người
+                  · {so(n.soNguoiDangNhap)} người
                 </span>
               )}
             </span>
@@ -176,7 +176,7 @@ function Bang({
                 {d.ten}
               </span>
               <span className="shrink-0 text-sm text-gold">
-                {nf(d.so)}{" "}
+                {so(d.so)}{" "}
                 <span className="text-3xs text-muted-foreground">
                   {donVi}
                 </span>

@@ -1,3 +1,5 @@
+import { KHUNG, MAU } from "@/lib/mau-bieu-do";
+import { so, tien} from "@/lib/tien";
 import { useEffect, useState } from "react";
 
 /**
@@ -58,7 +60,6 @@ import {
 } from "@/api/catalog";
 import { PLATFORM_LABEL, type Product } from "@/api/shop";
 import { useCategories } from "@/features/shop/queries";
-import { formatVND } from "@/lib/mock-data";
 import {
   ChartContainer,
   ChartTooltip,
@@ -167,7 +168,7 @@ export function CatalogManager() {
             <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
               Hoa hồng ước lượng:{" "}
               <span className="text-gold">
-                {formatVND(stats.data!.estimatedCommission)}
+                {tien(stats.data!.estimatedCommission)}
               </span>{" "}
               — tính theo giá × tỉ lệ × lượt bấm. Đây{" "}
               <strong className="text-foreground">không phải</strong> doanh thu
@@ -303,7 +304,7 @@ export function CatalogManager() {
                           </div>
                         </td>
                         <td className="py-3 pr-3 tabular-nums">
-                          {formatVND(p.price)}
+                          {tien(p.price)}
                         </td>
                         <td className="py-3 pr-3">
                           {p.affiliateUrl ? (
@@ -451,10 +452,9 @@ function TopProductsChart({ products }: { products: Product[] }) {
   }
 
   const config = {
-    clicks: { label: "Lượt bấm", color: "#d4a84b" },
+    clicks: { label: "Lượt bấm", color: MAU.vang },
   } satisfies ChartConfig;
 
-  const nf = (n: number) => new Intl.NumberFormat("vi-VN").format(n);
 
   return (
     <div className="mt-5">
@@ -490,7 +490,7 @@ function TopProductsChart({ products }: { products: Product[] }) {
             tick={{ fontSize: 11 }}
           />
           <ChartTooltip
-            cursor={{ fill: "oklch(0.75 0.12 85 / 0.12)" }}
+            cursor={{ fill: KHUNG.conTro }}
             content={
               <ChartTooltipContent
                 hideLabel
@@ -512,10 +512,10 @@ function TopProductsChart({ products }: { products: Product[] }) {
                         Sàn: {row?.platform ?? "—"}
                       </span>
                       <span className="text-muted-foreground">
-                        Giá: {formatVND(row?.price ?? 0)}
+                        Giá: {tien(row?.price ?? 0)}
                       </span>
                       <span className="font-mono tabular-nums text-gold">
-                        {nf(Number(value) || 0)} lượt bấm
+                        {so(Number(value) || 0)} lượt bấm
                       </span>
                     </div>
                   );
@@ -525,7 +525,7 @@ function TopProductsChart({ products }: { products: Product[] }) {
           />
           <Bar dataKey="clicks" radius={[0, 6, 6, 0]} maxBarSize={22}>
             {data.map((d) => (
-              <Cell key={d.id} fill="#d4a84b" />
+              <Cell key={d.id} fill={MAU.vang} />
             ))}
           </Bar>
         </BarChart>

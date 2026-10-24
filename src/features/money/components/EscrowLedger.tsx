@@ -5,6 +5,7 @@
 // Một khoản phạt vi phạm, một lần hoàn tiền cho khách, hay một lệnh rút đang
 // giữ chỗ — cả ba đều làm số dư tụt mà không để lại dấu vết nào nhìn thấy
 // được. Sổ cái là chỗ duy nhất nói ra điều đó.
+import { tien } from "@/lib/tien";
 import { useState, useRef } from "react";
 import { ArrowDownLeft, ArrowUpRight, Minus, ScrollText } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -14,7 +15,6 @@ import {
   huongTien,
   type EscrowTransaction,
 } from "@/api/money";
-import { formatVND } from "@/lib/mock-data";
 import {
   Pagination,
   PagedList,
@@ -136,10 +136,10 @@ function DongSo({ t }: { t: EscrowTransaction }) {
       <div className="shrink-0 text-right">
         <p className={`font-display text-lg tabular-nums ${mau}`}>
           {dau}
-          {formatVND(t.amount)}
+          {tien(t.amount)}
         </p>
         <p className="text-2xs text-muted-foreground">
-          Còn lại {formatVND(t.balanceAfter)}
+          Còn lại {tien(t.balanceAfter)}
         </p>
       </div>
     </li>

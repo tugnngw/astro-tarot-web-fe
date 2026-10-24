@@ -1,7 +1,7 @@
+import { tien } from "@/lib/tien";
 import { Link } from "@tanstack/react-router";
 import { useProducts } from "@/features/shop/queries";
 import { BuyOnPlatformButton } from "@/features/shop/components/BuyOnPlatformButton";
-import { formatVND } from "@/lib/mock-data";
 import { ProductArtwork } from "@/components/ProductArtwork";
 
 /**
@@ -83,7 +83,7 @@ export function RelatedProducts({
               </Link>
             </h5>
             <p className="mt-1 font-display text-sm text-gold">
-              {formatVND(p.price)}
+              {tien(p.price)}
             </p>
 
             <div className="mt-auto pt-2">

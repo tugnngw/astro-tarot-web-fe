@@ -6,6 +6,7 @@
 // buổi xem sắp tới, lần hỏi bài gần đây, và bản đồ sao của chính họ.
 //
 // Mọi endpoint đều đã có sẵn; không thêm gì ở backend.
+import { tien } from "@/lib/tien";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -21,7 +22,6 @@ import { useMyApplication } from "@/features/readers/queries";
 import { getReadingHistory } from "@/api/tarot";
 import { getPrimaryAstrologyProfile } from "@/api/astrology";
 import { BOOKING_STATUS_LABEL, type BookingStatus } from "@/api/booking";
-import { formatVND } from "@/lib/mock-data";
 
 /** Ngày giờ ngắn gọn: "Thứ 5, 24/09 · 09:00". */
 function fmtWhen(iso: string) {
@@ -149,7 +149,7 @@ function UpcomingBooking() {
                 </div>
                 <span className="shrink-0 text-right">
                   <span className="block text-xs text-gold">
-                    {b.totalAmount != null ? formatVND(b.totalAmount) : ""}
+                    {b.totalAmount != null ? tien(b.totalAmount) : ""}
                   </span>
                   <span className="mt-0.5 block text-2xs text-muted-foreground">
                     {BOOKING_STATUS_LABEL[b.status as BookingStatus] ??

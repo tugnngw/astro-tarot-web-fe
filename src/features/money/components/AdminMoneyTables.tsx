@@ -1,3 +1,4 @@
+import { tien } from "@/lib/tien";
 import { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { timNganHang } from "@/lib/banks";
@@ -31,7 +32,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { formatVND } from "@/lib/mock-data";
 import { useRowBusy } from "@/lib/row-busy";
 import { ListError } from "@/components/ListError";
 
@@ -114,7 +114,7 @@ export function PaymentQueue() {
                 </div>
                 <div className="text-right">
                   <p className="font-display text-lg text-gold">
-                    {formatVND(t.amount)}
+                    {tien(t.amount)}
                   </p>
                   <Badge
                     label={TRANSACTION_STATUS_LABEL[t.status]}
@@ -273,7 +273,7 @@ export function PayoutQueue() {
                 </div>
                 <div className="text-right">
                   <p className="font-display text-lg text-gold">
-                    {formatVND(p.amount)}
+                    {tien(p.amount)}
                   </p>
                   <Badge
                     label={PAYOUT_STATUS_LABEL[p.status]}
@@ -475,7 +475,7 @@ export function ReportQueue() {
                   )}
                   {(r.penaltyAmount ?? 0) > 0 && (
                     <p className="mt-2 inline-block rounded-lg border border-destructive/30 px-3 py-1 text-xs text-destructive">
-                      Đã phạt {formatVND(r.penaltyAmount!)}
+                      Đã phạt {tien(r.penaltyAmount!)}
                     </p>
                   )}
                   {r.resolutionNote && (
@@ -864,7 +864,7 @@ function MaQrChuyenKhoan({ payout }: { payout: Payout }) {
           {nganHang?.tenDayDu ?? ""}
         </p>
         <p className="mt-2 font-display text-lg text-gold">
-          {formatVND(payout.amount)}
+          {tien(payout.amount)}
         </p>
         <p className="mt-2 max-w-xs text-muted-foreground">
           Mở ứng dụng ngân hàng và quét. Số tiền và tài khoản nhận đã ghim sẵn

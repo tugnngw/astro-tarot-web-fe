@@ -1,7 +1,7 @@
+import { tien } from "@/lib/tien";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { Header } from "@/components/Header";
-import { formatVND } from "@/lib/mock-data";
 import { ProductArtwork } from "@/components/ProductArtwork";
 import { IllustrativeNote } from "@/components/IllustrativeNote";
 import { useProduct } from "@/features/shop/queries";
@@ -95,12 +95,12 @@ function ProductDetailPage() {
 
               <div className="mt-4 flex items-baseline gap-3">
                 <span className="font-display text-3xl text-gold">
-                  {formatVND(product.price)}
+                  {tien(product.price)}
                 </span>
                 {discount !== null && product.compareAtPrice && (
                   <span className="text-sm text-muted-foreground line-through">
                     <span className="sr-only">Giá gốc </span>
-                    {formatVND(product.compareAtPrice)}
+                    {tien(product.compareAtPrice)}
                   </span>
                 )}
               </div>

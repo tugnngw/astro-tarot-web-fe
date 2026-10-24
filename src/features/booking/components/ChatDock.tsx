@@ -335,7 +335,7 @@ export function ChatDock() {
                     aria-pressed={loc === khoa}
                     className={`rounded-full px-3 py-1.5 text-sm font-medium ${
                       loc === khoa
-                        ? "bg-[#2374e1] text-white"
+                        ? "bg-gold text-gold-foreground"
                         : "border border-mystic/40 bg-card text-foreground/90 hover:bg-gold/10"
                     }`}
                   >
@@ -394,7 +394,7 @@ export function ChatDock() {
                             </span>
                           </span>
                           {soChua ? (
-                            <span className="grid h-5 min-w-5 shrink-0 place-items-center rounded-full bg-[#2374e1] px-1 text-2xs font-semibold">
+                            <span className="grid h-5 min-w-5 shrink-0 place-items-center rounded-full bg-gold px-1 text-2xs font-semibold text-gold-foreground">
                               {soChua > 9 ? "9+" : soChua}
                             </span>
                           ) : null}

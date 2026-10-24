@@ -1,3 +1,5 @@
+import { so } from "@/lib/tien";
+
 export const FEEDBACK_PAGE_SIZE = 10;
 
 export const SOURCE_VI: Record<string, string> = {
@@ -26,6 +28,3 @@ export function formatDate(iso: string) {
   }
 }
 
-export function nf(n: number) {
-  return new Intl.NumberFormat("vi-VN").format(n);
-}

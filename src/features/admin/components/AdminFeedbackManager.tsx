@@ -1,3 +1,4 @@
+import { so } from "@/lib/tien";
 import { useState } from "react";
 import {
   AlertCircle,
@@ -29,7 +30,6 @@ import {
   SOURCE_VI,
   SOURCE_COLORS,
   formatDate,
-  nf,
 } from "../feedback-utils";
 
 /**
@@ -84,7 +84,7 @@ export function AdminFeedbackManager() {
               Tổng lượt góp ý
             </p>
             <p className="mt-1 font-display text-3xl font-semibold text-foreground">
-              {statsQuery.isPending ? "…" : nf(stats?.totalCount ?? 0)}
+              {statsQuery.isPending ? "…" : so(stats?.totalCount ?? 0)}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
               Bao gồm khách vãng lai & thành viên
@@ -232,7 +232,7 @@ export function AdminFeedbackManager() {
                   </div>
                   <div className="text-right text-xs">
                     <span className="font-semibold text-foreground">
-                      {nf(count)}
+                      {so(count)}
                     </span>{" "}
                     <span className="text-muted-foreground">
                       ({pct.toFixed(0)}%)
