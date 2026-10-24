@@ -45,6 +45,17 @@
      Từng có 12 mức từ /10 tới /70 trong 414 chỗ. Không ai chỉ ra được chỗ
      sai, nhưng vì mỗi chỗ một mức nên không gì trông cố ý.
 
+     NỀN PHA MỜ, hai bậc — dùng cho gold, success, warning, destructive:
+       bg-<vai>/10   nền thường của thẻ, chip, khối thông báo
+       bg-<vai>/20   nền nhấn: đang chọn, đang hoạt động
+     Thêm hai bậc đặc biệt, không phải "nền pha mờ":
+       bg-<vai>      nền đặc của nút chính (mực đặt lên là --gold-foreground
+                     hoặc --<vai>-foreground, không phải text-white)
+       bg-<vai>/90   CHỈ dùng cho hover của nền đặc ấy
+     Riêng vàng từng có 9 mức: /5 /10 /15 /20 /25 /30 /55 /90 và đặc. /5 và
+     /15 gần /10 tới mức trên nền tối không phân biệt được, nên chúng chỉ
+     làm thang rộng ra mà không thêm nghĩa.
+
      MỖI TẦNG MỘT TÍN HIỆU NHÓM: khung ngoài đã có viền thì thẻ bên trong
      dùng nền, không viền nữa. Viền lồng viền làm rối mà không thêm thông
      tin gì.

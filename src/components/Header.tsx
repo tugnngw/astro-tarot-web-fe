@@ -47,7 +47,7 @@ function mobileNavLinkClass(active: boolean) {
   return cn(
     "rounded-lg px-3 py-2.5 text-sm transition-colors duration-200",
     active
-      ? "bg-gold/15 text-gold"
+      ? "bg-gold/10 text-gold"
       : "text-muted-foreground hover:bg-gold/10 hover:text-gold",
   );
 }
@@ -285,7 +285,7 @@ export function Header() {
             <span className="truncate font-display text-base font-semibold tracking-[0.1em] sm:text-xl sm:tracking-[0.18em]">
               <span className="text-gradient-gold">ASTROTAROT</span>
               {isAdmin && (
-                <span className="ml-2 rounded-lg border border-gold/50 bg-gold/15 px-1.5 py-0.5 text-3xs font-sans font-medium tracking-normal text-gold uppercase">
+                <span className="ml-2 rounded-lg border border-gold/50 bg-gold/10 px-1.5 py-0.5 text-3xs font-sans font-medium tracking-normal text-gold uppercase">
                   Admin
                 </span>
               )}

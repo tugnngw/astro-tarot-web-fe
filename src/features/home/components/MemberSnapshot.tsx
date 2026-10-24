@@ -76,8 +76,8 @@ function ReaderApplicationStrip() {
     <article
       className={`rounded-2xl border p-5 md:col-span-2 xl:col-span-3 ${
         pending
-          ? "border-gold/30 bg-gold/5"
-          : "border-destructive/40 bg-destructive/5"
+          ? "border-gold/30 bg-gold/10"
+          : "border-destructive/30 bg-destructive/10"
       }`}
     >
       <h3 className="flex items-center gap-2 text-sm font-medium text-foreground">

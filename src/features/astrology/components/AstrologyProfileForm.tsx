@@ -258,7 +258,7 @@ export function AstrologyProfileForm({
       </label>
 
       {error && (
-        <p className="mt-3 rounded-lg border border-destructive/40 bg-destructive/5 px-4 py-2.5 text-sm text-destructive">
+        <p className="mt-3 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-2.5 text-sm text-destructive">
           {error}
         </p>
       )}

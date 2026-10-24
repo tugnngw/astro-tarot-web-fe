@@ -87,7 +87,7 @@ export function PaymentDialog({
         </p>
 
         {notConfigured && (
-          <p className="mt-4 rounded-lg border border-destructive/40 px-3 py-2 text-xs text-destructive">
+          <p className="mt-4 rounded-lg border border-destructive/30 px-3 py-2 text-xs text-destructive">
             Hệ thống chưa cấu hình tài khoản nhận tiền. Báo với quản trị viên
             trước khi chuyển khoản.
           </p>

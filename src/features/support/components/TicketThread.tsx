@@ -139,7 +139,7 @@ export function TicketThread({
               <div
                 className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm ${
                   mine
-                    ? "bg-gold/15 text-foreground"
+                    ? "bg-gold/10 text-foreground"
                     : "bg-mystic/15 text-foreground/90"
                 }`}
               >

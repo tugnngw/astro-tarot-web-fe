@@ -74,7 +74,7 @@ export function UserPurchasesList({
           <button
             type="button"
             onClick={onExplorePlans}
-            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-gold/15 px-4 py-2 text-xs font-medium text-gold hover:bg-gold/25 transition"
+            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-gold/10 px-4 py-2 text-xs font-medium text-gold hover:bg-gold/20 transition"
           >
             Khám phá các gói AI
           </button>

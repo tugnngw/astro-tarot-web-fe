@@ -212,7 +212,7 @@ export function TarotChatPanel({
               <Menu className="h-4 w-4" />
             </button>
             <div className="relative shrink-0">
-              <div className="grid h-9 w-9 place-items-center rounded-full border border-gold/50 bg-gold/15 text-gold">
+              <div className="grid h-9 w-9 place-items-center rounded-full border border-gold/50 bg-gold/10 text-gold">
                 <Sparkles className="h-4 w-4" />
               </div>
               <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-success ring-2 ring-background" />
@@ -224,7 +224,7 @@ export function TarotChatPanel({
               <div className="truncate text-3xs text-muted-foreground">
                 Trực tuyến · {headerName}
                 {cardsDrawn ? (
-                  <span className="ml-1.5 inline-flex rounded-full bg-gold/15 px-1.5 py-0.5 text-gold">
+                  <span className="ml-1.5 inline-flex rounded-full bg-gold/10 px-1.5 py-0.5 text-gold">
                     Đã rút bài
                   </span>
                 ) : null}
@@ -247,7 +247,7 @@ export function TarotChatPanel({
               <button
                 type="button"
                 disabled
-                className="inline-flex items-center gap-1.5 rounded-full bg-gold/55 px-3 py-1.5 text-xs text-primary-foreground"
+                className="inline-flex items-center gap-1.5 rounded-full bg-gold px-3 py-1.5 text-xs text-gold-foreground"
               >
                 <Loader2 className="h-3 w-3 animate-spin" /> Đang rút…
               </button>
@@ -461,7 +461,7 @@ const Bubble = memo(function Bubble({
   return (
     <div className={`mb-3 flex gap-2 ${isUser ? "justify-end" : "justify-start"}`}>
       {!isUser ? (
-        <div className="mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full border border-gold/30 bg-gold/15 text-gold">
+        <div className="mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full border border-gold/30 bg-gold/10 text-gold">
           <Sparkles className="h-3.5 w-3.5" />
         </div>
       ) : null}

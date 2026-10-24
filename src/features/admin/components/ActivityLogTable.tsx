@@ -63,7 +63,7 @@ export function ActivityLogTable() {
           <SelectContent className="rounded-xl border border-gold/30 bg-card text-foreground shadow-xl">
             <SelectItem
               value="__all__"
-              className="cursor-pointer rounded-lg py-2 pl-3 pr-8 text-sm focus:bg-gold/15 focus:text-gold data-[state=checked]:bg-gold/10 data-[state=checked]:text-gold"
+              className="cursor-pointer rounded-lg py-2 pl-3 pr-8 text-sm focus:bg-gold/10 focus:text-gold data-[state=checked]:bg-gold/10 data-[state=checked]:text-gold"
             >
               Mọi hành động
             </SelectItem>
@@ -71,7 +71,7 @@ export function ActivityLogTable() {
               <SelectItem
                 key={key}
                 value={key}
-                className="cursor-pointer rounded-lg py-2 pl-3 pr-8 text-sm focus:bg-gold/15 focus:text-gold data-[state=checked]:bg-gold/10 data-[state=checked]:text-gold"
+                className="cursor-pointer rounded-lg py-2 pl-3 pr-8 text-sm focus:bg-gold/10 focus:text-gold data-[state=checked]:bg-gold/10 data-[state=checked]:text-gold"
               >
                 {label}
               </SelectItem>

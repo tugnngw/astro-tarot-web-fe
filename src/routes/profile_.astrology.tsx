@@ -252,7 +252,7 @@ function AstrologyProfilesPage() {
                             type="button"
                             aria-label={`Xoá hồ sơ ${p.title}`}
                             onClick={() => setToDelete(p)}
-                            className="grid h-9 w-9 place-items-center rounded-full text-muted-foreground transition hover:bg-destructive/15 hover:text-destructive"
+                            className="grid h-9 w-9 place-items-center rounded-full text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive"
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>

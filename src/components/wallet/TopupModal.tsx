@@ -169,7 +169,7 @@ export function TopupModal({
               </div>
             </div>
 
-            <div className="rounded-xl border border-gold/20 bg-gold/5 p-3 text-xs text-muted-foreground flex items-start gap-2">
+            <div className="rounded-xl border border-gold/20 bg-gold/10 p-3 text-xs text-muted-foreground flex items-start gap-2">
               <Sparkles className="h-4 w-4 text-gold shrink-0 mt-0.5" />
               <span>
                 Sau khi thanh toán qua mã VietQR, hệ thống sẽ tự động cập nhật số dư vào ví của bạn trong vòng vài giây.

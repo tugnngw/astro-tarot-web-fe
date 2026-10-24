@@ -216,7 +216,7 @@ export function AdminFeedbackManager() {
               const total = stats?.totalCount ?? 0;
               const pct = total > 0 ? (count / total) * 100 : 0;
               const colorClass =
-                SOURCE_COLORS[src] ?? "bg-gold/15 text-gold border-gold/30";
+                SOURCE_COLORS[src] ?? "bg-gold/10 text-gold border-gold/30";
 
               return (
                 <div
@@ -518,7 +518,7 @@ export function AdminFeedbackManager() {
                             <span
                               className={`inline-block rounded-lg border px-2 py-0.5 text-2xs font-medium ${
                                 SOURCE_COLORS[fb.source] ??
-                                "bg-gold/15 text-gold border-gold/30"
+                                "bg-gold/10 text-gold border-gold/30"
                               }`}
                             >
                               {SOURCE_VI[fb.source] ?? fb.source}

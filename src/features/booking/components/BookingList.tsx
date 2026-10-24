@@ -40,7 +40,7 @@ const STATUS_CLASS: Record<BookingStatus, string> = {
   PENDING: "border-warning/30 text-warning",
   CONFIRMED: "border-sky-400/40 text-sky-300",
   COMPLETED: "border-success/30 text-success",
-  CANCELLED: "border-destructive/40 text-destructive",
+  CANCELLED: "border-destructive/30 text-destructive",
 };
 
 /**
@@ -239,7 +239,7 @@ export function BookingList({
             </div>
 
             {b.cancelReason && (
-              <p className="mt-3 rounded-lg border border-destructive/25 px-3 py-2 text-xs text-muted-foreground">
+              <p className="mt-3 rounded-lg border border-destructive/20 px-3 py-2 text-xs text-muted-foreground">
                 <span className="text-destructive">Lý do huỷ:</span>{" "}
                 {b.cancelReason}
               </p>
@@ -285,7 +285,7 @@ export function BookingList({
                     setReason("");
                   }}
                   aria-expanded={cancelling === b.id}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-destructive/40 px-3.5 py-1.5 text-xs text-destructive transition hover:bg-destructive/10 disabled:opacity-40"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-destructive/30 px-3.5 py-1.5 text-xs text-destructive transition hover:bg-destructive/10 disabled:opacity-40"
                 >
                   <X aria-hidden="true" className="h-3.5 w-3.5" /> Huỷ lịch
                 </button>
@@ -402,7 +402,7 @@ export function BookingList({
             </div>
 
             {cancelling === b.id && (
-              <div className="mt-3 rounded-xl border border-destructive/25 p-3">
+              <div className="mt-3 rounded-xl border border-destructive/20 p-3">
                 <label
                   htmlFor={`reason-${b.id}`}
                   className="text-xs text-muted-foreground"
@@ -617,7 +617,7 @@ function GhiChuBuoiXem({
 
   if (side === "customer") {
     return (
-      <div className="mt-3 rounded-xl border border-gold/30 bg-gold/5 p-4">
+      <div className="mt-3 rounded-xl border border-gold/30 bg-gold/10 p-4">
         <p className="flex items-center gap-1.5 text-xs text-gold">
           <NotebookPen aria-hidden="true" className="h-3.5 w-3.5" />
           Ghi chú từ {b.readerName}

@@ -51,7 +51,7 @@ export function ConfirmDialog({
       >
         <div
           className={`mx-auto grid h-14 w-14 place-items-center rounded-full text-2xl ${
-            destructive ? "bg-destructive/15" : "bg-gold/15"
+            destructive ? "bg-destructive/10" : "bg-gold/10"
           }`}
         >
           {destructive ? "⚠" : "✦"}

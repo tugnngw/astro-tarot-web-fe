@@ -193,7 +193,7 @@ export function PurchaseModal({
           {selectedPlan ? (
             <div className="space-y-4">
               {/* Selected Plan Summary Card */}
-              <div className="rounded-xl border border-gold/30 bg-gold/5 p-4">
+              <div className="rounded-xl border border-gold/30 bg-gold/10 p-4">
                 <div className="flex items-start justify-between">
                   <div>
                     <span className="rounded-full border border-gold/30 bg-gold/10 px-2 py-0.5 text-3xs font-medium text-gold">
