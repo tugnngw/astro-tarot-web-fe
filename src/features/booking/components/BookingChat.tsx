@@ -278,7 +278,7 @@ export function BookingChat({
       <header className="flex items-center justify-between gap-2 border-b border-gold px-4 py-3">
         <div className="flex min-w-0 items-center gap-2">
           {!gonGang && (
-            <span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full bg-gold/15 text-sm font-semibold text-gold">
+            <span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full bg-gold/10 text-sm font-semibold text-gold">
               {anhPeer && !anhHong ? (
                 <img
                   src={anhPeer}
@@ -393,7 +393,7 @@ export function BookingChat({
                   className={`flex items-end gap-2 ${cuaToi ? "justify-end" : "justify-start"}`}
                 >
                   {!cuaToi && (
-                    <span className="grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-full bg-gold/15 text-xs font-semibold text-gold">
+                    <span className="grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-full bg-gold/10 text-xs font-semibold text-gold">
                       {anhPeer && !anhHong ? (
                         <img
                           src={anhPeer}

@@ -158,7 +158,7 @@ export function ReaderApplications() {
                         setReason("");
                       }}
                       aria-expanded={rejecting === id}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-destructive/40 px-3.5 py-1.5 text-xs text-destructive transition hover:bg-destructive/10 disabled:opacity-40"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-destructive/30 px-3.5 py-1.5 text-xs text-destructive transition hover:bg-destructive/10 disabled:opacity-40"
                     >
                       <X aria-hidden="true" className="h-3.5 w-3.5" />
                       Từ chối
@@ -186,7 +186,7 @@ export function ReaderApplications() {
                 )}
 
                 {rejecting === id && (
-                  <div className="mt-4 rounded-xl border border-destructive/25 p-3">
+                  <div className="mt-4 rounded-xl border border-destructive/20 p-3">
                     <label
                       htmlFor={`reason-${id}`}
                       className="text-xs text-muted-foreground"

@@ -51,7 +51,7 @@ const roleSelectContentClass =
   "rounded-xl border border-gold/30 bg-card text-foreground shadow-xl";
 
 const roleSelectItemClass =
-  "cursor-pointer rounded-lg py-2 pl-3 pr-8 text-xs focus:bg-gold/15 focus:text-gold data-[state=checked]:bg-gold/10 data-[state=checked]:text-gold";
+  "cursor-pointer rounded-lg py-2 pl-3 pr-8 text-xs focus:bg-gold/10 focus:text-gold data-[state=checked]:bg-gold/10 data-[state=checked]:text-gold";
 
 const filterSelectTriggerClass =
   "h-auto w-auto min-w-[9rem] gap-1.5 rounded-full border-gold/30 bg-input/70 px-4 py-2 text-sm text-foreground shadow-none focus:ring-1 focus:ring-gold/40 data-[state=open]:border-gold";
@@ -287,7 +287,7 @@ export function UserDirectory({
       {/* Thanh thao tác hàng loạt. Chỉ hiện khi đã chọn — một thanh trống
           thường trực chỉ chiếm chỗ và làm người dùng tưởng nó hỏng. */}
       {selected.size > 0 && (
-        <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-gold/50 bg-gold/5 px-4 py-3">
+        <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-gold/50 bg-gold/10 px-4 py-3">
           <span className="text-sm">
             Đã chọn <strong className="text-gold">{selected.size}</strong> tài
             khoản
@@ -507,7 +507,7 @@ export function UserDirectory({
                               type="button"
                               disabled={dong.ban(u.id)}
                               onClick={() => void handleStatus(u, "BANNED")}
-                              className="inline-flex items-center gap-1.5 rounded-full border border-destructive/40 px-3 py-1 text-xs text-destructive transition hover:bg-destructive/10 disabled:opacity-40"
+                              className="inline-flex items-center gap-1.5 rounded-full border border-destructive/30 px-3 py-1 text-xs text-destructive transition hover:bg-destructive/10 disabled:opacity-40"
                             >
                               <UserX
                                 aria-hidden="true"

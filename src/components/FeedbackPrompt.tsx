@@ -140,7 +140,7 @@ export function FeedbackPrompt({
       <button
         type="button"
         onClick={handleOpen}
-        className="inline-flex items-center gap-2 rounded-full border border-gold/50 bg-card/90 px-3.5 py-2 text-xs font-medium text-gold shadow-lg backdrop-blur transition hover:bg-gold/15 focus:outline-none focus:ring-2 focus:ring-gold/50"
+        className="inline-flex items-center gap-2 rounded-full border border-gold/50 bg-card/90 px-3.5 py-2 text-xs font-medium text-gold shadow-lg backdrop-blur transition hover:bg-gold/10 focus:outline-none focus:ring-2 focus:ring-gold/50"
         aria-label={
           alreadySubmitted
             ? "Xem và chỉnh sửa đánh giá của bạn"
@@ -297,7 +297,7 @@ export function FeedbackPrompt({
                           className={`h-7 w-7 rounded-lg text-xs font-medium transition ${
                             nps === i
                               ? "bg-gold text-background shadow-xs font-bold"
-                              : "border border-gold/30 text-foreground hover:bg-gold/15"
+                              : "border border-gold/30 text-foreground hover:bg-gold/10"
                           }`}
                         >
                           {i}

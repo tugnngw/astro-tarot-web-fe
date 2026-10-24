@@ -89,7 +89,7 @@ export function LoiChucDipLe() {
           {dot.loiChuc}
         </p>
 
-        <p className="mt-4 rounded-lg border border-gold/30 bg-gold/5 px-3 py-2 text-xs text-gold/90">
+        <p className="mt-4 rounded-lg border border-gold/30 bg-gold/10 px-3 py-2 text-xs text-gold/90">
           {dot.loaiGiam === "PHAN_TRAM"
             ? `Dịp này giảm ${dot.giaTri}% gói AI`
             : `Dịp này giảm ${tien(dot.giaTri)} gói AI`}

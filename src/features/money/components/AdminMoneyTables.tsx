@@ -153,7 +153,7 @@ export function PaymentQueue() {
                       setReason("");
                     }}
                     aria-expanded={rejecting === t.id}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-destructive/40 px-3.5 py-1.5 text-xs text-destructive transition hover:bg-destructive/10 disabled:opacity-40"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-destructive/30 px-3.5 py-1.5 text-xs text-destructive transition hover:bg-destructive/10 disabled:opacity-40"
                   >
                     <X aria-hidden="true" className="h-3.5 w-3.5" /> Không tìm
                     thấy
@@ -315,7 +315,7 @@ export function PayoutQueue() {
                         setReason("");
                       }}
                       aria-expanded={rejecting === p.id}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-destructive/40 px-3.5 py-1.5 text-xs text-destructive transition hover:bg-destructive/10 disabled:opacity-40"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-destructive/30 px-3.5 py-1.5 text-xs text-destructive transition hover:bg-destructive/10 disabled:opacity-40"
                     >
                       <X aria-hidden="true" className="h-3.5 w-3.5" /> Từ chối
                     </button>
@@ -671,7 +671,7 @@ function StatusFilter({
       <SelectContent className="rounded-xl border border-gold/30 bg-card text-foreground shadow-xl">
         <SelectItem
           value="__all__"
-          className="cursor-pointer rounded-lg py-2 pl-3 pr-8 text-sm focus:bg-gold/15 focus:text-gold data-[state=checked]:bg-gold/10 data-[state=checked]:text-gold"
+          className="cursor-pointer rounded-lg py-2 pl-3 pr-8 text-sm focus:bg-gold/10 focus:text-gold data-[state=checked]:bg-gold/10 data-[state=checked]:text-gold"
         >
           Tất cả
         </SelectItem>
@@ -679,7 +679,7 @@ function StatusFilter({
           <SelectItem
             key={k}
             value={k}
-            className="cursor-pointer rounded-lg py-2 pl-3 pr-8 text-sm focus:bg-gold/15 focus:text-gold data-[state=checked]:bg-gold/10 data-[state=checked]:text-gold"
+            className="cursor-pointer rounded-lg py-2 pl-3 pr-8 text-sm focus:bg-gold/10 focus:text-gold data-[state=checked]:bg-gold/10 data-[state=checked]:text-gold"
           >
             {label}
           </SelectItem>
@@ -701,7 +701,7 @@ function Badge({
       ? "border-success/30 text-success"
       : tone === "warn"
         ? "border-warning/30 text-warning"
-        : "border-destructive/40 text-destructive";
+        : "border-destructive/30 text-destructive";
   return (
     <span
       className={`mt-1 inline-block rounded-full border px-2.5 py-0.5 text-2xs ${cls}`}
@@ -795,7 +795,7 @@ function InlineReason({
   busy: boolean;
 }) {
   return (
-    <div className="mt-3 rounded-xl border border-destructive/25 p-3">
+    <div className="mt-3 rounded-xl border border-destructive/20 p-3">
       <label className="text-xs text-muted-foreground">
         Lý do — người nhận sẽ đọc được
         <textarea
@@ -851,7 +851,7 @@ function formatDateTime(iso: string | null) {
 function MaQrChuyenKhoan({ payout }: { payout: Payout }) {
   const nganHang = timNganHang(payout.bankBin);
   return (
-    <div className="mt-3 flex flex-wrap items-center gap-4 rounded-xl border border-gold/30 bg-gold/5 p-4">
+    <div className="mt-3 flex flex-wrap items-center gap-4 rounded-xl border border-gold/30 bg-gold/10 p-4">
       {/* Nền trắng bắt buộc: máy quét cần tương phản, và giao diện này nền tối. */}
       <div className="rounded-lg bg-white p-2">
         <QRCodeSVG value={payout.qrPayload!} size={148} level="M" />

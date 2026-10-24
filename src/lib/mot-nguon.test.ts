@@ -227,3 +227,48 @@ describe("một nguồn cho màu trạng thái", () => {
     expect(Object.keys(MIEN_TRU_TRANG_THAI).filter((f) => !con.has(f))).toEqual([]);
   });
 });
+
+/**
+ * Thang độ mờ của nền và viền.
+ *
+ * ## Vì sao cần
+ *
+ * Màu thì đúng token rồi, nhưng độ mờ vẫn trôi: riêng nền vàng từng có chín
+ * mức — `/5 /10 /15 /20 /25 /30 /55 /90` và đặc — còn viền `destructive` có
+ * năm. Trên nền tối, `/5` và `/15` không phân biệt được với `/10`, nên chúng
+ * chỉ làm thang rộng ra mà không thêm nghĩa nào.
+ *
+ * Hệ quả giống hệt chuyện màu: mỗi chỗ một mức, nên không gì trông cố ý.
+ */
+describe("một nguồn cho thang độ mờ", () => {
+  const VAI_TRO = "gold|success|warning|destructive-soft|destructive";
+
+  /** `/90` chỉ để làm hover của nền ĐẶC, không phải một bậc nền pha mờ. */
+  const NEN_CHO_PHEP = new Set(["10", "20", "90"]);
+  const VIEN_CHO_PHEP = new Set(["20", "30", "50"]);
+
+  function lech(dau: string, cho_phep: Set<string>) {
+    const re = new RegExp(`\\b${dau}-(?:${VAI_TRO})/(\\d+)`, "g");
+    const ra: string[] = [];
+    for (const t of TEP) {
+      for (const m of boBinhLuan(t.noiDung).matchAll(re)) {
+        if (!cho_phep.has(m[1])) ra.push(`${t.ten}: ${m[0]}`);
+      }
+    }
+    return ra;
+  }
+
+  it("nền pha mờ chỉ dùng /10, /20 (và /90 cho hover nền đặc)", () => {
+    expect(
+      lech("bg", NEN_CHO_PHEP),
+      "Chọn /10 cho nền thường hoặc /20 cho nền nhấn — xem khối quy ước trong styles.css.",
+    ).toEqual([]);
+  });
+
+  it("viền chỉ dùng /20, /30, /50", () => {
+    expect(
+      lech("border", VIEN_CHO_PHEP),
+      "Chọn /20 viền mờ, /30 viền thường, /50 viền nhấn — xem khối quy ước trong styles.css.",
+    ).toEqual([]);
+  });
+});

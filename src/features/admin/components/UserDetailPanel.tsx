@@ -495,7 +495,7 @@ function Action({
       type="button"
       disabled={disabled}
       onClick={onClick}
-      className="flex items-start gap-3 rounded-xl border border-gold/20 px-3 py-2.5 text-left transition hover:border-gold/50 hover:bg-gold/5 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-gold/20 disabled:hover:bg-transparent"
+      className="flex items-start gap-3 rounded-xl border border-gold/20 px-3 py-2.5 text-left transition hover:border-gold/50 hover:bg-gold/10 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-gold/20 disabled:hover:bg-transparent"
     >
       <Icon aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
       <span>

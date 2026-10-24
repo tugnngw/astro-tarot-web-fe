@@ -19,7 +19,7 @@ import {
 const STATUS_CLASS: Record<PayoutStatus, string> = {
   PENDING: "border-warning/30 text-warning",
   APPROVED: "border-sky-400/40 text-sky-300",
-  REJECTED: "border-destructive/40 text-destructive",
+  REJECTED: "border-destructive/30 text-destructive",
   PAID: "border-success/30 text-success",
 };
 
@@ -113,7 +113,7 @@ export function EarningsPanel() {
         ) : (
           <>
             <dl className="mt-4 grid gap-3 sm:grid-cols-2">
-              <div className="rounded-xl border border-gold/30 bg-gold/5 px-4 py-3">
+              <div className="rounded-xl border border-gold/30 bg-gold/10 px-4 py-3">
                 <dt className="text-2xs uppercase tracking-[0.12em] text-muted-foreground">
                   Rút được
                 </dt>
@@ -149,7 +149,7 @@ export function EarningsPanel() {
             </dl>
 
             {(e!.penaltyOwed ?? 0) > 0 && (
-              <p className="mt-3 rounded-xl border border-destructive/40 bg-destructive/5 px-4 py-3 text-xs text-destructive">
+              <p className="mt-3 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-xs text-destructive">
                 Bạn đang nợ {tien(e!.penaltyOwed!)} tiền phạt vi phạm. Số
                 này sẽ tự trừ vào các buổi xem tới, nên thu nhập mấy lần sau sẽ
                 thấp hơn cho tới khi trừ hết.

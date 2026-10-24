@@ -72,7 +72,7 @@ export function FaqSection() {
                     onClick={() => setOpen(expanded ? null : i)}
                     aria-expanded={expanded}
                     aria-controls={`faq-panel-${i}`}
-                    className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition hover:bg-gold/5"
+                    className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition hover:bg-gold/10"
                   >
                     <span className="text-sm font-medium text-foreground sm:text-base">
                       {faq.q}

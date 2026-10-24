@@ -128,7 +128,7 @@ export function DangOnlineNgayBayGio() {
           {(nguon ?? []).slice(0, 8).map((n) => (
             <span
               key={n.nguon}
-              className="rounded-full border border-gold/30 bg-gold/5 px-3 py-1 text-xs"
+              className="rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-xs"
             >
               {n.nguon}{" "}
               <strong className="text-gold">{so(n.tongLuot)}</strong> lượt

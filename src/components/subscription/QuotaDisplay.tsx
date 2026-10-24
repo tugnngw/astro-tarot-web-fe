@@ -75,7 +75,7 @@ export function QuotaDisplay({
     <div className={`glass rounded-2xl border border-gold/20 p-5 ${className}`}>
       <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
         <div className="flex items-center gap-2">
-          <div className="grid h-8 w-8 place-items-center rounded-lg bg-gold/15 text-gold">
+          <div className="grid h-8 w-8 place-items-center rounded-lg bg-gold/10 text-gold">
             <Zap className="h-4 w-4" />
           </div>
           <div>

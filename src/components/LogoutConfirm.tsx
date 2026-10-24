@@ -19,7 +19,7 @@ export function LogoutConfirm({
         onClick={(e) => e.stopPropagation()}
         className="glass w-full max-w-sm rounded-2xl p-6 text-center animate-in zoom-in-95"
       >
-        <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-gold/15 text-2xl">
+        <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-gold/10 text-2xl">
           ✦
         </div>
         <h3 className="mt-4 font-display text-2xl text-gradient-gold">

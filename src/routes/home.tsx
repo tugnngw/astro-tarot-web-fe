@@ -105,7 +105,7 @@ function UserHomePage() {
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
         {workspaceHome && (
           <Reveal>
-            <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gold/30 bg-gold/5 px-4 py-3">
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gold/30 bg-gold/10 px-4 py-3">
               <p className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                 <Briefcase className="h-4 w-4 shrink-0 text-gold" />
                 Đây là không gian thành viên. Trang chủ vai trò{" "}
@@ -182,7 +182,7 @@ function UserHomePage() {
                   <li key={item.to}>
                     <Link
                       to={item.to}
-                      className="group flex items-start gap-3 rounded-xl border border-transparent px-3 py-2.5 transition hover:border-gold/30 hover:bg-gold/5"
+                      className="group flex items-start gap-3 rounded-xl border border-transparent px-3 py-2.5 transition hover:border-gold/30 hover:bg-gold/10"
                     >
                       <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-gold/30 bg-gold/10">
                         <item.icon className="h-4 w-4 text-gold" />

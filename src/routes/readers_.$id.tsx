@@ -469,7 +469,7 @@ function ReaderProfilePage() {
                 />
 
                 {picked && (
-                  <div className="mt-4 rounded-xl border border-gold/30 bg-gold/5 p-3 text-sm">
+                  <div className="mt-4 rounded-xl border border-gold/30 bg-gold/10 p-3 text-sm">
                     <p>
                       {date.split("-").reverse().join("/")} ·{" "}
                       {gioVn(picked.startTime)} – {gioVn(picked.endTime)}
@@ -537,7 +537,7 @@ function Shell({ children }: { children: React.ReactNode }) {
 function Buoc({ so, children }: { so: number; children: React.ReactNode }) {
   return (
     <span className="flex items-center gap-2">
-      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-mystic/60 bg-gold/15 text-2xs font-semibold text-gold">
+      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-mystic/60 bg-gold/10 text-2xs font-semibold text-gold">
         {so}
       </span>
       <span className="text-sm font-semibold text-foreground">{children}</span>

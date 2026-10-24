@@ -64,7 +64,7 @@ function Panel({ onClose }: { onClose: () => void }) {
   if (app?.status === "PENDING") {
     return (
       <Shell onClose={onClose} title="Đơn đang chờ duyệt">
-        <div className="mt-5 flex items-start gap-3 rounded-xl border border-gold/30 bg-gold/5 p-4">
+        <div className="mt-5 flex items-start gap-3 rounded-xl border border-gold/30 bg-gold/10 p-4">
           <Clock className="mt-0.5 h-5 w-5 shrink-0 text-gold" />
           <div className="text-sm">
             <p className="text-foreground">
@@ -195,7 +195,7 @@ function ApplyForm({
       </p>
 
       {rejected && (
-        <div className="mt-5 flex items-start gap-3 rounded-xl border border-destructive/40 bg-destructive/5 p-4 text-sm">
+        <div className="mt-5 flex items-start gap-3 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm">
           <XCircle className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
           <div>
             <p className="font-medium text-foreground">
@@ -241,7 +241,7 @@ function ApplyForm({
         />
 
         {error && (
-          <p className="rounded-lg border border-destructive/40 bg-destructive/5 px-4 py-2.5 text-sm text-destructive">
+          <p className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-2.5 text-sm text-destructive">
             {error}
           </p>
         )}

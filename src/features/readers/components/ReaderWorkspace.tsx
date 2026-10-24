@@ -541,7 +541,7 @@ function AvailabilityManager({
                                   toast.error(errText(e, "Không xoá được.")),
                               })
                             }
-                            className="grid h-6 w-6 place-items-center rounded-full text-muted-foreground transition hover:bg-destructive/15 hover:text-destructive disabled:opacity-50"
+                            className="grid h-6 w-6 place-items-center rounded-full text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
@@ -688,7 +688,7 @@ function DaysOffManager({
                           toast.error(errText(e, "Không xoá được.")),
                       })
                     }
-                    className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-muted-foreground transition hover:bg-destructive/15 hover:text-destructive disabled:opacity-50"
+                    className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>

@@ -107,7 +107,7 @@ export function ZodiacCarousel() {
             key={idx}
             onClick={() => setI(idx)}
             aria-label={`Slide ${idx + 1}`}
-            className={`h-2 rounded-full transition-all ${idx === i ? "w-8 bg-gold" : "w-2 bg-gold/30"}`}
+            className={`h-2 rounded-full transition-all ${idx === i ? "w-8 bg-gold" : "w-2 bg-gold/20"}`}
           />
         ))}
       </div>

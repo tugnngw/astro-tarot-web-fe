@@ -20,7 +20,7 @@ export const SOURCE_VI: Record<string, string> = {
 export const SOURCE_COLORS: Record<string, string> = {
   TAROT_AI: "bg-purple-500/15 text-purple-300 border-purple-500/30",
   BOOKING: "bg-blue-500/15 text-blue-300 border-blue-500/30",
-  GENERAL: "bg-gold/15 text-gold border-gold/30",
+  GENERAL: "bg-gold/10 text-gold border-gold/30",
   LANDING: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
 };
 

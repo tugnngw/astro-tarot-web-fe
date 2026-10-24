@@ -507,7 +507,7 @@ function Anh({
   const chu = ten.trim().charAt(0).toUpperCase() || "?";
   return (
     <span
-      className={`grid shrink-0 place-items-center overflow-hidden rounded-full bg-gold/15 font-semibold text-gold ${
+      className={`grid shrink-0 place-items-center overflow-hidden rounded-full bg-gold/10 font-semibold text-gold ${
         nho ? "h-10 w-10 text-sm" : "h-14 w-14 text-lg"
       }`}
     >

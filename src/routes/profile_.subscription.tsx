@@ -100,7 +100,7 @@ function SubscriptionPage() {
         {!user && (
           <div className="glass rounded-2xl border-gold/30 p-4 sm:p-5 mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="grid h-10 w-10 place-items-center rounded-xl bg-gold/15 text-gold shrink-0">
+              <div className="grid h-10 w-10 place-items-center rounded-xl bg-gold/10 text-gold shrink-0">
                 <Sparkles className="h-5 w-5" />
               </div>
               <div>
