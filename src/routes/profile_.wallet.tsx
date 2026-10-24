@@ -1,3 +1,4 @@
+import { tien } from "@/lib/tien";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -43,10 +44,6 @@ export const Route = createFileRoute("/profile_/wallet")({
     </RoleGuard>
   ),
 });
-
-function formatVND(amount: number): string {
-  return amount.toLocaleString("vi-VN") + " ₫";
-}
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
@@ -191,7 +188,7 @@ function WalletPage() {
                 </p>
                 <div className="flex items-baseline gap-2">
                   <span className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-gradient-gold tracking-tight">
-                    {walletQuery.isLoading ? "---" : formatVND(balance)}
+                    {walletQuery.isLoading ? "---" : tien(balance)}
                   </span>
                 </div>
               </div>
@@ -386,12 +383,12 @@ function WalletPage() {
                         }`}
                       >
                         {meta.isPositive ? "+" : "-"}
-                        {formatVND(tx.amount)}
+                        {tien(tx.amount)}
                       </span>
                       <p className="text-[11px] text-muted-foreground">
                         Số dư sau:{" "}
                         <strong className="text-foreground">
-                          {formatVND(tx.balanceAfter)}
+                          {tien(tx.balanceAfter)}
                         </strong>
                       </p>
                     </div>

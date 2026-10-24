@@ -1,3 +1,4 @@
+import { tien } from "@/lib/tien";
 import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { QRCodeSVG } from "qrcode.react";
@@ -28,10 +29,6 @@ interface TopupModalProps {
 }
 
 const PRESET_AMOUNTS = [20000, 50000, 100000, 200000, 500000];
-
-function formatVND(amount: number): string {
-  return amount.toLocaleString("vi-VN") + " ₫";
-}
 
 export function TopupModal({
   open,
@@ -145,7 +142,7 @@ export function TopupModal({
                           : "border-gold/20 bg-card/60 text-muted-foreground hover:border-gold/50 hover:text-foreground"
                       }`}
                     >
-                      {formatVND(val)}
+                      {tien(val)}
                     </button>
                   );
                 })}
@@ -184,7 +181,7 @@ export function TopupModal({
               disabled={topupMutation.isPending || amount < 10000}
               className="w-full rounded-full bg-gold py-3 text-sm font-semibold text-primary-foreground shadow-lg glow-gold transition hover:opacity-95 disabled:opacity-50"
             >
-              {topupMutation.isPending ? "Đang tạo mã VietQR..." : "Tiếp tục quét mã VietQR"}
+              {topupMutation.isPending ? "Đang tạo mã VietQR…" : "Tiếp tục quét mã VietQR"}
             </button>
           </form>
         ) : (
@@ -204,7 +201,7 @@ export function TopupModal({
               <div className="flex justify-between items-center py-1 border-b border-gold/10">
                 <span className="text-muted-foreground">Số tiền cần chuyển:</span>
                 <span className="font-bold text-gradient-gold text-sm">
-                  {formatVND(instruction.amount)}
+                  {tien(instruction.amount)}
                 </span>
               </div>
 

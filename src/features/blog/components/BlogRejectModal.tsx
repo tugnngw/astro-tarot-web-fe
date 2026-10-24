@@ -122,7 +122,7 @@ export function BlogRejectModal({
             disabled={reviewMutation.isPending}
             className="bg-rose-600 hover:bg-rose-700 text-white"
           >
-            {reviewMutation.isPending ? "Đang xử lý..." : "Xác nhận từ chối"}
+            {reviewMutation.isPending ? "Đang xử lý…" : "Xác nhận từ chối"}
           </Button>
         </DialogFooter>
       </DialogContent>

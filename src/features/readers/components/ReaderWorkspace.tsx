@@ -3,6 +3,7 @@
 // Ba thứ này quyết định Reader có nhận được khách hay không, nhưng trước đây
 // backend có đủ endpoint mà giao diện không gọi tới một cái nào — Reader mới
 // được duyệt sẽ ngồi im vì không có cách nào khai giá và lịch.
+import { ChuThich } from "@/components/ChuThich";
 import { useState } from "react";
 import {
   CalendarClock,
@@ -296,11 +297,11 @@ function PricingEditor({ profile }: { profile: ReaderProfile }) {
       <h3 className="flex items-center gap-2 font-display text-lg">
         <Wallet aria-hidden="true" className="h-4 w-4 text-gold" />
         Hồ sơ và bảng giá
+        <ChuThich>
+          Giá hiện lên trang công khai và là số tiền khách trả cho mỗi buổi. Để
+          trống một mức nghĩa là bạn không nhận buổi có độ dài đó.
+        </ChuThich>
       </h3>
-      <p className="mt-1 text-xs text-muted-foreground">
-        Giá hiện lên trang công khai và là số tiền khách trả cho mỗi buổi. Để
-        trống một mức nghĩa là bạn không nhận buổi có độ dài đó.
-      </p>
 
       <form onSubmit={save} className="mt-4 grid gap-3">
         <label className="grid gap-1.5">
@@ -445,11 +446,11 @@ function AvailabilityManager({
       <h3 className="flex items-center gap-2 font-display text-lg">
         <CalendarClock aria-hidden="true" className="h-4 w-4 text-gold" />
         Khung giờ rảnh hàng tuần
+        <ChuThich>
+          Lịch lặp lại mỗi tuần. Hệ thống cắt các khung này thành slot theo độ
+          dài buổi khách chọn.
+        </ChuThich>
       </h3>
-      <p className="mt-1 text-xs text-muted-foreground">
-        Lịch lặp lại mỗi tuần. Hệ thống cắt các khung này thành slot theo độ dài
-        buổi khách chọn.
-      </p>
 
       <form onSubmit={add} className="mt-4 flex flex-wrap items-end gap-2">
         <label className="grid gap-1">
@@ -597,11 +598,11 @@ function DaysOffManager({
       <h3 className="flex items-center gap-2 font-display text-lg">
         <CalendarOff aria-hidden="true" className="h-4 w-4 text-gold" />
         Ngày nghỉ
+        <ChuThich>
+          Ngày báo nghỉ sẽ không hiện slot nào, kể cả khi trùng khung giờ rảnh
+          hàng tuần.
+        </ChuThich>
       </h3>
-      <p className="mt-1 text-xs text-muted-foreground">
-        Ngày báo nghỉ sẽ không hiện slot nào, kể cả khi trùng khung giờ rảnh
-        hàng tuần.
-      </p>
 
       <form onSubmit={submit} className="mt-4 flex flex-wrap items-end gap-2">
         <label className="grid gap-1">

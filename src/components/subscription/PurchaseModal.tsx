@@ -1,3 +1,4 @@
+import { tien } from "@/lib/tien";
 import { getGiaGoi } from "@/api/khuyen-mai";
 import { useState, useCallback, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -30,11 +31,6 @@ export interface PurchaseModalProps {
   plan?: SubscriptionPlan | null;
   initialPlanId?: string | null;
   onPurchaseSuccess?: (response: AIPlanResponse) => void;
-}
-
-function formatVND(price: number): string {
-  if (price === 0) return "Miễn phí";
-  return price.toLocaleString("vi-VN") + " ₫";
 }
 
 export function PurchaseModal({
@@ -216,7 +212,7 @@ export function PurchaseModal({
                   </div>
                   <div className="text-right">
                     <span className="font-display text-xl font-bold text-gradient-gold">
-                      {formatVND(selectedPlan.price)}
+                      {tien(selectedPlan.price, true)}
                     </span>
                     <span className="block text-[10px] text-muted-foreground">
                       {selectedPlan.planType === "FREE"
@@ -362,10 +358,10 @@ export function PurchaseModal({
                     className="flex-1 rounded-xl bg-gold py-2.5 text-sm font-medium text-background transition hover:bg-gold/90 disabled:opacity-50"
                   >
                     {isPending
-                      ? "Đang xử lý..."
+                      ? "Đang xử lý…"
                       : selectedPlan.price === 0
                         ? "Kích hoạt (Miễn phí)"
-                        : `Thanh toán ${formatVND(selectedPlan.price)}`}
+                        : `Thanh toán ${tien(selectedPlan.price, true)}`}
                   </button>
                 )}
               </div>

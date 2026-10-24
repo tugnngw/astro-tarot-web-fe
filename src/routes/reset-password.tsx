@@ -199,7 +199,7 @@ function ResetPasswordPage() {
                   disabled={loading}
                   className="w-full rounded-full bg-gold py-3 font-medium text-primary-foreground glow-gold transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {loading ? "Đang lưu..." : "Đổi mật khẩu"}
+                  {loading ? "Đang lưu…" : "Đổi mật khẩu"}
                 </button>
               </form>
 

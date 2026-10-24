@@ -153,7 +153,7 @@ function SubmitButton({
       disabled={loading}
       className="w-full rounded-full bg-gold py-3 font-medium text-primary-foreground glow-gold transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
     >
-      {loading ? "Đang xử lý..." : children}
+      {loading ? "Đang xử lý…" : children}
     </button>
   );
 }
@@ -502,7 +502,7 @@ function CheckInbox({
         disabled={sending}
         className="mt-5 w-full rounded-full border border-gold/50 py-2.5 text-sm text-gold transition hover:bg-gold/10 disabled:opacity-50"
       >
-        {sending ? "Đang gửi..." : "Gửi lại email"}
+        {sending ? "Đang gửi…" : "Gửi lại email"}
       </button>
       <button
         type="button"

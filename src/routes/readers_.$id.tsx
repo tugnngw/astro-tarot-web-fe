@@ -3,6 +3,7 @@
 // Bản trước của trang này dựng trên mock-data.ts và một booking-store giả lưu
 // trong bộ nhớ trình duyệt: đặt lịch xong tải lại trang là mất, và Reader
 // không bao giờ nhìn thấy gì. Nay nối thẳng vào /api/v1/bookings.
+import { ChuThich } from "@/components/ChuThich";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
 import { AlertCircle, ArrowLeft, CalendarClock, Star } from "lucide-react";
@@ -242,11 +243,13 @@ function ReaderProfilePage() {
 
           {/* Đánh giá thật, khoá theo buổi xem đã hoàn tất */}
           <section className="glass rounded-2xl p-6">
-            <h2 className="font-display text-xl">Đánh giá từ khách</h2>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Chỉ người đã thực sự đặt và hoàn tất buổi xem mới viết được — mỗi
-              buổi một lần.
-            </p>
+            <h2 className="flex items-center gap-1.5 font-display text-xl">
+              Đánh giá từ khách
+              <ChuThich>
+                Chỉ người đã thực sự đặt và hoàn tất buổi xem mới viết được —
+                mỗi buổi một lần.
+              </ChuThich>
+            </h2>
 
             <div className="mt-4">
               {reviews.isPending ? (
@@ -491,8 +494,7 @@ function ReaderProfilePage() {
                 </button>
 
                 <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
-                  Cùng một ngày nhiều người đặt được, mỗi người một khung giờ.
-                  Đặt xong thì chọn đặt cọc 50% hoặc thanh toán hết, ở trang{" "}
+                  Đặt xong, chọn đặt cọc 50% hoặc trả hết ở trang{" "}
                   <Link to="/bookings" className="text-gold hover:underline">
                     Lịch hẹn của tôi
                   </Link>

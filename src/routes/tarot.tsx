@@ -1602,8 +1602,8 @@ function TarotPage() {
                 <>
                   <Loader2 className="h-5 w-5 animate-spin" />
                   {savingProfile
-                    ? "Đang lưu thông tin chiêm tinh..."
-                    : "Đang kết nối..."}
+                    ? "Đang lưu thông tin chiêm tinh…"
+                    : "Đang kết nối…"}
                 </>
               ) : (
                 "✦ Bắt đầu trò chuyện với AI"
