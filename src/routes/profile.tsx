@@ -541,7 +541,7 @@ function InfoForm({
           className="inline-flex items-center gap-2 rounded-full bg-gold px-6 py-2.5 text-sm font-medium text-primary-foreground glow-gold transition hover:scale-[1.02] disabled:opacity-60 disabled:hover:scale-100"
         >
           <Save aria-hidden="true" className="h-4 w-4" />
-          {update.isPending ? "Đang lưu..." : "Lưu thay đổi"}
+          {update.isPending ? "Đang lưu…" : "Lưu thay đổi"}
         </button>
       </form>
     </section>
@@ -623,7 +623,7 @@ function PasswordCard() {
           disabled={change.isPending}
           className="rounded-full border border-gold/50 px-6 py-2.5 text-sm text-gold transition hover:bg-gold/10 disabled:opacity-60"
         >
-          {change.isPending ? "Đang đổi..." : "Đổi mật khẩu"}
+          {change.isPending ? "Đang đổi…" : "Đổi mật khẩu"}
         </button>
       </form>
     </section>

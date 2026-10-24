@@ -1,3 +1,4 @@
+import { tien } from "@/lib/tien";
 import { getGiaGoi } from "@/api/khuyen-mai";
 import { useQuery } from "@tanstack/react-query";
 import { subscriptionApi } from "@/api/subscription";
@@ -15,11 +16,6 @@ export function useActivePlans() {
     queryFn: () => subscriptionApi.getActivePlans(),
     staleTime: 5 * 60 * 1000,
   });
-}
-
-function formatVND(price: number): string {
-  if (price === 0) return "Miễn phí";
-  return price.toLocaleString("vi-VN") + " ₫";
 }
 
 const PLAN_TYPE_LABELS: Record<SubscriptionPlan["planType"], string> = {
@@ -69,9 +65,9 @@ export function PlanCard({
   } else if (upgradeOnlyBlocked) {
     cta = "Chỉ nâng cấp";
   } else if (isUpgrade) {
-    cta = `Nâng cấp — ${formatVND(giaPhaiTra)}`;
+    cta = `Nâng cấp — ${tien(giaPhaiTra, true)}`;
   } else {
-    cta = `Đăng ký gói — ${formatVND(giaPhaiTra)}`;
+    cta = `Đăng ký gói — ${tien(giaPhaiTra, true)}`;
   }
 
   return (
@@ -110,11 +106,11 @@ export function PlanCard({
 
         <div className="mt-4 flex items-baseline gap-1">
           <span className="font-display text-2xl font-bold text-gradient-gold">
-            {formatVND(giaPhaiTra)}
+            {tien(giaPhaiTra, true)}
           </span>
           {coGiam && (
             <span className="text-sm text-muted-foreground line-through">
-              {formatVND(giam!.giaGoc)}
+              {tien(giam!.giaGoc, true)}
             </span>
           )}
           {!isFree && (
@@ -125,7 +121,7 @@ export function PlanCard({
         </div>
         {coGiam && (
           <p className="mt-1 text-xs text-emerald-300">
-            {giam!.tenDot} — bớt {formatVND(giam!.tienGiam)}
+            {giam!.tenDot} — bớt {tien(giam!.tienGiam, true)}
           </p>
         )}
 

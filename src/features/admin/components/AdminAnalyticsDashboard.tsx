@@ -280,11 +280,11 @@ export function AdminAnalyticsDashboard() {
           <span className="font-display text-2xl text-emerald-300">
             {nf(report.realtimeActiveUsers)}
           </span>
-          <span className="text-xs text-muted-foreground">
+          <ChuThich>
             Số này cập nhật tức thì. Các ô bên dưới là báo cáo thường của
             Google, tính đến hết hôm qua — khớp đúng con số trong Google
             Analytics.
-          </span>
+          </ChuThich>
         </section>
       )}
 

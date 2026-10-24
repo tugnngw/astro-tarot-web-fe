@@ -1,3 +1,9 @@
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth-context";
@@ -95,9 +101,6 @@ export function SubscriptionManagement() {
             <h2 className="font-display mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
               Chọn gói cước AI Tarot
             </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Mở rộng số lượt hỏi bài hàng ngày, kết hợp phân tích bản đồ sao chiêm tinh và bài Tarot sâu sắc.
-            </p>
           </div>
 
           {/* Filter Tabs */}
@@ -217,45 +220,60 @@ export function SubscriptionManagement() {
       )}
 
       {/* FAQ & Value Proposition Banner */}
+      {/*
+        Ba cột chữ trước đây trải hết ra dưới bảng giá. Thông tin đúng và cần,
+        nhưng ai cũng phải lướt qua cả khối mới xuống hết trang — kể cả người
+        đã mua gói và chỉ vào xem hạn mức. Accordion giữ nguyên nội dung mà
+        mặc định chỉ còn ba dòng tiêu đề.
+      */}
       <section className="glass rounded-2xl border border-gold/15 p-6 sm:p-8">
-        <h3 className="font-display text-lg font-semibold text-foreground flex items-center gap-2">
+        <h3 className="flex items-center gap-2 font-display text-lg font-semibold text-foreground">
           <HelpCircle className="h-5 w-5 text-gold" />
-          Câu hỏi thường gặp về gói cước AI
+          Câu hỏi thường gặp về gói cước
         </h3>
 
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-muted-foreground">
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-1.5 text-foreground font-medium">
-              <Zap className="h-4 w-4 text-gold" />
-              <span>Hạn mức tính thế nào?</span>
-            </div>
-            <p>
-              Hệ thống lấy hạn mức cao nhất giữa các gói đang hiệu lực. Khi đã có gói tháng,
-              bạn chỉ được nâng cấp lên gói cao hơn — không mua chồng gói tháng ngang hoặc thấp hơn.
-              Hạn mức hồi 00:00 (giờ VN) mỗi ngày.
-            </p>
-          </div>
+        <Accordion type="single" collapsible className="mt-4">
+          <AccordionItem value="han-muc">
+            <AccordionTrigger className="text-sm">
+              <span className="flex items-center gap-2">
+                <Zap className="h-4 w-4 shrink-0 text-gold" />
+                Hạn mức tính thế nào?
+              </span>
+            </AccordionTrigger>
+            <AccordionContent className="text-xs leading-relaxed text-muted-foreground">
+              Hệ thống lấy hạn mức cao nhất giữa các gói đang hiệu lực. Khi đã
+              có gói tháng, bạn chỉ được nâng cấp lên gói cao hơn — không mua
+              chồng gói tháng ngang hoặc thấp hơn. Hạn mức hồi 00:00 giờ Việt
+              Nam mỗi ngày.
+            </AccordionContent>
+          </AccordionItem>
 
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-1.5 text-foreground font-medium">
-              <Flame className="h-4 w-4 text-amber-400" />
-              <span>Gói Ngày (Day Pass) là gì?</span>
-            </div>
-            <p>
-              Thích hợp khi bạn có nhu cầu hỏi liên tục trong 1 hoặc 3 ngày dịp đầu tháng, rằm, hoặc trước các sự kiện lớn mà không cần cam kết cả tháng.
-            </p>
-          </div>
+          <AccordionItem value="goi-ngay">
+            <AccordionTrigger className="text-sm">
+              <span className="flex items-center gap-2">
+                <Flame className="h-4 w-4 shrink-0 text-amber-400" />
+                Gói Ngày là gì?
+              </span>
+            </AccordionTrigger>
+            <AccordionContent className="text-xs leading-relaxed text-muted-foreground">
+              Hợp khi bạn cần hỏi liên tục một vài ngày — đầu tháng, rằm, hoặc
+              trước việc lớn — mà không muốn cam kết cả tháng.
+            </AccordionContent>
+          </AccordionItem>
 
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-1.5 text-foreground font-medium">
-              <Shield className="h-4 w-4 text-emerald-400" />
-              <span>Bảo vệ quyền lợi & thanh toán</span>
-            </div>
-            <p>
-              Thanh toán an toàn qua Ví nội bộ ASTROTAROT hoặc quét mã chuyển khoản QR PayOS. Gói được kích hoạt ngay lập tức sau khi hoàn tất.
-            </p>
-          </div>
-        </div>
+          <AccordionItem value="thanh-toan" className="border-b-0">
+            <AccordionTrigger className="text-sm">
+              <span className="flex items-center gap-2">
+                <Shield className="h-4 w-4 shrink-0 text-emerald-400" />
+                Thanh toán thế nào?
+              </span>
+            </AccordionTrigger>
+            <AccordionContent className="text-xs leading-relaxed text-muted-foreground">
+              Trả bằng ví trong tài khoản hoặc quét mã QR qua PayOS. Gói vào
+              hiệu lực ngay sau khi thanh toán xong.
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </section>
 
       {/* Purchase Modal */}

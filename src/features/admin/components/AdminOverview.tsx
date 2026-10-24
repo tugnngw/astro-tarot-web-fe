@@ -541,11 +541,12 @@ function TractionStrip({
       <div className="flex flex-wrap items-center gap-2">
         <Target className="h-4 w-4 text-gold" />
         <h2 className="font-display text-lg">Traction — chụp cho Pitch</h2>
+        <ChuThich>
+          Một khối số liệu cho slide EXE201. Biểu đồ doanh thu bên dưới vẫn gồm
+          dữ liệu gieo sẵn để test — khi nộp OC3 thì dùng giao dịch PayOS thật
+          và ghi rõ.
+        </ChuThich>
       </div>
-      <p className="mt-1 text-xs text-muted-foreground">
-        Một khối số liệu cho slide EXE201. Doanh thu biểu đồ bên dưới vẫn gồm
-        seed demo để test — khi nộp OC3 hãy dùng giao dịch PayOS thật và ghi rõ.
-      </p>
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {items.map((it) => (
           <div

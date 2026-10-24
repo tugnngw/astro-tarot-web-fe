@@ -417,7 +417,7 @@ export function BlogEditorModal({
             className="bg-gold hover:bg-gold-soft text-primary-foreground font-semibold glow-gold"
           >
             {isPending
-              ? "Đang lưu..."
+              ? "Đang lưu…"
               : isEditing
                 ? "Lưu thay đổi"
                 : "Lưu bản nháp"}

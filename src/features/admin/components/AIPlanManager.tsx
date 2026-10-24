@@ -1,3 +1,4 @@
+import { tien } from "@/lib/tien";
 import { useState } from "react";
 import {
   useAllPlans,
@@ -13,10 +14,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Package, Plus, Pencil, Zap } from "lucide-react";
-
-function formatVND(price: number): string {
-  return price.toLocaleString("vi-VN") + " ₫";
-}
 
 const PLAN_TYPE_LABELS: Record<SubscriptionPlan["planType"], string> = {
   MONTHLY: "Tháng",
@@ -128,7 +125,7 @@ export function AIPlanManager() {
                       {plan.dailyQuota}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-right font-mono text-xs">{formatVND(plan.price)}</td>
+                  <td className="px-4 py-3 text-right font-mono text-xs">{tien(plan.price, true)}</td>
                   <td className="px-4 py-3 text-right">{plan.durationDays} ngày</td>
                   <td className="px-4 py-3 text-center">
                     <span className={`inline-flex rounded-full border px-2 py-0.5 text-xs ${
@@ -281,7 +278,7 @@ function CreatePlanForm({ onSuccess }: { onSuccess: () => void }) {
         disabled={createPlan.isPending || !form.name}
         className="w-full rounded-lg bg-gold py-2.5 text-sm font-medium text-background transition hover:bg-gold/90 disabled:opacity-50"
       >
-        {createPlan.isPending ? "Đang tạo..." : "Tạo gói"}
+        {createPlan.isPending ? "Đang tạo…" : "Tạo gói"}
       </button>
     </form>
   );
@@ -379,7 +376,7 @@ function EditPlanForm({
         disabled={updatePlan.isPending}
         className="w-full rounded-lg bg-gold py-2.5 text-sm font-medium text-background transition hover:bg-gold/90 disabled:opacity-50"
       >
-        {updatePlan.isPending ? "Đang lưu..." : "Lưu thay đổi"}
+        {updatePlan.isPending ? "Đang lưu…" : "Lưu thay đổi"}
       </button>
     </form>
   );
