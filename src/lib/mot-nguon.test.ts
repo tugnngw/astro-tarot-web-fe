@@ -89,6 +89,7 @@ const MIEN_TRU: Record<string, string> = {
   "components/DailyCardDraw.tsx": "mặt sau lá tarot",
   "routes/index.tsx": "lớp phủ tối sau chữ ở ảnh bìa",
   "lib/mau-bieu-do.ts": "chính nó LÀ bảng màu",
+  "components/TarotWheel.tsx": "bóng đổ đen — xem boDenTrang bên dưới",
   "lib/error-page.ts":
     "trang HTML độc lập trả về khi ứng dụng không dựng được — lúc ấy chưa có " +
     "bundle CSS nào, nên không dùng được token Tailwind; cũng là lý do nó " +
@@ -97,16 +98,31 @@ const MIEN_TRU: Record<string, string> = {
 };
 
 describe("một nguồn cho màu", () => {
-  it("không có mã màu viết tay ngoài danh sách miễn trừ", () => {
+  /**
+   * Đen và trắng thuần ở độ mờ bất kỳ KHÔNG tính là màu viết tay.
+   *
+   * Đó là bóng đổ và mực tương phản, không phải một sắc trong bảng màu —
+   * chính Tailwind cũng viết `black/90` cho việc này. Lọc chúng ra ở đây để
+   * phép kiểm nhắm đúng thứ cần nhắm: sắc của sản phẩm bị viết lặp bằng tay.
+   */
+  function boDenTrang(s: string): string {
+    return s.replace(/rgba?\(\s*(?:0\s*[, ]\s*0\s*[, ]\s*0|255\s*[, ]\s*255\s*[, ]\s*255)\s*[,/][^)]*\)/g, "");
+  }
+
+  it("không có màu số viết tay ngoài danh sách miễn trừ", () => {
     const pham = TEP.filter((t) => {
       if (MIEN_TRU[t.ten]) return false;
-      const sach = boBinhLuan(t.noiDung);
-      return /#[0-9a-fA-F]{3}\b|#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{8}\b|oklch\(/.test(sach);
+      const sach = boDenTrang(boBinhLuan(t.noiDung));
+      // `rgb(var(--gold-rgb)/…)` được phép: nó TRỎ VỀ token, không tự định
+      // nghĩa màu. Nên phép kiểm chỉ bắt kênh màu viết thẳng bằng số.
+      return /#[0-9a-fA-F]{3}\b|#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{8}\b|oklch\(|rgba?\(\s*[0-9]|hsla?\(\s*[0-9]/.test(
+        sach,
+      );
     }).map((t) => t.ten);
 
     expect(
       pham,
-      'Dùng token Tailwind (bg-gold, text-gold-foreground…) hoặc MAU/KHUNG từ "@/lib/mau-bieu-do".',
+      'Dùng token Tailwind (bg-gold, text-gold-foreground…), rgb(var(--gold-rgb)/…) cho quầng sáng, hoặc MAU/KHUNG từ "@/lib/mau-bieu-do".',
     ).toEqual([]);
   });
 
@@ -115,5 +131,39 @@ describe("một nguồn cho màu", () => {
     const con = new Set(TEP.map((t) => t.ten));
     const mat = Object.keys(MIEN_TRU).filter((f) => !con.has(f));
     expect(mat, "Xoá khỏi MIEN_TRU những tệp không còn.").toEqual([]);
+  });
+});
+
+/**
+ * Thang cỡ chữ.
+ *
+ * Mọi cỡ chữ phải là một bậc có tên trong `@theme` của `styles.css`. Giá trị
+ * tự chế không sai về mặt kỹ thuật, nhưng nó phá thang: hai màn cạnh nhau
+ * dùng 16.8px và 18px cho cùng một vai trò thì không gì trông cố ý.
+ */
+describe("một nguồn cho cỡ chữ", () => {
+  const MIEN_TRU_CO_CHU: Record<string, string> = {
+    "features/astrology/components/AstroChart.tsx":
+      "nhãn 6px/8px trên vòng hoàng đạo — nhỏ hơn bậc nhỏ nhất của thang, và " +
+      "nằm trong SVG nên không theo được thang chữ của trang",
+    "lib/mau-bieu-do.ts": "chính nó LÀ thang cỡ chữ của biểu đồ (KHUNG.coChu*)",
+  };
+
+  it("không có cỡ chữ tự chế", () => {
+    const pham = TEP.filter((t) => {
+      if (MIEN_TRU_CO_CHU[t.ten]) return false;
+      const sach = boBinhLuan(t.noiDung);
+      return /text-\[[0-9.]+(?:px|rem|em)\]|fontSize:\s*[0-9]/.test(sach);
+    }).map((t) => t.ten);
+
+    expect(
+      pham,
+      "Thêm một bậc có tên vào @theme trong styles.css, hoặc dùng KHUNG.coChu* cho chữ trong biểu đồ.",
+    ).toEqual([]);
+  });
+
+  it("mọi tệp miễn trừ cỡ chữ vẫn còn tồn tại", () => {
+    const con = new Set(TEP.map((t) => t.ten));
+    expect(Object.keys(MIEN_TRU_CO_CHU).filter((f) => !con.has(f))).toEqual([]);
   });
 });

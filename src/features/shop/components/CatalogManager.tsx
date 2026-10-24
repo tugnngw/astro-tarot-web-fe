@@ -479,7 +479,7 @@ function TopProductsChart({ products }: { products: Product[] }) {
             allowDecimals={false}
             tickLine={false}
             axisLine={false}
-            tick={{ fontSize: 11 }}
+            tick={{ fontSize: KHUNG.coChuTruc, fill: KHUNG.chuTruc }}
           />
           <YAxis
             type="category"
@@ -487,7 +487,7 @@ function TopProductsChart({ products }: { products: Product[] }) {
             width={128}
             tickLine={false}
             axisLine={false}
-            tick={{ fontSize: 11 }}
+            tick={{ fontSize: KHUNG.coChuTruc, fill: KHUNG.chuTruc }}
           />
           <ChartTooltip
             cursor={{ fill: KHUNG.conTro }}

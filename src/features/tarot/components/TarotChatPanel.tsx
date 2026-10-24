@@ -182,7 +182,7 @@ export function TarotChatPanel({
   );
 
   return (
-    <div className="relative flex h-full min-h-0 w-full overflow-hidden rounded-2xl border border-gold/30 bg-card/40 shadow-[0_0_40px_-12px_rgba(212,175,55,0.25)] backdrop-blur-xl">
+    <div className="relative flex h-full min-h-0 w-full overflow-hidden rounded-2xl border border-gold/30 bg-card/40 shadow-[0_0_40px_-12px_rgb(var(--gold-rgb)/0.25)] backdrop-blur-xl">
       {/* Desktop sidebar */}
       <div className="hidden md:flex">{sidebar}</div>
 
@@ -326,7 +326,7 @@ export function TarotChatPanel({
         {/* Messages */}
         <div
           ref={chatScrollRef}
-          className="min-h-0 flex-1 space-y-1 overflow-y-auto bg-[radial-gradient(ellipse_at_top,_rgba(212,175,55,0.06),_transparent_55%)] px-3 py-4 sm:px-5"
+          className="min-h-0 flex-1 space-y-1 overflow-y-auto bg-[radial-gradient(ellipse_at_top,_rgb(var(--gold-rgb)/0.06),_transparent_55%)] px-3 py-4 sm:px-5"
         >
           {view.length === 0 ? (
             <div className="flex h-full min-h-[280px] flex-col items-center justify-center px-4 text-center">

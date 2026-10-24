@@ -98,8 +98,8 @@ export function CelestialArtwork({
           <stop offset="100%" stopColor={`hsl(${292 + hueShift} 38% 4%)`} />
         </linearGradient>
         <radialGradient id={`${uid}-glow`} cx="50%" cy="45%" r="55%">
-          <stop offset="0%" stopColor="rgba(226,183,92,0.22)" />
-          <stop offset="100%" stopColor="rgba(226,183,92,0)" />
+          <stop offset="0%" stopColor="rgb(var(--gold-rgb)/0.22)" />
+          <stop offset="100%" stopColor="rgb(var(--gold-rgb)/0)" />
         </radialGradient>
       </defs>
 
@@ -119,7 +119,7 @@ export function CelestialArtwork({
             height="134"
             rx="7"
             fill="none"
-            stroke="rgba(226,183,92,0.45)"
+            stroke="rgb(var(--gold-rgb)/0.45)"
             strokeWidth="0.9"
           />
           <rect
@@ -129,7 +129,7 @@ export function CelestialArtwork({
             height="125"
             rx="5"
             fill="none"
-            stroke="rgba(226,183,92,0.20)"
+            stroke="rgb(var(--gold-rgb)/0.20)"
             strokeWidth="0.6"
           />
         </>
@@ -218,7 +218,7 @@ function Motif({ kind }: { kind: CelestialMotif }) {
             cx="18"
             cy="0"
             r="15"
-            fill="rgba(226,183,92,0.14)"
+            fill="rgb(var(--gold-rgb)/0.14)"
             stroke="none"
           />
           <circle cx="45" cy="0" r="7" opacity="0.55" />
@@ -246,7 +246,7 @@ function Motif({ kind }: { kind: CelestialMotif }) {
           <line x1="0" y1="-4" x2="0" y2="-11" opacity="0.8" />
           <path
             d="M0 -34 C7 -27 7 -20 0 -13 C-7 -20 -7 -27 0 -34 Z"
-            fill="rgba(226,183,92,0.35)"
+            fill="rgb(var(--gold-rgb)/0.35)"
           />
           <path d="M-30 -18 C-26 -24 -32 -28 -28 -34" opacity="0.35" />
           <path d="M28 -18 C32 -24 26 -28 30 -34" opacity="0.35" />
@@ -263,7 +263,7 @@ function Motif({ kind }: { kind: CelestialMotif }) {
           />
           <path
             d="M14 -30 A30 30 0 1 0 14 30 A24 30 0 1 1 14 -30 Z"
-            fill="rgba(226,183,92,0.12)"
+            fill="rgb(var(--gold-rgb)/0.12)"
             stroke="none"
           />
           <path

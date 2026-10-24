@@ -30,8 +30,8 @@ export function OrnateFrame({
 }
 
 function FrameDecor({ intensity }: { intensity: number }) {
-  const stroke = `rgba(226,183,92,${0.55 * intensity})`;
-  const strokeSoft = `rgba(226,183,92,${0.28 * intensity})`;
+  const stroke = `rgb(var(--gold-rgb)/${0.55 * intensity})`;
+  const strokeSoft = `rgb(var(--gold-rgb)/${0.28 * intensity})`;
 
   return (
     <>
