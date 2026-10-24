@@ -116,6 +116,27 @@ export const KHUNG = {
   /** Viền giữa các lát bánh — màu nền, để lát tách nhau mà không thêm nét mới. */
   vienLat: "oklch(0.16 0.02 280)",
   /**
+   * Cỡ chữ trong biểu đồ, tính bằng px.
+   *
+   * Chữ trong SVG không theo được thang cỡ chữ của Tailwind (`text-xs`…) vì
+   * Recharts nhận số px qua prop. Nên ba bậc này là thang riêng của biểu đồ,
+   * và chỉ có ba bậc: nhãn trên dữ liệu, chữ trục, và chữ trục khi trục chật.
+   *
+   * Trước đây hai màn quản trị dùng 10/11/12 lẫn lộn, và màn Cửa hàng đặt
+   * cỡ trục mà quên đặt màu — nên chữ trục ở đó mờ hơn hẳn hai màn kia.
+   */
+  coChuNhan: 12,
+  coChuTruc: 11,
+  /** Khi trục có nhiều mốc, hoặc cột hẹp. */
+  coChuTrucChat: 10,
+  /**
+   * Viền quanh chữ đè trên lát/cột, vẽ trước nét chữ (`paintOrder: stroke`).
+   *
+   * Không có nó thì nhãn trắng nằm trên lát màu sáng là mất hẳn. Đen mờ chứ
+   * không đen đặc, để viền không biến thành đường kẻ quanh từng chữ.
+   */
+  vienChu: "rgb(0 0 0/0.45)",
+  /**
    * Mực của nhãn nằm ĐÈ lên lát biểu đồ.
    *
    * Trắng thuần, cố tình không lấy theo token nền: nhãn này phải đọc được

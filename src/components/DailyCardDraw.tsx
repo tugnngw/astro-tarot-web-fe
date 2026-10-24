@@ -114,7 +114,7 @@ function CardBackArt() {
       aria-hidden="true"
       className="h-full w-full"
       fill="none"
-      stroke="rgba(226,183,92,0.7)"
+      stroke="rgb(var(--gold-rgb)/0.7)"
       strokeWidth="0.9"
       strokeLinecap="round"
     >
@@ -136,7 +136,7 @@ function CardBackArt() {
         })}
         <path
           d="M0 -5 L1.6 -1.6 L5 0 L1.6 1.6 L0 5 L-1.6 1.6 L-5 0 L-1.6 -1.6 Z"
-          fill="rgba(226,183,92,0.85)"
+          fill="rgb(var(--gold-rgb)/0.85)"
           stroke="none"
         />
       </g>
@@ -150,7 +150,7 @@ function Revealed({ card, onReset }: { card: TarotCard; onReset: () => void }) {
       <img
         src={`/tarot/${card.file}.jpg`}
         alt={`Lá ${card.nameVi}`}
-        className="mx-auto w-[128px] shrink-0 rounded-lg border border-gold/50 shadow-[0_0_30px_-8px_rgba(226,183,92,0.6)] sm:mx-0"
+        className="mx-auto w-[128px] shrink-0 rounded-lg border border-gold/50 shadow-[0_0_30px_-8px_rgb(var(--gold-rgb)/0.6)] sm:mx-0"
       />
 
       <div className="min-w-0 flex-1">

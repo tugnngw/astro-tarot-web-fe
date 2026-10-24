@@ -82,11 +82,11 @@ export function TarotWheel({ className = "" }: { className?: string }) {
                     opacity: isHovered ? 1 : paused ? 0.3 : 0.55,
                     transform: isHovered ? "scale(1.28)" : "scale(1)",
                     boxShadow: isHovered
-                      ? "0 0 26px -4px rgba(226,183,92,0.75)"
+                      ? "0 0 26px -4px rgb(var(--gold-rgb)/0.75)"
                       : "0 2px 10px -6px rgba(0,0,0,0.9)",
                     borderColor: isHovered
-                      ? "rgba(226,183,92,0.95)"
-                      : "rgba(226,183,92,0.35)",
+                      ? "rgb(var(--gold-rgb)/0.95)"
+                      : "rgb(var(--gold-rgb)/0.35)",
                   }}
                 />
               </div>

@@ -74,7 +74,7 @@ export function PlanCard({
     <div
       className={`glass group relative flex flex-col justify-between rounded-2xl p-6 transition-all duration-300 ${
         isPopular
-          ? "border-gold/50 shadow-[0_0_24px_rgba(212,175,55,0.15)] hover:border-gold"
+          ? "border-gold/50 shadow-[0_0_24px_rgb(var(--gold-rgb)/0.15)] hover:border-gold"
           : "border-gold/20 hover:border-gold/50"
       }`}
     >

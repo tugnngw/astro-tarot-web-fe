@@ -66,11 +66,11 @@ export function ZodiacCarousel() {
   return (
     <div className="relative mx-auto max-w-4xl">
       <div
-        className={`relative overflow-hidden rounded-2xl border border-gold/30 bg-gradient-to-br ${s.accent} backdrop-blur-xl p-10 shadow-[0_0_60px_-10px_rgba(212,175,55,0.4)] transition-all duration-700`}
+        className={`relative overflow-hidden rounded-2xl border border-gold/30 bg-gradient-to-br ${s.accent} backdrop-blur-xl p-10 shadow-[0_0_60px_-10px_rgb(var(--gold-rgb)/0.4)] transition-all duration-700`}
       >
         <div className="absolute inset-0 bg-background/70" />
         <div className="relative flex items-center gap-8">
-          <div className="text-7xl drop-shadow-[0_0_20px_rgba(212,175,55,0.6)]">
+          <div className="text-7xl drop-shadow-[0_0_20px_rgb(var(--gold-rgb)/0.6)]">
             {s.icon}
           </div>
           <div className="flex-1">

@@ -1,5 +1,6 @@
 // src/features/blog/components/BlogPreviewModal.tsx
 // Layout bài viết khớp trang public /blog/$slug (title → ảnh contain → nội dung).
+import { THAN_BAI, TIEU_DE_BAI } from "@/features/blog/kieu-chu";
 import {
   Calendar,
   Clock,
@@ -153,7 +154,7 @@ export function BlogPreviewModal({
               ) : null}
             </div>
 
-            <h1 className="font-display text-2xl sm:text-3xl lg:text-[2.15rem] leading-snug text-gradient-gold">
+            <h1 className={TIEU_DE_BAI}>
               {blog.title}
             </h1>
 
@@ -189,7 +190,7 @@ export function BlogPreviewModal({
           </figure>
 
           <div className="border-t border-gold/20 pt-6">
-            <div className="mx-auto max-w-2xl text-[1.05rem] sm:text-lg leading-[1.75] text-foreground/90 whitespace-pre-wrap">
+            <div className={THAN_BAI}>
               {blog.content}
             </div>
           </div>

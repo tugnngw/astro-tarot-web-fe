@@ -229,7 +229,7 @@ export function FeedbackPrompt({
                         <Star
                           className={`h-7 w-7 transition-colors ${
                             active
-                              ? "fill-gold text-gold drop-shadow-[0_0_6px_rgba(212,168,75,0.45)]"
+                              ? "fill-gold text-gold drop-shadow-[0_0_6px_rgb(var(--gold-rgb)/0.45)]"
                               : "text-muted-foreground/35 hover:text-gold/60"
                           }`}
                         />

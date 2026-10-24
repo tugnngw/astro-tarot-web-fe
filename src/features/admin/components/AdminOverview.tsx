@@ -74,14 +74,17 @@ function vndTruc(n: number) {
 }
 
 const WHITE_LABEL_STYLE = {
-  fontSize: 12,
+  fontSize: KHUNG.coChuNhan,
   fontWeight: 600,
   paintOrder: "stroke" as const,
-  stroke: "rgba(0,0,0,0.45)",
+  stroke: KHUNG.vienChu,
   strokeWidth: 3,
 };
 
-const AXIS_TICK = { fontSize: 11, fill: KHUNG.chuTruc };
+const AXIS_TICK = { fontSize: KHUNG.coChuTruc, fill: KHUNG.chuTruc };
+
+/** Trục chật — cùng màu với {@link AXIS_TICK}, chỉ nhỏ hơn một bậc. */
+const AXIS_TICK_CHAT = { fontSize: KHUNG.coChuTrucChat, fill: KHUNG.chuTruc };
 
 function BarGrid() {
   return (
@@ -675,14 +678,14 @@ function RevenueMonthChart({
               axisLine={false}
               tickMargin={8}
               interval={0}
-              tick={{ fontSize: 10, fill: AXIS_TICK.fill }}
+              tick={AXIS_TICK_CHAT}
             />
             <YAxis
               tickLine={false}
               axisLine={{ stroke: KHUNG.duongTruc }}
               width={44}
               tickFormatter={vndTruc}
-              tick={{ fontSize: 10, fill: AXIS_TICK.fill }}
+              tick={AXIS_TICK_CHAT}
             />
             <ChartTooltip
               cursor={{ fill: KHUNG.conTro }}

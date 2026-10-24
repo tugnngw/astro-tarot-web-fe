@@ -18,6 +18,13 @@
   --text-2xs--line-height: 1.45;
   --text-3xs: 0.625rem; /* 10px — thẻ trạng thái, chữ hoa giãn cách */
   --text-3xs--line-height: 1.4;
+  /* Hai bậc chỉ dành cho THÂN BÀI VIẾT, không dùng ở giao diện ứng dụng.
+     Thang mặc định nhảy 16 → 18px, mà 18px thì dòng dài đọc nặng; 16.8px đọc
+     thoải mái hơn ở khổ ~75 ký tự. Tiêu đề 34.4px nằm giữa 3xl (30px) và
+     4xl (36px): 36px tràn dòng trên màn hẹp, 30px thì không đủ tách khỏi
+     thân bài. Trước đây hai số này là giá trị tự chế lặp ở hai tệp. */
+  --text-bai: 1.05rem; /* 16.8px */
+  --text-bai-tieu-de: 2.15rem; /* 34.4px */
 
   /* ------------------------------------------------------------------
      Quy ước dùng, không phải token mới — ghi ở đây để còn một chỗ tra.
@@ -112,6 +119,17 @@
   --input: oklch(0.075 0.015 283);
   --ring: oklch(0.78 0.13 85);
   --gold: oklch(0.78 0.13 85);
+  /* Cùng sắc vàng ấy, viết dạng ba kênh RGB để ghép được độ mờ tuỳ ý:
+     `rgb(var(--gold-rgb)/0.15)`.
+
+     Vì sao cần bản thứ hai của một màu: quầng sáng và bóng đổ cần vàng ở
+     nhiều độ mờ khác nhau, mà mỗi chỗ lại có hình dạng riêng (bán kính,
+     độ lan, độ co) nên không gộp được thành vài token bóng dùng chung.
+     Trước đây mỗi chỗ tự viết `rgba(...)` bằng tay, và sinh ra BA sắc vàng:
+     `#d4a84b` (vàng thật), `#d4af37` và `#e2b75c`. Cả ba chỉ lệch hue
+     84–91°, đủ gần để không ai thấy khi xem riêng — đúng cách sai lệch tích
+     lại mà không ai cố ý. */
+  --gold-rgb: 212 168 75;
   /* Mực đặt TRÊN nền vàng. Vàng sáng (L .78) nên chữ trắng chỉ đạt ~1.6:1 —
      dưới ngưỡng AA. Nâu rất tối cùng sắc vàng cho ~11:1 mà vẫn ấm, không
      lạnh như đen thuần. Dùng ở bóng chat của mình và mọi nút nền vàng. */
