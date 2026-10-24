@@ -80,7 +80,7 @@ function Panel({ onClose }: { onClose: () => void }) {
         </div>
         <button
           onClick={onClose}
-          className="mt-6 w-full rounded-full border border-gold/40 py-3 text-sm text-gold transition hover:bg-gold/10"
+          className="mt-6 w-full rounded-full border border-gold/50 py-3 text-sm text-gold transition hover:bg-gold/10"
         >
           Đóng
         </button>

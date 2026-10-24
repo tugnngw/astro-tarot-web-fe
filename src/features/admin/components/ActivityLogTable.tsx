@@ -60,7 +60,7 @@ export function ActivityLogTable() {
           >
             <SelectValue placeholder="Mọi hành động" />
           </SelectTrigger>
-          <SelectContent className="rounded-xl border border-gold/25 bg-card text-foreground shadow-xl">
+          <SelectContent className="rounded-xl border border-gold/30 bg-card text-foreground shadow-xl">
             <SelectItem
               value="__all__"
               className="cursor-pointer rounded-lg py-2 pl-3 pr-8 text-sm focus:bg-gold/15 focus:text-gold data-[state=checked]:bg-gold/10 data-[state=checked]:text-gold"
@@ -129,7 +129,7 @@ export function ActivityLogTable() {
                   <col />
                 </colgroup>
                 <thead>
-                  <tr className="border-b border-gold/15 text-left text-xs uppercase tracking-[0.15em] text-muted-foreground">
+                  <tr className="border-b border-gold/20 text-left text-xs uppercase tracking-[0.15em] text-muted-foreground">
                     <th scope="col" className="py-2 pr-3 font-normal">
                       Thời điểm
                     </th>

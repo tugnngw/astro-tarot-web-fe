@@ -309,7 +309,7 @@ export function BookingChat({
             phải làm. Còn chạy tốt thì im lặng.
           */}
             {moTa && (
-              <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+              <p className="flex items-center gap-1.5 text-2xs text-muted-foreground">
                 <span
                   aria-hidden
                   className={`h-2 w-2 shrink-0 rounded-full ${
@@ -322,7 +322,7 @@ export function BookingChat({
               </p>
             )}
             {!online && (
-              <p className="flex items-center gap-1 text-[11px] text-amber-300">
+              <p className="flex items-center gap-1 text-2xs text-amber-300">
                 <WifiOff aria-hidden className="h-3 w-3 shrink-0" />
                 Mất kết nối tức thời — tin vẫn gửi được, chỉ chậm hơn
               </p>
@@ -420,7 +420,7 @@ export function BookingChat({
                   >
                     <p className="whitespace-pre-wrap break-words">{m.body}</p>
                     <p
-                      className={`mt-1 text-right text-[10px] ${
+                      className={`mt-1 text-right text-3xs ${
                         cuaToi ? "text-[#1A1206]/60" : "text-muted-foreground"
                       }`}
                     >
@@ -438,7 +438,7 @@ export function BookingChat({
       <form
         ref={oForm}
         onSubmit={guiDi}
-        className="relative mx-3 mb-3 mt-2 flex h-12 shrink-0 items-center rounded-full border border-gold/70 bg-black pl-4 pr-1"
+        className="relative mx-3 mb-3 mt-2 flex h-12 shrink-0 items-center rounded-full border border-gold/50 bg-black pl-4 pr-1"
       >
         {emoteMo && <BangEmote onChon={chenEmote} />}
         <textarea

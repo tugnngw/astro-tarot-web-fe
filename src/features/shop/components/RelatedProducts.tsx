@@ -37,7 +37,7 @@ export function RelatedProducts({
   return (
     <section
       aria-labelledby="related-products"
-      className="mt-6 border-t border-gold/15 pt-5"
+      className="mt-6 border-t border-gold/20 pt-5"
     >
       <h4 id="related-products" className="font-display text-base">
         {title}
@@ -48,7 +48,7 @@ export function RelatedProducts({
         {products.map((p) => (
           <li
             key={p.id}
-            className="flex flex-col rounded-xl border border-gold/15 p-3"
+            className="flex flex-col rounded-xl border border-gold/20 p-3"
           >
             <Link
               to="/shop/$slug"
@@ -93,7 +93,7 @@ export function RelatedProducts({
         ))}
       </ul>
 
-      <p className="mt-3 text-[11px] text-muted-foreground">
+      <p className="mt-3 text-2xs text-muted-foreground">
         Liên kết tiếp thị — bạn mua trên sàn với giá không đổi, ASTROTAROT nhận
         hoa hồng.
       </p>

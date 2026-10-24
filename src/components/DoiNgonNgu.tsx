@@ -30,7 +30,7 @@ export function DoiNgonNgu({ className = "" }: { className?: string }) {
             title={m.moTa}
             aria-pressed={dangChon}
             onClick={() => doiNgonNgu(m.ma)}
-            className={`px-2.5 py-1 text-[11px] font-semibold tracking-wide transition ${
+            className={`px-2.5 py-1 text-2xs font-semibold tracking-wide transition ${
               dangChon
                 ? "bg-gold/20 text-gold"
                 : "text-muted-foreground hover:bg-gold/10 hover:text-gold"

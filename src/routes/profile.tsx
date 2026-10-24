@@ -309,10 +309,10 @@ function AvatarCard({
             <img
               src={src}
               alt=""
-              className="h-28 w-28 rounded-full border border-gold/40 object-cover"
+              className="h-28 w-28 rounded-full border border-gold/50 object-cover"
             />
           ) : (
-            <div className="grid h-28 w-28 place-items-center rounded-full border border-gold/40 bg-gold/10">
+            <div className="grid h-28 w-28 place-items-center rounded-full border border-gold/50 bg-gold/10">
               <UserCircle2
                 aria-hidden="true"
                 className="h-14 w-14 text-gold/70"
@@ -344,16 +344,16 @@ function AvatarCard({
           </p>
 
           <div className="mt-3 flex flex-wrap justify-center gap-2 sm:justify-start">
-            <span className="rounded-full bg-gold/20 px-3 py-1 text-[10px] uppercase tracking-wider text-gold">
+            <span className="rounded-full bg-gold/20 px-3 py-1 text-3xs uppercase tracking-wider text-gold">
               {profile.role}
             </span>
             {profile.emailVerified ? (
-              <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/50 px-3 py-1 text-[10px] text-emerald-400">
+              <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/50 px-3 py-1 text-3xs text-emerald-400">
                 <ShieldCheck aria-hidden="true" className="h-3 w-3" /> Đã xác
                 minh
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 rounded-full border border-destructive/50 px-3 py-1 text-[10px] text-destructive">
+              <span className="inline-flex items-center gap-1 rounded-full border border-destructive/50 px-3 py-1 text-3xs text-destructive">
                 <ShieldAlert aria-hidden="true" className="h-3 w-3" /> Chưa xác
                 minh
               </span>
@@ -747,7 +747,7 @@ function TextAreaField({
           {label}
         </label>
         {hint && (
-          <span className="text-[11px] text-muted-foreground">{hint}</span>
+          <span className="text-2xs text-muted-foreground">{hint}</span>
         )}
       </div>
       <textarea

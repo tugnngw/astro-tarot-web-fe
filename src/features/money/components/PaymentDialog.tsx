@@ -51,7 +51,7 @@ export function PaymentDialog({
         role="dialog"
         aria-modal="true"
         aria-labelledby="pay-title"
-        className="panel-black relative w-full max-w-md rounded-2xl border border-gold/25 p-6 shadow-2xl"
+        className="panel-black relative w-full max-w-md rounded-2xl border border-gold/30 p-6 shadow-2xl"
       >
         <button
           type="button"
@@ -69,7 +69,7 @@ export function PaymentDialog({
           <Landmark aria-hidden="true" className="h-5 w-5 text-gold" />
           {isPayOs ? "Thanh toán PayOS" : "Chuyển khoản"}
           {instruction.paymentPhase && (
-            <span className="ml-auto rounded-full bg-gold/20 px-2.5 py-0.5 text-[11px] text-gold">
+            <span className="ml-auto rounded-full bg-gold/20 px-2.5 py-0.5 text-2xs text-gold">
               {phaseLabel[instruction.paymentPhase] ?? instruction.paymentPhase}
             </span>
           )}
@@ -107,7 +107,7 @@ export function PaymentDialog({
             <div className="rounded-xl bg-white p-3">
               <QRCodeSVG value={instruction.qrCode} size={168} level="M" />
             </div>
-            <p className="text-center text-[11px] text-muted-foreground">
+            <p className="text-center text-2xs text-muted-foreground">
               Quét bằng ứng dụng ngân hàng — số tiền và nội dung đã điền sẵn.
             </p>
           </div>
@@ -183,7 +183,7 @@ export function PaymentDialog({
         )}
 
         {!isPayOs && (
-          <p className="mt-5 text-[11px] leading-relaxed text-muted-foreground">
+          <p className="mt-5 text-2xs leading-relaxed text-muted-foreground">
             Ghi thiếu hoặc sai nội dung thì khoản tiền không khớp được với lịch
             hẹn của bạn và sẽ phải xử lý tay. Trạng thái thanh toán hiện ở trang
             Lịch hẹn của tôi.
@@ -212,7 +212,7 @@ function Field({
   return (
     <div className="flex items-center justify-between gap-3 rounded-xl border border-gold/20 px-3 py-2">
       <div className="min-w-0">
-        <dt className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+        <dt className="text-2xs uppercase tracking-[0.12em] text-muted-foreground">
           {label}
         </dt>
         <dd

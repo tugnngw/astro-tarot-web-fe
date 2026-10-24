@@ -338,7 +338,7 @@ export function PayoutQueue() {
                     type="button"
                     onClick={() => setShowQr(showQr === p.id ? null : p.id)}
                     aria-expanded={showQr === p.id}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-gold/40 px-3.5 py-1.5 text-xs text-gold transition hover:bg-gold/10"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-gold/50 px-3.5 py-1.5 text-xs text-gold transition hover:bg-gold/10"
                   >
                     <QrCode aria-hidden="true" className="h-3.5 w-3.5" />
                     {showQr === p.id ? "Ẩn mã QR" : "Mã QR chuyển khoản"}
@@ -465,7 +465,7 @@ export function ReportQueue() {
                   <p className="text-xs text-muted-foreground">
                     Người báo: {r.reporterName} · {formatDateTime(r.createdAt)}
                   </p>
-                  <p className="mt-2 inline-block rounded border border-gold/25 px-2 py-0.5 text-[11px] text-gold/80">
+                  <p className="mt-2 inline-block rounded border border-gold/30 px-2 py-0.5 text-2xs text-gold/80">
                     {r.reportType}
                   </p>
                   {r.description && (
@@ -515,7 +515,7 @@ export function ReportQueue() {
                   </button>
 
                   {handling === r.id && (
-                    <div className="mt-3 rounded-xl border border-gold/25 p-3">
+                    <div className="mt-3 rounded-xl border border-gold/30 p-3">
                       <fieldset>
                         <legend className="text-xs text-muted-foreground">
                           Kết luận
@@ -550,7 +550,7 @@ export function ReportQueue() {
                         rows={3}
                         aria-label="Nội dung kết luận"
                         placeholder="Người báo cáo sẽ đọc được câu này."
-                        className="mt-3 w-full rounded-lg border border-gold/25 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
+                        className="mt-3 w-full rounded-lg border border-gold/30 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
                       />
 
                       {/* Chỉ hiện với "Đã xử lý": đó là kết luận DUY NHẤT xác
@@ -571,7 +571,7 @@ export function ReportQueue() {
                             placeholder="0"
                             className="mt-1 w-full rounded-lg border border-destructive/30 bg-input/70 px-3 py-2 text-sm outline-none focus:border-destructive"
                           />
-                          <span className="mt-1 block text-[11px] text-muted-foreground">
+                          <span className="mt-1 block text-2xs text-muted-foreground">
                             Trừ thẳng vào số dư rút được của {r.reportedName}.
                             Không đủ thì phần thiếu ghi nợ và trừ dần vào các
                             buổi xem sau. Người bị phạt nhận được thông báo.
@@ -668,7 +668,7 @@ function StatusFilter({
       >
         <SelectValue placeholder="Tất cả" />
       </SelectTrigger>
-      <SelectContent className="rounded-xl border border-gold/25 bg-card text-foreground shadow-xl">
+      <SelectContent className="rounded-xl border border-gold/30 bg-card text-foreground shadow-xl">
         <SelectItem
           value="__all__"
           className="cursor-pointer rounded-lg py-2 pl-3 pr-8 text-sm focus:bg-gold/15 focus:text-gold data-[state=checked]:bg-gold/10 data-[state=checked]:text-gold"
@@ -704,7 +704,7 @@ function Badge({
         : "border-destructive/40 text-destructive";
   return (
     <span
-      className={`mt-1 inline-block rounded-full border px-2.5 py-0.5 text-[11px] ${cls}`}
+      className={`mt-1 inline-block rounded-full border px-2.5 py-0.5 text-2xs ${cls}`}
     >
       {label}
     </span>
@@ -803,7 +803,7 @@ function InlineReason({
           onChange={(e) => onChange(e.target.value)}
           rows={2}
           placeholder={placeholder}
-          className="mt-2 w-full rounded-lg border border-gold/25 bg-input/70 px-3 py-2 text-sm text-foreground outline-none focus:border-gold"
+          className="mt-2 w-full rounded-lg border border-gold/30 bg-input/70 px-3 py-2 text-sm text-foreground outline-none focus:border-gold"
         />
       </label>
       <div className="mt-3 flex justify-end gap-2">
@@ -851,7 +851,7 @@ function formatDateTime(iso: string | null) {
 function MaQrChuyenKhoan({ payout }: { payout: Payout }) {
   const nganHang = timNganHang(payout.bankBin);
   return (
-    <div className="mt-3 flex flex-wrap items-center gap-4 rounded-xl border border-gold/25 bg-gold/5 p-4">
+    <div className="mt-3 flex flex-wrap items-center gap-4 rounded-xl border border-gold/30 bg-gold/5 p-4">
       {/* Nền trắng bắt buộc: máy quét cần tương phản, và giao diện này nền tối. */}
       <div className="rounded-lg bg-white p-2">
         <QRCodeSVG value={payout.qrPayload!} size={148} level="M" />

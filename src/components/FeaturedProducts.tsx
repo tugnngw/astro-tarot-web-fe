@@ -89,7 +89,7 @@ export function FeaturedProducts() {
                   </div>
                   <div className="flex flex-1 flex-col p-4">
                     {p.categoryName && (
-                      <p className="text-[10px] uppercase tracking-[0.2em] text-gold/70">
+                      <p className="text-3xs uppercase tracking-[0.2em] text-gold/70">
                         {p.categoryName}
                       </p>
                     )}

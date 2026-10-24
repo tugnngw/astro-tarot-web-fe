@@ -85,7 +85,7 @@ function Landing() {
               gì. Chữ thì không cần nhận chuột, nên trả chuột lại cho vòng
               bài phía dưới. */}
           <div className="hero-enter pointer-events-none relative z-10 text-center">
-            <div className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-card/40 px-4 py-1.5 text-xs uppercase tracking-[0.4em] text-gold backdrop-blur">
+            <div className="inline-flex items-center gap-2 rounded-full border border-gold/50 bg-card/40 px-4 py-1.5 text-xs uppercase tracking-[0.4em] text-gold backdrop-blur">
               ✦ ASTROTAROT ✦
             </div>
             {/* Bóng đổ nhiều lớp bám sát nét chữ. Lớp phủ tối giờ chỉ còn
@@ -134,7 +134,7 @@ function Landing() {
               <Link
                 to="/readers"
                 onClick={() => trackCta("cta_book_reader")}
-                className="pointer-events-auto rounded-full border border-gold/60 px-7 py-3 font-medium text-gold transition hover:bg-gold/10"
+                className="pointer-events-auto rounded-full border border-gold/50 px-7 py-3 font-medium text-gold transition hover:bg-gold/10"
               >
                 Đặt lịch Reader
               </Link>
@@ -175,7 +175,7 @@ function Landing() {
                 <TopReaders vertical />
                 <button
                   onClick={() => openAuth("reader")}
-                  className="mt-4 w-full rounded-full border border-gold/40 py-2.5 text-xs text-gold transition hover:bg-gold/10"
+                  className="mt-4 w-full rounded-full border border-gold/50 py-2.5 text-xs text-gold transition hover:bg-gold/10"
                 >
                   Bạn là Reader? Đăng ký nhận khách
                 </button>
@@ -240,7 +240,7 @@ function Landing() {
                 <Link
                   to="/readers"
                   onClick={() => trackCta("cta_book_reader")}
-                  className="rounded-full border border-gold/60 px-7 py-3 font-medium text-gold transition hover:bg-gold/10"
+                  className="rounded-full border border-gold/50 px-7 py-3 font-medium text-gold transition hover:bg-gold/10"
                 >
                   Đặt lịch Reader
                 </Link>

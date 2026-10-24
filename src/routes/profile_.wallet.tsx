@@ -157,7 +157,7 @@ function WalletPage() {
         {/* Hero Section: Balance Card & Info Cards */}
         <div className="grid gap-6 md:grid-cols-3 mb-8">
           {/* Main Balance Card */}
-          <div className="md:col-span-2 relative overflow-hidden rounded-3xl border border-gold/30 bg-gradient-to-br from-card/90 via-card/60 to-gold/10 p-6 sm:p-8 shadow-xl backdrop-blur-md">
+          <div className="md:col-span-2 relative overflow-hidden rounded-2xl border border-gold/30 bg-gradient-to-br from-card/90 via-card/60 to-gold/10 p-6 sm:p-8 shadow-xl backdrop-blur-md">
             <div className="absolute right-0 top-0 -mr-16 -mt-16 h-64 w-64 rounded-full bg-gold/10 blur-3xl pointer-events-none" />
 
             <div className="relative z-10 flex flex-col justify-between h-full space-y-6">
@@ -176,7 +176,7 @@ function WalletPage() {
                   </div>
                 </div>
 
-                <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-medium text-emerald-400">
+                <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-2xs font-medium text-emerald-400">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   Đang hoạt động
                 </span>
@@ -205,7 +205,7 @@ function WalletPage() {
 
                 <Link
                   to="/profile/subscription"
-                  className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-card/60 px-4 py-2.5 text-xs sm:text-sm font-medium text-foreground hover:border-gold/60 hover:text-gold transition"
+                  className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-card/60 px-4 py-2.5 text-xs sm:text-sm font-medium text-foreground hover:border-gold/50 hover:text-gold transition"
                 >
                   <Sparkles className="h-4 w-4 text-gold" />
                   Gói AI Tarot
@@ -213,7 +213,7 @@ function WalletPage() {
 
                 <Link
                   to="/readers"
-                  className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-card/60 px-4 py-2.5 text-xs sm:text-sm font-medium text-foreground hover:border-gold/60 hover:text-gold transition"
+                  className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-card/60 px-4 py-2.5 text-xs sm:text-sm font-medium text-foreground hover:border-gold/50 hover:text-gold transition"
                 >
                   <Calendar className="h-4 w-4 text-gold" />
                   Đặt lịch Reader
@@ -233,7 +233,7 @@ function WalletPage() {
                   <h4 className="text-xs font-semibold text-foreground">
                     Bảo chứng thanh toán 100%
                   </h4>
-                  <p className="mt-0.5 text-[11px] text-muted-foreground leading-relaxed">
+                  <p className="mt-0.5 text-2xs text-muted-foreground leading-relaxed">
                     Khóa hai lớp an toàn, trừ tiền tức thì không phát sinh phí phụ trội.
                   </p>
                 </div>
@@ -249,7 +249,7 @@ function WalletPage() {
                   <h4 className="text-xs font-semibold text-foreground">
                     Hoàn tiền huỷ lịch tự động
                   </h4>
-                  <p className="mt-0.5 text-[11px] text-muted-foreground leading-relaxed">
+                  <p className="mt-0.5 text-2xs text-muted-foreground leading-relaxed">
                     Khi huỷ lịch hẹn hợp lệ, khoản tiền cọc sẽ được hoàn ngay vào số dư ví của bạn.
                   </p>
                 </div>
@@ -265,7 +265,7 @@ function WalletPage() {
                   <h4 className="text-xs font-semibold text-foreground">
                     VietQR PayOS tức thời
                   </h4>
-                  <p className="mt-0.5 text-[11px] text-muted-foreground leading-relaxed">
+                  <p className="mt-0.5 text-2xs text-muted-foreground leading-relaxed">
                     Quét mã QR từ mọi ứng dụng ngân hàng, tiền vào ví trong vài giây.
                   </p>
                 </div>
@@ -275,7 +275,7 @@ function WalletPage() {
         </div>
 
         {/* Transaction History Section */}
-        <div className="rounded-3xl border border-gold/25 bg-card/50 p-6 sm:p-8 backdrop-blur-md shadow-xl">
+        <div className="rounded-2xl border border-gold/30 bg-card/50 p-6 sm:p-8 backdrop-blur-md shadow-xl">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
             <div className="flex items-center gap-2">
               <Receipt className="h-5 w-5 text-gold" />
@@ -334,22 +334,22 @@ function WalletPage() {
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
                           <span
-                            className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${meta.color}`}
+                            className={`rounded-full border px-2 py-0.5 text-3xs font-semibold ${meta.color}`}
                           >
                             {meta.label}
                           </span>
                           {tx.status === "SUCCESS" ? (
-                            <span className="inline-flex items-center gap-1 text-[10px] text-emerald-400">
+                            <span className="inline-flex items-center gap-1 text-3xs text-emerald-400">
                               <CheckCircle2 className="h-3 w-3" />
                               Thành công
                             </span>
                           ) : tx.status === "PENDING" ? (
-                            <span className="inline-flex items-center gap-1 text-[10px] text-amber-400">
+                            <span className="inline-flex items-center gap-1 text-3xs text-amber-400">
                               <Clock className="h-3 w-3" />
                               Đang xử lý
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 text-[10px] text-red-400">
+                            <span className="inline-flex items-center gap-1 text-3xs text-red-400">
                               <XCircle className="h-3 w-3" />
                               Thất bại
                             </span>
@@ -360,15 +360,15 @@ function WalletPage() {
                           {tx.description || meta.label}
                         </p>
 
-                        <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
+                        <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-2xs text-muted-foreground">
                           <span>{formatDate(tx.createdAt)}</span>
                           {tx.referenceId && (
-                            <span className="font-mono text-[10px]">
+                            <span className="font-mono text-3xs">
                               Mã: {tx.referenceId}
                             </span>
                           )}
                           {tx.paymentMethod && (
-                            <span className="rounded bg-white/5 px-1.5 py-0.2 text-[10px]">
+                            <span className="rounded bg-white/5 px-1.5 py-0.2 text-3xs">
                               {tx.paymentMethod}
                             </span>
                           )}
@@ -385,7 +385,7 @@ function WalletPage() {
                         {meta.isPositive ? "+" : "-"}
                         {tien(tx.amount)}
                       </span>
-                      <p className="text-[11px] text-muted-foreground">
+                      <p className="text-2xs text-muted-foreground">
                         Số dư sau:{" "}
                         <strong className="text-foreground">
                           {tien(tx.balanceAfter)}

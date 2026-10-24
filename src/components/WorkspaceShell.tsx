@@ -96,7 +96,7 @@ export function WorkspaceShell({
             {showMemberLink && (
               <Link
                 to="/home"
-                className="inline-flex items-center gap-1.5 rounded-full border border-gold/40 px-4 py-2 text-xs text-gold transition hover:bg-gold/10"
+                className="inline-flex items-center gap-1.5 rounded-full border border-gold/50 px-4 py-2 text-xs text-gold transition hover:bg-gold/10"
               >
                 <Sparkles className="h-3.5 w-3.5" />
                 Không gian thành viên
@@ -168,7 +168,7 @@ export function NotWiredYet({
   missing: string;
 }) {
   return (
-    <section className="glass rounded-2xl border border-dashed border-gold/25 px-5 py-6">
+    <section className="glass rounded-2xl border border-dashed border-gold/30 px-5 py-6">
       <h3 className="font-display text-lg">{title}</h3>
       <p className="mt-2 text-sm text-muted-foreground">{what}</p>
       <p className="mt-3 text-xs text-muted-foreground/80">

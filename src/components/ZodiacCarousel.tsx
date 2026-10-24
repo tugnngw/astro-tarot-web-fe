@@ -66,7 +66,7 @@ export function ZodiacCarousel() {
   return (
     <div className="relative mx-auto max-w-4xl">
       <div
-        className={`relative overflow-hidden rounded-3xl border border-gold/30 bg-gradient-to-br ${s.accent} backdrop-blur-xl p-10 shadow-[0_0_60px_-10px_rgba(212,175,55,0.4)] transition-all duration-700`}
+        className={`relative overflow-hidden rounded-2xl border border-gold/30 bg-gradient-to-br ${s.accent} backdrop-blur-xl p-10 shadow-[0_0_60px_-10px_rgba(212,175,55,0.4)] transition-all duration-700`}
       >
         <div className="absolute inset-0 bg-background/70" />
         <div className="relative flex items-center gap-8">
@@ -89,14 +89,14 @@ export function ZodiacCarousel() {
       <button
         onClick={prev}
         aria-label="Previous"
-        className="absolute -left-4 top-1/2 -translate-y-1/2 grid h-11 w-11 place-items-center rounded-full border border-gold/40 bg-card/80 text-gold backdrop-blur transition hover:bg-gold hover:text-primary-foreground"
+        className="absolute -left-4 top-1/2 -translate-y-1/2 grid h-11 w-11 place-items-center rounded-full border border-gold/50 bg-card/80 text-gold backdrop-blur transition hover:bg-gold hover:text-primary-foreground"
       >
         <ChevronLeft className="h-5 w-5" />
       </button>
       <button
         onClick={next}
         aria-label="Next"
-        className="absolute -right-4 top-1/2 -translate-y-1/2 grid h-11 w-11 place-items-center rounded-full border border-gold/40 bg-card/80 text-gold backdrop-blur transition hover:bg-gold hover:text-primary-foreground"
+        className="absolute -right-4 top-1/2 -translate-y-1/2 grid h-11 w-11 place-items-center rounded-full border border-gold/50 bg-card/80 text-gold backdrop-blur transition hover:bg-gold hover:text-primary-foreground"
       >
         <ChevronRight className="h-5 w-5" />
       </button>

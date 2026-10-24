@@ -37,7 +37,7 @@ export function QuotaDisplay({
 
   if (isLoading) {
     return (
-      <div className={`glass rounded-2xl border-gold/15 p-5 animate-pulse ${className}`}>
+      <div className={`glass rounded-2xl border-gold/20 p-5 animate-pulse ${className}`}>
         <div className="h-4 bg-white/10 rounded w-32" />
         <div className="h-3 bg-white/5 rounded w-48 mt-2" />
       </div>
@@ -82,7 +82,7 @@ export function QuotaDisplay({
             <h3 className="font-display text-sm font-semibold text-foreground">
               Hạn mức AI hôm nay
             </h3>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-2xs text-muted-foreground">
               Làm mới lúc 00:00 (Asia/Ho_Chi_Minh) hàng ngày
             </p>
           </div>
@@ -93,7 +93,7 @@ export function QuotaDisplay({
             <span className="text-gold">{remaining}</span>
             <span className="text-muted-foreground text-xs font-normal"> / {totalQuota} lượt còn lại</span>
           </div>
-          <span className="text-[10px] text-muted-foreground">
+          <span className="text-3xs text-muted-foreground">
             Đã sử dụng {usedCount} lượt
           </span>
         </div>
@@ -113,7 +113,7 @@ export function QuotaDisplay({
         />
       </div>
 
-      <div className="mt-2.5 flex items-center justify-between text-[11px] text-muted-foreground">
+      <div className="mt-2.5 flex items-center justify-between text-2xs text-muted-foreground">
         <span>Đã dùng {percentage.toFixed(0)}%</span>
         {remaining === 0 ? (
           <span className="font-medium text-red-400">
@@ -132,8 +132,8 @@ export function QuotaDisplay({
 
       {/* Active packages list */}
       {userPurchases && userPurchases.length > 0 ? (
-        <div className="mt-4 border-t border-gold/15 pt-3">
-          <span className="text-[11px] uppercase tracking-wider text-muted-foreground">
+        <div className="mt-4 border-t border-gold/20 pt-3">
+          <span className="text-2xs uppercase tracking-wider text-muted-foreground">
             Gói dịch vụ đang kích hoạt
           </span>
           <div className="mt-2 flex flex-wrap gap-2">
@@ -154,7 +154,7 @@ export function QuotaDisplay({
                   <span className="font-medium text-gold">
                     {purchase.planNameSnapshot}
                   </span>
-                  <span className="text-[11px] text-muted-foreground">
+                  <span className="text-2xs text-muted-foreground">
                     ({purchase.dailyQuotaSnapshot} lượt/ngày • còn {daysLeft} ngày)
                   </span>
                 </div>

@@ -122,7 +122,7 @@ export function AdminKhuyenMai() {
 
   return (
     <div className="space-y-5">
-      <section className="glass rounded-2xl border border-gold/25 p-5">
+      <section className="glass rounded-2xl border border-gold/30 p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="font-display text-lg">Khuyến mãi dịp lễ</h2>
@@ -181,11 +181,11 @@ export function AdminKhuyenMai() {
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="font-medium">{k.ten}</span>
                     {k.dangChay ? (
-                      <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] text-emerald-300">
+                      <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-2xs text-emerald-300">
                         Đang chạy
                       </span>
                     ) : (
-                      <span className="rounded-full bg-white/5 px-2 py-0.5 text-[11px] text-muted-foreground">
+                      <span className="rounded-full bg-white/5 px-2 py-0.5 text-2xs text-muted-foreground">
                         {k.dangBat ? "Ngoài khoảng ngày" : "Đã tắt"}
                       </span>
                     )}
@@ -301,7 +301,7 @@ function FormDot({
     "w-full rounded-lg border border-border bg-input/60 px-3 py-2 text-sm outline-none focus:border-gold";
 
   return (
-    <section className="glass rounded-2xl border border-gold/25 p-5">
+    <section className="glass rounded-2xl border border-gold/30 p-5">
       <div className="flex items-center justify-between">
         <h3 className="font-medium">
           {form.id ? "Sửa đợt" : "Đợt khuyến mãi mới"}
@@ -393,7 +393,7 @@ function FormDot({
               onChange={(e) => onDoi({ ...form, giamToiDa: e.target.value })}
               placeholder="50000"
             />
-            <span className="mt-1 block text-[11px] text-muted-foreground/70">
+            <span className="mt-1 block text-2xs text-muted-foreground/70">
               “Giảm 50%” trên gói Pro 239.000 là 119.500 — con số không hiện ra
               lúc gõ số 50. Đặt trần thì mỗi lượt chỉ bớt tối đa chừng này.
             </span>

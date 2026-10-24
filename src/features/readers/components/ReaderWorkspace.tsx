@@ -387,7 +387,7 @@ function PriceInput({
         placeholder="Chưa đặt giá"
         className="rounded-lg border border-gold/30 bg-input/60 px-3 py-2 text-sm outline-none focus:border-gold"
       />
-      <span className="text-[11px] text-gold/80">
+      <span className="text-2xs text-gold/80">
         {n != null ? formatVND(n) : "Không nhận buổi này"}
       </span>
     </label>
@@ -454,7 +454,7 @@ function AvailabilityManager({
 
       <form onSubmit={add} className="mt-4 flex flex-wrap items-end gap-2">
         <label className="grid gap-1">
-          <span className="text-[11px] text-muted-foreground">Ngày</span>
+          <span className="text-2xs text-muted-foreground">Ngày</span>
           <select
             value={day}
             onChange={(e) => setDay(Number(e.target.value))}
@@ -468,7 +468,7 @@ function AvailabilityManager({
           </select>
         </label>
         <label className="grid gap-1">
-          <span className="text-[11px] text-muted-foreground">Từ</span>
+          <span className="text-2xs text-muted-foreground">Từ</span>
           <input
             type="time"
             value={start}
@@ -477,7 +477,7 @@ function AvailabilityManager({
           />
         </label>
         <label className="grid gap-1">
-          <span className="text-[11px] text-muted-foreground">Đến</span>
+          <span className="text-2xs text-muted-foreground">Đến</span>
           <input
             type="time"
             value={end}
@@ -524,7 +524,7 @@ function AvailabilityManager({
                       .map((s) => (
                         <li
                           key={s.id}
-                          className="flex items-center gap-2 rounded-full border border-gold/25 py-1 pl-3 pr-1.5 text-sm"
+                          className="flex items-center gap-2 rounded-full border border-gold/30 py-1 pl-3 pr-1.5 text-sm"
                         >
                           <span className="text-foreground/90">
                             {toHm(s.startTime)}–{toHm(s.endTime)}
@@ -606,7 +606,7 @@ function DaysOffManager({
 
       <form onSubmit={submit} className="mt-4 flex flex-wrap items-end gap-2">
         <label className="grid gap-1">
-          <span className="text-[11px] text-muted-foreground">Ngày</span>
+          <span className="text-2xs text-muted-foreground">Ngày</span>
           <ViDateInput
             aria-label="Ngày nghỉ"
             required
@@ -617,7 +617,7 @@ function DaysOffManager({
           />
         </label>
         <label className="grid flex-1 gap-1">
-          <span className="text-[11px] text-muted-foreground">
+          <span className="text-2xs text-muted-foreground">
             Lý do (không bắt buộc)
           </span>
           <input

@@ -122,11 +122,11 @@ export function NotificationBell() {
         onClick={() => setOpen((v) => !v)}
         aria-label={count > 0 ? `Thông báo, ${count} chưa đọc` : "Thông báo"}
         aria-expanded={open}
-        className="relative grid h-9 w-9 place-items-center rounded-full border border-gold/40 bg-card/60 transition hover:border-gold"
+        className="relative grid h-9 w-9 place-items-center rounded-full border border-gold/50 bg-card/60 transition hover:border-gold"
       >
         <Bell aria-hidden="true" className="h-4 w-4 text-gold" />
         {count > 0 && (
-          <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-gold px-1 text-[10px] font-semibold text-primary-foreground">
+          <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-gold px-1 text-3xs font-semibold text-primary-foreground">
             {count > 99 ? "99+" : count}
           </span>
         )}
@@ -246,7 +246,7 @@ export function NotificationBell() {
                               {n.message}
                             </span>
                           )}
-                          <span className="mt-1 block text-[11px] text-muted-foreground/70">
+                          <span className="mt-1 block text-2xs text-muted-foreground/70">
                             {formatRelative(n.createdAt)}
                           </span>
                         </span>

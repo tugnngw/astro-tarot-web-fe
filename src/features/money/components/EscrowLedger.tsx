@@ -127,7 +127,7 @@ function DongSo({ t }: { t: EscrowTransaction }) {
           {t.note && (
             <p className="mt-0.5 text-xs text-muted-foreground">{t.note}</p>
           )}
-          <p className="mt-0.5 text-[11px] text-muted-foreground">
+          <p className="mt-0.5 text-2xs text-muted-foreground">
             {fmtLuc(t.createdAt)}
           </p>
         </div>
@@ -138,7 +138,7 @@ function DongSo({ t }: { t: EscrowTransaction }) {
           {dau}
           {formatVND(t.amount)}
         </p>
-        <p className="text-[11px] text-muted-foreground">
+        <p className="text-2xs text-muted-foreground">
           Còn lại {formatVND(t.balanceAfter)}
         </p>
       </div>

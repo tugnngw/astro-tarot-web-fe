@@ -19,6 +19,16 @@ import {
   ChevronLeft,
 } from "lucide-react";
 
+/*
+ * Cỡ chữ 6px và 8px ở tệp này nằm NGOÀI thang cỡ chữ, và đó là chủ đích.
+ *
+ * Đây là bánh xe chiêm tinh: nhãn cung, độ, ký hiệu hành tinh phải lọt vào
+ * những ô chỉ rộng vài chục pixel trên điện thoại. Bậc nhỏ nhất của thang là
+ * 10px (text-3xs) — ép lên mức ấy thì nhãn tràn ra ngoài cung và đè lên
+ * nhau, tức là đổi một lỗi nhất quán lấy một lỗi đọc được.
+ *
+ * Mọi chỗ KHÁC trong dự án dùng bậc có tên. Ngoại lệ chỉ ở đây.
+ */
 export function AstroChart() {
   const { data: birthChart, isLoading: chartLoading } = useBirthChart();
   const { data: zodiacSigns } = useZodiacSigns();
@@ -318,7 +328,7 @@ export function AstroChart() {
                       <div className="text-xs font-medium truncate">
                         {planet.planet}
                       </div>
-                      <div className="text-[10px] text-muted-foreground flex items-center gap-1">
+                      <div className="text-3xs text-muted-foreground flex items-center gap-1">
                         <span className="truncate">
                           {sign?.symbol || planet.signId}
                         </span>

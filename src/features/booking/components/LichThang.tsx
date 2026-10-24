@@ -123,7 +123,7 @@ function oTrongDauThang(year: number, month: number) {
 }
 
 const NUT =
-  "inline-flex items-center justify-center rounded-lg border border-mystic/40 text-foreground/80 transition hover:border-gold/60 hover:bg-gold/10 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/40 disabled:cursor-not-allowed disabled:opacity-30";
+  "inline-flex items-center justify-center rounded-lg border border-mystic/40 text-foreground/80 transition hover:border-gold/50 hover:bg-gold/10 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/40 disabled:cursor-not-allowed disabled:opacity-30";
 
 export function DieuHuongThang({
   year,
@@ -209,7 +209,7 @@ export function LuoiNgay({
 
   return (
     <div>
-      <div className="grid grid-cols-7 gap-1 text-center text-[10px] text-muted-foreground">
+      <div className="grid grid-cols-7 gap-1 text-center text-3xs text-muted-foreground">
         {THU.map((t) => (
           <div key={t} className="py-1">
             {t}
@@ -246,14 +246,14 @@ export function LuoiNgay({
               <span
                 className={
                   laHomNay && !dangChon
-                    ? "flex h-5 w-5 items-center justify-center rounded-full border border-gold/70"
+                    ? "flex h-5 w-5 items-center justify-center rounded-full border border-gold/50"
                     : ""
                 }
               >
                 {ngay}
               </span>
               {dem > 0 ? (
-                <span className="mt-0.5 text-[9px] leading-none text-gold">
+                <span className="mt-0.5 text-3xs leading-none text-gold">
                   {dem}
                 </span>
               ) : (
@@ -271,7 +271,7 @@ export function LuoiNgay({
 
 export function ChuThichDat() {
   return (
-    <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-muted-foreground">
+    <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-3xs text-muted-foreground">
       <li className="flex items-center gap-1">
         <span className="h-1.5 w-1.5 rounded-full bg-gold" /> Còn trống
       </li>

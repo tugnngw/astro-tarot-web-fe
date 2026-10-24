@@ -202,7 +202,7 @@ function CategoryChip({
       className={`rounded-full border px-4 py-1.5 text-xs transition focus-visible:ring-2 focus-visible:ring-gold/40 ${
         active
           ? "border-gold bg-gold/20 text-gold"
-          : "border-mystic/50 bg-mystic/10 text-foreground/80 hover:border-gold/60"
+          : "border-mystic/50 bg-mystic/10 text-foreground/80 hover:border-gold/50"
       }`}
     >
       {label}
@@ -300,7 +300,7 @@ export function ProductCard({ product }: { product: Product }) {
             />
           )}
           {discount !== null && (
-            <span className="absolute left-3 top-3 rounded-full bg-gold px-2.5 py-1 text-[11px] font-semibold text-primary-foreground">
+            <span className="absolute left-3 top-3 rounded-full bg-gold px-2.5 py-1 text-2xs font-semibold text-primary-foreground">
               -{discount}%
             </span>
           )}
@@ -312,7 +312,7 @@ export function ProductCard({ product }: { product: Product }) {
 
       <div className="flex flex-1 flex-col p-3">
         {product.categoryName && (
-          <span className="text-[11px] uppercase tracking-[0.2em] text-gold/70">
+          <span className="text-2xs uppercase tracking-[0.2em] text-gold/70">
             {product.categoryName}
           </span>
         )}

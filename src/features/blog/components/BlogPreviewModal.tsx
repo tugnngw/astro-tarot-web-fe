@@ -49,7 +49,7 @@ export function BlogPreviewModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto border-gold/30 bg-background/95 backdrop-blur-2xl p-6 sm:p-8">
-        <DialogHeader className="border-b border-gold/15 pb-4">
+        <DialogHeader className="border-b border-gold/20 pb-4">
           <DialogTitle className="sr-only">Xem trước: {blog.title}</DialogTitle>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
@@ -158,13 +158,13 @@ export function BlogPreviewModal({
             </h1>
 
             {blog.summary ? (
-              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed border-l-2 border-gold/35 pl-3.5">
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed border-l-2 border-gold/30 pl-3.5">
                 {blog.summary}
               </p>
             ) : null}
           </header>
 
-          <figure className="overflow-hidden rounded-2xl border border-gold/25 bg-muted/20">
+          <figure className="overflow-hidden rounded-2xl border border-gold/30 bg-muted/20">
             <div className="flex max-h-[min(68vh,560px)] items-center justify-center p-3 sm:p-5">
               {blog.thumbnailUrl ? (
                 <img
@@ -188,7 +188,7 @@ export function BlogPreviewModal({
             </div>
           </figure>
 
-          <div className="border-t border-gold/15 pt-6">
+          <div className="border-t border-gold/20 pt-6">
             <div className="mx-auto max-w-2xl text-[1.05rem] sm:text-lg leading-[1.75] text-foreground/90 whitespace-pre-wrap">
               {blog.content}
             </div>

@@ -45,7 +45,7 @@ export function DailyCardDraw() {
           <span className="text-xs uppercase tracking-[0.3em] text-gold/80">
             ✦ Rút thử một lá
           </span>
-          <span className="rounded-full border border-gold/40 px-2.5 py-0.5 text-[10px] uppercase tracking-[0.15em] text-gold">
+          <span className="rounded-full border border-gold/50 px-2.5 py-0.5 text-3xs uppercase tracking-[0.15em] text-gold">
             Miễn phí
           </span>
         </div>
@@ -90,7 +90,7 @@ function Facedown({
             }`}
           >
             <CardBackArt />
-            <span className="absolute inset-x-0 bottom-2 text-center text-[10px] uppercase tracking-[0.2em] text-gold/0 transition group-hover:text-gold/80">
+            <span className="absolute inset-x-0 bottom-2 text-center text-3xs uppercase tracking-[0.2em] text-gold/0 transition group-hover:text-gold/80">
               Chọn
             </span>
           </button>
@@ -165,7 +165,7 @@ function Revealed({ card, onReset }: { card: TarotCard; onReset: () => void }) {
           {card.keywords.map((k) => (
             <span
               key={k}
-              className="rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-[11px] text-gold"
+              className="rounded-full border border-gold/50 bg-gold/10 px-3 py-1 text-2xs text-gold"
             >
               {k}
             </span>

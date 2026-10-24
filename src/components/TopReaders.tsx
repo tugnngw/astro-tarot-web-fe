@@ -213,24 +213,24 @@ function ReaderRow({
         <h3 className="truncate font-display text-base text-foreground">
           {displayName(reader)}
         </h3>
-        <p className="truncate text-[11px]" style={{ color: accent.color }}>
+        <p className="truncate text-2xs" style={{ color: accent.color }}>
           {expertise(reader)}
         </p>
-        <RatingBadge reader={reader} className="mt-0.5 text-[10px]" />
+        <RatingBadge reader={reader} className="mt-0.5 text-3xs" />
       </div>
 
       <div className="relative flex shrink-0 flex-col gap-1.5">
         <Link
           to="/readers/$id"
           params={{ id: reader.id }}
-          className="inline-flex items-center justify-center gap-1 rounded-full border border-gold/40 px-2.5 py-1 text-[10px] text-gold transition hover:bg-gold/10"
+          className="inline-flex items-center justify-center gap-1 rounded-full border border-gold/50 px-2.5 py-1 text-3xs text-gold transition hover:bg-gold/10"
         >
           <UserCircle2 aria-hidden="true" className="h-3 w-3" /> Hồ sơ
         </Link>
         <Link
           to="/readers/$id"
           params={{ id: reader.id }}
-          className="inline-flex items-center justify-center gap-1 rounded-full bg-gold px-2.5 py-1 text-[10px] font-medium text-primary-foreground glow-gold transition hover:scale-105"
+          className="inline-flex items-center justify-center gap-1 rounded-full bg-gold px-2.5 py-1 text-3xs font-medium text-primary-foreground glow-gold transition hover:scale-105"
         >
           <Calendar aria-hidden="true" className="h-3 w-3" /> Đặt lịch
         </Link>
@@ -285,7 +285,7 @@ function ReaderCard({
         <Link
           to="/readers/$id"
           params={{ id: reader.id }}
-          className="flex-1 rounded-full border border-gold/40 py-1.5 text-center text-xs text-gold transition hover:bg-gold/10"
+          className="flex-1 rounded-full border border-gold/50 py-1.5 text-center text-xs text-gold transition hover:bg-gold/10"
         >
           Hồ sơ
         </Link>

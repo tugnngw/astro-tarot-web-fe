@@ -218,7 +218,7 @@ function ReaderCard({ reader }: { reader: ReaderProfile }) {
 
         {cheapest != null && (
           <div className="shrink-0 text-right">
-            <div className="text-[11px] text-muted-foreground">chỉ từ</div>
+            <div className="text-2xs text-muted-foreground">chỉ từ</div>
             <div className="font-display text-base text-gold">
               {formatVND(cheapest)}
             </div>
@@ -227,7 +227,7 @@ function ReaderCard({ reader }: { reader: ReaderProfile }) {
       </div>
 
       {reader.bio && (
-        <p className="mt-3 line-clamp-2 text-[13px] leading-relaxed text-muted-foreground">
+        <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
           {reader.bio}
         </p>
       )}
@@ -237,7 +237,7 @@ function ReaderCard({ reader }: { reader: ReaderProfile }) {
           {specialties.map((s) => (
             <li
               key={s}
-              className="rounded-full border border-gold/25 px-2.5 py-0.5 text-[11px] text-gold/80"
+              className="rounded-full border border-gold/30 px-2.5 py-0.5 text-2xs text-gold/80"
             >
               {s}
             </li>
@@ -249,7 +249,7 @@ function ReaderCard({ reader }: { reader: ReaderProfile }) {
         <Link
           to="/readers/$id"
           params={{ id: reader.id }}
-          className="block rounded-full bg-gold py-2 text-center text-[13px] font-medium text-primary-foreground glow-gold transition hover:scale-[1.02]"
+          className="block rounded-full bg-gold py-2 text-center text-sm font-medium text-primary-foreground glow-gold transition hover:scale-[1.02]"
         >
           Xem hồ sơ và đặt lịch
         </Link>

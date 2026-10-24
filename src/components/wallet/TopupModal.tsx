@@ -109,7 +109,7 @@ export function TopupModal({
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="glass border-gold/25 sm:max-w-md p-6">
+      <DialogContent className="glass border-gold/30 sm:max-w-md p-6">
         <DialogHeader>
           <DialogTitle className="font-display text-2xl flex items-center gap-2">
             <Wallet className="h-5 w-5 text-gold" />
@@ -186,19 +186,19 @@ export function TopupModal({
           </form>
         ) : (
           <div className="space-y-4 mt-2">
-            <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white border border-gold/40">
+            <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white border border-gold/50">
               {instruction.qrCode ? (
                 <QRCodeSVG value={instruction.qrCode} size={190} level="M" />
               ) : (
                 <QrCode className="h-40 w-40 text-muted-foreground/40" />
               )}
-              <p className="mt-2 text-center text-[11px] text-muted-foreground font-sans">
+              <p className="mt-2 text-center text-2xs text-muted-foreground font-sans">
                 Quét mã VietQR bằng app ngân hàng bất kỳ để hoàn tất nạp tiền
               </p>
             </div>
 
-            <div className="rounded-xl border border-gold/25 bg-card/60 p-3 space-y-2 text-xs">
-              <div className="flex justify-between items-center py-1 border-b border-gold/10">
+            <div className="rounded-xl border border-gold/30 bg-card/60 p-3 space-y-2 text-xs">
+              <div className="flex justify-between items-center py-1 border-b border-gold/20">
                 <span className="text-muted-foreground">Số tiền cần chuyển:</span>
                 <span className="font-bold text-gradient-gold text-sm">
                   {tien(instruction.amount)}
@@ -206,7 +206,7 @@ export function TopupModal({
               </div>
 
               {instruction.transferContent && (
-                <div className="flex justify-between items-center py-1 border-b border-gold/10">
+                <div className="flex justify-between items-center py-1 border-b border-gold/20">
                   <span className="text-muted-foreground">Nội dung chuyển khoản:</span>
                   <div className="flex items-center gap-1.5">
                     <span className="font-mono font-bold text-foreground">
@@ -230,7 +230,7 @@ export function TopupModal({
               )}
 
               {instruction.bankAccountNumber && (
-                <div className="flex justify-between items-center py-1 border-b border-gold/10">
+                <div className="flex justify-between items-center py-1 border-b border-gold/20">
                   <span className="text-muted-foreground">Số tài khoản:</span>
                   <div className="flex items-center gap-1.5">
                     <span className="font-mono text-foreground">

@@ -175,7 +175,7 @@ export function PurchaseModal({
   return (
     <>
       <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-        <DialogContent className="glass border-gold/25 sm:max-w-lg p-6">
+        <DialogContent className="glass border-gold/30 sm:max-w-lg p-6">
           <DialogHeader>
             <DialogTitle className="font-display text-2xl flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-gold" />
@@ -196,7 +196,7 @@ export function PurchaseModal({
               <div className="rounded-xl border border-gold/30 bg-gold/5 p-4">
                 <div className="flex items-start justify-between">
                   <div>
-                    <span className="rounded-full border border-gold/30 bg-gold/10 px-2 py-0.5 text-[10px] font-medium text-gold">
+                    <span className="rounded-full border border-gold/30 bg-gold/10 px-2 py-0.5 text-3xs font-medium text-gold">
                       {selectedPlan.planType === "MONTHLY"
                         ? "Gói Tháng"
                         : selectedPlan.planType === "DAY_PASS"
@@ -214,7 +214,7 @@ export function PurchaseModal({
                     <span className="font-display text-xl font-bold text-gradient-gold">
                       {tien(selectedPlan.price, true)}
                     </span>
-                    <span className="block text-[10px] text-muted-foreground">
+                    <span className="block text-3xs text-muted-foreground">
                       {selectedPlan.planType === "FREE"
                         ? "Không hết hạn"
                         : `${selectedPlan.durationDays} ngày`}
@@ -222,7 +222,7 @@ export function PurchaseModal({
                   </div>
                 </div>
 
-                <div className="mt-3 flex items-center gap-4 border-t border-gold/15 pt-3 text-xs">
+                <div className="mt-3 flex items-center gap-4 border-t border-gold/20 pt-3 text-xs">
                   <div className="flex items-center gap-1.5 text-gold">
                     <Zap className="h-3.5 w-3.5" />
                     <span>
@@ -277,13 +277,13 @@ export function PurchaseModal({
                               </p>
                               {opt.badge && (
                                 <span
-                                  className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${opt.badge.color}`}
+                                  className={`rounded-full border px-2 py-0.5 text-3xs font-medium ${opt.badge.color}`}
                                 >
                                   {opt.badge.text}
                                 </span>
                               )}
                             </div>
-                            <p className="text-[11px] text-muted-foreground">
+                            <p className="text-2xs text-muted-foreground">
                               {opt.sublabel}
                             </p>
                           </div>
@@ -326,7 +326,7 @@ export function PurchaseModal({
               )}
 
               {/* Notice / Security footnote */}
-              <div className="flex items-start gap-2 rounded-xl bg-white/5 p-3 text-[11px] text-muted-foreground">
+              <div className="flex items-start gap-2 rounded-xl bg-white/5 p-3 text-2xs text-muted-foreground">
                 <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-400 mt-0.5" />
                 <span>
                   Hạn mức được cộng dồn theo quy tắc lấy hạn mức cao nhất trong tất cả các gói đang hoạt động của bạn. Lượt AI được hồi phục vào 00:00 (Asia/Ho_Chi_Minh) hàng ngày.

@@ -66,7 +66,7 @@ export function TarotCard({
           <div className="text-xs text-muted-foreground text-center font-mystical">
             {isReversed ? "⬇️" : "⬆️"}
           </div>
-          <div className="text-[10px] text-muted-foreground/50 text-center mt-1 font-serif">
+          <div className="text-3xs text-muted-foreground/50 text-center mt-1 font-serif">
             Astro Tarot
           </div>
         </div>
@@ -89,14 +89,14 @@ export function TarotCard({
         <div className="text-2xl">{getSuitSymbol(card.suit)}</div>
 
         {/* Card Number */}
-        <div className="text-[10px] font-bold text-muted-foreground mt-1">
+        <div className="text-3xs font-bold text-muted-foreground mt-1">
           #{card.number}
         </div>
 
         {/* Card Name */}
         <div className="text-center mt-1">
           <div className="text-sm font-bold text-foreground">{card.name}</div>
-          <div className="text-[10px] text-muted-foreground">{card.nameVi}</div>
+          <div className="text-3xs text-muted-foreground">{card.nameVi}</div>
         </div>
 
         {/* Card Meaning (show on hover) */}
@@ -105,7 +105,7 @@ export function TarotCard({
             <div className="text-xs font-semibold text-center">
               {isReversed ? "⬇️ Reversed" : "⬆️ Upright"}
             </div>
-            <div className="text-[10px] text-center mt-1 leading-relaxed">
+            <div className="text-3xs text-center mt-1 leading-relaxed">
               {isReversed ? card.meaningReversed : card.meaning}
             </div>
           </div>

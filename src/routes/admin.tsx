@@ -155,7 +155,7 @@ function PermissionMatrix() {
         <div className="mt-5 overflow-x-auto">
           <table className="w-full min-w-[720px] border-collapse text-sm">
             <thead>
-              <tr className="border-b border-gold/15">
+              <tr className="border-b border-gold/20">
                 <th
                   scope="col"
                   className="py-2 pr-3 text-left text-xs font-normal uppercase tracking-[0.15em] text-muted-foreground"
@@ -176,7 +176,7 @@ function PermissionMatrix() {
                     scope="row"
                     className="py-2 pr-3 text-left font-normal text-muted-foreground"
                   >
-                    <code className="text-[11px]">{p}</code>
+                    <code className="text-2xs">{p}</code>
                   </th>
                   {roles.map((r) => {
                     const has = ROLE_PERMISSIONS[r].includes(p);

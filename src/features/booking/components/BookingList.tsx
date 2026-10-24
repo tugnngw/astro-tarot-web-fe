@@ -223,7 +223,7 @@ export function BookingList({
 
               <div className="flex flex-col items-end gap-1.5">
                 <span
-                  className={`rounded-full border px-2.5 py-0.5 text-[11px] ${STATUS_CLASS[b.status]}`}
+                  className={`rounded-full border px-2.5 py-0.5 text-2xs ${STATUS_CLASS[b.status]}`}
                 >
                   {BOOKING_STATUS_LABEL[b.status]}
                 </span>
@@ -231,7 +231,7 @@ export function BookingList({
                   {formatVND(b.totalAmount)}
                 </span>
                 {b.paymentStatus === "DEPOSIT_PAID" && (
-                  <span className="text-[11px] text-amber-400">
+                  <span className="text-2xs text-amber-400">
                     Đã đặt cọc · Còn {formatVND(b.remainingAmount ?? 0)}
                   </span>
                 )}
@@ -414,7 +414,7 @@ export function BookingList({
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                   rows={2}
-                  className="mt-2 w-full rounded-lg border border-gold/25 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
+                  className="mt-2 w-full rounded-lg border border-gold/30 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
                   placeholder="Ví dụ: mình có việc đột xuất..."
                 />
                 {/* Hiển thị chính sách huỷ */}
@@ -476,7 +476,7 @@ export function BookingList({
             )}
 
             {reviewing === b.id && (
-              <div className="mt-3 rounded-xl border border-gold/25 p-3">
+              <div className="mt-3 rounded-xl border border-gold/30 p-3">
                 <fieldset>
                   <legend className="text-xs text-muted-foreground">
                     Bạn chấm mấy sao?
@@ -508,7 +508,7 @@ export function BookingList({
                   onChange={(e) => setComment(e.target.value)}
                   rows={3}
                   aria-label="Nhận xét"
-                  className="mt-3 w-full rounded-lg border border-gold/25 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
+                  className="mt-3 w-full rounded-lg border border-gold/30 bg-input/70 px-3 py-2 text-sm outline-none focus:border-gold"
                   placeholder="Điều gì khiến buổi xem đáng nhớ? (không bắt buộc)"
                 />
                 <div className="mt-3 flex justify-end gap-2">
@@ -617,7 +617,7 @@ function GhiChuBuoiXem({
 
   if (side === "customer") {
     return (
-      <div className="mt-3 rounded-xl border border-gold/25 bg-gold/5 p-4">
+      <div className="mt-3 rounded-xl border border-gold/30 bg-gold/5 p-4">
         <p className="flex items-center gap-1.5 text-xs text-gold">
           <NotebookPen aria-hidden="true" className="h-3.5 w-3.5" />
           Ghi chú từ {b.readerName}
@@ -638,13 +638,13 @@ function GhiChuBuoiXem({
             setNhap(b.readerNote ?? "");
             setMo(true);
           }}
-          className="inline-flex items-center gap-1.5 rounded-full border border-gold/40 px-3.5 py-1.5 text-xs text-gold transition hover:bg-gold/10"
+          className="inline-flex items-center gap-1.5 rounded-full border border-gold/50 px-3.5 py-1.5 text-xs text-gold transition hover:bg-gold/10"
         >
           <NotebookPen aria-hidden="true" className="h-3.5 w-3.5" />
           {b.readerNote ? "Sửa ghi chú buổi xem" : "Viết ghi chú buổi xem"}
         </button>
       ) : (
-        <div className="rounded-xl border border-gold/25 p-3">
+        <div className="rounded-xl border border-gold/30 p-3">
           <label
             htmlFor={`note-${b.id}`}
             className="text-xs text-muted-foreground"
@@ -658,10 +658,10 @@ function GhiChuBuoiXem({
             onChange={(e) => setNhap(e.target.value)}
             rows={5}
             maxLength={4000}
-            className="mt-2 w-full rounded-lg border border-gold/25 bg-input/70 px-3 py-2 text-sm leading-relaxed outline-none focus:border-gold"
+            className="mt-2 w-full rounded-lg border border-gold/30 bg-input/70 px-3 py-2 text-sm leading-relaxed outline-none focus:border-gold"
           />
           <div className="mt-2 flex items-center justify-between gap-2">
-            <span className="text-[11px] text-muted-foreground">
+            <span className="text-2xs text-muted-foreground">
               {nhap.length}/4000
             </span>
             <div className="flex gap-2">
