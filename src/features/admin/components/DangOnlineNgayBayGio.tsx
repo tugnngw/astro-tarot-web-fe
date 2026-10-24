@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Radio } from "lucide-react";
 import { getDangOnline, type DongSo } from "@/api/analytics";
 import { getHanhTrinhTheoNguon } from "@/api/marketing";
+import { ChuThich } from "@/components/ChuThich";
 
 const nf = (n: number) => new Intl.NumberFormat("vi-VN").format(n);
 
@@ -62,8 +63,7 @@ export function DangOnlineNgayBayGio() {
         </div>
         {dataUpdatedAt > 0 && !khongHoiDuoc && (
           <span className="text-xs text-muted-foreground">
-            Cập nhật {new Date(dataUpdatedAt).toLocaleTimeString("vi-VN")} · tự
-            làm mới mỗi 30 giây
+            Cập nhật {new Date(dataUpdatedAt).toLocaleTimeString("vi-VN")}
           </span>
         )}
       </div>
@@ -92,8 +92,7 @@ export function DangOnlineNgayBayGio() {
 
           {so === 0 && (
             <p className="mt-2 text-xs text-muted-foreground">
-              Chưa có ai đang mở web. Số này đến từ Google nên chỉ đếm được
-              khách không dùng trình chặn quảng cáo.
+              Chưa có ai đang mở web.
             </p>
           )}
 
@@ -115,11 +114,16 @@ export function DangOnlineNgayBayGio() {
       )}
 
       <div className="mt-5 border-t border-white/10 pt-4">
-        <h3 className="text-sm font-medium">Đến từ đâu — 30 ngày</h3>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Google không trả nguồn ở chế độ thời gian thực, nên bảng này đọc từ
-          cơ sở dữ liệu của hệ thống.
-        </p>
+        <div className="flex items-center gap-1.5">
+          <h3 className="text-sm font-medium">Đến từ đâu</h3>
+          <span className="text-xs text-muted-foreground/60">30 ngày</span>
+          <ChuThich>
+            Google không trả nguồn truy cập ở chế độ thời gian thực, nên phần
+            này đọc từ cơ sở dữ liệu của hệ thống. Con số sẽ không khớp với ô
+            bên trên: Google đếm người đang mở trang trong 30 phút, còn đây
+            đếm lượt bấm nút trong 30 ngày.
+          </ChuThich>
+        </div>
         <div className="mt-3 flex flex-wrap gap-2">
           {(nguon ?? []).slice(0, 8).map((n) => (
             <span
@@ -158,7 +162,7 @@ function Bang({
 }) {
   const ds = rong ?? [];
   return (
-    <div className="rounded-xl border border-white/10 bg-mystic/5 p-3">
+    <div className="rounded-xl bg-mystic/10 p-3">
       <div className="text-xs uppercase tracking-wider text-muted-foreground">
         {tieuDe}
       </div>

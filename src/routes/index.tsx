@@ -116,8 +116,8 @@ function Landing() {
                   "0 0 8px oklch(0.02 0 280 / 0.95), 0 0 20px oklch(0.02 0 280 / 0.85)",
               }}
             >
-              Đặt một câu hỏi, AI rút bài và đọc theo bản đồ sao của bạn. Cần
-              sâu hơn thì có Reader thật. Miễn phí, không cần tài khoản.
+              Đặt một câu hỏi, AI rút bài và đọc theo bản đồ sao của bạn.
+              Miễn phí, không cần tài khoản.
             </p>
             {/* Nút chính trước đây gọi requestAuth, tức là bắt đăng nhập ngay
                 từ cú bấm đầu tiên — trong khi trải bài AI vốn không cần tài

@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Footprints, User } from "lucide-react";
 import { getHanhTrinhKhach, type HanhTrinhKhach } from "@/api/marketing";
+import { ChuThich } from "@/components/ChuThich";
 
 /** Tên sự kiện trong CSDL → câu người đọc hiểu ngay. */
 const TEN_VIET: Record<string, string> = {
@@ -65,15 +66,16 @@ export function HanhTrinhTungKhach() {
 
   return (
     <section className="glass rounded-2xl border border-white/10 p-5">
-      <div className="flex items-center gap-2">
-        <Footprints className="h-4 w-4 text-gold" />
+      <div className="flex items-center gap-1.5">
+        <Footprints className="h-4 w-4 shrink-0 text-gold" />
         <h3 className="font-medium">Từng khách vào từ đâu, rồi làm gì</h3>
+        <span className="text-xs text-muted-foreground/60">20 gần nhất</span>
+        <ChuThich>
+          Mã khách là chuỗi ngẫu nhiên sinh trong trình duyệt — không phải
+          tên, email hay số điện thoại. Tên chỉ hiện khi người đó tự đăng
+          nhập.
+        </ChuThich>
       </div>
-      <p className="mt-1 text-xs text-muted-foreground">
-        20 khách gần nhất trong 30 ngày. Mã khách là chuỗi ngẫu nhiên sinh
-        trong trình duyệt — không phải tên, email hay số điện thoại; tên chỉ
-        hiện khi người đó tự đăng nhập.
-      </p>
 
       {isLoading && (
         <p className="mt-4 text-sm text-muted-foreground">Đang tải…</p>
@@ -101,7 +103,7 @@ function TheKhach({ khach: k }: { khach: HanhTrinhKhach }) {
   const laKhongRo = k.nguon.startsWith("(");
 
   return (
-    <div className="rounded-xl border border-white/10 bg-mystic/5 p-3">
+    <div className="rounded-xl bg-mystic/10 p-3">
       <div className="flex flex-wrap items-center gap-2 text-sm">
         <span className="rounded bg-white/5 px-2 py-0.5 font-mono text-xs text-muted-foreground">
           {k.maKhach}

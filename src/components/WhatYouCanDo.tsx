@@ -9,6 +9,11 @@ import { Reveal } from "@/components/Reveal";
  * phải tự đoán qua thanh điều hướng. Khối này trả lời thẳng câu đó, mỗi mục
  * kèm một con số cụ thể và một lối đi tiếp, thay vì ba dòng quảng cáo chung
  * chung.
+ *
+ * `desc` cố ý chỉ MỘT câu ngắn. Bản đầu viết hai câu cho mỗi thẻ, nhưng ba
+ * gạch đầu dòng ngay bên dưới đã nói chính những điều ấy bằng số liệu cụ thể
+ * hơn — giữ cả hai là bắt người đọc đọc hai lần cùng một ý. Câu dẫn của cả
+ * khối cũng bỏ, vì nó chỉ tóm tắt lại ba thẻ nằm ngay dưới nó.
  */
 
 const PILLARS = [
@@ -16,7 +21,7 @@ const PILLARS = [
     icon: Sparkles,
     tag: "Miễn phí",
     title: "Trải bài Tarot cùng AI",
-    desc: "Đặt câu hỏi bằng lời của bạn. AI rút bài và diễn giải dựa trên bản đồ sao ngày sinh, trả lời theo từng câu chứ không đọc nghĩa chung chung.",
+    desc: "Hỏi bằng lời của bạn, AI đọc bài theo bản đồ sao ngày sinh.",
     points: ["78 lá đầy đủ", "Đọc theo bản đồ sao", "Trả lời trực tiếp"],
     to: "/tarot" as const,
     cta: "Thử trải bài",
@@ -25,7 +30,7 @@ const PILLARS = [
     icon: CalendarCheck,
     tag: "Có ký quỹ",
     title: "Đặt lịch Reader thật",
-    desc: "Khi cần một người thật lắng nghe, chọn Reader theo chuyên môn và khung giờ trống. Tiền giữ ở ký quỹ tới khi buổi xem kết thúc.",
+    desc: "Chọn người theo chuyên môn và giờ trống. Tiền giữ ở ký quỹ tới hết buổi.",
     points: ["Xem lịch trống", "Chọn theo chuyên môn", "Đánh giá công khai"],
     to: "/readers" as const,
     cta: "Xem danh sách Reader",
@@ -34,7 +39,7 @@ const PILLARS = [
     icon: ShoppingBag,
     tag: "Giao toàn quốc",
     title: "Sắm vật phẩm",
-    desc: "Bộ bài Tarot, Lenormand, Oracle, đá khoáng và phụ kiện trải bài — tuyển chọn cho cả người mới lẫn Reader chuyên nghiệp.",
+    desc: "Bài, đá khoáng và phụ kiện trải bài.",
     points: ["5 danh mục", "Theo dõi đơn hàng", "Đổi trả trong 7 ngày"],
     to: "/shop" as const,
     cta: "Ghé cửa hàng",
@@ -52,10 +57,6 @@ export function WhatYouCanDo() {
           <h2 className="mt-3 font-display text-3xl sm:text-4xl md:text-5xl">
             Ba cách để bắt đầu
           </h2>
-          <p className="mx-auto mt-3 max-w-2xl text-sm text-muted-foreground md:text-base">
-            Tự hỏi bài, nhờ người có nghề, hay sắm cho mình một bộ bài riêng —
-            tuỳ bạn đang cần gì lúc này.
-          </p>
         </div>
       </Reveal>
 
