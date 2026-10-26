@@ -128,6 +128,11 @@ function docDuocSlug(slug: string): string {
 /** Giới hạn chữ của phần tên lấy từ slug. */
 const DAI_NHAT = 32;
 
+/**
+ * Khoá `man` KHÔNG nằm ở đây: nó là tên màn hình, và tên màn được hiện ngay
+ * trong nhãn của bước (`Xem màn Tài khoản`) thay cho đường dẫn. Để lại đây
+ * nữa thì cùng một chữ hiện hai lần trên một dòng.
+ */
 const NHAN_KHOA: Record<string, string> = {
   slug: "sản phẩm",
   sao: "số sao",
@@ -160,17 +165,77 @@ export function chiTietBuoc(b: BuocHanhTrinh): string | null {
   // `duong_dan` chỉ lặp lại thứ đã hiện ở tên trang.
   const phan: string[] = [];
   for (const [khoa, gt] of Object.entries(doc as Record<string, unknown>)) {
-    if (khoa === "duong_dan") continue;
+    if (khoa === "duong_dan" || khoa === "man") continue;
     if (gt === null || gt === undefined || gt === "") continue;
     phan.push(`${NHAN_KHOA[khoa] ?? khoa}: ${String(gt)}`);
   }
   return phan.length ? phan.join(" · ") : null;
 }
 
+/**
+ * Tên màn hình, đọc từ `metadata.man` của sự kiện.
+ *
+ * Ứng dụng di động gửi mọi lượt xem màn với đường dẫn y hệt nhau
+ * (`app:xem_man`) và để tên màn thật trong metadata. Không đọc chỗ này thì
+ * mọi màn trong app hiện ra giống hệt nhau — mà app có bao nhiêu màn thì
+ * bảng vẫn chỉ nói được một câu.
+ */
+export function tenManTuMetadata(b: BuocHanhTrinh): string | null {
+  if (!b.metadata) return null;
+  try {
+    const doc = JSON.parse(b.metadata) as Record<string, unknown>;
+    const man = doc?.man;
+    return typeof man === "string" && man.trim() ? man.trim() : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Tab đang mở, đọc từ `metadata.duong_dan`.
+ *
+ * ## Vì sao phải lấy từ metadata
+ *
+ * Cột `duongDan` chỉ lưu `window.location.pathname`, tức là `/admin` cho cả
+ * tám tab quản trị. Nên bảng nói "Xem Trang quản trị ×11" trong khi người ta
+ * đã đi qua bốn tab khác nhau — gộp đúng theo dữ liệu nó có, nhưng giấu mất
+ * thứ đáng đọc. Metadata thì giữ nguyên chuỗi truy vấn.
+ *
+ * ## Vì sao chỉ lấy `tab`, không lấy cả chuỗi truy vấn
+ *
+ * Tham số khác phần lớn là UTM: `/?utm_source=kiemtra&utm_medium=claude…`.
+ * Lấy cả thì mỗi link quảng cáo lại tách trang chủ thành một nhóm riêng —
+ * đúng về mặt URL, vô nghĩa về mặt hành trình.
+ *
+ * ## Vì sao hiện khoá thô chứ không dịch sang nhãn tiếng Việt
+ *
+ * Nhãn của tab nằm ở `routes/admin.tsx` (và các workspace khác). Chép sang
+ * đây là tạo nguồn thứ hai, và nó sẽ lệch ngay lần đầu có người đổi tên tab
+ * mà không biết chỗ này tồn tại. Khoá thô thì luôn đúng.
+ */
+export function tabTuMetadata(b: BuocHanhTrinh): string | null {
+  if (!b.metadata) return null;
+  try {
+    const doc = JSON.parse(b.metadata) as Record<string, unknown>;
+    const dd = doc?.duong_dan;
+    if (typeof dd !== "string") return null;
+    const hoi = dd.indexOf("?");
+    if (hoi < 0) return null;
+    const tab = new URLSearchParams(dd.slice(hoi + 1)).get("tab");
+    return tab && tab.trim() ? tab.trim() : null;
+  } catch {
+    return null;
+  }
+}
+
 /** Một nhóm bước giống hệt nhau, nằm liền nhau. */
 export interface NhomBuoc {
   hanhDong: string;
   duongDan: string | null;
+  /** Tên màn của ứng dụng di động, nếu sự kiện có kèm. */
+  tenMan: string | null;
+  /** Tab đang mở trong một trang nhiều tab, nếu có. */
+  tab: string | null;
   /** Số lần lặp liên tiếp. `1` nghĩa là không lặp. */
   soLan: number;
   dau: string;
@@ -197,10 +262,14 @@ export function gomBuocLienTiep(cacBuoc: BuocHanhTrinh[]): NhomBuoc[] {
   for (const b of cacBuoc) {
     const truoc = ra[ra.length - 1];
     const chiTiet = chiTietBuoc(b);
+    const tenMan = tenManTuMetadata(b);
+    const tab = tabTuMetadata(b);
     if (
       truoc &&
       truoc.hanhDong === b.hanhDong &&
       truoc.duongDan === b.duongDan &&
+      truoc.tenMan === tenMan &&
+      truoc.tab === tab &&
       truoc.chiTiet === chiTiet
     ) {
       truoc.soLan += 1;
@@ -210,6 +279,8 @@ export function gomBuocLienTiep(cacBuoc: BuocHanhTrinh[]): NhomBuoc[] {
     ra.push({
       hanhDong: b.hanhDong,
       duongDan: b.duongDan,
+      tenMan,
+      tab,
       soLan: 1,
       dau: b.luc,
       cuoi: b.luc,
@@ -223,9 +294,30 @@ export function gomBuocLienTiep(cacBuoc: BuocHanhTrinh[]): NhomBuoc[] {
 /** Những sự kiện mà tên TRANG mới là nội dung chính, không phải tên sự kiện. */
 const LA_LUOT_XEM = new Set(["xem_trang", "xem_man"]);
 
+/**
+ * Vá tạm cho một tên màn mà app gửi dưới dạng khoá thô.
+ *
+ * `home_shell.dart` gọi `xemMan('mo_app')` lúc mở ứng dụng, trong khi mọi
+ * lần khác nó gửi nhãn người đọc được (`Tài khoản`, `Bàn làm việc`). Nên
+ * bảng in ra "Xem màn mo_app" — sai hai lần: đó không phải một màn, và cũng
+ * không phải chữ cho người đọc.
+ *
+ * Chỗ sửa đúng nằm ở repo ứng dụng (gửi một sự kiện riêng, đừng gọi nó là
+ * lượt xem màn). Đây chỉ là vá để bảng đọc được ngay, và là lý do nó cố tình
+ * chỉ có MỘT dòng: thêm nữa là biến chỗ này thành bản sao của danh sách màn
+ * bên app.
+ */
+const MAN_DOI_TEN: Record<string, string> = {
+  mo_app: "Mở ứng dụng",
+};
+
 export function nhanNhom(n: NhomBuoc): string {
   const ten = TEN_HANH_DONG[n.hanhDong] ?? n.hanhDong;
-  return LA_LUOT_XEM.has(n.hanhDong) ? `${ten} ${tenTrang(n.duongDan)}` : ten;
+  if (!LA_LUOT_XEM.has(n.hanhDong)) return ten;
+  if (n.tenMan && MAN_DOI_TEN[n.tenMan]) return MAN_DOI_TEN[n.tenMan];
+  // Tên màn thật luôn hơn đường dẫn: app gửi mọi màn dưới cùng một đường dẫn.
+  const noi = n.tenMan ? `màn ${n.tenMan}` : tenTrang(n.duongDan);
+  return n.tab ? `${ten} ${noi} · tab ${n.tab}` : `${ten} ${noi}`;
 }
 
 export interface BoLoc {
@@ -285,7 +377,7 @@ export function locHanhTrinh(
           (b) =>
             `${TEN_HANH_DONG[b.hanhDong] ?? b.hanhDong} ${tenTrang(
               b.duongDan,
-            )} ${b.duongDan ?? ""}`,
+            )} ${b.duongDan ?? ""} ${tenManTuMetadata(b) ?? ""}`,
         ),
       ]
         .join(" ")

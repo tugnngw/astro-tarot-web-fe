@@ -11,6 +11,8 @@ import {
   gomBuocLienTiep,
   locHanhTrinh,
   nhanNhom,
+  tabTuMetadata,
+  tenManTuMetadata,
   tenTrang,
 } from "./hanh-trinh";
 
@@ -320,5 +322,139 @@ describe("khacNgay", () => {
 
   it("vắt qua nhiều ngày thì khác ngày", () => {
     expect(khacNgay("2026-10-22T05:00:00Z", "2026-10-28T05:00:00Z")).toBe(true);
+  });
+});
+
+/**
+ * Ứng dụng di động gửi MỌI lượt xem màn dưới cùng một đường dẫn
+ * `app:xem_man`, và để tên màn thật trong `metadata.man`. Không đọc chỗ ấy
+ * thì mọi màn trong app hiện ra giống hệt nhau.
+ *
+ * Dữ liệu dùng ở đây lấy từ API production ngày 27-10-2026.
+ */
+describe("tên màn của ứng dụng di động", () => {
+  const man = (ten: string) =>
+    buoc("xem_man", "app:xem_man", "2026-10-26T23:30:16Z", `{"man": "${ten}"}`);
+
+  it("đọc được tên màn từ metadata", () => {
+    expect(tenManTuMetadata(man("Tài khoản"))).toBe("Tài khoản");
+  });
+
+  it("thiếu hoặc hỏng thì trả null chứ không ném", () => {
+    expect(tenManTuMetadata(buoc("xem_man", "app:xem_man"))).toBeNull();
+    expect(
+      tenManTuMetadata(buoc("xem_man", "app:xem_man", undefined, "{hong")),
+    ).toBeNull();
+    expect(
+      tenManTuMetadata(buoc("xem_man", "app:xem_man", undefined, '{"man":"  "}')),
+    ).toBeNull();
+  });
+
+  it("nhãn dùng tên màn thay cho đường dẫn", () => {
+    const [n] = gomBuocLienTiep([man("Tài khoản")]);
+    expect(nhanNhom(n)).toBe("Xem màn Tài khoản");
+  });
+
+  it("mo_app không phải một màn, nên hiện là Mở ứng dụng", () => {
+    const [n] = gomBuocLienTiep([man("mo_app")]);
+    expect(nhanNhom(n)).toBe("Mở ứng dụng");
+  });
+
+  it("không có tên màn thì vẫn nói được là trong ứng dụng", () => {
+    const [n] = gomBuocLienTiep([buoc("xem_man", "app:xem_man")]);
+    expect(nhanNhom(n)).toBe("Xem trong ứng dụng");
+  });
+
+  /**
+   * Đây là chỗ tôi suýt kết luận sai: bốn bước này có `hanhDong` và
+   * `duongDan` y hệt nhau nên trông như phải gộp, nhưng tên màn xen kẽ nên
+   * chúng là bốn bước KHÁC nhau. Gộp lại là nói sai hành trình.
+   */
+  it("cùng đường dẫn nhưng khác màn thì KHÔNG gộp", () => {
+    const ra = gomBuocLienTiep([
+      man("mo_app"),
+      man("Tài khoản"),
+      man("mo_app"),
+      man("Tài khoản"),
+    ]);
+    expect(ra).toHaveLength(4);
+    expect(ra.map((n) => nhanNhom(n))).toEqual([
+      "Mở ứng dụng",
+      "Xem màn Tài khoản",
+      "Mở ứng dụng",
+      "Xem màn Tài khoản",
+    ]);
+  });
+
+  it("cùng một màn liên tiếp thì vẫn gộp", () => {
+    const ra = gomBuocLienTiep([man("Tài khoản"), man("Tài khoản")]);
+    expect(ra).toHaveLength(1);
+    expect(ra[0].soLan).toBe(2);
+  });
+
+  it("tên màn không lặp lại ở phần chi tiết", () => {
+    expect(chiTietBuoc(man("Tài khoản"))).toBeNull();
+  });
+
+  it("ô tìm soi được tên màn", () => {
+    const ds = [khach({ maKhach: "app001", cacBuoc: [man("Tài khoản")] })];
+    expect(locHanhTrinh(ds, { ...BO_LOC_RONG, tim: "tài khoản" })).toHaveLength(
+      1,
+    );
+  });
+});
+
+/**
+ * Cột `duongDan` chỉ lưu `pathname`, tức là `/admin` cho cả tám tab quản
+ * trị — nên bảng nói "Xem Trang quản trị ×11" trong khi người ta đã đi qua
+ * bốn tab. Metadata giữ nguyên chuỗi truy vấn nên lấy lại được.
+ */
+describe("tab đọc từ metadata", () => {
+  const xem = (dd: string) =>
+    buoc("xem_trang", "/admin", "2026-10-22T05:00:00Z", JSON.stringify({ duong_dan: dd }));
+
+  it("lấy được tab", () => {
+    expect(tabTuMetadata(xem("/admin?tab=analytics"))).toBe("analytics");
+  });
+
+  it("không có chuỗi truy vấn thì null", () => {
+    expect(tabTuMetadata(xem("/admin"))).toBeNull();
+  });
+
+  /**
+   * Lấy cả chuỗi truy vấn thì mỗi link quảng cáo lại tách trang chủ thành
+   * một nhóm riêng — đúng về URL, vô nghĩa về hành trình.
+   */
+  it("bỏ qua tham số UTM", () => {
+    expect(
+      tabTuMetadata(xem("/?utm_source=kiemtra&utm_medium=claude&utm_campaign=x")),
+    ).toBeNull();
+  });
+
+  it("metadata hỏng thì null chứ không ném", () => {
+    expect(
+      tabTuMetadata(buoc("xem_trang", "/admin", undefined, "{hong")),
+    ).toBeNull();
+  });
+
+  it("nhãn kèm tab", () => {
+    const [n] = gomBuocLienTiep([xem("/admin?tab=analytics")]);
+    expect(nhanNhom(n)).toBe("Xem Trang quản trị · tab analytics");
+  });
+
+  it("khác tab thì không gộp, cùng tab thì gộp", () => {
+    const ra = gomBuocLienTiep([
+      xem("/admin?tab=analytics"),
+      xem("/admin?tab=analytics"),
+      xem("/admin?tab=khuyen-mai"),
+    ]);
+    expect(ra.map((n) => [n.tab, n.soLan])).toEqual([
+      ["analytics", 2],
+      ["khuyen-mai", 1],
+    ]);
+  });
+
+  it("duong_dan không lặp lại ở phần chi tiết", () => {
+    expect(chiTietBuoc(xem("/admin?tab=analytics"))).toBeNull();
   });
 });
