@@ -20,6 +20,8 @@ import {
   cacNguon,
   coLocDangBat,
   gomBuocLienTiep,
+  khacNgay,
+  khoangThoiGian,
   locHanhTrinh,
   nhanNhom,
   tenTrang,
@@ -94,11 +96,13 @@ export function HanhTrinhTungKhach() {
         <Footprints className="h-4 w-4 shrink-0 text-gold" />
         <h3 className="font-medium">Hành trình người dùng</h3>
         <span className="text-2xs text-muted-foreground/60">
-          20 phiên gần nhất
+          20 khách gần nhất
         </span>
         <ChuThich>
-          Mỗi thẻ là một phiên của một trình duyệt. Mã khách là chuỗi ngẫu
-          nhiên sinh trong trình duyệt ấy — không phải tên, email hay số điện
+          Mỗi thẻ là MỘT KHÁCH, gom toàn bộ hoạt động của họ trong 30 ngày —
+          không phải một phiên. Nên khoảng thời gian có thể kéo nhiều ngày
+          nếu người ấy quay lại. Mã khách là chuỗi ngẫu nhiên sinh trong
+          trình duyệt — không phải tên, email hay số điện
           thoại; xoá dữ liệu trình duyệt là thành khách mới. Tên chỉ hiện khi
           người đó tự đăng nhập giữa chừng. Những bước giống hệt nhau nằm liền
           nhau được gộp lại và đếm bằng dấu ×.
@@ -127,13 +131,13 @@ export function HanhTrinhTungKhach() {
       )}
       {!isLoading && !isError && ds.length === 0 && (
         <p className="mt-4 text-sm text-muted-foreground">
-          Chưa có phiên nào được ghi nhận. Mỗi lượt mở trang kể từ bây giờ sẽ
+          Chưa có khách nào được ghi nhận. Mỗi lượt mở trang kể từ bây giờ sẽ
           hiện ở đây.
         </p>
       )}
       {!isLoading && !isError && ds.length > 0 && hien.length === 0 && (
         <p className="mt-4 text-sm text-muted-foreground">
-          Không phiên nào khớp bộ lọc.
+          Không khách nào khớp bộ lọc.
         </p>
       )}
 
@@ -235,7 +239,7 @@ function ThanhLoc({
       </label>
 
       <span className="text-2xs text-muted-foreground/60">
-        {dangLoc ? `${so(soHien)}/${so(soTong)} phiên` : `${so(soTong)} phiên`}
+        {dangLoc ? `${so(soHien)}/${so(soTong)} khách` : `${so(soTong)} khách`}
       </span>
 
       {dangLoc && (
@@ -285,9 +289,15 @@ function TheKhach({ khach: k }: { khach: HanhTrinhKhach }) {
           </span>
         )}
 
-        <span className="ml-auto text-2xs text-muted-foreground">
-          {ngay(k.batDau)} · {gio(k.batDau)}–{gio(k.ketThuc)} ·{" "}
-          {so(k.soHanhDong)} bước
+        <span
+          className="ml-auto text-2xs text-muted-foreground"
+          title={`${ngay(k.batDau)} ${gio(k.batDau)} → ${ngay(k.ketThuc)} ${gio(k.ketThuc)}`}
+        >
+          {ngay(k.batDau)} {gio(k.batDau)}
+          {khacNgay(k.batDau, k.ketThuc)
+            ? ` → ${ngay(k.ketThuc)} ${gio(k.ketThuc)}`
+            : `–${gio(k.ketThuc)}`}{" "}
+          · {khoangThoiGian(k.batDau, k.ketThuc)} · {so(k.soHanhDong)} bước
         </span>
       </div>
 

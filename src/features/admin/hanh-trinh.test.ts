@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import type { BuocHanhTrinh, HanhTrinhKhach } from "@/api/marketing";
 import {
   BO_LOC_RONG,
+  khacNgay,
+  khoangThoiGian,
   cacHanhDong,
   cacNguon,
   chiTietBuoc,
@@ -273,5 +275,50 @@ describe("đổ dữ liệu cho ô chọn", () => {
 
   it("hành động không trùng lặp, sắp theo tên hiển thị", () => {
     expect(cacHanhDong(ds)).toEqual(["gui_gop_y", "xem_trang"]);
+  });
+});
+
+describe("khoangThoiGian", () => {
+  const moc = (phut: number) =>
+    new Date(Date.parse("2026-10-22T05:00:00Z") + phut * 60_000).toISOString();
+
+  it("dưới một phút thì nói thẳng là dưới một phút", () => {
+    expect(khoangThoiGian(moc(0), moc(0))).toBe("dưới một phút");
+  });
+
+  it("vài phút", () => {
+    expect(khoangThoiGian(moc(0), moc(7))).toBe("7 phút");
+  });
+
+  it("qua một giờ thì tách giờ và phút", () => {
+    expect(khoangThoiGian(moc(0), moc(135))).toBe("2 giờ 15 phút");
+    expect(khoangThoiGian(moc(0), moc(120))).toBe("2 giờ");
+  });
+
+  /**
+   * Thẻ dài nhất trên dữ liệu thật kéo 8939 phút. Hai cái đồng hồ giấu hẳn
+   * chuyện đó, mà đây mới là thứ phân biệt "ghé lại nhiều lần" với "đang bấm
+   * liên tục".
+   */
+  it("qua một ngày thì tính bằng ngày", () => {
+    expect(khoangThoiGian(moc(0), moc(8939))).toBe("6 ngày 4 giờ");
+    expect(khoangThoiGian(moc(0), moc(60 * 24 * 2))).toBe("2 ngày");
+  });
+
+  it("mốc hỏng thì trả chuỗi rỗng chứ không ném", () => {
+    expect(khoangThoiGian("khong-phai-ngay", moc(0))).toBe("");
+  });
+});
+
+describe("khacNgay", () => {
+  it("cùng ngày", () => {
+    expect(khacNgay("2026-10-22T01:00:00Z", "2026-10-22T23:00:00Z")).toBe(
+      new Date("2026-10-22T01:00:00Z").toDateString() !==
+        new Date("2026-10-22T23:00:00Z").toDateString(),
+    );
+  });
+
+  it("vắt qua nhiều ngày thì khác ngày", () => {
+    expect(khacNgay("2026-10-22T05:00:00Z", "2026-10-28T05:00:00Z")).toBe(true);
   });
 });

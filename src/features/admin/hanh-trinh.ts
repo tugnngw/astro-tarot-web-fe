@@ -311,3 +311,46 @@ export function cacHanhDong(ds: HanhTrinhKhach[]): string[] {
     (TEN_HANH_DONG[a] ?? a).localeCompare(TEN_HANH_DONG[b] ?? b, "vi"),
   );
 }
+
+/**
+ * Khoảng thời gian giữa hành động đầu và hành động cuối, nói bằng tiếng Việt.
+ *
+ * ## Vì sao cần, thay cho hai cái đồng hồ
+ *
+ * Bản cũ in `22-10 · 12:54–06:13`: một ngày, hai giờ, và giờ sau SỚM HƠN giờ
+ * trước. Đọc như một lỗi hiển thị, nhưng dữ liệu không sai — khoảng ấy vắt
+ * qua nửa đêm. Đo trên dữ liệu thật: 5 trong 20 thẻ vắt ngày như vậy, và
+ * thẻ dài nhất kéo 8939 phút, tức hơn SÁU NGÀY.
+ *
+ * Nên hai cái đồng hồ vừa khó đọc vừa giấu mất thứ đáng biết nhất: 36 bước
+ * trong sáu ngày là một người ghé lại nhiều lần, còn 36 bước trong ba phút
+ * là một người đang bấm liên tục. Hai câu chuyện khác hẳn nhau.
+ */
+export function khoangThoiGian(batDau: string, ketThuc: string): string {
+  const a = new Date(batDau).getTime();
+  const b = new Date(ketThuc).getTime();
+  if (!Number.isFinite(a) || !Number.isFinite(b)) return "";
+
+  const giay = Math.max(0, Math.round((b - a) / 1000));
+  if (giay < 60) return "dưới một phút";
+
+  const phut = Math.round(giay / 60);
+  if (phut < 60) return `${phut} phút`;
+
+  const gio = Math.floor(phut / 60);
+  if (gio < 24) {
+    const du = phut % 60;
+    return du ? `${gio} giờ ${du} phút` : `${gio} giờ`;
+  }
+
+  const ngay = Math.floor(gio / 24);
+  const duGio = gio % 24;
+  return duGio ? `${ngay} ngày ${duGio} giờ` : `${ngay} ngày`;
+}
+
+/** Hai mốc có rơi vào hai ngày khác nhau không — để biết có cần in ngày thứ hai. */
+export function khacNgay(batDau: string, ketThuc: string): boolean {
+  const a = new Date(batDau);
+  const b = new Date(ketThuc);
+  return a.toDateString() !== b.toDateString();
+}
