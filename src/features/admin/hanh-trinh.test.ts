@@ -355,6 +355,11 @@ describe("tên màn của ứng dụng di động", () => {
     expect(nhanNhom(n)).toBe("Xem màn Tài khoản");
   });
 
+  it("mo_app không phải một màn, nên hiện là Mở ứng dụng", () => {
+    const [n] = gomBuocLienTiep([man("mo_app")]);
+    expect(nhanNhom(n)).toBe("Mở ứng dụng");
+  });
+
   it("không có tên màn thì vẫn nói được là trong ứng dụng", () => {
     const [n] = gomBuocLienTiep([buoc("xem_man", "app:xem_man")]);
     expect(nhanNhom(n)).toBe("Xem trong ứng dụng");
@@ -374,9 +379,9 @@ describe("tên màn của ứng dụng di động", () => {
     ]);
     expect(ra).toHaveLength(4);
     expect(ra.map((n) => nhanNhom(n))).toEqual([
-      "Xem màn mo_app",
+      "Mở ứng dụng",
       "Xem màn Tài khoản",
-      "Xem màn mo_app",
+      "Mở ứng dụng",
       "Xem màn Tài khoản",
     ]);
   });

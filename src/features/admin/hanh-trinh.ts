@@ -294,9 +294,27 @@ export function gomBuocLienTiep(cacBuoc: BuocHanhTrinh[]): NhomBuoc[] {
 /** Những sự kiện mà tên TRANG mới là nội dung chính, không phải tên sự kiện. */
 const LA_LUOT_XEM = new Set(["xem_trang", "xem_man"]);
 
+/**
+ * Vá tạm cho một tên màn mà app gửi dưới dạng khoá thô.
+ *
+ * `home_shell.dart` gọi `xemMan('mo_app')` lúc mở ứng dụng, trong khi mọi
+ * lần khác nó gửi nhãn người đọc được (`Tài khoản`, `Bàn làm việc`). Nên
+ * bảng in ra "Xem màn mo_app" — sai hai lần: đó không phải một màn, và cũng
+ * không phải chữ cho người đọc.
+ *
+ * Chỗ sửa đúng nằm ở repo ứng dụng (gửi một sự kiện riêng, đừng gọi nó là
+ * lượt xem màn). Đây chỉ là vá để bảng đọc được ngay, và là lý do nó cố tình
+ * chỉ có MỘT dòng: thêm nữa là biến chỗ này thành bản sao của danh sách màn
+ * bên app.
+ */
+const MAN_DOI_TEN: Record<string, string> = {
+  mo_app: "Mở ứng dụng",
+};
+
 export function nhanNhom(n: NhomBuoc): string {
   const ten = TEN_HANH_DONG[n.hanhDong] ?? n.hanhDong;
   if (!LA_LUOT_XEM.has(n.hanhDong)) return ten;
+  if (n.tenMan && MAN_DOI_TEN[n.tenMan]) return MAN_DOI_TEN[n.tenMan];
   // Tên màn thật luôn hơn đường dẫn: app gửi mọi màn dưới cùng một đường dẫn.
   const noi = n.tenMan ? `màn ${n.tenMan}` : tenTrang(n.duongDan);
   return n.tab ? `${ten} ${noi} · tab ${n.tab}` : `${ten} ${noi}`;
