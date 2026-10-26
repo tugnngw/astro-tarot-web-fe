@@ -169,7 +169,12 @@ export function useCreateBooking() {
     ...goc,
     mutateAsync: (async (...thamSo) => {
       const kq = await goc.mutateAsync(...thamSo);
-      trackCta("dat_lich_reader");
+      // Số phút đi kèm để bảng hành trình nói được "đặt buổi 30 phút" chứ
+      // không chỉ "đặt lịch". KHÔNG kèm tên hay mã Reader: bảng ấy là để đọc
+      // hành vi của khách, không phải để lần ra ai gặp ai.
+      trackCta("dat_lich_reader", {
+        so_phut: thamSo[0]?.durationMinutes ?? null,
+      });
       return kq;
     }) as typeof goc.mutateAsync,
   };

@@ -46,6 +46,14 @@ export interface BuocHanhTrinh {
   hanhDong: string;
   duongDan: string | null;
   luc: string;
+  /**
+   * Chuỗi JSON kèm theo sự kiện — sản phẩm nào, mấy sao, kiểu trải nào.
+   *
+   * Không bắt buộc: bản BE cũ không trả trường này, nên mọi nơi đọc nó phải
+   * chịu được `undefined`. Deploy FE và BE không cùng lúc (BE trên Render
+   * phải bấm tay), nên khoảng giữa hai lần deploy là có thật.
+   */
+  metadata?: string | null;
 }
 
 /**

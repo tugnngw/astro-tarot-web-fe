@@ -409,20 +409,20 @@ export function BookingChat({
                   {/*
                     Màu theo bảng màu của sản phẩm, không phải xanh Messenger.
                     Trước đây là #0084ff và #3a3b3c — lạc hẳn giữa một giao
-                    diện vàng trên nền tối. Mực dùng token --gold-foreground,
+                    diện vàng trên nền tối. Mực dùng token --primary-foreground,
                     cùng một mực với mọi nút nền vàng khác.
                   */}
                   <div
                     className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${
                       cuaToi
-                        ? "rounded-br-md bg-gold text-gold-foreground"
+                        ? "rounded-br-md bg-gold text-primary-foreground"
                         : "rounded-bl-md border border-mystic/40 bg-card text-foreground"
                     }`}
                   >
                     <p className="whitespace-pre-wrap break-words">{m.body}</p>
                     <p
                       className={`mt-1 text-right text-3xs ${
-                        cuaToi ? "text-gold-foreground/60" : "text-muted-foreground"
+                        cuaToi ? "text-primary-foreground/60" : "text-muted-foreground"
                       }`}
                     >
                       {gio(m.createdAt)}
