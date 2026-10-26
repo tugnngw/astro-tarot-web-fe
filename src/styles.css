@@ -49,8 +49,8 @@
        bg-<vai>/10   nền thường của thẻ, chip, khối thông báo
        bg-<vai>/20   nền nhấn: đang chọn, đang hoạt động
      Thêm hai bậc đặc biệt, không phải "nền pha mờ":
-       bg-<vai>      nền đặc của nút chính (mực đặt lên là --gold-foreground
-                     hoặc --<vai>-foreground, không phải text-white)
+       bg-<vai>      nền đặc của nút chính (mực đặt lên là
+                     --<vai>-foreground, không phải text-white)
        bg-<vai>/90   CHỈ dùng cho hover của nền đặc ấy
      Riêng vàng từng có 9 mức: /5 /10 /15 /20 /25 /30 /55 /90 và đặc. /5 và
      /15 gần /10 tới mức trên nền tối không phân biệt được, nên chúng chỉ
@@ -87,7 +87,6 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-gold: var(--gold);
-  --color-gold-foreground: var(--gold-foreground);
   --color-gold-soft: var(--gold-soft);
   --color-surface-raised: var(--surface-raised);
   --color-mystic: var(--mystic);
@@ -118,6 +117,13 @@
   --popover-foreground: oklch(0.96 0.01 80);
   /* Gold #D4AF37 */
   --primary: oklch(0.78 0.13 85);
+  /* Mực đặt TRÊN nền vàng — `--primary` và `--gold` là CÙNG một giá trị,
+     nên đây cũng là mực của mọi nút nền vàng, 71 chỗ đang dùng.
+     Chữ trắng trên vàng (L .78) chỉ đạt ~1.6:1, dưới ngưỡng AA; sắc rất tối
+     này cho ~11:1.
+     Đừng thêm một token thứ hai cho cùng việc ấy — đã từng có
+     `--gold-foreground` và nó chỉ làm hai nhóm nút cùng màu nền mà khác màu
+     chữ. */
   --primary-foreground: oklch(0.18 0.04 280);
   --secondary: oklch(0.13 0.03 288);
   --secondary-foreground: oklch(0.96 0.01 80);
@@ -153,10 +159,6 @@
      84–91°, đủ gần để không ai thấy khi xem riêng — đúng cách sai lệch tích
      lại mà không ai cố ý. */
   --gold-rgb: 212 168 75;
-  /* Mực đặt TRÊN nền vàng. Vàng sáng (L .78) nên chữ trắng chỉ đạt ~1.6:1 —
-     dưới ngưỡng AA. Nâu rất tối cùng sắc vàng cho ~11:1 mà vẫn ấm, không
-     lạnh như đen thuần. Dùng ở bóng chat của mình và mọi nút nền vàng. */
-  --gold-foreground: oklch(0.189 0.026 77.5);
   --gold-soft: oklch(0.85 0.09 85);
   /* Panel nổi trên lớp phủ tối (khung gọi, bảng emote). KHÔNG dùng --card
      được: card ở L .09, gần như trùng với lớp phủ bg-black/65 nên mất viền

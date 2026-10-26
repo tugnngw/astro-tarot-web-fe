@@ -247,7 +247,7 @@ export function TarotChatPanel({
               <button
                 type="button"
                 disabled
-                className="inline-flex items-center gap-1.5 rounded-full bg-gold px-3 py-1.5 text-xs text-gold-foreground"
+                className="inline-flex items-center gap-1.5 rounded-full bg-gold px-3 py-1.5 text-xs text-primary-foreground"
               >
                 <Loader2 className="h-3 w-3 animate-spin" /> Đang rút…
               </button>

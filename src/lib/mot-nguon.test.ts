@@ -122,7 +122,7 @@ describe("một nguồn cho màu", () => {
 
     expect(
       pham,
-      'Dùng token Tailwind (bg-gold, text-gold-foreground…), rgb(var(--gold-rgb)/…) cho quầng sáng, hoặc MAU/KHUNG từ "@/lib/mau-bieu-do".',
+      'Dùng token Tailwind (bg-gold, text-primary-foreground…), rgb(var(--gold-rgb)/…) cho quầng sáng, hoặc MAU/KHUNG từ "@/lib/mau-bieu-do".',
     ).toEqual([]);
   });
 

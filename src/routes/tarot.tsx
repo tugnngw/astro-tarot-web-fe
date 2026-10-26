@@ -1121,7 +1121,10 @@ function TarotPage() {
 
       // Ghi sau khi máy chủ trả bài: đếm lượt rút THÀNH CÔNG, không đếm
       // những lần hết hạn mức hay mạng rớt giữa chừng.
-      trackCta("rut_bai_tarot");
+      trackCta("rut_bai_tarot", {
+        kieu_trai: "Past-Present-Future",
+        so_la: 3,
+      });
 
       setReadingResult(result);
       setReadingId(result.readingId);
