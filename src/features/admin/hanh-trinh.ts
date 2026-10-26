@@ -128,6 +128,11 @@ function docDuocSlug(slug: string): string {
 /** Giới hạn chữ của phần tên lấy từ slug. */
 const DAI_NHAT = 32;
 
+/**
+ * Khoá `man` KHÔNG nằm ở đây: nó là tên màn hình, và tên màn được hiện ngay
+ * trong nhãn của bước (`Xem màn Tài khoản`) thay cho đường dẫn. Để lại đây
+ * nữa thì cùng một chữ hiện hai lần trên một dòng.
+ */
 const NHAN_KHOA: Record<string, string> = {
   slug: "sản phẩm",
   sao: "số sao",
@@ -160,17 +165,38 @@ export function chiTietBuoc(b: BuocHanhTrinh): string | null {
   // `duong_dan` chỉ lặp lại thứ đã hiện ở tên trang.
   const phan: string[] = [];
   for (const [khoa, gt] of Object.entries(doc as Record<string, unknown>)) {
-    if (khoa === "duong_dan") continue;
+    if (khoa === "duong_dan" || khoa === "man") continue;
     if (gt === null || gt === undefined || gt === "") continue;
     phan.push(`${NHAN_KHOA[khoa] ?? khoa}: ${String(gt)}`);
   }
   return phan.length ? phan.join(" · ") : null;
 }
 
+/**
+ * Tên màn hình, đọc từ `metadata.man` của sự kiện.
+ *
+ * Ứng dụng di động gửi mọi lượt xem màn với đường dẫn y hệt nhau
+ * (`app:xem_man`) và để tên màn thật trong metadata. Không đọc chỗ này thì
+ * mọi màn trong app hiện ra giống hệt nhau — mà app có bao nhiêu màn thì
+ * bảng vẫn chỉ nói được một câu.
+ */
+export function tenManTuMetadata(b: BuocHanhTrinh): string | null {
+  if (!b.metadata) return null;
+  try {
+    const doc = JSON.parse(b.metadata) as Record<string, unknown>;
+    const man = doc?.man;
+    return typeof man === "string" && man.trim() ? man.trim() : null;
+  } catch {
+    return null;
+  }
+}
+
 /** Một nhóm bước giống hệt nhau, nằm liền nhau. */
 export interface NhomBuoc {
   hanhDong: string;
   duongDan: string | null;
+  /** Tên màn của ứng dụng di động, nếu sự kiện có kèm. */
+  tenMan: string | null;
   /** Số lần lặp liên tiếp. `1` nghĩa là không lặp. */
   soLan: number;
   dau: string;
@@ -197,10 +223,12 @@ export function gomBuocLienTiep(cacBuoc: BuocHanhTrinh[]): NhomBuoc[] {
   for (const b of cacBuoc) {
     const truoc = ra[ra.length - 1];
     const chiTiet = chiTietBuoc(b);
+    const tenMan = tenManTuMetadata(b);
     if (
       truoc &&
       truoc.hanhDong === b.hanhDong &&
       truoc.duongDan === b.duongDan &&
+      truoc.tenMan === tenMan &&
       truoc.chiTiet === chiTiet
     ) {
       truoc.soLan += 1;
@@ -210,6 +238,7 @@ export function gomBuocLienTiep(cacBuoc: BuocHanhTrinh[]): NhomBuoc[] {
     ra.push({
       hanhDong: b.hanhDong,
       duongDan: b.duongDan,
+      tenMan,
       soLan: 1,
       dau: b.luc,
       cuoi: b.luc,
@@ -225,7 +254,10 @@ const LA_LUOT_XEM = new Set(["xem_trang", "xem_man"]);
 
 export function nhanNhom(n: NhomBuoc): string {
   const ten = TEN_HANH_DONG[n.hanhDong] ?? n.hanhDong;
-  return LA_LUOT_XEM.has(n.hanhDong) ? `${ten} ${tenTrang(n.duongDan)}` : ten;
+  if (!LA_LUOT_XEM.has(n.hanhDong)) return ten;
+  // Tên màn thật luôn hơn đường dẫn: app gửi mọi màn dưới cùng một đường dẫn.
+  const noi = n.tenMan ? `màn ${n.tenMan}` : tenTrang(n.duongDan);
+  return `${ten} ${noi}`;
 }
 
 export interface BoLoc {
@@ -285,7 +317,7 @@ export function locHanhTrinh(
           (b) =>
             `${TEN_HANH_DONG[b.hanhDong] ?? b.hanhDong} ${tenTrang(
               b.duongDan,
-            )} ${b.duongDan ?? ""}`,
+            )} ${b.duongDan ?? ""} ${tenManTuMetadata(b) ?? ""}`,
         ),
       ]
         .join(" ")
