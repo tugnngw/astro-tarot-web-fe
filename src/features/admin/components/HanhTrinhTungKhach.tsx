@@ -317,7 +317,10 @@ function TheKhach({ khach: k }: { khach: HanhTrinhKhach }) {
           <ChevronDown
             className={`h-3 w-3 transition-transform ${mo ? "rotate-180" : ""}`}
           />
-          {mo ? "Thu gọn" : `Xem cả ${so(nhom.length)} bước (+${so(conLai)})`}
+          {/* "bước" là đơn vị của dữ liệu thô; sau khi gộp thì đếm NHÓM, nên
+              nói "+10 nữa" chứ không nói "+10 bước" — số ấy không còn là số
+              bước. Tổng số bước thật vẫn nằm ở dòng trên cùng của thẻ. */}
+          {mo ? "Thu gọn" : `Xem đầy đủ (+${so(conLai)} nữa)`}
         </button>
       )}
     </div>
