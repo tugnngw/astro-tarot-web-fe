@@ -11,6 +11,8 @@ import type { BuocHanhTrinh, HanhTrinhKhach } from "@/api/marketing";
 /** Tên sự kiện trong CSDL → câu người đọc hiểu ngay. */
 export const TEN_HANH_DONG: Record<string, string> = {
   xem_trang: "Xem",
+  /** Ứng dụng di động gửi tên này thay cho `xem_trang`. */
+  xem_man: "Xem",
   dang_ky_tai_khoan: "Đăng ký tài khoản",
   bat_dau_chat_ai: "Mở chat Tarot AI",
   rut_bai_tarot: "Rút bài",
@@ -53,6 +55,7 @@ const TEN_TRANG: Record<string, string> = {
   "/tarot-history": "Lịch sử trải bài",
   "/readers": "Tìm Reader",
   "/shop": "Cửa hàng",
+  "/blog": "Bài viết",
   "/blogs": "Danh sách bài viết",
   "/bookings": "Lịch hẹn",
   "/profile": "Hồ sơ",
@@ -85,7 +88,14 @@ export function tenTrang(duongDan: string | null): string {
 
   // Ứng dụng di động gửi `app:ten_man`, không phải đường dẫn web.
   if (duongDan.startsWith("app:")) {
-    return "Màn " + duongDan.slice(4).replace(/_/g, " ");
+    const man = duongDan.slice(4).trim();
+    // Hôm nay app gửi đúng tên sự kiện làm đường dẫn (`app:xem_man`), tức là
+    // không kèm tên màn nào cả. Ghép ra "Xem màn xem man" thì vừa thừa vừa
+    // khó hiểu; nói thẳng là không biết màn nào thì đúng hơn.
+    if (!man || man === "xem_man" || man === "xem_trang") {
+      return "trong ứng dụng";
+    }
+    return "màn " + man.replace(/_/g, " ");
   }
 
   const sach = duongDan.split("?")[0].replace(/\/+$/, "") || "/";
@@ -110,8 +120,13 @@ export function tenTrang(duongDan: string | null): string {
  */
 function docDuocSlug(slug: string): string {
   const chu = slug.split("/")[0].replace(/-/g, " ").trim();
-  return chu.charAt(0).toUpperCase() + chu.slice(1);
+  const hoa = chu.charAt(0).toUpperCase() + chu.slice(1);
+  // Slug bài viết dài tới 70 ký tự; để nguyên thì một thẻ nuốt cả dòng.
+  return hoa.length > DAI_NHAT ? hoa.slice(0, DAI_NHAT).trimEnd() + "…" : hoa;
 }
+
+/** Giới hạn chữ của phần tên lấy từ slug. */
+const DAI_NHAT = 32;
 
 const NHAN_KHOA: Record<string, string> = {
   slug: "sản phẩm",
@@ -205,9 +220,12 @@ export function gomBuocLienTiep(cacBuoc: BuocHanhTrinh[]): NhomBuoc[] {
 }
 
 /** Nhãn đầy đủ của một nhóm: hành động, kèm tên trang nếu là lượt xem. */
+/** Những sự kiện mà tên TRANG mới là nội dung chính, không phải tên sự kiện. */
+const LA_LUOT_XEM = new Set(["xem_trang", "xem_man"]);
+
 export function nhanNhom(n: NhomBuoc): string {
   const ten = TEN_HANH_DONG[n.hanhDong] ?? n.hanhDong;
-  return n.hanhDong === "xem_trang" ? `${ten} ${tenTrang(n.duongDan)}` : ten;
+  return LA_LUOT_XEM.has(n.hanhDong) ? `${ten} ${tenTrang(n.duongDan)}` : ten;
 }
 
 export interface BoLoc {

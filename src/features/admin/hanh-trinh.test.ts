@@ -56,7 +56,28 @@ describe("tenTrang", () => {
   });
 
   it("đường dẫn của ứng dụng di động đọc theo kiểu màn hình", () => {
-    expect(tenTrang("app:man_trai_bai")).toBe("Màn man trai bai");
+    expect(tenTrang("app:man_trai_bai")).toBe("màn man trai bai");
+  });
+
+  /**
+   * App hôm nay gửi đúng tên sự kiện làm đường dẫn, tức là không kèm tên màn
+   * nào. Ghép máy móc thì ra "Xem màn xem man" — vừa thừa vừa khó hiểu.
+   */
+  it("app chỉ gửi tên sự kiện làm đường dẫn thì nói là không rõ màn", () => {
+    expect(tenTrang("app:xem_man")).toBe("trong ứng dụng");
+  });
+
+  it("/blog trơ cũng có tên, không rơi về đường dẫn thô", () => {
+    expect(tenTrang("/blog")).toBe("Bài viết");
+  });
+
+  // Slug bài viết thật dài tới 70 ký tự; để nguyên thì một thẻ nuốt cả dòng.
+  it("cắt bớt slug quá dài", () => {
+    const ra = tenTrang(
+      "/blog/chu-de-giai-ma-la-bai-the-fool-khoi-dau-moi-tren-hanh-trinh-tarot",
+    );
+    expect(ra.endsWith("…")).toBe(true);
+    expect(ra.length).toBeLessThanOrEqual(45);
   });
 
   it("đường dẫn lạ thì giữ nguyên, không bịa tên", () => {
@@ -164,6 +185,11 @@ describe("nhanNhom", () => {
   it("hành động khác thì chỉ hiện tên hành động", () => {
     const [n] = gomBuocLienTiep([buoc("rut_bai_tarot", "/tarot")]);
     expect(nhanNhom(n)).toBe("Rút bài");
+  });
+
+  it("lượt xem màn của app cũng ghép tên như lượt xem trang", () => {
+    const [n] = gomBuocLienTiep([buoc("xem_man", "app:xem_man")]);
+    expect(nhanNhom(n)).toBe("Xem trong ứng dụng");
   });
 
   it("sự kiện lạ thì hiện nguyên tên, không nuốt mất", () => {
