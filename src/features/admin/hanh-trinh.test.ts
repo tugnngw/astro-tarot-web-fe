@@ -11,6 +11,7 @@ import {
   gomBuocLienTiep,
   locHanhTrinh,
   nhanNhom,
+  tabTuMetadata,
   tenManTuMetadata,
   tenTrang,
 } from "./hanh-trinh";
@@ -395,5 +396,60 @@ describe("tên màn của ứng dụng di động", () => {
     expect(locHanhTrinh(ds, { ...BO_LOC_RONG, tim: "tài khoản" })).toHaveLength(
       1,
     );
+  });
+});
+
+/**
+ * Cột `duongDan` chỉ lưu `pathname`, tức là `/admin` cho cả tám tab quản
+ * trị — nên bảng nói "Xem Trang quản trị ×11" trong khi người ta đã đi qua
+ * bốn tab. Metadata giữ nguyên chuỗi truy vấn nên lấy lại được.
+ */
+describe("tab đọc từ metadata", () => {
+  const xem = (dd: string) =>
+    buoc("xem_trang", "/admin", "2026-10-22T05:00:00Z", JSON.stringify({ duong_dan: dd }));
+
+  it("lấy được tab", () => {
+    expect(tabTuMetadata(xem("/admin?tab=analytics"))).toBe("analytics");
+  });
+
+  it("không có chuỗi truy vấn thì null", () => {
+    expect(tabTuMetadata(xem("/admin"))).toBeNull();
+  });
+
+  /**
+   * Lấy cả chuỗi truy vấn thì mỗi link quảng cáo lại tách trang chủ thành
+   * một nhóm riêng — đúng về URL, vô nghĩa về hành trình.
+   */
+  it("bỏ qua tham số UTM", () => {
+    expect(
+      tabTuMetadata(xem("/?utm_source=kiemtra&utm_medium=claude&utm_campaign=x")),
+    ).toBeNull();
+  });
+
+  it("metadata hỏng thì null chứ không ném", () => {
+    expect(
+      tabTuMetadata(buoc("xem_trang", "/admin", undefined, "{hong")),
+    ).toBeNull();
+  });
+
+  it("nhãn kèm tab", () => {
+    const [n] = gomBuocLienTiep([xem("/admin?tab=analytics")]);
+    expect(nhanNhom(n)).toBe("Xem Trang quản trị · tab analytics");
+  });
+
+  it("khác tab thì không gộp, cùng tab thì gộp", () => {
+    const ra = gomBuocLienTiep([
+      xem("/admin?tab=analytics"),
+      xem("/admin?tab=analytics"),
+      xem("/admin?tab=khuyen-mai"),
+    ]);
+    expect(ra.map((n) => [n.tab, n.soLan])).toEqual([
+      ["analytics", 2],
+      ["khuyen-mai", 1],
+    ]);
+  });
+
+  it("duong_dan không lặp lại ở phần chi tiết", () => {
+    expect(chiTietBuoc(xem("/admin?tab=analytics"))).toBeNull();
   });
 });

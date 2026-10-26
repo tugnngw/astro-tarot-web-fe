@@ -191,12 +191,51 @@ export function tenManTuMetadata(b: BuocHanhTrinh): string | null {
   }
 }
 
+/**
+ * Tab đang mở, đọc từ `metadata.duong_dan`.
+ *
+ * ## Vì sao phải lấy từ metadata
+ *
+ * Cột `duongDan` chỉ lưu `window.location.pathname`, tức là `/admin` cho cả
+ * tám tab quản trị. Nên bảng nói "Xem Trang quản trị ×11" trong khi người ta
+ * đã đi qua bốn tab khác nhau — gộp đúng theo dữ liệu nó có, nhưng giấu mất
+ * thứ đáng đọc. Metadata thì giữ nguyên chuỗi truy vấn.
+ *
+ * ## Vì sao chỉ lấy `tab`, không lấy cả chuỗi truy vấn
+ *
+ * Tham số khác phần lớn là UTM: `/?utm_source=kiemtra&utm_medium=claude…`.
+ * Lấy cả thì mỗi link quảng cáo lại tách trang chủ thành một nhóm riêng —
+ * đúng về mặt URL, vô nghĩa về mặt hành trình.
+ *
+ * ## Vì sao hiện khoá thô chứ không dịch sang nhãn tiếng Việt
+ *
+ * Nhãn của tab nằm ở `routes/admin.tsx` (và các workspace khác). Chép sang
+ * đây là tạo nguồn thứ hai, và nó sẽ lệch ngay lần đầu có người đổi tên tab
+ * mà không biết chỗ này tồn tại. Khoá thô thì luôn đúng.
+ */
+export function tabTuMetadata(b: BuocHanhTrinh): string | null {
+  if (!b.metadata) return null;
+  try {
+    const doc = JSON.parse(b.metadata) as Record<string, unknown>;
+    const dd = doc?.duong_dan;
+    if (typeof dd !== "string") return null;
+    const hoi = dd.indexOf("?");
+    if (hoi < 0) return null;
+    const tab = new URLSearchParams(dd.slice(hoi + 1)).get("tab");
+    return tab && tab.trim() ? tab.trim() : null;
+  } catch {
+    return null;
+  }
+}
+
 /** Một nhóm bước giống hệt nhau, nằm liền nhau. */
 export interface NhomBuoc {
   hanhDong: string;
   duongDan: string | null;
   /** Tên màn của ứng dụng di động, nếu sự kiện có kèm. */
   tenMan: string | null;
+  /** Tab đang mở trong một trang nhiều tab, nếu có. */
+  tab: string | null;
   /** Số lần lặp liên tiếp. `1` nghĩa là không lặp. */
   soLan: number;
   dau: string;
@@ -224,11 +263,13 @@ export function gomBuocLienTiep(cacBuoc: BuocHanhTrinh[]): NhomBuoc[] {
     const truoc = ra[ra.length - 1];
     const chiTiet = chiTietBuoc(b);
     const tenMan = tenManTuMetadata(b);
+    const tab = tabTuMetadata(b);
     if (
       truoc &&
       truoc.hanhDong === b.hanhDong &&
       truoc.duongDan === b.duongDan &&
       truoc.tenMan === tenMan &&
+      truoc.tab === tab &&
       truoc.chiTiet === chiTiet
     ) {
       truoc.soLan += 1;
@@ -239,6 +280,7 @@ export function gomBuocLienTiep(cacBuoc: BuocHanhTrinh[]): NhomBuoc[] {
       hanhDong: b.hanhDong,
       duongDan: b.duongDan,
       tenMan,
+      tab,
       soLan: 1,
       dau: b.luc,
       cuoi: b.luc,
@@ -257,7 +299,7 @@ export function nhanNhom(n: NhomBuoc): string {
   if (!LA_LUOT_XEM.has(n.hanhDong)) return ten;
   // Tên màn thật luôn hơn đường dẫn: app gửi mọi màn dưới cùng một đường dẫn.
   const noi = n.tenMan ? `màn ${n.tenMan}` : tenTrang(n.duongDan);
-  return `${ten} ${noi}`;
+  return n.tab ? `${ten} ${noi} · tab ${n.tab}` : `${ten} ${noi}`;
 }
 
 export interface BoLoc {
