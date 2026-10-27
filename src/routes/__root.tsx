@@ -10,6 +10,7 @@ import {
   type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { BaoLoiDangNhapGoogle } from "@/components/BaoLoiDangNhapGoogle";
 import { Toaster } from "sonner";
 import { Analytics } from "@vercel/analytics/react";
 
@@ -245,6 +246,7 @@ function RootComponent() {
           <RealtimeProvider>
             <CartProvider>
               <UtmCapture />
+              <BaoLoiDangNhapGoogle />
               <GoogleAnalyticsTracker />
               <BackendWarmBanner />
               <StarrySky />
