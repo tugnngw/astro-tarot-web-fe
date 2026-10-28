@@ -259,7 +259,7 @@ export const PUBLIC_NAV = [
   { to: "/readers", label: "Reader" },
   { to: "/shop", label: "Shop" },
   { to: "/blogs", label: "Blog" },
-  { to: "/game", label: "Giao Hội" },
+  { to: "/game", label: "Game" },
 ] as const;
 
 /** Link khu vực làm việc, chỉ hiện với người có quyền tương ứng. */

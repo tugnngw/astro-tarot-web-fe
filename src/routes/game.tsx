@@ -24,7 +24,7 @@ import { so } from "@/lib/tien";
 export const Route = createFileRoute("/game")({
   head: () => ({
     meta: [
-      { title: "Giao Hội — ASTROTAROT" },
+      { title: "Game — ASTROTAROT" },
       {
         name: "description",
         content:
@@ -47,10 +47,11 @@ function TrangGame() {
           cao chừng 44px cộng lề, nên pb-16 vẫn để nó đè lên khối cuối trang. */}
       <main className="mx-auto max-w-3xl px-4 pb-24 pt-6">
         <header className="mb-5">
-          <h1 className="font-display text-3xl text-gold">Giao Hội</h1>
+          <h1 className="font-display text-3xl text-gold">Game</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Xếp ba biểu tượng cùng loại cho chúng giao hội. Điểm kiếm được đổi
-            thành lượt hỏi Tarot AI.
+            <span className="text-gold-soft">Giao Hội</span> — xếp ba biểu tượng
+            cùng loại cho chúng giao hội. Điểm kiếm được đổi thành lượt hỏi
+            Tarot AI.
           </p>
         </header>
 

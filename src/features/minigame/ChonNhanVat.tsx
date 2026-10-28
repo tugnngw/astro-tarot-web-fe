@@ -1,21 +1,9 @@
-import { Loader2, Moon, Star, Sun } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
 
 import type { MaNhanVat, NhanVat } from "@/api/game";
 import { so } from "@/lib/tien";
-
-/**
- * Biểu tượng của từng nhân vật.
- *
- * Tra theo mã enum chứ không theo tên hiển thị: tên là chữ người đọc, đổi
- * "Luna" thành "Hằng" là việc của nội dung, và nó không được làm mất biểu
- * tượng. Thiếu mã thì trả về Sao, chứ không để trống một ô trong lưới.
- */
-const BIEU_TUONG: Record<MaNhanVat, typeof Star> = {
-  LUNA: Moon,
-  SOL: Sun,
-  ASTRA: Star,
-};
+import { AnhNhanVat } from "./AnhNhanVat";
 
 export function ChonNhanVat({
   cacNhanVat,
@@ -36,9 +24,8 @@ export function ChonNhanVat({
         năng nhắm vào — nó không tốn lượt đổi chỗ nào.
       </p>
 
-      <div className="grid gap-2 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-3">
         {cacNhanVat.map((nv) => {
-          const Icon = BIEU_TUONG[nv.ma] ?? Star;
           const nay = dangChon === nv.ma;
           return (
             <button
@@ -49,31 +36,33 @@ export function ChonNhanVat({
                 setDangChon(nv.ma);
                 onChon(nv.ma);
               }}
-              className={`flex flex-col gap-1.5 rounded-xl border p-3 text-left transition-colors ${
+              className={`group flex flex-col items-center gap-2 rounded-xl border p-4 text-center transition-colors ${
                 nay
                   ? "border-gold/50 bg-gold/20"
                   : "border-gold/20 bg-card hover:bg-gold/10"
               } ${dangGui && !nay ? "opacity-60" : ""}`}
             >
-              <span className="flex items-center gap-2">
-                <Icon
-                  className="size-4 shrink-0 text-gold"
-                  aria-hidden="true"
-                />
-                <span className="font-display text-base text-foreground">
-                  {nv.ten}
-                </span>
-                {nay && dangGui && (
-                  <Loader2 className="ml-auto size-3.5 animate-spin text-gold" />
-                )}
+              {/* Huy hiệu phóng to một chút khi rê chuột. Đây là thứ duy nhất
+                  trên thẻ nói được "bấm vào đi" mà không thêm chữ nào. */}
+              <AnhNhanVat
+                ma={nv.ma}
+                className="size-16 shrink-0 transition-transform duration-200 group-hover:scale-110"
+              />
+
+              <span className="font-display text-lg text-foreground">
+                {nv.ten}
               </span>
-              <span className="text-xs font-medium text-gold-soft">
+              <span className="text-sm font-medium text-gold">
                 {nv.tenKiNang}
               </span>
-              <span className="text-2xs text-muted-foreground">
+              <span className="text-2xs leading-snug text-muted-foreground">
                 {nv.moTaKiNang}
               </span>
-              <span className="mt-auto pt-1 text-3xs uppercase tracking-wider text-muted-foreground">
+
+              <span className="mt-auto flex items-center gap-1.5 pt-2 text-3xs uppercase tracking-wider text-muted-foreground">
+                {nay && dangGui ? (
+                  <Loader2 className="size-3 animate-spin text-gold" />
+                ) : null}
                 nạp {so(nv.nangLuongCan)} ô
               </span>
             </button>
