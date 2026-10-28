@@ -14,6 +14,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as BlogsRouteImport } from './routes/blogs'
 import { Route as BookingsRouteImport } from './routes/bookings'
 import { Route as ChinhSachRiengTuRouteImport } from './routes/chinh-sach-rieng-tu'
+import { Route as GameRouteImport } from './routes/game'
 import { Route as GhiCongRouteImport } from './routes/ghi-cong'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as ManagerRouteImport } from './routes/manager'
@@ -60,6 +61,11 @@ const BookingsRoute = BookingsRouteImport.update({
 const ChinhSachRiengTuRoute = ChinhSachRiengTuRouteImport.update({
   id: '/chinh-sach-rieng-tu',
   path: '/chinh-sach-rieng-tu',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GameRoute = GameRouteImport.update({
+  id: '/game',
+  path: '/game',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GhiCongRoute = GhiCongRouteImport.update({
@@ -179,6 +185,7 @@ export interface FileRoutesByFullPath {
   '/blogs': typeof BlogsRoute
   '/bookings': typeof BookingsRoute
   '/chinh-sach-rieng-tu': typeof ChinhSachRiengTuRoute
+  '/game': typeof GameRoute
   '/ghi-cong': typeof GhiCongRoute
   '/home': typeof HomeRoute
   '/manager': typeof ManagerRoute
@@ -208,6 +215,7 @@ export interface FileRoutesByTo {
   '/blogs': typeof BlogsRoute
   '/bookings': typeof BookingsRoute
   '/chinh-sach-rieng-tu': typeof ChinhSachRiengTuRoute
+  '/game': typeof GameRoute
   '/ghi-cong': typeof GhiCongRoute
   '/home': typeof HomeRoute
   '/manager': typeof ManagerRoute
@@ -238,6 +246,7 @@ export interface FileRoutesById {
   '/blogs': typeof BlogsRoute
   '/bookings': typeof BookingsRoute
   '/chinh-sach-rieng-tu': typeof ChinhSachRiengTuRoute
+  '/game': typeof GameRoute
   '/ghi-cong': typeof GhiCongRoute
   '/home': typeof HomeRoute
   '/manager': typeof ManagerRoute
@@ -269,6 +278,7 @@ export interface FileRouteTypes {
     | '/blogs'
     | '/bookings'
     | '/chinh-sach-rieng-tu'
+    | '/game'
     | '/ghi-cong'
     | '/home'
     | '/manager'
@@ -298,6 +308,7 @@ export interface FileRouteTypes {
     | '/blogs'
     | '/bookings'
     | '/chinh-sach-rieng-tu'
+    | '/game'
     | '/ghi-cong'
     | '/home'
     | '/manager'
@@ -327,6 +338,7 @@ export interface FileRouteTypes {
     | '/blogs'
     | '/bookings'
     | '/chinh-sach-rieng-tu'
+    | '/game'
     | '/ghi-cong'
     | '/home'
     | '/manager'
@@ -357,6 +369,7 @@ export interface RootRouteChildren {
   BlogsRoute: typeof BlogsRoute
   BookingsRoute: typeof BookingsRoute
   ChinhSachRiengTuRoute: typeof ChinhSachRiengTuRoute
+  GameRoute: typeof GameRoute
   GhiCongRoute: typeof GhiCongRoute
   HomeRoute: typeof HomeRoute
   ManagerRoute: typeof ManagerRoute
@@ -416,6 +429,13 @@ declare module '@tanstack/react-router' {
       path: '/chinh-sach-rieng-tu'
       fullPath: '/chinh-sach-rieng-tu'
       preLoaderRoute: typeof ChinhSachRiengTuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/game': {
+      id: '/game'
+      path: '/game'
+      fullPath: '/game'
+      preLoaderRoute: typeof GameRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ghi-cong': {
@@ -581,6 +601,7 @@ const rootRouteChildren: RootRouteChildren = {
   BlogsRoute: BlogsRoute,
   BookingsRoute: BookingsRoute,
   ChinhSachRiengTuRoute: ChinhSachRiengTuRoute,
+  GameRoute: GameRoute,
   GhiCongRoute: GhiCongRoute,
   HomeRoute: HomeRoute,
   ManagerRoute: ManagerRoute,

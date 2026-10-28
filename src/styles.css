@@ -90,6 +90,12 @@
   --color-gold-soft: var(--gold-soft);
   --color-surface-raised: var(--surface-raised);
   --color-mystic: var(--mystic);
+  --color-o-gay: var(--o-gay);
+  --color-o-coc: var(--o-coc);
+  --color-o-guom: var(--o-guom);
+  --color-o-tien: var(--o-tien);
+  --color-o-sao: var(--o-sao);
+  --color-o-trang: var(--o-trang);
   --color-success: var(--success);
   --color-warning: var(--warning);
   --gradient-cosmic: var(--gradient-cosmic);
@@ -166,6 +172,27 @@
      #242526 và #1c1c1e — lệch nhau vừa đủ để thấy khi mở cạnh nhau. */
   --surface-raised: oklch(0.26 0.004 286);
   --mystic: oklch(0.45 0.18 295);
+  /* ------------------------------------------------------------------
+     SÁU BIỂU TƯỢNG CỦA MINI GAME "GIAO HỘI".
+
+     Đây là màu PHÂN LOẠI, không phải màu trạng thái: Gậy không "tốt" hơn
+     Gươm, chúng chỉ khác nhau. Nên chúng không gom về --success/--warning
+     được — gom lại là bảo người chơi rằng hai ô cùng màu là cùng loại,
+     trong khi luật của game đọc đúng từng loại một.
+
+     Chọn sáu sắc cách nhau xa trên vòng màu, nhưng hình vẽ mới là tín
+     hiệu chính: ai không phân biệt được màu vẫn chơi được, vì mỗi loại
+     một hình riêng. Màu chỉ để nhìn một cái là thấy cả bàn.
+
+     Gươm cố ý gần như không có sắc (chroma 0.03) để đọc ra "bạc" — nếu
+     cho nó một sắc xanh đậm thì nó và Cốc chỉ cách nhau 35° và trên ô
+     nhỏ 40px hai thứ ấy nhoè vào nhau. */
+  --o-gay: oklch(0.7 0.17 40);
+  --o-coc: oklch(0.72 0.13 215);
+  --o-guom: oklch(0.84 0.03 250);
+  --o-tien: oklch(0.7 0.14 150);
+  --o-sao: oklch(0.86 0.15 95);
+  --o-trang: oklch(0.68 0.19 295);
   --success: oklch(0.68 0.16 160);
   --warning: oklch(0.78 0.15 75);
   /* Nền bầu trời đêm — đen, phần nhìn để cho lớp sao (StarrySky) lo.
