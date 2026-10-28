@@ -29,7 +29,6 @@ import { RoleBadge } from "./RoleBadge";
 import { NotificationBell } from "./NotificationBell";
 import { LogoutConfirm } from "./LogoutConfirm";
 import { ScrollProgress } from "./ScrollProgress";
-import { TopupModal } from "./wallet/TopupModal";
 import logo from "@/assets/logo-astrotarot.png";
 
 /** Class chung cho mục nav: muted khi chưa chọn, vàng + gạch chân khi active/hover. */
@@ -75,7 +74,6 @@ export function Header() {
   const coLichKhachDat = can(user, "READER_MANAGE_PROFILE");
   const [open, setOpen] = useState(false);
   const [logoutOpen, setLogoutOpen] = useState(false);
-  const [topupOpen, setTopupOpen] = useState(false);
   /** Cụm avatar + menu, để biết một cú bấm là trong hay ngoài. */
   const accountRef = useRef<HTMLDivElement>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -330,18 +328,21 @@ export function Header() {
                 cần xử lý, và cùng chỉ có nghĩa khi đã đăng nhập. */}
             <NotificationBell />
 
+            {/* Ô số dư giờ dẫn vào trang ví chứ không mở hộp nạp tiền nữa.
+                Vẫn phải bấm được: người ta nhìn thấy con số rồi muốn biết nó
+                từ đâu ra, mà biến nó thành chữ chết thì chỗ gần nhất để xem
+                lịch sử giao dịch lại nằm sâu trong menu tài khoản. */}
             {user && !isAdmin && (
-              <button
-                type="button"
-                onClick={() => setTopupOpen(true)}
-                title="Số dư Ví ASTROTAROT — Bấm để nạp tiền"
+              <Link
+                to="/profile/wallet"
+                title="Số dư Ví ASTROTAROT — Bấm để xem lịch sử"
                 className="flex items-center gap-1.5 rounded-full border border-gold/50 bg-card/60 px-2.5 py-1 text-xs font-medium transition hover:border-gold hover:bg-gold/10"
               >
                 <Wallet className="h-3.5 w-3.5 text-gold shrink-0" />
                 <span className="font-semibold text-gradient-gold">
                   {tien(walletQuery.data?.balance ?? 0)}
                 </span>
-              </button>
+              </Link>
             )}
 
             {user ? (
@@ -502,9 +503,7 @@ export function Header() {
                           pathname === "/profile/wallet",
                         )}
                       >
-                        Ví ASTROTAROT (
-                        {tien(walletQuery.data?.balance ?? 0)}
-                        )
+                        Ví ASTROTAROT ({tien(walletQuery.data?.balance ?? 0)})
                       </Link>
                       {/* Hai mục này chỉ dành cho khách — xem chú thích ở
                           danh sách menu tài khoản bên trên. Ví thì giữ cho
@@ -576,9 +575,6 @@ export function Header() {
         )}
       </header>
       <LogoutConfirm open={logoutOpen} onClose={() => setLogoutOpen(false)} />
-      {!isAdmin && (
-        <TopupModal open={topupOpen} onClose={() => setTopupOpen(false)} />
-      )}
     </>
   );
 }
