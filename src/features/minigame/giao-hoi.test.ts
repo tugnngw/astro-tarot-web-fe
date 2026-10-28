@@ -2,10 +2,17 @@ import { describe, expect, it } from "vitest";
 
 import {
   banSauRoi,
+  doiHaiO,
   keNhau,
   laKyTuO,
   O_RONG,
+  lechKhiKeo,
+  mucDoNo,
+  NGUONG_RUNG,
+  oTheoHuong,
   phanTramNap,
+  tamCacO,
+  TI_LE_CHOT,
   tinhDuongRoi,
 } from "./giao-hoi";
 
@@ -28,6 +35,11 @@ function ban(...hang: string[]): string {
   expect(hang).toHaveLength(CANH);
   for (const h of hang) expect(h).toHaveLength(CANH);
   return hang.join("");
+}
+
+/** Chỉ số ô từ hàng và cột, cùng quy ước với BE: hang * CANH + cot. */
+function chiSo(hang: number, cot: number): number {
+  return hang * CANH + cot;
 }
 
 /** Bàn đầy, không ô nào rỗng. */
@@ -224,5 +236,158 @@ describe("phanTramNap", () => {
 
   it("mốc cần bằng 0 thì coi như đã đầy, không chia cho 0", () => {
     expect(phanTramNap(0, 0)).toBe(100);
+  });
+});
+
+describe("doiHaiO", () => {
+  it("đổi đúng hai ô, không đụng ô nào khác", () => {
+    const sau = doiHaiO(DAY, 0, 1);
+    expect(sau[0]).toBe(DAY[1]);
+    expect(sau[1]).toBe(DAY[0]);
+    expect(sau.slice(2)).toBe(DAY.slice(2));
+    expect(sau).toHaveLength(DAY.length);
+  });
+
+  it("đổi hai lần thì về như cũ", () => {
+    expect(doiHaiO(doiHaiO(DAY, 10, 17), 10, 17)).toBe(DAY);
+  });
+});
+
+describe("oTheoHuong", () => {
+  const giua = chiSo(3, 3);
+
+  it("lấy trục trội hơn", () => {
+    expect(oTheoHuong(giua, 30, 5, CANH)).toBe(chiSo(3, 4));
+    expect(oTheoHuong(giua, -30, 5, CANH)).toBe(chiSo(3, 2));
+    expect(oTheoHuong(giua, 5, 30, CANH)).toBe(chiSo(4, 3));
+    expect(oTheoHuong(giua, 5, -30, CANH)).toBe(chiSo(2, 3));
+  });
+
+  it("chưa kéo thì chưa có hướng nào", () => {
+    expect(oTheoHuong(giua, 0, 0, CANH)).toBeNull();
+  });
+
+  /**
+   * Đây đúng là lỗi đã mắc ở keNhau. Cộng trừ chỉ số trần thì kéo sang trái
+   * từ cột 0 ra ô cuối hàng trên — hai ô nằm hai đầu bàn mà chỉ số cạnh nhau.
+   */
+  it("kéo ra ngoài mép thì không có ô đích, không vòng sang hàng khác", () => {
+    expect(oTheoHuong(chiSo(3, 0), -30, 0, CANH)).toBeNull();
+    expect(oTheoHuong(chiSo(3, CANH - 1), 30, 0, CANH)).toBeNull();
+    expect(oTheoHuong(chiSo(0, 3), 0, -30, CANH)).toBeNull();
+    expect(oTheoHuong(chiSo(CANH - 1, 3), 0, 30, CANH)).toBeNull();
+  });
+
+  it("ô đích luôn kề ô nguồn", () => {
+    for (let i = 0; i < CANH * CANH; i++) {
+      for (const [dx, dy] of [
+        [30, 0],
+        [-30, 0],
+        [0, 30],
+        [0, -30],
+      ]) {
+        const dich = oTheoHuong(i, dx, dy, CANH);
+        if (dich !== null) {
+          expect(keNhau(i, dich, CANH), `ô ${i} kéo (${dx},${dy})`).toBe(true);
+        }
+      }
+    }
+  });
+});
+
+describe("lechKhiKeo", () => {
+  const CANH_O = 60;
+
+  it("chỉ giữ trục trội hơn, không cho ô chạy chéo", () => {
+    expect(lechKhiKeo(30, 10, CANH_O, true)).toEqual({ x: 30, y: 0 });
+    expect(lechKhiKeo(10, 30, CANH_O, true)).toEqual({ x: 0, y: 30 });
+  });
+
+  it("không trượt quá một ô", () => {
+    expect(lechKhiKeo(500, 0, CANH_O, true)).toEqual({ x: CANH_O, y: 0 });
+    expect(lechKhiKeo(-500, 0, CANH_O, true)).toEqual({ x: -CANH_O, y: 0 });
+  });
+
+  /**
+   * Kéo ra ngoài mép vẫn phải nhúc nhích: im hoàn toàn thì người chơi tưởng
+   * màn hình treo. Nhưng không được chạy trọn một ô, vì thế là hứa một nước
+   * đi mà thả tay ra sẽ không xảy ra.
+   */
+  it("kéo ra ngoài mép thì chỉ nhúc nhích, không trượt trọn một ô", () => {
+    const l = lechKhiKeo(500, 0, CANH_O, false);
+    expect(l.x).toBeGreaterThan(0);
+    expect(l.x).toBeLessThan(CANH_O * TI_LE_CHOT);
+  });
+
+  it("ngưỡng chốt nhỏ hơn một ô, và ngưỡng rung nhỏ hơn ngưỡng chốt", () => {
+    expect(TI_LE_CHOT).toBeGreaterThan(0);
+    expect(TI_LE_CHOT).toBeLessThan(1);
+    expect(NGUONG_RUNG).toBeLessThan(CANH_O * TI_LE_CHOT);
+  });
+});
+
+describe("mucDoNo", () => {
+  it("chuỗi ba là chuyện thường, không có tên riêng", () => {
+    expect(mucDoNo(3)).toEqual({ bac: 0, ten: null });
+    expect(mucDoNo(0)).toEqual({ bac: 0, ten: null });
+  });
+
+  it("càng nhiều ô càng lên bậc, và có tên", () => {
+    expect(mucDoNo(4).bac).toBe(1);
+    expect(mucDoNo(5).bac).toBe(1);
+    expect(mucDoNo(6).bac).toBe(2);
+    expect(mucDoNo(8).bac).toBe(2);
+    expect(mucDoNo(9).bac).toBe(3);
+    expect(mucDoNo(49).bac).toBe(3);
+    for (const n of [4, 6, 9]) expect(mucDoNo(n).ten).toBeTruthy();
+  });
+
+  /**
+   * Bậc không được tụt xuống khi số ô tăng lên. Viết ngưỡng theo thứ tự giảm
+   * dần như hiện nay thì dễ, nhưng thêm một bậc vào giữa mà đặt sai chỗ là
+   * nổ chín ô lại ra bậc thấp hơn nổ sáu ô — và không có gì báo.
+   */
+  it("bậc không bao giờ tụt khi số ô tăng", () => {
+    let truoc = -1;
+    for (let n = 0; n <= 49; n++) {
+      const bac = mucDoNo(n).bac;
+      expect(bac, `nổ ${n} ô`).toBeGreaterThanOrEqual(truoc);
+      truoc = bac;
+    }
+  });
+
+  it("mỗi bậc một tên khác nhau", () => {
+    const ten = [4, 6, 9].map((n) => mucDoNo(n).ten);
+    expect(new Set(ten).size).toBe(ten.length);
+  });
+});
+
+describe("tamCacO", () => {
+  it("không có ô nào thì không vẽ gì", () => {
+    expect(tamCacO([], CANH)).toBeNull();
+  });
+
+  it("một ô thì tâm nằm giữa chính ô ấy", () => {
+    const t = tamCacO([chiSo(0, 0)], CANH)!;
+    // Ô đầu tiên chiếm 1/7 bàn, nên tâm nó ở 1/14 ≈ 7,14%.
+    expect(t.x).toBeCloseTo((0.5 / CANH) * 100, 5);
+    expect(t.y).toBeCloseTo((0.5 / CANH) * 100, 5);
+  });
+
+  it("chuỗi ba nằm ngang thì tâm ở giữa chuỗi, không phải giữa bàn", () => {
+    const t = tamCacO([chiSo(1, 0), chiSo(1, 1), chiSo(1, 2)], CANH)!;
+    expect(t.x).toBeCloseTo((1.5 / CANH) * 100, 5);
+    expect(t.y).toBeCloseTo((1.5 / CANH) * 100, 5);
+    expect(t.x).toBeLessThan(50);
+  });
+
+  it("tâm luôn nằm trong bàn", () => {
+    for (const cac of [[0], [48], [0, 48], [0, 6, 42, 48]]) {
+      const t = tamCacO(cac, CANH)!;
+      expect(t.x).toBeGreaterThan(0);
+      expect(t.x).toBeLessThan(100);
+      expect(t.y).toBeGreaterThan(0);
+      expect(t.y).toBeLessThan(100);
+    }
   });
 });

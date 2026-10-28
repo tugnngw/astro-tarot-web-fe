@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useAnimationControls } from "framer-motion";
 import { Sparkles, Loader2 } from "lucide-react";
 
 import { ApiError } from "@/api/client";
@@ -7,17 +7,23 @@ import {
   doiCho as goiDoiCho,
   dungKiNang as goiKiNang,
   type BuocXoa,
-  type NuocDi,
   type Phien,
   type Thuong,
 } from "@/api/game";
 import { so } from "@/lib/tien";
 import { BieuTuongO } from "./BieuTuongO";
 import {
+  doiHaiO,
   keNhau,
   laKyTuO,
+  lechKhiKeo,
+  mucDoNo,
+  NGUONG_RUNG,
+  oTheoHuong,
   phanTramNap,
+  tamCacO,
   tenLoai,
+  TI_LE_CHOT,
   tinhDuongRoi,
   type NguonO,
 } from "./giao-hoi";
@@ -30,15 +36,86 @@ type Nhip = {
   nguon: NguonO[] | null;
   /** Tăng mỗi lần rơi; nằm trong key của ô để hoạt ảnh diễn lại từ đầu. */
   khoa: number;
+  /** Bậc của cú nổ đang diễn: ô nổ to hay nổ nhẹ tuỳ con số này. */
+  bacNo: 0 | 1 | 2 | 3;
 };
 
-const MS_TAN = 240;
-const MS_ROI = 260;
+/** Cú nổ đang diễn ra, để vẽ vòng sáng và gọi tên nó. */
+type No = {
+  bac: 0 | 1 | 2 | 3;
+  ten: string | null;
+  /** Tâm đám ô vừa nổ, theo phần trăm bề ngang và bề cao bàn. */
+  tam: { x: number; y: number } | null;
+  id: number;
+};
+
+/** Cú kéo đang diễn ra, hoặc cú trượt đang chạy nốt sau khi thả tay. */
+type Keo = {
+  tuO: number;
+  /** Ô sẽ đổi chỗ với nó; null khi chưa rõ hướng hoặc hướng ấy ra ngoài bàn. */
+  oDich: number | null;
+  x: number;
+  y: number;
+  /** Đã thả tay: từ đây ô tự trượt, nên bật chuyển động mượt. */
+  dangTha: boolean;
+};
+
+const MS_TAN = 170;
+const MS_ROI = 190;
+/** Hai ô đổi chỗ cho nhau mất bấy nhiêu. */
+const MS_TRUOT = 140;
 
 const RONG = new Set<number>();
 
+/** Bàn rung từ bậc này trở lên. Rung cả ở chuỗi ba thì cả ván chỉ thấy rung. */
+const BAC_RUNG = 2;
+
 function nghi(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
+}
+
+/**
+ * Người dùng có bật "giảm chuyển động" ở hệ điều hành không.
+ *
+ * Một bàn xếp-ba là chuyển động gần như liên tục: ô nổ, ô rơi, ô mới trượt
+ * vào. Với người say chuyển động thì đó không phải "hơi nhiều hiệu ứng" mà là
+ * chóng mặt thật. Nhưng tắt hẳn hoạt ảnh thì họ cũng mất luôn thông tin — bàn
+ * đổi một cái, không biết vừa ăn chuỗi nào. Nên ở đây chỉ bỏ phần CHUYỂN
+ * ĐỘNG, vẫn giữ từng bậc dây chuyền thành những nhịp tách rời.
+ */
+function useGiamChuyenDong(): boolean {
+  const [giam, setGiam] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setGiam(mq.matches);
+    const doi = (e: MediaQueryListEvent) => setGiam(e.matches);
+    mq.addEventListener("change", doi);
+    return () => mq.removeEventListener("change", doi);
+  }, []);
+  return giam;
+}
+
+/**
+ * Cạnh một ô, tính bằng pixel.
+ *
+ * Cần con số thật vì cú kéo đo bằng pixel của ngón tay, mà lưới thì co giãn
+ * theo bề ngang màn hình. Đoán một con số cố định thì trên màn hẹp ngưỡng chốt
+ * nước đi thành quá xa, còn trên màn rộng thì chạm nhẹ đã ăn nước đi.
+ */
+function useCanhO(canhBan: number) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [canhO, setCanhO] = useState(0);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const do_ = () => setCanhO(el.getBoundingClientRect().width / canhBan);
+    do_();
+    const ro = new ResizeObserver(do_);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [canhBan]);
+  return { ref, canhO };
 }
 
 export function BanGiaoHoi({
@@ -57,13 +134,34 @@ export function BanGiaoHoi({
     dangXoa: RONG,
     nguon: null,
     khoa: 0,
+    bacNo: 0,
   });
+  const [keo, setKeo] = useState<Keo | null>(null);
   const [chon, setChon] = useState<number | null>(null);
   const [ngamKiNang, setNgamKiNang] = useState(false);
   const [dangGui, setDangGui] = useState(false);
   const [loi, setLoi] = useState<string | null>(null);
   const [bacDangAn, setBacDangAn] = useState<BuocXoa | null>(null);
+  const [no, setNo] = useState<No | null>(null);
   const [baoDaoBan, setBaoDaoBan] = useState(false);
+
+  const giam = useGiamChuyenDong();
+  const { ref: luoiRef, canhO } = useCanhO(canhBan);
+  const batDau = useRef<{ x: number; y: number } | null>(null);
+
+  // Bộ đếm nằm ở ref chứ không đọc ra từ state.
+  //
+  // Hàm cập nhật của setState chạy lúc dựng hình, SAU khi dòng lệnh gọi nó đã
+  // đi tiếp. Lấy giá trị ra từ trong ấy rồi dùng ngay ở dòng dưới là đọc phải
+  // con số cũ — và vì nó chỉ là khoá của hoạt ảnh nên hậu quả là ô thỉnh
+  // thoảng không diễn lại cú rơi, không có lỗi nào báo.
+  const khoaRef = useRef(0);
+  const idNo = useRef(0);
+  const rung = useAnimationControls();
+  const khoaMoi = useCallback(() => {
+    khoaRef.current += 1;
+    return khoaRef.current;
+  }, []);
 
   // Hoạt ảnh chạy bất đồng bộ qua nhiều nhịp setState. Nếu người chơi rời
   // trang giữa lúc ấy thì những setState còn lại gọi trên component đã tháo —
@@ -80,7 +178,16 @@ export function BanGiaoHoi({
   // chọn phải bỏ — giữ lại ô đang chọn của bàn cũ là chỉ vào một ô khác hẳn.
   const idPhien = phien.id;
   useEffect(() => {
-    setNhip({ bang: phien.bang, dangXoa: RONG, nguon: null, khoa: 0 });
+    khoaRef.current = 0;
+    setNhip({
+      bang: phien.bang,
+      dangXoa: RONG,
+      nguon: null,
+      khoa: 0,
+      bacNo: 0,
+    });
+    setNo(null);
+    setKeo(null);
     setChon(null);
     setNgamKiNang(false);
     setLoi(null);
@@ -88,6 +195,7 @@ export function BanGiaoHoi({
   }, [idPhien, phien.bang]);
 
   const dayDu = phien.nangLuong >= phien.nangLuongCan;
+  const khoaBan = dangGui || phien.daChot;
 
   /**
    * Diễn lại từng bậc dây chuyền máy chủ vừa trả về.
@@ -98,53 +206,127 @@ export function BanGiaoHoi({
    * y như một bậc.
    */
   const dienLai = useCallback(
-    async (cacBuoc: BuocXoa[], khoaDau: number) => {
-      let khoa = khoaDau;
+    async (cacBuoc: BuocXoa[]) => {
+      const msTan = giam ? 90 : MS_TAN;
+      const msRoi = giam ? 90 : MS_ROI;
       for (const b of cacBuoc) {
-        if (!conGan.current) return khoa;
+        if (!conGan.current) return;
+        const m = mucDoNo(b.cacOXoa.length);
+        idNo.current += 1;
         setBacDangAn(b);
-        setNhip((n) => ({ ...n, dangXoa: new Set(b.cacOXoa), nguon: null }));
-        await nghi(MS_TAN);
+        setNo({
+          bac: m.bac,
+          ten: m.ten,
+          tam: tamCacO(b.cacOXoa, canhBan),
+          id: idNo.current,
+        });
+        setNhip((n) => ({
+          ...n,
+          dangXoa: new Set(b.cacOXoa),
+          nguon: null,
+          bacNo: m.bac,
+        }));
+        if (!giam && m.bac >= BAC_RUNG) {
+          void rung.start({
+            x: [0, -5, 5, -4, 4, -2, 2, 0],
+            transition: { duration: 0.34, ease: "easeOut" },
+          });
+        }
+        await nghi(msTan);
 
-        if (!conGan.current) return khoa;
-        khoa += 1;
+        if (!conGan.current) return;
         setNhip({
           bang: b.bangSau,
           dangXoa: RONG,
           nguon: tinhDuongRoi(b.bangSauXoa, canhBan),
-          khoa,
+          khoa: khoaMoi(),
+          bacNo: 0,
         });
-        await nghi(MS_ROI);
+        await nghi(msRoi);
       }
-      return khoa;
     },
-    [canhBan],
+    [canhBan, giam, khoaMoi, rung],
   );
 
-  const chayNuocDi = useCallback(
-    async (goi: () => Promise<NuocDi>) => {
-      if (dangGui) return;
+  /** Ghi kết quả một nước đi lên bàn: diễn dây chuyền rồi chốt lại. */
+  const nhanKetQua = useCallback(
+    async (kq: Awaited<ReturnType<typeof goiDoiCho>>) => {
+      await dienLai(kq.cacBuoc);
+      if (!conGan.current) return;
+
+      // Chốt lại bằng bàn máy chủ nói là bàn cuối. Dây chuyền có thể kết thúc
+      // bằng một lần đảo bàn, mà lần đảo ấy không nằm trong bậc nào.
+      setNhip({
+        bang: kq.phien.bang,
+        dangXoa: RONG,
+        nguon: null,
+        khoa: khoaMoi(),
+        bacNo: 0,
+      });
+      setBacDangAn(null);
+      setNo(null);
+      setBaoDaoBan(kq.daDaoBan);
+      onPhien(kq.phien);
+      if (kq.thuong) onThuong(kq.thuong);
+    },
+    [dienLai, khoaMoi, onPhien, onThuong],
+  );
+
+  /**
+   * Đổi chỗ hai ô: cho chúng trượt NGAY, rồi mới chờ máy chủ.
+   *
+   * ## Vì sao không chờ máy chủ trả lời rồi mới động đậy
+   *
+   * Luật nằm ở máy chủ, nên cách đơn giản nhất là gọi xong mới vẽ. Nhưng
+   * chặng Việt Nam – Render mất một hai trăm mili giây, và trong chừng ấy thời
+   * gian bàn đứng im hoàn toàn: người chơi bấm, không có gì xảy ra, một lúc
+   * sau bàn mới giật mình nổ một tràng. Cảm giác là ứng dụng bị treo chứ không
+   * phải mạng chậm.
+   *
+   * Đổi chỗ hai ô thì không cần biết luật — chỉ là hoán vị hai hình. Nên cú
+   * trượt chạy ngay, còn lượt gọi mạng đi song song. Máy chủ vẫn là nơi duy
+   * nhất quyết định nước đi có hợp lệ không và được mấy điểm: nếu nó từ chối,
+   * hai ô trượt ngược về chỗ cũ — đúng cái người chơi đã quen ở mọi game xếp
+   * ba khác.
+   *
+   * {@link MS_TRUOT} là sàn, không phải trần: chờ cả hai thứ xong nên lúc mạng
+   * nhanh thì dây chuyền nổ ngay sau cú trượt, còn lúc mạng chậm thì cú trượt
+   * vẫn chạy trọn chứ không bị cắt ngang.
+   */
+  const chotNuoc = useCallback(
+    async (a: number, b: number) => {
+      if (khoaBan || canhO === 0) return;
+      const huongX = (b % canhBan) - (a % canhBan);
+      const huongY = Math.floor(b / canhBan) - Math.floor(a / canhBan);
+
+      setKeo({
+        tuO: a,
+        oDich: b,
+        x: huongX * canhO,
+        y: huongY * canhO,
+        dangTha: true,
+      });
       setDangGui(true);
       setLoi(null);
+      setBaoDaoBan(false);
+      setChon(null);
+
       try {
-        const kq = await goi();
-        const khoaCuoi = await dienLai(kq.cacBuoc, nhip.khoa);
+        const [kq] = await Promise.all([
+          goiDoiCho(phien.id, a, b),
+          nghi(giam ? 0 : MS_TRUOT),
+        ]);
         if (!conGan.current) return;
 
-        // Chốt lại bằng bàn máy chủ nói là bàn cuối. Dây chuyền có thể kết
-        // thúc bằng một lần đảo bàn, mà lần đảo ấy không nằm trong bậc nào.
-        setNhip({
-          bang: kq.phien.bang,
-          dangXoa: RONG,
-          nguon: null,
-          khoa: khoaCuoi + 1,
-        });
-        setBacDangAn(null);
-        setBaoDaoBan(kq.daDaoBan);
-        onPhien(kq.phien);
-        if (kq.thuong) onThuong(kq.thuong);
+        // Bỏ độ lệch và viết lại chuỗi bàn trong CÙNG một nhịp dựng hình. Tách
+        // ra thì hai ô nháy về chỗ cũ một khung hình rồi mới đổi chỗ thật.
+        setNhip((n) => ({ ...n, bang: doiHaiO(n.bang, a, b) }));
+        setKeo(null);
+        await nhanKetQua(kq);
       } catch (e) {
         if (!conGan.current) return;
+        // Máy chủ từ chối: trượt ngược về chỗ cũ.
+        setKeo({ tuO: a, oDich: b, x: 0, y: 0, dangTha: true });
         setLoi(
           e instanceof ApiError
             ? e.message
@@ -152,30 +334,55 @@ export function BanGiaoHoi({
         );
         setBacDangAn(null);
       } finally {
+        if (conGan.current) setDangGui(false);
+      }
+    },
+    [canhBan, canhO, giam, khoaBan, nhanKetQua, phien.id],
+  );
+
+  const chotKiNang = useCallback(
+    async (o: number) => {
+      if (khoaBan) return;
+      setDangGui(true);
+      setLoi(null);
+      setBaoDaoBan(false);
+      try {
+        const kq = await goiKiNang(phien.id, o);
+        if (!conGan.current) return;
+        await nhanKetQua(kq);
+      } catch (e) {
+        if (!conGan.current) return;
+        setLoi(
+          e instanceof ApiError
+            ? e.message
+            : "Không dùng được kĩ năng. Thử lại nhé.",
+        );
+        setBacDangAn(null);
+      } finally {
         if (conGan.current) {
           setDangGui(false);
-          setChon(null);
           setNgamKiNang(false);
         }
       }
     },
-    [dangGui, dienLai, nhip.khoa, onPhien, onThuong],
+    [khoaBan, nhanKetQua, phien.id],
   );
 
-  function bamO(i: number) {
-    if (dangGui || phien.daChot) return;
+  // ----------------------------------------------------------------
+  // Bấm và kéo
+  // ----------------------------------------------------------------
+
+  /** Một cú chạm gọn, không kéo đi đâu. Giữ lại lối chơi bấm hai ô. */
+  function chamO(i: number) {
+    if (khoaBan) return;
     setBaoDaoBan(false);
 
     if (ngamKiNang) {
-      void chayNuocDi(() => goiKiNang(phien.id, i));
+      void chotKiNang(i);
       return;
     }
-    if (chon === null) {
-      setChon(i);
-      return;
-    }
-    if (chon === i) {
-      setChon(null);
+    if (chon === null || chon === i) {
+      setChon(chon === i ? null : i);
       return;
     }
     if (!keNhau(chon, i, canhBan)) {
@@ -184,8 +391,55 @@ export function BanGiaoHoi({
       setChon(i);
       return;
     }
-    const a = chon;
-    void chayNuocDi(() => goiDoiCho(phien.id, a, i));
+    void chotNuoc(chon, i);
+  }
+
+  function xuongTay(e: React.PointerEvent<HTMLElement>, i: number) {
+    if (khoaBan) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    batDau.current = { x: e.clientX, y: e.clientY };
+    setKeo({ tuO: i, oDich: null, x: 0, y: 0, dangTha: false });
+  }
+
+  function diTay(e: React.PointerEvent<HTMLElement>) {
+    // Đang ngắm kĩ năng thì không kéo: kĩ năng chỉ cần một ô đích, kéo ô đi
+    // chỗ khác là hứa một thứ nó không làm.
+    const bd = batDau.current;
+    if (!bd || !keo || keo.dangTha || ngamKiNang) return;
+    const dx = e.clientX - bd.x;
+    const dy = e.clientY - bd.y;
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < NGUONG_RUNG) return;
+
+    const dich = oTheoHuong(keo.tuO, dx, dy, canhBan);
+    const lech = lechKhiKeo(dx, dy, canhO, dich !== null);
+    setKeo({ ...keo, oDich: dich, ...lech });
+  }
+
+  function thaTay() {
+    const dangKeo = keo;
+    batDau.current = null;
+    if (!dangKeo || dangKeo.dangTha) return;
+
+    const quang = Math.max(Math.abs(dangKeo.x), Math.abs(dangKeo.y));
+    if (quang < NGUONG_RUNG) {
+      setKeo(null);
+      chamO(dangKeo.tuO);
+      return;
+    }
+    if (dangKeo.oDich !== null && quang >= canhO * TI_LE_CHOT) {
+      void chotNuoc(dangKeo.tuO, dangKeo.oDich);
+      return;
+    }
+    // Kéo chưa đủ xa, hoặc kéo ra ngoài mép: trượt về chỗ cũ.
+    setKeo({ ...dangKeo, oDich: null, x: 0, y: 0, dangTha: true });
+  }
+
+  /** Độ lệch đang vẽ của một ô. Chỉ hai ô trong cú kéo mới lệch khỏi chỗ. */
+  function lechCuaO(i: number): { x: number; y: number } {
+    if (!keo) return { x: 0, y: 0 };
+    if (i === keo.tuO) return { x: keo.x, y: keo.y };
+    if (i === keo.oDich) return { x: -keo.x, y: -keo.y };
+    return { x: 0, y: 0 };
   }
 
   return (
@@ -194,7 +448,7 @@ export function BanGiaoHoi({
         phien={phien}
         dayDu={dayDu}
         ngam={ngamKiNang}
-        tatCa={dangGui || phien.daChot}
+        tatCa={khoaBan}
         onNgam={() => setNgamKiNang((v) => !v)}
       />
 
@@ -218,10 +472,8 @@ export function BanGiaoHoi({
         ) : (
           <p className="text-xs text-muted-foreground">
             {ngamKiNang
-              ? `Chọn một ô để ${phien.nhanVat.tenKiNang} nhắm vào.`
-              : chon === null
-                ? "Bấm một ô, rồi bấm ô kề nó để đổi chỗ."
-                : "Bấm một ô kề bên để đổi chỗ, hoặc bấm lại để bỏ chọn."}
+              ? `Chạm một ô để ${phien.nhanVat.tenKiNang} nhắm vào.`
+              : "Giữ một ô rồi kéo sang ô bên cạnh. Chạm hai ô lần lượt cũng được."}
           </p>
         )}
       </div>
@@ -232,10 +484,12 @@ export function BanGiaoHoi({
           nằm trong một tầm mắt. 420px cho ô chừng 58px: vẫn bấm thoải mái bằng
           ngón tay (ngưỡng 44px), và cả bàn vừa một màn. */}
       <div className="relative mx-auto w-full max-w-[420px]">
-        <div
+        <motion.div
+          ref={luoiRef}
           role="grid"
           aria-label="Bàn Giao Hội"
-          className="grid overflow-hidden rounded-2xl border border-gold/30 bg-card"
+          animate={rung}
+          className="relative grid touch-none overflow-hidden rounded-2xl border border-gold/30 bg-card"
           style={{
             gridTemplateColumns: `repeat(${canhBan}, minmax(0, 1fr))`,
           }}
@@ -247,14 +501,38 @@ export function BanGiaoHoi({
               chiSo={i}
               canhBan={canhBan}
               dangXoa={nhip.dangXoa.has(i)}
+              bacNo={nhip.bacNo}
               nguon={nhip.nguon?.[i] ?? null}
+              lech={lechCuaO(i)}
+              muot={keo?.dangTha ?? true}
+              dangKeo={keo?.tuO === i || keo?.oDich === i}
               daChon={chon === i}
               ngam={ngamKiNang}
-              tatCa={dangGui || phien.daChot}
-              onBam={() => bamO(i)}
+              tatCa={khoaBan}
+              giam={giam}
+              onXuongTay={(e) => xuongTay(e, i)}
+              onDiTay={diTay}
+              onThaTay={thaTay}
+              onBanPhim={() => chamO(i)}
             />
           ))}
-        </div>
+
+          {/* Vòng sáng lan ra từ đúng chỗ vừa nổ.
+              Nổ càng nhiều ô thì vòng càng lan rộng và càng lâu tan. Đây là
+              thứ phân biệt một chuỗi ba với một phát kĩ năng quét mười ba ô —
+              trước đó hai chuyện ấy trông y hệt nhau trên màn hình. */}
+          {no?.tam && no.bac > 0 && !giam && (
+            <motion.span
+              key={no.id}
+              aria-hidden="true"
+              initial={{ scale: 0.25, opacity: 0.7 }}
+              animate={{ scale: 1.4 + no.bac * 0.55, opacity: 0 }}
+              transition={{ duration: 0.4 + no.bac * 0.12, ease: "easeOut" }}
+              style={{ left: `${no.tam.x}%`, top: `${no.tam.y}%` }}
+              className="pointer-events-none absolute size-24 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-gold/50"
+            />
+          )}
+        </motion.div>
 
         <AnimatePresence>
           {bacDangAn && bacDangAn.diem > 0 && (
@@ -263,8 +541,14 @@ export function BanGiaoHoi({
               initial={{ opacity: 0, y: 8, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: giam ? 0 : 0.18 }}
               className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-xl border border-gold/50 bg-gold/20 px-4 py-2 text-center backdrop-blur-sm"
             >
+              {no?.ten && (
+                <div className="font-display text-base leading-tight text-gold-soft">
+                  {no.ten}
+                </div>
+              )}
               <div className="font-display text-2xl font-semibold text-gold">
                 +{so(bacDangAn.diem)}
               </div>
@@ -295,69 +579,124 @@ export function BanGiaoHoi({
  * Hoạt ảnh rơi dịch ô lên theo PHẦN TRĂM chiều cao của chính nó. Nếu lưới có
  * `gap` thì mỗi bậc rơi lệch thêm đúng một khoảng cách ấy, nên ô rơi ba bậc
  * dừng lệch ba khoảng — nhìn như giật. Khoảng cách vì thế nằm trong ô, dưới
- * dạng đệm, và phần trăm lại khớp tuyệt đối.
+ * dạng đệm.
  */
 function O({
   kyTu,
   chiSo,
   canhBan,
   dangXoa,
+  bacNo,
   nguon,
+  lech,
+  muot,
+  dangKeo,
   daChon,
   ngam,
   tatCa,
-  onBam,
+  giam,
+  onXuongTay,
+  onDiTay,
+  onThaTay,
+  onBanPhim,
 }: {
   kyTu: string;
   chiSo: number;
   canhBan: number;
   dangXoa: boolean;
+  /** Bậc của cú nổ ô này đang nằm trong: nổ càng lớn thì bung càng mạnh. */
+  bacNo: 0 | 1 | 2 | 3;
   nguon: NguonO | null;
+  lech: { x: number; y: number };
+  /** false khi ngón tay đang kéo: ô phải bám sát tay, không được trễ một nhịp. */
+  muot: boolean;
+  dangKeo: boolean;
   daChon: boolean;
   ngam: boolean;
   tatCa: boolean;
-  onBam: () => void;
+  giam: boolean;
+  onXuongTay: (e: React.PointerEvent<HTMLElement>) => void;
+  onDiTay: (e: React.PointerEvent<HTMLElement>) => void;
+  onThaTay: () => void;
+  onBanPhim: () => void;
 }) {
   const hang = Math.floor(chiSo / canhBan);
   const cot = chiSo % canhBan;
   const hopLe = laKyTuO(kyTu);
+  const dangLech = lech.x !== 0 || lech.y !== 0;
 
   // Ô cũ trượt từ chỗ cũ xuống; ô mới vào từ ngoài mép trên.
-  let yDau = 0;
+  let phanTramDau = 0;
   if (nguon) {
-    yDau =
+    phanTramDau =
       nguon.tuHang === null ? -(hang + 1) * 100 : (nguon.tuHang - hang) * 100;
   }
   const laMoi = nguon?.tuHang === null;
 
   return (
-    <div role="gridcell" className="aspect-square p-[2px]">
+    <div
+      role="gridcell"
+      className={`aspect-square p-[2px] ${dangLech || dangKeo ? "z-10" : ""}`}
+    >
       <motion.button
         type="button"
         disabled={tatCa || !hopLe}
-        onClick={onBam}
+        onPointerDown={onXuongTay}
+        onPointerMove={onDiTay}
+        onPointerUp={onThaTay}
+        onPointerCancel={onThaTay}
+        // Chuột và ngón tay đã xử lý ở onPointerUp; để onClick chạy nữa là một
+        // cú chạm thành hai nước đi. `detail === 0` chỉ đúng với click phát ra
+        // từ bàn phím (Enter, Space), nên nhánh này dành riêng cho họ.
+        onClick={(e) => {
+          if (e.detail === 0) onBanPhim();
+        }}
         aria-label={
           hopLe
             ? `${tenLoai(kyTu)} — hàng ${hang + 1}, cột ${cot + 1}`
             : `Ô trống — hàng ${hang + 1}, cột ${cot + 1}`
         }
         aria-pressed={daChon}
-        initial={{ y: `${yDau}%`, opacity: laMoi ? 0 : 1 }}
+        initial={{ y: `${phanTramDau}%`, opacity: laMoi ? 0 : 1 }}
         animate={
           dangXoa
-            ? { scale: 0.2, opacity: 0, rotate: 25 }
-            : { y: 0, opacity: 1, scale: 1, rotate: 0 }
+            ? {
+                // Bung TO ra rồi mới tắt, chứ không teo dần. Teo dần đọc ra
+                // là "ô biến mất"; bung ra rồi tắt mới đọc ra là "ô nổ".
+                scale: [1, 1.16 + bacNo * 0.1, 0.1],
+                opacity: [1, 1, 0],
+                rotate: [0, -6, 16 + bacNo * 6],
+              }
+            : {
+                x: lech.x,
+                y: lech.y,
+                opacity: 1,
+                scale: dangKeo && !muot ? 1.06 : 1,
+                rotate: 0,
+              }
         }
-        transition={{
-          duration: dangXoa ? MS_TAN / 1000 : MS_ROI / 1000,
-          ease: dangXoa ? "easeIn" : [0.33, 1.2, 0.68, 1],
-        }}
-        className={`flex size-full items-center justify-center rounded-lg border transition-colors ${
-          daChon
+        transition={
+          giam
+            ? { duration: 0 }
+            : dangXoa
+              ? {
+                  duration: MS_TAN / 1000,
+                  times: [0, 0.35, 1],
+                  ease: "easeOut",
+                }
+              : muot
+                ? { duration: MS_ROI / 1000, ease: [0.33, 1.2, 0.68, 1] }
+                : // Ngón tay đang kéo: không nội suy gì cả, ô phải ở đúng chỗ
+                  // ngón tay đang ở. Có độ trễ dù chỉ một nhịp là thành cảm
+                  // giác ô bị dính, nặng tay.
+                  { duration: 0 }
+        }
+        className={`flex size-full touch-none select-none items-center justify-center rounded-lg border transition-colors ${
+          dangXoa || daChon
             ? "border-gold/50 bg-gold/20"
             : "border-transparent bg-muted hover:border-gold/30"
         } ${ngam && !tatCa ? "cursor-crosshair hover:bg-gold/10" : ""} ${
-          tatCa ? "cursor-default" : ""
+          tatCa ? "cursor-default" : "cursor-grab active:cursor-grabbing"
         }`}
       >
         {hopLe && <BieuTuongO loai={kyTu} className="size-[62%]" />}

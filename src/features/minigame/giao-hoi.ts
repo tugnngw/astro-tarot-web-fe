@@ -117,3 +117,133 @@ export function phanTramNap(nangLuong: number, can: number): number {
   if (can <= 0) return 100;
   return Math.max(0, Math.min(100, Math.round((nangLuong / can) * 100)));
 }
+
+// ============================================================
+// KÉO THẢ
+// ============================================================
+
+/** Đổi chỗ hai ký tự trên bàn. Thuần hình ảnh — máy chủ mới là nơi xét luật. */
+export function doiHaiO(bang: string, a: number, b: number): string {
+  const o = bang.split("");
+  [o[a], o[b]] = [o[b], o[a]];
+  return o.join("");
+}
+
+/**
+ * Ô mà cú kéo đang nhắm tới, theo trục trội hơn.
+ *
+ * Trả `null` khi chưa kéo đủ xa để biết hướng, hoặc khi hướng ấy chạy ra
+ * ngoài mép bàn.
+ *
+ * ## Vì sao không chỉ cộng trừ chỉ số
+ *
+ * Kéo sang trái từ cột 0 mà làm `tuO - 1` thì ra ô CUỐI hàng trên — hai ô
+ * nằm hai đầu bàn, nhưng chỉ số thì cạnh nhau. Máy chủ sẽ từ chối, nên không
+ * ai mất điểm; chỉ là người chơi thấy một ô tận mép kia nhúc nhích theo tay
+ * mình và không hiểu vì sao. Đây đúng là lỗi đã mắc ở `keNhau`.
+ */
+export function oTheoHuong(
+  tuO: number,
+  dx: number,
+  dy: number,
+  canh: number,
+): number | null {
+  const hang = Math.floor(tuO / canh);
+  const cot = tuO % canh;
+
+  if (Math.abs(dx) >= Math.abs(dy)) {
+    if (dx === 0) return null;
+    const cotMoi = cot + (dx > 0 ? 1 : -1);
+    return cotMoi < 0 || cotMoi >= canh ? null : hang * canh + cotMoi;
+  }
+  const hangMoi = hang + (dy > 0 ? 1 : -1);
+  return hangMoi < 0 || hangMoi >= canh ? null : hangMoi * canh + cot;
+}
+
+/** Ngưỡng nhúc nhích bị bỏ qua, tính bằng pixel — tay ai cũng rung một chút. */
+export const NGUONG_RUNG = 4;
+
+/** Kéo quá bấy nhiêu phần một ô thì thả ra là ăn nước đi. */
+export const TI_LE_CHOT = 0.35;
+
+/**
+ * Độ lệch thật sự vẽ ra, từ quãng tay đã kéo.
+ *
+ * Chỉ giữ trục trội hơn: cho ô chạy chéo theo tay thì nó rời khỏi lưới và
+ * không còn ăn khớp với nước đi sắp gửi đi.
+ *
+ * Kéo ra ngoài mép bàn ({@code coDich} false) thì vẫn nhúc nhích một quãng
+ * ngắn rồi khựng lại — im hoàn toàn thì người chơi tưởng màn hình treo, còn
+ * cho nó chạy trọn một ô thì lại hứa một nước đi không có thật.
+ */
+export function lechKhiKeo(
+  dx: number,
+  dy: number,
+  canhO: number,
+  coDich: boolean,
+): { x: number; y: number } {
+  const tran = coDich ? canhO : canhO * 0.25;
+  const kep = (v: number) => Math.max(-tran, Math.min(tran, v));
+  return Math.abs(dx) >= Math.abs(dy)
+    ? { x: kep(dx), y: 0 }
+    : { x: 0, y: kep(dy) };
+}
+
+// ============================================================
+// MỨC ĐỘ CỦA MỘT CÚ NỔ
+// ============================================================
+
+/**
+ * Nổ ba ô và nổ chín ô là hai chuyện khác hẳn nhau về công sức, nên chúng
+ * phải khác nhau trên màn hình.
+ *
+ * Tên gọi lấy từ thuật ngữ chiêm tinh cho những lần các thiên thể xếp thẳng
+ * hàng — cùng mạch với cái tên "Giao Hội" của chính trò chơi, và đúng thứ
+ * người chơi vừa làm: xếp cho chúng thẳng hàng.
+ */
+export type MucDoNo = {
+  /** 0 là chuỗi ba thường, 3 là lớn nhất. */
+  bac: 0 | 1 | 2 | 3;
+  /** Tên hiện lên giữa bàn; null ở bậc 0 vì chuỗi ba là chuyện thường. */
+  ten: string | null;
+};
+
+const BAC_NO: ReadonlyArray<{ tuSoO: number; bac: 1 | 2 | 3; ten: string }> = [
+  { tuSoO: 9, bac: 3, ten: "Tinh Hà" },
+  { tuSoO: 6, bac: 2, ten: "Thiên Triệu" },
+  { tuSoO: 4, bac: 1, ten: "Tam Hợp" },
+];
+
+export function mucDoNo(soO: number): MucDoNo {
+  for (const m of BAC_NO) {
+    if (soO >= m.tuSoO) return { bac: m.bac, ten: m.ten };
+  }
+  return { bac: 0, ten: null };
+}
+
+/**
+ * Tâm của đám ô vừa nổ, tính theo phần trăm bề ngang và bề cao của bàn.
+ *
+ * Dùng để đặt vòng sáng lan ra. Đặt cố định giữa bàn thì một chuỗi ba ở góc
+ * cũng loé sáng ở chính giữa — mắt nhìn vào giữa trong khi chuyện xảy ra ở
+ * góc, nên hiệu ứng vừa không giúp gì vừa kéo mắt đi sai chỗ.
+ *
+ * Trả `null` khi không có ô nào, để bên gọi khỏi vẽ gì.
+ */
+export function tamCacO(
+  cacO: readonly number[],
+  canh: number,
+): { x: number; y: number } | null {
+  if (cacO.length === 0) return null;
+  let tongHang = 0;
+  let tongCot = 0;
+  for (const i of cacO) {
+    tongHang += Math.floor(i / canh);
+    tongCot += i % canh;
+  }
+  // Cộng nửa ô để ra TÂM ô chứ không phải mép trên bên trái của nó.
+  return {
+    x: ((tongCot / cacO.length + 0.5) / canh) * 100,
+    y: ((tongHang / cacO.length + 0.5) / canh) * 100,
+  };
+}
