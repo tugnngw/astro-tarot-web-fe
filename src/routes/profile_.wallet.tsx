@@ -5,7 +5,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Wallet,
   ArrowLeft,
-  Plus,
   ArrowDownLeft,
   ArrowUpRight,
   RotateCcw,
@@ -23,8 +22,11 @@ import {
 import { Header } from "@/components/Header";
 import { RoleGuard } from "@/components/RoleGuard";
 import { useAuth } from "@/lib/auth-context";
-import { walletApi, type WalletTransaction, type WalletTransactionType } from "@/api/wallet";
-import { TopupModal } from "@/components/wallet/TopupModal";
+import {
+  walletApi,
+  type WalletTransaction,
+  type WalletTransactionType,
+} from "@/api/wallet";
 import { Pagination, PAGE_SIZE } from "@/components/Pagination";
 
 export const Route = createFileRoute("/profile_/wallet")({
@@ -37,8 +39,14 @@ export const Route = createFileRoute("/profile_/wallet")({
     // thấy tiền cũ của mình. Gác trang này chặt hơn backend là khoá họ khỏi
     // chính số dư của họ — và không có màn nào nói ra vì sao.
     //
-    // Nạp ví và trả bằng ví thì backend vẫn đòi CUSTOMER_ACTIONS; chặn đúng
-    // chỗ đó là việc của nút, không phải của trang.
+    // Trang này giờ CHỈ ĐỂ XEM: số dư và lịch sử. Lối nạp ví đã bỏ hẳn —
+    // nó đi đường chuyển khoản, ngoài Play Billing, mà tiền trong ví mua
+    // được gói AI (nội dung số). Google bắt bán nội dung số qua hệ thống
+    // thanh toán của họ, và Việt Nam không có thanh toán thay thế.
+    //
+    // Bỏ ở cả web dù web không chịu luật ấy: để hai bên còn giống nhau, và
+    // vì mua gói vẫn trả thẳng bằng PayOS hay Stripe được, không cần vòng
+    // qua ví.
     <RoleGuard require={["USER_BASIC"]}>
       <WalletPage />
     </RoleGuard>
@@ -102,7 +110,6 @@ function WalletPage() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [page, setPage] = useState(0);
-  const [topupOpen, setTopupOpen] = useState(false);
 
   const walletQuery = useQuery({
     queryKey: ["user-wallet"],
@@ -194,15 +201,6 @@ function WalletPage() {
               </div>
 
               <div className="flex flex-wrap items-center gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setTopupOpen(true)}
-                  className="inline-flex items-center gap-2 rounded-full bg-gold px-5 py-2.5 text-xs sm:text-sm font-semibold text-primary-foreground shadow-lg glow-gold transition hover:opacity-95"
-                >
-                  <Plus className="h-4 w-4" />
-                  Nạp tiền qua VietQR
-                </button>
-
                 <Link
                   to="/profile/subscription"
                   className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-card/60 px-4 py-2.5 text-xs sm:text-sm font-medium text-foreground hover:border-gold/50 hover:text-gold transition"
@@ -234,7 +232,8 @@ function WalletPage() {
                     Bảo chứng thanh toán 100%
                   </h4>
                   <p className="mt-0.5 text-2xs text-muted-foreground leading-relaxed">
-                    Khóa hai lớp an toàn, trừ tiền tức thì không phát sinh phí phụ trội.
+                    Khóa hai lớp an toàn, trừ tiền tức thì không phát sinh phí
+                    phụ trội.
                   </p>
                 </div>
               </div>
@@ -250,7 +249,8 @@ function WalletPage() {
                     Hoàn tiền huỷ lịch tự động
                   </h4>
                   <p className="mt-0.5 text-2xs text-muted-foreground leading-relaxed">
-                    Khi huỷ lịch hẹn hợp lệ, khoản tiền cọc sẽ được hoàn ngay vào số dư ví của bạn.
+                    Khi huỷ lịch hẹn hợp lệ, khoản tiền cọc sẽ được hoàn ngay
+                    vào số dư ví của bạn.
                   </p>
                 </div>
               </div>
@@ -266,7 +266,8 @@ function WalletPage() {
                     VietQR PayOS tức thời
                   </h4>
                   <p className="mt-0.5 text-2xs text-muted-foreground leading-relaxed">
-                    Quét mã QR từ mọi ứng dụng ngân hàng, tiền vào ví trong vài giây.
+                    Quét mã QR từ mọi ứng dụng ngân hàng, tiền vào ví trong vài
+                    giây.
                   </p>
                 </div>
               </div>
@@ -303,16 +304,9 @@ function WalletPage() {
                 Chưa có giao dịch nào
               </h4>
               <p className="mt-1 text-xs text-muted-foreground max-w-sm mx-auto">
-                Khi bạn nạp tiền vào ví hoặc thanh toán dịch vụ Tarot, lịch sử biến động số dư sẽ hiển thị chi tiết tại đây.
+                Khi bạn thanh toán dịch vụ Tarot, lịch sử biến động số dư sẽ
+                hiển thị chi tiết tại đây.
               </p>
-              <button
-                type="button"
-                onClick={() => setTopupOpen(true)}
-                className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-gold px-4 py-2 text-xs font-semibold text-primary-foreground shadow glow-gold transition hover:opacity-95"
-              >
-                <Plus className="h-3.5 w-3.5" />
-                Nạp tiền ngay
-              </button>
             </div>
           ) : (
             <div className="space-y-3">
@@ -408,12 +402,6 @@ function WalletPage() {
           )}
         </div>
       </main>
-
-      <TopupModal
-        open={topupOpen}
-        onClose={() => setTopupOpen(false)}
-        onSuccess={handleRefresh}
-      />
     </div>
   );
 }

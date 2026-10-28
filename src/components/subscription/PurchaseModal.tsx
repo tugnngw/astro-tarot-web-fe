@@ -5,8 +5,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth-context";
 import { subscriptionApi } from "@/api/subscription";
 import { walletApi } from "@/api/wallet";
-import { TopupModal } from "@/components/wallet/TopupModal";
-import type { SubscriptionPlan, AIPlanResponse, CreatePurchaseRequest } from "@/api/subscription";
+import type {
+  SubscriptionPlan,
+  AIPlanResponse,
+  CreatePurchaseRequest,
+} from "@/api/subscription";
 import { useActivePlans } from "./PackageSelection";
 import {
   Dialog,
@@ -48,9 +51,12 @@ export function PurchaseModal({
     queryFn: walletApi.getMyWallet,
     enabled: !!user,
   });
-  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(propPlan || null);
-  const [purchaseType, setPurchaseType] = useState<"WALLET" | "PAYOS" | "STRIPE" | "MANUAL">("WALLET");
-  const [showTopupModal, setShowTopupModal] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(
+    propPlan || null,
+  );
+  const [purchaseType, setPurchaseType] = useState<
+    "WALLET" | "PAYOS" | "STRIPE" | "MANUAL"
+  >("WALLET");
   const [error, setError] = useState<string | null>(null);
 
   const walletBalance = wallet?.balance ?? 0;
@@ -65,7 +71,8 @@ export function PurchaseModal({
   const giam = selectedPlan ? giaGoi?.[selectedPlan.id] : undefined;
   const planPrice = giam ? giam.giaCuoi : (selectedPlan?.price ?? 0);
   const isWalletPayment = purchaseType === "WALLET";
-  const isInsufficient = isWalletPayment && planPrice > 0 && walletBalance < planPrice;
+  const isInsufficient =
+    isWalletPayment && planPrice > 0 && walletBalance < planPrice;
   const shortageAmount = Math.max(0, planPrice - walletBalance);
 
   // Sync selectedPlan when prop or id changes
@@ -207,7 +214,8 @@ export function PurchaseModal({
                       {selectedPlan.name}
                     </h4>
                     <p className="mt-0.5 text-xs text-muted-foreground">
-                      {selectedPlan.description || "Gói cước mở rộng lượt hỏi AI"}
+                      {selectedPlan.description ||
+                        "Gói cước mở rộng lượt hỏi AI"}
                     </p>
                   </div>
                   <div className="text-right">
@@ -289,7 +297,9 @@ export function PurchaseModal({
                           </div>
                           <div
                             className={`h-4 w-4 rounded-full border flex items-center justify-center shrink-0 ${
-                              isSelected ? "border-gold bg-gold" : "border-white/30"
+                              isSelected
+                                ? "border-gold bg-gold"
+                                : "border-white/30"
                             }`}
                           >
                             {isSelected && (
@@ -313,12 +323,14 @@ export function PurchaseModal({
                           </strong>
                         </span>
                       </div>
+                      {/* Không còn lối nạp ví, nên chỗ này đẩy sang cách
+                          trả khác thay vì mời nạp thêm. */}
                       <button
                         type="button"
-                        onClick={() => setShowTopupModal(true)}
+                        onClick={() => setPurchaseType("PAYOS")}
                         className="shrink-0 rounded-lg bg-gold px-3 py-1.5 text-xs font-semibold text-primary-foreground shadow glow-gold transition hover:opacity-95"
                       >
-                        Nạp ví ngay
+                        Trả bằng PayOS
                       </button>
                     </div>
                   )}
@@ -329,7 +341,9 @@ export function PurchaseModal({
               <div className="flex items-start gap-2 rounded-xl bg-white/5 p-3 text-2xs text-muted-foreground">
                 <ShieldCheck className="h-4 w-4 shrink-0 text-success mt-0.5" />
                 <span>
-                  Hạn mức được cộng dồn theo quy tắc lấy hạn mức cao nhất trong tất cả các gói đang hoạt động của bạn. Lượt AI được hồi phục vào 00:00 (Asia/Ho_Chi_Minh) hàng ngày.
+                  Hạn mức được cộng dồn theo quy tắc lấy hạn mức cao nhất trong
+                  tất cả các gói đang hoạt động của bạn. Lượt AI được hồi phục
+                  vào 00:00 (Asia/Ho_Chi_Minh) hàng ngày.
                 </span>
               </div>
 
@@ -345,10 +359,10 @@ export function PurchaseModal({
                 {isInsufficient ? (
                   <button
                     type="button"
-                    onClick={() => setShowTopupModal(true)}
+                    onClick={() => setPurchaseType("PAYOS")}
                     className="flex-1 rounded-xl bg-gold py-2.5 text-sm font-semibold text-primary-foreground shadow glow-gold transition hover:opacity-95"
                   >
-                    Nạp thêm {shortageAmount.toLocaleString("vi-VN")} ₫ vào ví
+                    Trả {shortageAmount.toLocaleString("vi-VN")} ₫ bằng PayOS
                   </button>
                 ) : (
                   <button
@@ -373,17 +387,6 @@ export function PurchaseModal({
           )}
         </DialogContent>
       </Dialog>
-
-      <TopupModal
-        open={showTopupModal}
-        onClose={() => setShowTopupModal(false)}
-        defaultAmount={
-          shortageAmount > 0 ? Math.ceil(shortageAmount / 10000) * 10000 : 50000
-        }
-        onSuccess={() => {
-          void queryClient.invalidateQueries({ queryKey: ["user-wallet"] });
-        }}
-      />
     </>
   );
 }
