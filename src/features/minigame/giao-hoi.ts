@@ -248,6 +248,26 @@ export function tamCacO(
   };
 }
 
+/**
+ * Kéo một điểm vào trong bàn để thứ vẽ ở đó không tràn ra ngoài mép.
+ *
+ * Tâm đám ô vừa nổ có thể nằm sát mép — một chuỗi ba dọc ở cột ngoài cùng cho
+ * ra x ≈ 7%. Vẽ một khung chữ ở đúng đó thì nửa khung nằm ngoài bàn: chữ bị
+ * cắt, hoặc nó phủ lên bảng thành tích bên cạnh.
+ *
+ * Nên con số được kéo vào trong, nhưng CHỈ vừa đủ. Kéo hẳn về giữa bàn thì
+ * mất luôn thứ quý nhất: người chơi đang nhìn vào chỗ mình vừa xếp, và phần
+ * thưởng phải hiện ra ở ĐÚNG chỗ ấy. Bắt mắt chạy sang chỗ khác đọc là cắt
+ * đứt mối liên hệ giữa việc mình vừa làm và cái mình vừa được.
+ */
+export function tamTrongBan(
+  tam: { x: number; y: number },
+  bien: number,
+): { x: number; y: number } {
+  const kep = (v: number) => Math.min(100 - bien, Math.max(bien, v));
+  return { x: kep(tam.x), y: kep(tam.y) };
+}
+
 // ============================================================
 // NHỊP
 // ============================================================
