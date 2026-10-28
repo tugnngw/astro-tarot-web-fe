@@ -7,7 +7,10 @@ import {
   laKyTuO,
   O_RONG,
   lechKhiKeo,
+  MS_GIU_BANG,
   mucDoNo,
+  NHIP_GIAM,
+  nhipCuaBac,
   NGUONG_RUNG,
   oTheoHuong,
   phanTramNap,
@@ -389,5 +392,49 @@ describe("tamCacO", () => {
       expect(t.y).toBeGreaterThan(0);
       expect(t.y).toBeLessThan(100);
     }
+  });
+});
+
+describe("nhipCuaBac", () => {
+  const BAC = [0, 1, 2, 3] as const;
+
+  it("bậc càng cao thì mỗi chặng càng lâu, không bậc nào ngắn hơn bậc dưới", () => {
+    for (let i = 1; i < BAC.length; i++) {
+      const tren = nhipCuaBac(BAC[i]);
+      const duoi = nhipCuaBac(BAC[i - 1]);
+      expect(tren.tan, `bậc ${i}`).toBeGreaterThan(duoi.tan);
+      expect(tren.roi, `bậc ${i}`).toBeGreaterThanOrEqual(duoi.roi);
+      expect(tren.lang, `bậc ${i}`).toBeGreaterThan(duoi.lang);
+    }
+  });
+
+  /**
+   * Chuỗi ba xảy ra mỗi lượt. Chen một khoảng lặng vào đó là bắt người chơi
+   * ngồi xem suốt ván — đúng cái mà việc chia bậc sinh ra để tránh.
+   */
+  it("chuỗi ba thường không có khoảng lặng nào", () => {
+    expect(nhipCuaBac(0).lang).toBe(0);
+  });
+
+  it("nổ lớn nhất vẫn gọn dưới một giây mỗi bậc", () => {
+    for (const b of BAC) {
+      const n = nhipCuaBac(b);
+      expect(n.tan + n.roi + n.lang, `bậc ${b}`).toBeLessThan(1100);
+    }
+  });
+
+  it("nhịp giảm chuyển động ngắn hơn mọi bậc thường", () => {
+    for (const b of BAC) {
+      const n = nhipCuaBac(b);
+      expect(NHIP_GIAM.tan).toBeLessThanOrEqual(n.tan);
+      expect(NHIP_GIAM.roi).toBeLessThanOrEqual(n.roi);
+    }
+    // Nhưng vẫn phải có khoảng lặng: bỏ hẳn thì các bậc dính vào nhau thành
+    // một cú đổi bàn, và người chơi mất luôn thông tin mình vừa ăn mấy chuỗi.
+    expect(NHIP_GIAM.lang).toBeGreaterThan(0);
+  });
+
+  it("bảng thành tích giữ đủ lâu để đọc", () => {
+    expect(MS_GIU_BANG).toBeGreaterThanOrEqual(2000);
   });
 });

@@ -247,3 +247,55 @@ export function tamCacO(
     y: ((tongHang / cacO.length + 0.5) / canh) * 100,
   };
 }
+
+// ============================================================
+// NHỊP
+// ============================================================
+
+/** Thời lượng từng chặng của một bậc dây chuyền, tính bằng mili giây. */
+export type Nhip = {
+  /** Ô sáng lên rồi tan. */
+  tan: number;
+  /** Ô còn lại rơi xuống, ô mới trượt vào. */
+  roi: number;
+  /** Khoảng lặng sau đó, trước khi sang bậc tiếp theo. */
+  lang: number;
+};
+
+/**
+ * Nổ càng lớn thì càng được để lâu trên màn hình.
+ *
+ * ## Vì sao không để một nhịp chung cho mọi cú nổ
+ *
+ * Một nhịp chung thì phải chọn: nhanh đều, hoặc chậm đều. Nhanh đều thì cú
+ * nổ chín ô — thứ người chơi phải dành cả chục lượt mới nạp đủ kĩ năng để
+ * làm — loé lên rồi biến mất trước khi mắt kịp bắt, nên công sức ấy không
+ * được trả lại gì. Chậm đều thì chuỗi ba, thứ xảy ra mỗi lượt, biến cả ván
+ * thành ngồi xem.
+ *
+ * Nên nhịp đi theo bậc: chuỗi ba thường thì gọn và không có khoảng lặng nào,
+ * còn nổ lớn thì ô tan lâu hơn, và sau khi rơi xong còn một khoảng lặng để
+ * người chơi nhìn thấy mình vừa làm được gì trước khi bàn chạy tiếp.
+ *
+ * Khoảng lặng mới là thứ quan trọng, không phải thời lượng hoạt ảnh: kéo dài
+ * hoạt ảnh chỉ làm mọi thứ chậm chạp, còn một nhịp đứng im sau cú nổ thì tách
+ * nó ra khỏi dòng chảy và biến nó thành một sự kiện.
+ */
+export function nhipCuaBac(bac: 0 | 1 | 2 | 3): Nhip {
+  switch (bac) {
+    case 0:
+      return { tan: 150, roi: 170, lang: 0 };
+    case 1:
+      return { tan: 200, roi: 190, lang: 140 };
+    case 2:
+      return { tan: 260, roi: 210, lang: 300 };
+    case 3:
+      return { tan: 320, roi: 230, lang: 480 };
+  }
+}
+
+/** Nhịp khi người dùng bật "giảm chuyển động": vẫn tách bậc, nhưng gọn hẳn. */
+export const NHIP_GIAM: Nhip = { tan: 90, roi: 90, lang: 60 };
+
+/** Bảng thành tích bên cạnh bàn giữ lại cú nổ cuối bấy nhiêu lâu rồi mới mờ đi. */
+export const MS_GIU_BANG = 3200;
