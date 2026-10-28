@@ -15,6 +15,7 @@ import {
   oTheoHuong,
   phanTramNap,
   tamCacO,
+  tamTrongBan,
   TI_LE_CHOT,
   tinhDuongRoi,
 } from "./giao-hoi";
@@ -436,5 +437,45 @@ describe("nhipCuaBac", () => {
 
   it("bảng thành tích giữ đủ lâu để đọc", () => {
     expect(MS_GIU_BANG).toBeGreaterThanOrEqual(2000);
+  });
+});
+
+describe("tamTrongBan", () => {
+  it("điểm ở giữa bàn thì không bị động tới", () => {
+    expect(tamTrongBan({ x: 50, y: 50 }, 20)).toEqual({ x: 50, y: 50 });
+  });
+
+  it("kéo điểm sát mép vào trong", () => {
+    // Chuỗi ba dọc ở cột ngoài cùng cho tâm x ≈ 7%. Vẽ khung chữ ở đúng đó
+    // thì nửa khung nằm ngoài bàn.
+    expect(tamTrongBan({ x: 7, y: 50 }, 20)).toEqual({ x: 20, y: 50 });
+    expect(tamTrongBan({ x: 96, y: 50 }, 20)).toEqual({ x: 80, y: 50 });
+    expect(tamTrongBan({ x: 50, y: 2 }, 20)).toEqual({ x: 50, y: 20 });
+  });
+
+  it("không bao giờ kéo quá về giữa bàn", () => {
+    // Đây mới là điều kiện quan trọng: kéo hẳn về giữa là mất thứ quý nhất —
+    // phần thưởng phải hiện ra ở ĐÚNG chỗ người chơi vừa xếp.
+    for (let x = 0; x <= 100; x += 5) {
+      const r = tamTrongBan({ x, y: x }, 20);
+      // Đã dịch thì phải dịch về phía giữa, và không vượt qua mép an toàn.
+      expect(Math.abs(r.x - 50)).toBeLessThanOrEqual(Math.abs(x - 50));
+      expect(r.x).toBeGreaterThanOrEqual(20);
+      expect(r.x).toBeLessThanOrEqual(80);
+    }
+  });
+
+  it("tâm thật của một đám ô luôn nằm trong bàn sau khi kẹp", () => {
+    // Ghép với tamCacO: mọi vị trí ô trên bàn 7×7 đều phải ra điểm vẽ được.
+    const canh = 7;
+    for (let i = 0; i < canh * canh; i++) {
+      const t = tamCacO([i], canh);
+      expect(t).not.toBeNull();
+      const r = tamTrongBan(t!, 26);
+      expect(r.x).toBeGreaterThanOrEqual(26);
+      expect(r.x).toBeLessThanOrEqual(74);
+      expect(r.y).toBeGreaterThanOrEqual(26);
+      expect(r.y).toBeLessThanOrEqual(74);
+    }
   });
 });

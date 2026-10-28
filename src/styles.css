@@ -312,6 +312,31 @@
     letter-spacing: -0.01em;
   }
 
+  /* Chữ số thẳng hàng, đều bề ngang — ở KHẮP trang, không riêng font nào.
+
+     Cormorant Garamond mặc định dùng chữ số kiểu cổ (oldstyle): cao thấp so
+     le, 3 4 5 7 9 thò xuống dưới dòng, và số 1 là một nét đứng ngắn trông
+     hệt chữ I hoa nhỏ. Trong một cuốn sách thì đẹp. Trên một con số tiền hay
+     một con số điểm thì "195" đọc ra "I95" — và người ta không đọc nhầm một
+     lần rồi thôi, họ bắt đầu ngờ vực mọi con số còn lại trên trang.
+
+     `lining-nums` gọi bộ số kiểu thẳng có sẵn trong font. Đã đo tận nơi trên
+     trang thật: bật lên thì số 0 rộng 47,71px thành 50,1px và số 1 rộng
+     33,21px thành 39,1px — tức là font đổi hẳn sang bộ glyph khác, chứ không
+     phải không có gì xảy ra. Nên không cần thay font, giữ nguyên nét chữ của
+     sản phẩm.
+
+     `tabular-nums` cho mọi chữ số rộng bằng nhau. Không có nó thì một con số
+     đang đếm lên làm chữ bên cạnh nhảy qua nhảy lại, và hai con số xếp chồng
+     trong một bảng thì không thẳng cột.
+
+     Đặt ở `html` để nó xuống cả trang: font thân bài (Inter) vốn đã dùng số
+     thẳng nên không đổi gì, còn mọi chỗ dùng font hiển thị thì được sửa — kể
+     cả những chỗ sau này mới viết. */
+  html {
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+
   /* Nút và thẻ bấm phải phản hồi khi trỏ và khi nhấn.
      Nhiều nút tự vẽ viền mà không có hover, nên di chuột qua trông như chữ
      chết. Lớp nền chỉ thêm độ sáng và co nhẹ lúc nhấn; màu riêng của từng

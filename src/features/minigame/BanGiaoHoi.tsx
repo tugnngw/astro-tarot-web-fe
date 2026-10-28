@@ -13,6 +13,9 @@ import {
 import { so } from "@/lib/tien";
 import { AnhNhanVat } from "./AnhNhanVat";
 import { BieuTuongO } from "./BieuTuongO";
+import { cauHoCuaBac, cauHoCuaKiNang } from "./am-thanh";
+import { DieuKhienAmThanh } from "./DieuKhienAmThanh";
+import { useAmThanh } from "./dung-am-thanh";
 import {
   doiHaiO,
   keNhau,
@@ -26,6 +29,7 @@ import {
   oTheoHuong,
   phanTramNap,
   tamCacO,
+  tamTrongBan,
   tenLoai,
   TI_LE_CHOT,
   tinhDuongRoi,
@@ -81,6 +85,21 @@ const RONG = new Set<number>();
 
 /** Bàn rung từ bậc này trở lên. Rung cả ở chuỗi ba thì cả ván chỉ thấy rung. */
 const BAC_RUNG = 2;
+
+/**
+ * Cỡ chữ của con số điểm, theo bậc cú nổ.
+ *
+ * Chuỗi ba thì chỉ một con số nhỏ bay lên — nó xảy ra mỗi lượt, làm to là
+ * mỗi lượt đều bị một khung chữ che mất bàn. Nổ càng lớn thì con số càng to,
+ * nên độ lớn trên màn hình tự nó đã nói lên mình vừa ăn được bao nhiêu, trước
+ * cả khi kịp đọc chữ số.
+ */
+const CO_DIEM: Record<0 | 1 | 2 | 3, string> = {
+  0: "text-xl",
+  1: "text-2xl",
+  2: "text-3xl",
+  3: "text-4xl",
+};
 
 function nghi(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
@@ -159,6 +178,12 @@ export function BanGiaoHoi({
   const [baoDaoBan, setBaoDaoBan] = useState(false);
 
   const giam = useGiamChuyenDong();
+  const {
+    am,
+    caiDat: amCaiDat,
+    datBat: amDatBat,
+    datMuc: amDatMuc,
+  } = useAmThanh();
   const { ref: luoiRef, canhO } = useCanhO(canhBan);
   const batDau = useRef<{ x: number; y: number } | null>(null);
 
@@ -244,12 +269,22 @@ export function BanGiaoHoi({
       if (henXoaBang.current) clearTimeout(henXoaBang.current);
       setCacDong([]);
 
-      for (const b of cacBuoc) {
+      for (const [buoc, b] of cacBuoc.entries()) {
         if (!conGan.current) return;
         const m = mucDoNo(b.cacOXoa.length);
         const nhip = giam ? NHIP_GIAM : nhipCuaBac(m.bac);
         idNo.current += 1;
         const id = idNo.current;
+
+        // Tiếng kêu đúng lúc ô bắt đầu tan, không sớm hơn không muộn hơn.
+        // Lệch đi một hai trăm mili giây là tai nghe ra ngay thành hai sự
+        // kiện rời nhau, và cú nổ mất hết sức nặng.
+        //
+        // Cao độ leo theo `buoc`, nên tai biết dây chuyền còn chạy tiếp mà
+        // không cần nhìn: bậc sau bao giờ cũng cao hơn bậc trước.
+        am.no(m.bac, buoc);
+        const ho = cauHoCuaBac(m.bac, buoc);
+        if (ho) am.ho(ho);
 
         setBacDangAn(b);
         setNo({
@@ -302,7 +337,7 @@ export function BanGiaoHoi({
         if (nhip.lang > 0) await nghi(nhip.lang);
       }
     },
-    [canhBan, giam, khoaMoi, rung],
+    [am, canhBan, giam, khoaMoi, rung],
   );
 
   /** Ghi kết quả một nước đi lên bàn: diễn dây chuyền rồi chốt lại. */
@@ -330,9 +365,16 @@ export function BanGiaoHoi({
       }, MS_GIU_BANG);
       setBaoDaoBan(kq.daDaoBan);
       onPhien(kq.phien);
-      if (kq.thuong) onThuong(kq.thuong);
+      if (kq.thuong) {
+        am.thuong();
+        onThuong(kq.thuong);
+      } else if (kq.phien.daChot) {
+        // Chỉ kêu khi KHÔNG có thưởng: hai tiếng chồng lên nhau thì tiếng
+        // thưởng — thứ đáng nghe hơn hẳn — bị tiếng hết lượt nuốt mất.
+        am.het();
+      }
     },
-    [dienLai, khoaMoi, onPhien, onThuong],
+    [am, dienLai, khoaMoi, onPhien, onThuong],
   );
 
   /**
@@ -373,6 +415,10 @@ export function BanGiaoHoi({
       setLoi(null);
       setBaoDaoBan(false);
       setChon(null);
+      // Kêu ngay lúc hai ô bắt đầu trượt, không đợi máy chủ. Cùng lý do với
+      // cú trượt: chờ mạng rồi mới kêu là người chơi nghe thấy tiếng của một
+      // việc họ làm xong từ hai trăm mili giây trước.
+      am.truot();
 
       try {
         const [kq] = await Promise.all([
@@ -389,6 +435,7 @@ export function BanGiaoHoi({
       } catch (e) {
         if (!conGan.current) return;
         // Máy chủ từ chối: trượt ngược về chỗ cũ.
+        am.hong();
         setKeo({ tuO: a, oDich: b, x: 0, y: 0, dangTha: true });
         setLoi(
           e instanceof ApiError
@@ -400,7 +447,7 @@ export function BanGiaoHoi({
         if (conGan.current) setDangGui(false);
       }
     },
-    [canhBan, canhO, giam, khoaBan, nhanKetQua, phien.id],
+    [am, canhBan, canhO, giam, khoaBan, nhanKetQua, phien.id],
   );
 
   const chotKiNang = useCallback(
@@ -409,6 +456,11 @@ export function BanGiaoHoi({
       setDangGui(true);
       setLoi(null);
       setBaoDaoBan(false);
+      am.kiNang();
+      // Người đồng hành gọi tên chiêu của chính mình. Kĩ năng nạp cả chục
+      // lượt mới có một lần nên nó luôn đáng một câu hô.
+      const hoChieu = cauHoCuaKiNang(phien.nhanVat.ma);
+      if (hoChieu) am.ho(hoChieu);
       try {
         const kq = await goiKiNang(phien.id, o);
         if (!conGan.current) return;
@@ -428,7 +480,7 @@ export function BanGiaoHoi({
         }
       }
     },
-    [khoaBan, nhanKetQua, phien.id],
+    [am, khoaBan, nhanKetQua, phien.id, phien.nhanVat.ma],
   );
 
   // ----------------------------------------------------------------
@@ -608,32 +660,76 @@ export function BanGiaoHoi({
             )}
           </motion.div>
 
-          <AnimatePresence>
-            {bacDangAn && bacDangAn.diem > 0 && (
-              <motion.div
-                key={`${bacDangAn.bac}-${bacDangAn.diem}`}
-                initial={{ opacity: 0, y: 8, scale: 0.9 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: giam ? 0 : 0.18 }}
-                className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-xl border border-gold/50 bg-gold/20 px-4 py-2 text-center backdrop-blur-sm"
-              >
-                {no?.ten && (
-                  <div className="font-display text-base leading-tight text-gold-soft">
-                    {no.ten}
-                  </div>
-                )}
-                <div className="font-display text-2xl font-semibold text-gold">
-                  +{so(bacDangAn.diem)}
+          {/* Phần thưởng hiện ra ĐÚNG chỗ vừa nổ.
+              Trước đây nó cắm giữa bàn, và bảng bên cạnh thì nằm xa hơn nữa.
+              Cả hai chỗ ấy đều bắt mắt rời khỏi nơi người chơi đang nhìn —
+              mà nơi ấy mới là chỗ họ vừa xếp xong một hình. Đưa con số về
+              đúng đó thì việc mình làm và cái mình được dính liền nhau, không
+              phải hai sự kiện ở hai góc màn hình.
+
+              Bảng bên cạnh vẫn giữ, nhưng nó làm việc khác: đọc lại cả dây
+              chuyền sau khi bàn đã ngừng. */}
+          {/* KHÔNG dùng AnimatePresence ở đây.
+              Đã thử và hỏng: mỗi bậc dây chuyền sinh một con số mới, và
+              AnimatePresence giữ cả những cái đang diễn hoạt ảnh thoát. Bốn
+              bậc liên tiếp để lại bốn con số nằm chồng trên bàn, còn nguyên
+              sau khi bàn đã ngừng hẳn. Trước đây không ai thấy vì cả bốn cùng
+              cắm giữa bàn, đè khít lên nhau — đưa chúng về đúng chỗ nổ thì
+              lỗi lộ ra ngay.
+
+              Thay bằng một phần tử duy nhất mang `key` của cú nổ: đổi khoá là
+              React tháo cái cũ dựng cái mới, nên không có đường nào tồn tại
+              hai con số một lúc. Hoạt ảnh chạy trọn vòng hiện-rồi-tắt trong
+              chính `animate`, nên nó tự tắt đúng lúc bậc sau nổ. */}
+          {bacDangAn && bacDangAn.diem > 0 && no && (
+            <motion.div
+              key={no.id}
+              initial={{ opacity: 0, scale: 0.6, y: 0 }}
+              animate={{
+                opacity: giam ? [0, 1, 1] : [0, 1, 1, 0],
+                scale: giam ? [1, 1, 1] : [0.6, 1.08, 1, 0.96],
+                y: giam ? [0, 0, 0] : [0, -6, -10, -26],
+              }}
+              transition={{
+                duration: giam
+                  ? 0.01
+                  : (nhipHien.tan + nhipHien.roi + nhipHien.lang) / 1000,
+                // Nảy lên quá cỡ một nhịp rồi mới về: vào thẳng đều đều thì
+                // con số chỉ là một thông báo, nảy một cái thì nó là cú đập.
+                times: giam ? [0, 0, 1] : [0, 0.14, 0.26, 1],
+                ease: "easeOut",
+              }}
+              style={
+                no.tam
+                  ? {
+                      left: `${tamTrongBan(no.tam, no.bac > 0 ? 26 : 12).x}%`,
+                      top: `${tamTrongBan(no.tam, no.bac > 0 ? 18 : 10).y}%`,
+                    }
+                  : { left: "50%", top: "50%" }
+              }
+              className={`pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 text-center ${
+                no.bac > 0
+                  ? "rounded-xl border border-gold/50 bg-gold/20 px-4 py-2 backdrop-blur-sm"
+                  : ""
+              }`}
+            >
+              {no.ten && (
+                <div className="font-display text-base leading-tight text-gold-soft">
+                  {no.ten}
                 </div>
-                {bacDangAn.bac > 1 && (
-                  <div className="text-3xs uppercase tracking-wider text-gold-soft">
-                    dây chuyền ×{bacDangAn.heSo}
-                  </div>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
+              )}
+              <div
+                className={`font-display font-semibold text-gold ${CO_DIEM[no.bac]}`}
+              >
+                +{so(bacDangAn.diem)}
+              </div>
+              {bacDangAn.bac > 1 && (
+                <div className="text-3xs uppercase tracking-wider text-gold-soft">
+                  dây chuyền ×{bacDangAn.heSo}
+                </div>
+              )}
+            </motion.div>
+          )}
 
           {dangGui && !bacDangAn && (
             <div className="pointer-events-none absolute right-2 top-2">
@@ -642,7 +738,18 @@ export function BanGiaoHoi({
           )}
         </div>
 
-        <BangThanhTich cacDong={cacDong} giam={giam} />
+        {/* Cột phải: bảng thành tích và nút tiếng.
+            Nút tiếng để dưới bảng chứ không trên — thứ người chơi nhìn liên
+            tục là bảng, còn nút tiếng chỉnh một lần rồi thôi. Trên màn hẹp cả
+            cột này xuống dưới bàn. */}
+        <div className="flex w-full shrink-0 flex-col gap-2 lg:w-52">
+          <BangThanhTich cacDong={cacDong} giam={giam} />
+          <DieuKhienAmThanh
+            caiDat={amCaiDat}
+            datBat={amDatBat}
+            datMuc={amDatMuc}
+          />
+        </div>
       </div>
     </div>
   );
