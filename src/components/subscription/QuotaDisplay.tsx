@@ -1,19 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth-context";
 import { subscriptionApi } from "@/api/subscription";
+import { useAIQuota } from "@/features/tarot/hooks/useSubscription";
 import { Zap, Clock, ShieldCheck, Sparkles } from "lucide-react";
 
-export function useUserAIUsage(userId: string | null, date?: string) {
-  return useQuery({
-    queryKey: ["ai-usage", userId, date],
-    queryFn: () => {
-      if (!userId) return [];
-      return subscriptionApi.getAIUsage(userId, date || new Date().toISOString().split("T")[0]);
-    },
-    enabled: !!userId,
-    staleTime: 1 * 60 * 1000,
-  });
-}
 
 interface QuotaDisplayProps {
   className?: string;
@@ -25,47 +15,58 @@ export function QuotaDisplay({
   variant = "detailed",
 }: QuotaDisplayProps) {
   const { user } = useAuth();
-  const today = new Date().toISOString().split("T")[0];
 
-  const { data: usageData, isLoading } = useUserAIUsage(user?.id ?? null, today);
+  // Hạn mức lấy THẲNG từ máy chủ. Chỗ này từng tự tính lại bằng max() trên
+  // danh sách gói — xem chú thích ở `useAIQuota` về chuyện bản sao ấy không
+  // biết gì về lượt thưởng từ mini game.
+  const {
+    totalQuota,
+    usedCount,
+    remainingCount: remaining,
+    tuGoi,
+    tuGame,
+    isLoading,
+  } = useAIQuota(user?.id ?? "");
   const { data: userPurchases } = useQuery({
     queryKey: ["user-purchases", user?.id],
-    queryFn: () => (user ? subscriptionApi.getUserActivePurchases(user.id) : Promise.resolve([])),
+    queryFn: () =>
+      user
+        ? subscriptionApi.getUserActivePurchases(user.id)
+        : Promise.resolve([]),
     enabled: !!user,
     staleTime: 5 * 60 * 1000,
   });
 
   if (isLoading) {
     return (
-      <div className={`glass rounded-2xl border-gold/20 p-5 animate-pulse ${className}`}>
+      <div
+        className={`glass rounded-2xl border-gold/20 p-5 animate-pulse ${className}`}
+      >
         <div className="h-4 bg-white/10 rounded w-32" />
         <div className="h-3 bg-white/5 rounded w-48 mt-2" />
       </div>
     );
   }
 
-  // Total quota from all active packages (max() logic, fallback to 3)
-  const getTotalDailyQuota = () => {
-    if (!userPurchases?.length) {
-      return 3;
-    }
-    return Math.max(...userPurchases.map((p) => p.dailyQuotaSnapshot));
-  };
-
-  const totalQuota = getTotalDailyQuota();
-  const usedCount = usageData?.[0]?.countUsed || 0;
-  const remaining = Math.max(0, totalQuota - usedCount);
-  const percentage = Math.min(100, (usedCount / totalQuota) * 100);
+  // Chia cho 0 khi hạn mức chưa về hoặc bằng 0 thì ra NaN, và thanh tiến độ
+  // biến mất không báo gì.
+  const percentage =
+    totalQuota > 0 ? Math.min(100, (usedCount / totalQuota) * 100) : 0;
 
   if (variant === "compact") {
     return (
       <div
         className={`inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-xs backdrop-blur-sm ${className}`}
-        title={`Đã dùng ${usedCount}/${totalQuota} lượt hỏi AI hôm nay`}
+        title={
+          tuGame > 0
+            ? `Đã dùng ${usedCount}/${totalQuota} lượt hỏi AI hôm nay (${tuGoi} từ gói + ${tuGame} thưởng từ Game)`
+            : `Đã dùng ${usedCount}/${totalQuota} lượt hỏi AI hôm nay`
+        }
       >
         <Zap className="h-3.5 w-3.5 text-gold animate-pulse" />
         <span className="font-medium text-foreground">
-          AI: <strong className="text-gold">{remaining}</strong>/{totalQuota} lượt
+          AI: <strong className="text-gold">{remaining}</strong>/{totalQuota}{" "}
+          lượt
         </span>
       </div>
     );
@@ -91,11 +92,22 @@ export function QuotaDisplay({
         <div className="text-right">
           <div className="font-display text-lg font-bold">
             <span className="text-gold">{remaining}</span>
-            <span className="text-muted-foreground text-xs font-normal"> / {totalQuota} lượt còn lại</span>
+            <span className="text-muted-foreground text-xs font-normal">
+              {" "}
+              / {totalQuota} lượt còn lại
+            </span>
           </div>
           <span className="text-3xs text-muted-foreground">
             Đã sử dụng {usedCount} lượt
           </span>
+          {/* Nói rõ phần thưởng từ game. Gộp vào tổng thì người vừa chơi xong
+              một ván không thấy công của mình ở đâu — đúng cái đã khiến họ
+              tưởng phần thưởng không chạy. */}
+          {tuGame > 0 && (
+            <div className="text-3xs text-gold-soft">
+              {tuGoi} từ gói + {tuGame} thưởng từ Game
+            </div>
+          )}
         </div>
       </div>
 
@@ -155,7 +167,8 @@ export function QuotaDisplay({
                     {purchase.planNameSnapshot}
                   </span>
                   <span className="text-2xs text-muted-foreground">
-                    ({purchase.dailyQuotaSnapshot} lượt/ngày • còn {daysLeft} ngày)
+                    ({purchase.dailyQuotaSnapshot} lượt/ngày • còn {daysLeft}{" "}
+                    ngày)
                   </span>
                 </div>
               );
@@ -165,7 +178,10 @@ export function QuotaDisplay({
       ) : (
         <div className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground border-t border-white/5 pt-2.5">
           <ShieldCheck className="h-3.5 w-3.5 text-gold/80" />
-          <span>Bạn đang dùng gói FREE mặc định (3 lượt/ngày).</span>
+          {/* Con số lấy từ máy chủ, không viết cứng: đổi FREE_DAILY_QUOTA ở
+              backend mà chỗ này viết 3 thì màn hình nói dối, và không có gì
+              báo. */}
+          <span>Bạn đang dùng gói FREE mặc định ({tuGoi} lượt/ngày).</span>
         </div>
       )}
     </div>

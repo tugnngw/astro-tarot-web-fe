@@ -272,3 +272,55 @@ describe("một nguồn cho thang độ mờ", () => {
     ).toEqual([]);
   });
 });
+
+/**
+ * Hạn mức AI chỉ có MỘT nơi được tính, và nơi ấy là máy chủ.
+ *
+ * ## Vì sao cần chốt bằng test
+ *
+ * Luật hạn mức từng bị chép lại ở BA chỗ trong giao diện, mỗi chỗ đều là
+ * `max(dailyQuotaSnapshot)` rồi mặc định 3 nếu không có gói. Bản sao ấy đúng
+ * cho tới ngày mini game bắt đầu thưởng lượt: backend CỘNG phần thưởng vào,
+ * giao diện không biết gì về nó.
+ *
+ * Người dùng báo ngày 31/10/2026 — chơi game được thưởng 3 lượt mà huy hiệu
+ * vẫn ghi "AI: 3/3 lượt". Lượt thưởng vẫn dùng được; chỉ là không chỗ nào
+ * nói cho họ biết là họ có. Đó là kiểu lỗi không ai tìm ra bằng cách đọc
+ * backend, vì backend đúng.
+ *
+ * Chép lại một phép tính của máy chủ thì nó đúng đúng tới lần máy chủ đổi
+ * luật, và không có gì báo.
+ */
+describe("một nguồn cho hạn mức AI", () => {
+  /** Nơi duy nhất được nhắc tới trường hạn mức của một gói để TÍNH tổng. */
+  const CHO_PHEP = new Set(["api/subscription.ts"]);
+
+  it("không ai tự tính tổng hạn mức bằng max() trên danh sách gói", () => {
+    const pham = TEP.filter((t) => {
+      if (CHO_PHEP.has(t.ten)) return false;
+      const noi = boBinhLuan(t.noiDung);
+      return /Math\.max\([^)]*dailyQuota/s.test(noi);
+    }).map((t) => t.ten);
+
+    expect(
+      pham,
+      'Hạn mức do máy chủ tính. Dùng `useAIQuota` (hoặc `subscriptionApi.getQuota`) ' +
+        "thay vì max() trên danh sách gói — bản tự tính không biết lượt thưởng từ mini game.",
+    ).toEqual([]);
+  });
+
+  it("không ai viết cứng hạn mức của gói miễn phí", () => {
+    // `FREE_DAILY_QUOTA` sống ở backend. Viết lại con số ấy vào giao diện là
+    // một nguồn sự thật thứ hai: đổi ở backend thì màn hình nói dối.
+    const pham = TEP.filter((t) => {
+      if (CHO_PHEP.has(t.ten)) return false;
+      const noi = boBinhLuan(t.noiDung);
+      return /(gói\s+FREE|gói\s+miễn\s+phí)[^.\n]{0,40}\(\s*\d+\s*lượt/i.test(noi);
+    }).map((t) => t.ten);
+
+    expect(
+      pham,
+      "Lấy số lượt của gói miễn phí từ máy chủ (`tuGoi`), đừng viết cứng.",
+    ).toEqual([]);
+  });
+});
