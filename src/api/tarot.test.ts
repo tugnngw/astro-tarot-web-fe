@@ -41,8 +41,27 @@ describe("sendChat", () => {
     expect(fetchMock.mock.calls[0][0]).toContain("/api/chat");
     expect(fetchMock.mock.calls[0][1]).toMatchObject({
       method: "POST",
-      body: JSON.stringify({ message: "Điều gì đang chờ tôi?", readingId: null }),
+      body: JSON.stringify({
+        message: "Điều gì đang chờ tôi?",
+        readingId: null,
+        nguoiThuHai: null,
+      }),
     });
+  });
+
+  it("phiên xem đôi: người thứ hai đi kèm TỪNG tin nhắn, không chỉ lúc rút bài", async () => {
+    // Máy chủ dựng lại ngữ cảnh chiêm tinh từ đầu ở mỗi lượt và không lưu
+    // người thứ hai ở đâu cả. Bỏ sót một tin nhắn là lượt ấy lặng lẽ quay về
+    // một người, mà câu trả lời vẫn trôi chảy nên không ai thấy.
+    const fetchMock = mockFetch(json({ data: { reply: "Hai bạn..." } }, 201));
+
+    await sendChat("Tụi mình hợp không?", "reading-1", {
+      name: "Minh",
+      birthDate: "1998-08-03",
+    });
+
+    const body = JSON.parse(String(fetchMock.mock.calls[0][1]?.body));
+    expect(body.nguoiThuHai).toEqual({ name: "Minh", birthDate: "1998-08-03" });
   });
 
   it("làm mới token rồi chỉ gửi lại đúng một chat khi chat bị 401", async () => {
@@ -67,7 +86,11 @@ describe("sendChat", () => {
     );
     expect(fetchMock.mock.calls[2][0]).toContain("/api/chat");
     expect(fetchMock.mock.calls[2][1]).toMatchObject({
-      body: JSON.stringify({ message: "Hỏi tiếp", readingId: "reading-1" }),
+      body: JSON.stringify({
+        message: "Hỏi tiếp",
+        readingId: "reading-1",
+        nguoiThuHai: null,
+      }),
     });
     expect(new Headers(fetchMock.mock.calls[2][1]?.headers).get("Authorization")).toBe(
       "Bearer new-access",

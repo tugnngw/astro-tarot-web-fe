@@ -5,11 +5,31 @@ import { thongDiepLoi } from "@/components/ListError";
 // ============================================================
 // REQUEST DTO - Khớp với StartTarotReadingRequest của BE
 // ============================================================
+/**
+ * Người thứ hai của một lượt xem đôi.
+ *
+ * Gửi kèm TỪNG yêu cầu chứ không lưu thành hồ sơ: người thứ hai không có tài
+ * khoản, và nếu máy chủ nhớ hộ theo userId thì người của phiên trước sẽ còn
+ * nguyên trong lượt xem một mình của phiên sau.
+ *
+ * Mọi trường đều không bắt buộc — người dùng hay biết tên mà không biết ngày
+ * sinh của đối phương. Chỉ cần một cái tên cũng đủ để lời giải nói về hai
+ * người thay vì một.
+ */
+export interface NguoiThuHai {
+  name?: string;
+  birthDate?: string; // yyyy-MM-dd
+  birthTime?: string; // HH:mm:ss
+  birthPlace?: string;
+  timezone?: string;
+}
+
 export interface StartTarotReadingRequest {
   question: string; // Câu hỏi của user (bắt buộc)
   numberOfCards?: number; // Số lá bài (mặc định 3)
   includeReversed?: boolean; // Có bao gồm lá ngược (mặc định true)
   spreadName?: string; // Tên spread (mặc định "Past-Present-Future")
+  nguoiThuHai?: NguoiThuHai | null; // Chỉ có ở lượt xem đôi
 }
 
 // ============================================================
@@ -53,6 +73,7 @@ export async function startAiTarotReading(
     includeReversed:
       request.includeReversed !== undefined ? request.includeReversed : true,
     spreadName: request.spreadName || "Past-Present-Future",
+    nguoiThuHai: request.nguoiThuHai ?? null,
   };
 
   return apiFetch<TarotReadingResult>("/api/ai-readings", {
@@ -66,10 +87,20 @@ export interface ChatResponse {
   response?: string;
 }
 
-export function sendChat(message: string, readingId: string | null) {
+/**
+ * `nguoiThuHai` phải đi kèm MỌI tin nhắn của một phiên xem đôi, không chỉ lúc
+ * rút bài. Máy chủ dựng lại ngữ cảnh chiêm tinh từ đầu ở mỗi lượt và không
+ * lưu người thứ hai ở đâu cả, nên bỏ sót một lần là lượt ấy quay về một
+ * người — mà câu trả lời vẫn trôi chảy nên không ai thấy.
+ */
+export function sendChat(
+  message: string,
+  readingId: string | null,
+  nguoiThuHai?: NguoiThuHai | null,
+) {
   return apiFetch<ChatResponse>("/api/chat", {
     method: "POST",
-    body: JSON.stringify({ message, readingId }),
+    body: JSON.stringify({ message, readingId, nguoiThuHai: nguoiThuHai ?? null }),
   });
 }
 
