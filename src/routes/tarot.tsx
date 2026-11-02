@@ -28,6 +28,7 @@ import {
   sendChat,
   startAiTarotReading,
   type TarotReadingResult,
+  type NguoiThuHai,
 } from "@/api/tarot";
 import { createAstrologyProfile } from "@/api/astrology";
 import {
@@ -37,6 +38,7 @@ import {
 } from "@/lib/utils";
 import { tokenStore } from "@/api/client";
 import { coDuLaSo } from "@/lib/la-so";
+import { nguoiThuHaiCuaPhien } from "@/features/tarot/nguoi-thu-hai";
 import { trackCta } from "@/lib/track";
 import { searchPlaces } from "@/lib/geocode";
 import { QuotaDisplay } from "@/components/subscription";
@@ -383,7 +385,11 @@ async function getTimezoneInfo(
 // ============================================================
 // 🔥 CALL CHAT API
 // ============================================================
-async function callChat(message: string, readingId: string | null): Promise<string> {
+async function callChat(
+  message: string,
+  readingId: string | null,
+  nguoiThuHai: NguoiThuHai | null,
+): Promise<string> {
   if (!tokenStore.getAccess()) {
     console.warn("⚠️ No access token found");
     return "Xin lỗi, bạn cần đăng nhập để sử dụng tính năng này.";
@@ -392,7 +398,7 @@ async function callChat(message: string, readingId: string | null): Promise<stri
   try {
     console.log(`📤 Sending chat${readingId ? ` to reading: ${readingId}` : ""}`);
 
-    const data = await sendChat(message, readingId);
+    const data = await sendChat(message, readingId, nguoiThuHai);
     const reply = data?.reply || data?.response;
 
     if (!reply) {
@@ -408,15 +414,19 @@ async function callChat(message: string, readingId: string | null): Promise<stri
   }
 }
 
-async function callGeneralChat(message: string): Promise<string> {
-  return callChat(message, null);
+async function callGeneralChat(
+  message: string,
+  nguoiThuHai: NguoiThuHai | null,
+): Promise<string> {
+  return callChat(message, null, nguoiThuHai);
 }
 
 async function callTarotChat(
   readingId: string,
   message: string,
+  nguoiThuHai: NguoiThuHai | null,
 ): Promise<string> {
-  return callChat(message, readingId);
+  return callChat(message, readingId, nguoiThuHai);
 }
 
 function TarotPage() {
@@ -1105,15 +1115,24 @@ function TarotPage() {
 
       // Bấm nút rút bài thì không có câu hỏi nào; khi ấy phải nói thẳng việc
       // cần làm, đừng gửi lời chào — mô hình sẽ chào lại thay vì luận bài.
-      const cauHoiGui =
-        cauHoi?.trim() ||
-        `Mình là ${name}. Hãy luận giải trải bài Quá khứ – Hiện tại – Tương lai này cho mình.`;
+      //
+      // Phiên xem đôi phải nói ra là xem cho hai người ngay trong câu hỏi.
+      // Dữ liệu của người thứ hai đã nằm trong ngữ cảnh, nhưng câu hỏi mới là
+      // thứ mô hình bám vào để chọn thể loại trả lời — hỏi "cho mình" thì nó
+      // vẽ chân dung một người, đúng cái lỗi vừa sửa.
+      const nguoiHai = nguoiThuHaiCuaPhien(people);
+      const cauHoiMacDinh = nguoiHai
+        ? `Mình là ${name}, xem cùng ${nguoiHai.name || "một người nữa"}. ` +
+          `Hãy luận giải trải bài Quá khứ – Hiện tại – Tương lai cho hai đứa mình.`
+        : `Mình là ${name}. Hãy luận giải trải bài Quá khứ – Hiện tại – Tương lai này cho mình.`;
+      const cauHoiGui = cauHoi?.trim() || cauHoiMacDinh;
 
       const result = await startAiTarotReading({
         question: cauHoiGui,
         numberOfCards: 3,
         includeReversed: true,
         spreadName: "Past-Present-Future",
+        nguoiThuHai: nguoiHai,
       });
 
       console.log("✅ Reading result:", result);
@@ -1288,10 +1307,10 @@ function TarotPage() {
 
       if (readingId) {
         // ✅ Đã rút bài → Chat Tarot (Astrology + Tarot)
-        reply = await callTarotChat(readingId, text);
+        reply = await callTarotChat(readingId, text, nguoiThuHaiCuaPhien(people));
       } else {
         // ✅ Chưa rút bài → Chat thường (Chỉ Astrology)
-        reply = await callGeneralChat(text);
+        reply = await callGeneralChat(text, nguoiThuHaiCuaPhien(people));
       }
 
       console.log("✅ Reply từ API:", reply);
