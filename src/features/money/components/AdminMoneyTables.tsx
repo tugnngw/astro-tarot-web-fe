@@ -45,6 +45,18 @@ import { ListError } from "@/components/ListError";
  * Người trực mở sao kê ngân hàng bên cạnh và tìm theo mã tham chiếu, nên mã đó
  * phải là thứ dễ đọc nhất trên mỗi dòng — không phải tên khách hay số tiền.
  */
+/**
+ * Vạch màu bên trái mỗi hàng giao dịch.
+ *
+ * Giữ trạng thái dò được bằng mắt khi dọc xuống, kể cả ở hàng đang chờ —
+ * nơi cột cuối là hai cái nút chứ không phải thẻ trạng thái.
+ */
+function vienTheoTrangThai(tt: TransactionStatus) {
+  if (tt === "SUCCESS") return "border-success/50";
+  if (tt === "PENDING") return "border-warning/50";
+  return "border-destructive/50";
+}
+
 export function PaymentQueue() {
   // Mặc định "Tất cả", không phải "Chờ đối soát". Lọc sẵn một trạng thái làm
   // màn này trông như toàn bộ giao dịch của hệ thống đều đang treo: mở ra chỉ
@@ -93,64 +105,75 @@ export function PaymentQueue() {
         emptyTitle="Không có giao dịch nào"
         emptyHint="Khi khách tạo lệnh chuyển khoản, giao dịch sẽ xuất hiện ở đây."
       >
-        <ul className="mt-4 space-y-2">
+        {/*
+          Hàng tiêu đề. Có nó thì ô trống ở một cột đọc ra là "cột này hàng
+          này không có gì", chứ không phải bố cục vỡ — đó là khác biệt giữa
+          một bảng và mấy cái thẻ xếp cạnh nhau. Tiêu đề căn cùng kiểu với dữ
+          liệu bên dưới: lệch nhau là mắt mất mốc khi dò dọc.
+        */}
+        <div className="mt-4 hidden items-center gap-4 px-4 pb-2 text-2xs uppercase tracking-wider text-muted-foreground lg:flex">
+          <span className="flex-1">Mã tham chiếu</span>
+          <span className="flex-1">Khách</span>
+          <span className="w-40 shrink-0">Thời gian</span>
+          <span className="w-32 shrink-0 text-right">Số tiền</span>
+          <span className="w-60 shrink-0 text-right">Trạng thái</span>
+        </div>
+
+        <ul className="space-y-1.5 lg:space-y-1">
           {items.map((t) => (
             <li
               key={t.id}
-              className="rounded-xl border border-white/5 bg-white/[0.02] p-4 transition hover:border-gold/20 hover:bg-white/[0.04]"
+              className={`rounded-lg border-l-2 bg-white/[0.02] px-4 py-3 transition hover:bg-white/[0.05] ${vienTheoTrangThai(t.status)}`}
             >
-              {/*
-                Một hàng ngang trên màn rộng, xếp chồng trên điện thoại.
-                Trước đây mã, số tiền và hai nút nằm trên BA dòng riêng, nên ở
-                màn rộng thẻ cao gấp ba mà khoảng giữa thì trống trơn — và với
-                bộ lọc "Tất cả" thì phần lớn giao dịch không có nút, thành ra
-                danh sách cao thấp so le.
-              */}
-              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-5">
-                <div className="min-w-0 flex-1">
-                  <p className="font-mono text-sm tracking-wider text-gold">
-                    {t.referenceCode ?? "—"}
-                  </p>
-                  <p className="mt-1 truncate text-sm">
-                    {t.payerName}
-                    {t.readerName && (
-                      <span className="text-muted-foreground">
-                        {" "}
-                        → {t.readerName}
-                      </span>
-                    )}
-                  </p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    {formatDateTime(t.createdAt)}
-                    {t.bookingStartTime &&
-                      ` · buổi xem ${formatDateTime(t.bookingStartTime)}`}
-                  </p>
+              <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:gap-4">
+                <p className="min-w-0 flex-1 truncate font-mono text-sm tracking-wider text-gold">
+                  {t.referenceCode ?? "—"}
+                </p>
+
+                <p className="min-w-0 flex-1 truncate text-sm">
+                  {t.payerName}
+                  {t.readerName && (
+                    <span className="text-muted-foreground">
+                      {" "}
+                      → {t.readerName}
+                    </span>
+                  )}
+                </p>
+
+                {/* Thời gian căn TRÁI: ngày giờ là con số định danh, không
+                    phải số đo — căn phải nó thì không so được mốc nào với
+                    mốc nào, chỉ rối thêm. */}
+                <div className="w-40 shrink-0 text-xs">
+                  <span className="text-muted-foreground lg:hidden">Lúc </span>
+                  {formatDateTime(t.createdAt)}
+                  {t.bookingStartTime && (
+                    <span className="block text-2xs text-muted-foreground">
+                      buổi xem {formatDateTime(t.bookingStartTime)}
+                    </span>
+                  )}
                 </div>
 
-                {/* Tiền và trạng thái đi với nhau, trong một cột rộng cố định
-                    để các hàng thẳng cột — số tiền mà so le theo độ dài tên
-                    khách thì không dò dọc xuống được. */}
-                <div className="flex items-center gap-3 lg:w-44 lg:shrink-0 lg:flex-col lg:items-end lg:gap-1">
-                  <p className="font-display text-lg text-gold">
-                    {tien(t.amount)}
-                  </p>
-                  <Badge
-                    label={TRANSACTION_STATUS_LABEL[t.status]}
-                    tone={
-                      t.status === "SUCCESS"
-                        ? "ok"
-                        : t.status === "PENDING"
-                          ? "warn"
-                          : "bad"
-                    }
-                  />
-                </div>
+                {/* Số tiền căn PHẢI và dùng chữ số đều bề ngang, để 15.000
+                    với 500.000 thẳng hàng đơn vị mà so được độ lớn. */}
+                <p className="w-32 shrink-0 font-display text-base tabular-nums text-gold lg:text-right">
+                  {tien(t.amount)}
+                </p>
 
-                {/* Cột hành động giữ chỗ cả khi giao dịch đã xong và không còn
-                    nút nào. Để nó co lại thì mỗi hàng một bề ngang, và cột
-                    tiền bên trái nhảy chỗ theo từng dòng. */}
-                <div className="flex flex-wrap items-center gap-2 lg:w-64 lg:shrink-0 lg:justify-end">
-                  {t.status === "PENDING" && (
+                {/*
+                  Cột cuối chỉ chứa MỘT thứ, và luôn sát mép phải.
+
+                  Giao dịch đã xong thì đó là thẻ trạng thái; giao dịch đang
+                  chờ thì đó là hai nút — chờ đối soát nghĩa là đang đợi
+                  người trực quyết, nên hai cái nút chính là trạng thái, dán
+                  thêm thẻ "Chờ đối soát" bên cạnh là nói hai lần một ý.
+                  Trước đây cột hành động để trống ở hàng đã xong, nên thẻ
+                  trạng thái đứng lửng giữa hàng còn mép phải bỏ không.
+
+                  Trạng thái vẫn dò được bằng mắt ở hàng đang chờ: vạch màu
+                  bên trái mỗi hàng đã nói điều đó rồi.
+                */}
+                <div className="flex w-60 shrink-0 flex-wrap items-center gap-2 lg:justify-end">
+                  {t.status === "PENDING" ? (
                     <>
                       <button
                         type="button"
@@ -158,13 +181,11 @@ export function PaymentQueue() {
                         onClick={() =>
                           void run(
                             () =>
-                              dong.chay(t.id, () =>
-                                confirm.mutateAsync(t.id),
-                              ),
+                              dong.chay(t.id, () => confirm.mutateAsync(t.id)),
                             "Đã xác nhận thanh toán",
                           )
                         }
-                        className="inline-flex items-center gap-1.5 rounded-full border border-success/30 px-3.5 py-1.5 text-xs text-success transition hover:bg-success/10 disabled:opacity-40"
+                        className="inline-flex items-center gap-1.5 rounded-full border border-success/30 px-3 py-1 text-xs text-success transition hover:bg-success/10 disabled:opacity-40"
                       >
                         <Check aria-hidden="true" className="h-3.5 w-3.5" /> Đã
                         nhận tiền
@@ -177,12 +198,17 @@ export function PaymentQueue() {
                           setReason("");
                         }}
                         aria-expanded={rejecting === t.id}
-                        className="inline-flex items-center gap-1.5 rounded-full border border-destructive/30 px-3.5 py-1.5 text-xs text-destructive transition hover:bg-destructive/10 disabled:opacity-40"
+                        className="inline-flex items-center gap-1.5 rounded-full border border-destructive/30 px-3 py-1 text-xs text-destructive transition hover:bg-destructive/10 disabled:opacity-40"
                       >
                         <X aria-hidden="true" className="h-3.5 w-3.5" /> Không
                         tìm thấy
                       </button>
                     </>
+                  ) : (
+                    <Badge
+                      label={TRANSACTION_STATUS_LABEL[t.status]}
+                      tone={t.status === "SUCCESS" ? "ok" : "bad"}
+                    />
                   )}
                 </div>
               </div>
@@ -302,6 +328,7 @@ export function PayoutQueue() {
                     {tien(p.amount)}
                   </p>
                   <Badge
+                    className="mt-1"
                     label={PAYOUT_STATUS_LABEL[p.status]}
                     tone={
                       p.status === "PAID"
@@ -513,6 +540,7 @@ export function ReportQueue() {
                   )}
                 </div>
                 <Badge
+                  className="mt-1"
                   label={REPORT_STATUS_LABEL[r.status]}
                   tone={
                     r.status === "RESOLVED"
@@ -718,9 +746,13 @@ function StatusFilter({
 function Badge({
   label,
   tone,
+  className = "",
 }: {
   label: string;
   tone: "ok" | "warn" | "bad";
+  /** Lề do chỗ dùng quyết định — thẻ trạng thái tự mang lề thì ở hàng
+      ngang nó bị đẩy lệch khỏi trục giữa. */
+  className?: string;
 }) {
   const cls =
     tone === "ok"
@@ -730,7 +762,7 @@ function Badge({
         : "border-destructive/30 text-destructive";
   return (
     <span
-      className={`mt-1 inline-block rounded-full border px-2.5 py-0.5 text-2xs ${cls}`}
+      className={`inline-block rounded-full border px-2.5 py-0.5 text-2xs ${cls} ${className}`}
     >
       {label}
     </span>
