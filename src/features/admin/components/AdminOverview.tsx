@@ -21,7 +21,6 @@ import {
   Bot,
   Wallet,
   TrendingUp,
-  Target,
 } from "lucide-react";
 import {
   Bar,
@@ -217,22 +216,6 @@ function subStats(s: AdminStats): NonNullable<AdminStats["subscriptions"]> {
   );
 }
 
-/** BE cũ chưa có khối `traction` thì coi như 0. */
-function tractionStats(s: AdminStats): NonNullable<AdminStats["traction"]> {
-  return (
-    s.traction ?? {
-      registeredUsers: s.users.total,
-      successfulPayments: s.revenue?.successfulPayments ?? 0,
-      completedBookings: s.bookings.byStatus.COMPLETED ?? 0,
-      reviewsCount: 0,
-      feedbackCount: 0,
-      feedbackGoalMet: false,
-      affiliateClicks30d: s.shop.clicksLast30Days,
-      marketingEventsLast30Days: {},
-    }
-  );
-}
-
 export function AdminOverview() {
   const query = useAdminStats();
 
@@ -273,7 +256,6 @@ export function AdminOverview() {
   const s = query.data;
   const ai = aiStats(s);
   const sub = subStats(s);
-  const traction = tractionStats(s);
 
   const kpis = [
     {
@@ -337,8 +319,6 @@ export function AdminOverview() {
   return (
     <div className="space-y-6">
       {s.tongQuan && <BonSoLieuChinh tongQuan={s.tongQuan} />}
-
-      <TractionStrip traction={traction} />
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-6">
         {kpis.map((k) => {
@@ -482,56 +462,6 @@ function BonSoLieuChinh({
           </div>
         ))}
       </div>
-    </section>
-  );
-}
-
-// ------------------------------------------------------------
-// Traction (Pitch / EXE201)
-// ------------------------------------------------------------
-
-function TractionStrip({
-  traction: t,
-}: {
-  traction: NonNullable<AdminStats["traction"]>;
-}) {
-  const items = [
-    { label: "Người dùng", value: so(t.registeredUsers) },
-    { label: "Thanh toán SUCCESS", value: so(t.successfulPayments) },
-    { label: "Buổi hoàn tất", value: so(t.completedBookings) },
-    { label: "Đánh giá Reader", value: so(t.reviewsCount) },
-    { label: "Phản hồi khảo sát", value: so(t.feedbackCount) },
-    { label: "Affiliate 30 ngày", value: so(t.affiliateClicks30d) },
-  ];
-  const eventEntries = Object.entries(t.marketingEventsLast30Days ?? {});
-
-  return (
-    <section className="glass rounded-2xl border border-gold/30 p-5">
-      <div className="flex flex-wrap items-center gap-2">
-        <Target className="h-4 w-4 text-gold" />
-        <h2 className="font-display text-lg">Traction — chụp cho Pitch</h2>
-        <ChuThich>
-          Một khối số liệu cho slide EXE201. Biểu đồ doanh thu bên dưới vẫn gồm
-          dữ liệu gieo sẵn để test — khi nộp OC3 thì dùng giao dịch PayOS thật
-          và ghi rõ.
-        </ChuThich>
-      </div>
-      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        {items.map((it) => (
-          <div
-            key={it.label}
-            className="rounded-xl bg-mystic/10 px-3 py-3"
-          >
-            <div className="font-display text-2xl leading-none">{it.value}</div>
-            <div className="mt-1 text-xs text-muted-foreground">{it.label}</div>
-          </div>
-        ))}
-      </div>
-      {eventEntries.length > 0 && (
-        <p className="mt-3 text-xs text-muted-foreground">
-          CTA 30 ngày: {eventEntries.map(([k, v]) => `${k}=${v}`).join(" · ")}
-        </p>
-      )}
     </section>
   );
 }

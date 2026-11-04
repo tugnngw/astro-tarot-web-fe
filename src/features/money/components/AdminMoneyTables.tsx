@@ -46,7 +46,11 @@ import { ListError } from "@/components/ListError";
  * phải là thứ dễ đọc nhất trên mỗi dòng — không phải tên khách hay số tiền.
  */
 export function PaymentQueue() {
-  const [status, setStatus] = useState("PENDING");
+  // Mặc định "Tất cả", không phải "Chờ đối soát". Lọc sẵn một trạng thái làm
+  // màn này trông như toàn bộ giao dịch của hệ thống đều đang treo: mở ra chỉ
+  // thấy hàng chờ, không thấy những khoản đã xong, và không có gì trên màn
+  // nói rằng mình đang nhìn một lát cắt.
+  const [status, setStatus] = useState("");
   const [page, setPage] = useState(0);
   const query = usePayments({
     status: status || undefined,
@@ -91,13 +95,23 @@ export function PaymentQueue() {
       >
         <ul className="mt-4 space-y-2">
           {items.map((t) => (
-            <li key={t.id} className="rounded-xl border border-white/5 p-4">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="font-mono text-base tracking-wider text-gold">
+            <li
+              key={t.id}
+              className="rounded-xl border border-white/5 bg-white/[0.02] p-4 transition hover:border-gold/20 hover:bg-white/[0.04]"
+            >
+              {/*
+                Một hàng ngang trên màn rộng, xếp chồng trên điện thoại.
+                Trước đây mã, số tiền và hai nút nằm trên BA dòng riêng, nên ở
+                màn rộng thẻ cao gấp ba mà khoảng giữa thì trống trơn — và với
+                bộ lọc "Tất cả" thì phần lớn giao dịch không có nút, thành ra
+                danh sách cao thấp so le.
+              */}
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-5">
+                <div className="min-w-0 flex-1">
+                  <p className="font-mono text-sm tracking-wider text-gold">
                     {t.referenceCode ?? "—"}
                   </p>
-                  <p className="mt-1 text-sm">
+                  <p className="mt-1 truncate text-sm">
                     {t.payerName}
                     {t.readerName && (
                       <span className="text-muted-foreground">
@@ -106,13 +120,17 @@ export function PaymentQueue() {
                       </span>
                     )}
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="mt-0.5 text-xs text-muted-foreground">
                     {formatDateTime(t.createdAt)}
                     {t.bookingStartTime &&
                       ` · buổi xem ${formatDateTime(t.bookingStartTime)}`}
                   </p>
                 </div>
-                <div className="text-right">
+
+                {/* Tiền và trạng thái đi với nhau, trong một cột rộng cố định
+                    để các hàng thẳng cột — số tiền mà so le theo độ dài tên
+                    khách thì không dò dọc xuống được. */}
+                <div className="flex items-center gap-3 lg:w-44 lg:shrink-0 lg:flex-col lg:items-end lg:gap-1">
                   <p className="font-display text-lg text-gold">
                     {tien(t.amount)}
                   </p>
@@ -127,39 +145,47 @@ export function PaymentQueue() {
                     }
                   />
                 </div>
-              </div>
 
-              {t.status === "PENDING" && (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    disabled={dong.ban(t.id)}
-                    onClick={() =>
-                      void run(
-                        () => dong.chay(t.id, () => confirm.mutateAsync(t.id)),
-                        "Đã xác nhận thanh toán",
-                      )
-                    }
-                    className="inline-flex items-center gap-1.5 rounded-full border border-success/30 px-3.5 py-1.5 text-xs text-success transition hover:bg-success/10 disabled:opacity-40"
-                  >
-                    <Check aria-hidden="true" className="h-3.5 w-3.5" /> Đã nhận
-                    tiền
-                  </button>
-                  <button
-                    type="button"
-                    disabled={dong.ban(t.id)}
-                    onClick={() => {
-                      setRejecting(rejecting === t.id ? null : t.id);
-                      setReason("");
-                    }}
-                    aria-expanded={rejecting === t.id}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-destructive/30 px-3.5 py-1.5 text-xs text-destructive transition hover:bg-destructive/10 disabled:opacity-40"
-                  >
-                    <X aria-hidden="true" className="h-3.5 w-3.5" /> Không tìm
-                    thấy
-                  </button>
+                {/* Cột hành động giữ chỗ cả khi giao dịch đã xong và không còn
+                    nút nào. Để nó co lại thì mỗi hàng một bề ngang, và cột
+                    tiền bên trái nhảy chỗ theo từng dòng. */}
+                <div className="flex flex-wrap items-center gap-2 lg:w-64 lg:shrink-0 lg:justify-end">
+                  {t.status === "PENDING" && (
+                    <>
+                      <button
+                        type="button"
+                        disabled={dong.ban(t.id)}
+                        onClick={() =>
+                          void run(
+                            () =>
+                              dong.chay(t.id, () =>
+                                confirm.mutateAsync(t.id),
+                              ),
+                            "Đã xác nhận thanh toán",
+                          )
+                        }
+                        className="inline-flex items-center gap-1.5 rounded-full border border-success/30 px-3.5 py-1.5 text-xs text-success transition hover:bg-success/10 disabled:opacity-40"
+                      >
+                        <Check aria-hidden="true" className="h-3.5 w-3.5" /> Đã
+                        nhận tiền
+                      </button>
+                      <button
+                        type="button"
+                        disabled={dong.ban(t.id)}
+                        onClick={() => {
+                          setRejecting(rejecting === t.id ? null : t.id);
+                          setReason("");
+                        }}
+                        aria-expanded={rejecting === t.id}
+                        className="inline-flex items-center gap-1.5 rounded-full border border-destructive/30 px-3.5 py-1.5 text-xs text-destructive transition hover:bg-destructive/10 disabled:opacity-40"
+                      >
+                        <X aria-hidden="true" className="h-3.5 w-3.5" /> Không
+                        tìm thấy
+                      </button>
+                    </>
+                  )}
                 </div>
-              )}
+              </div>
 
               {rejecting === t.id && (
                 <InlineReason
