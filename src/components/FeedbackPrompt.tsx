@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Edit3, Loader2, MessageSquareHeart, Star, X } from "lucide-react";
+import { Loader2, MessageSquareHeart, Star, X } from "lucide-react";
 import { toast } from "sonner";
 import { LopPhu } from "@/components/GocNoi";
 import {
@@ -7,7 +7,6 @@ import {
   getMyFeedbackStatus,
   submitFeedback,
   type SubmitFeedbackPayload,
-  type UserFeedbackResponse,
 } from "@/api/feedback";
 import { useAuth } from "@/lib/auth-context";
 import { readStoredUtm } from "@/lib/utm";
@@ -24,7 +23,9 @@ import {
  * - Tuỳ chọn: Bình luận tối đa 2.000 ký tự kèm bộ đếm thời gian thực.
  * - Tuỳ chọn: Điểm NPS (0–10). Nếu bỏ qua, hệ thống tự động gán nps = rating * 2.
  * - Khách vãng lai gửi phản hồi độc lập không gán ID giả mạo.
- * - Thành viên đã đăng nhập có thể xem và sửa lại đánh giá cũ mà không làm tăng tổng số bản ghi.
+ * - Gửi bao nhiêu lần cũng được: mỗi lần là một bản ghi riêng, lần trước
+ *   không bị ghi đè. `alreadySubmitted` chỉ dùng để chào cho đúng giọng —
+ *   KHÔNG dùng nó để khoá form hay để gọi đây là màn "sửa".
  */
 export function FeedbackPrompt({
   defaultSource = "GENERAL",
@@ -41,9 +42,6 @@ export function FeedbackPrompt({
   const [comment, setComment] = useState("");
   const [busy, setBusy] = useState(false);
   const [alreadySubmitted, setAlreadySubmitted] = useState(false);
-  const [myFeedback, setMyFeedback] = useState<UserFeedbackResponse | null>(
-    null,
-  );
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -55,15 +53,11 @@ export function FeedbackPrompt({
   useEffect(() => {
     if (!user) {
       setAlreadySubmitted(false);
-      setMyFeedback(null);
       return;
     }
     void getMyFeedbackStatus()
       .then((status) => {
         setAlreadySubmitted(status.submitted);
-        if (status.myFeedback) {
-          setMyFeedback(status.myFeedback);
-        }
       })
       .catch(() => {
         /* guest / BE offline / mạng lỗi */
@@ -71,18 +65,17 @@ export function FeedbackPrompt({
   }, [user]);
 
   function handleOpen() {
-    if (myFeedback) {
-      setRating(myFeedback.rating);
-      setComment(myFeedback.comment ?? "");
-      setNps(myFeedback.nps ?? null);
-      if (myFeedback.nps != null && myFeedback.nps !== myFeedback.rating * 2) {
-        setShowNps(true);
-      }
-    } else {
-      setRating(null);
-      setComment("");
-      setNps(null);
-    }
+    // Mở ra là một tờ trắng, kể cả khi đã góp ý trước đó.
+    //
+    // Trước đây hàm này đổ lại câu trả lời cũ, vì mỗi tài khoản chỉ có đúng
+    // một bản góp ý và lần gửi sau ghi đè lần trước. Giờ mỗi lần gửi là một
+    // bản riêng, nên đổ lại bài cũ sẽ khiến người ta sửa vài chữ rồi gửi —
+    // thành ra một bản gần như trùng, thay vì điều họ thật sự muốn nói lần
+    // này.
+    setRating(null);
+    setComment("");
+    setNps(null);
+    setShowNps(false);
     setOpen(true);
   }
 
@@ -102,7 +95,7 @@ export function FeedbackPrompt({
     setBusy(true);
     const utm = readStoredUtm();
     try {
-      const saved = await submitFeedback({
+      await submitFeedback({
         source: defaultSource,
         rating,
         nps,
@@ -114,16 +107,9 @@ export function FeedbackPrompt({
 
       trackCta("gui_gop_y", { nguon_gop_y: defaultSource, sao: rating ?? 0 });
 
-      toast.success(
-        alreadySubmitted
-          ? "Đã cập nhật đánh giá của bạn thành công"
-          : "Cảm ơn bạn — đánh giá đã được ghi nhận",
-      );
+      toast.success("Cảm ơn bạn — đánh giá đã được ghi nhận");
 
       setAlreadySubmitted(true);
-      if (saved) {
-        setMyFeedback(saved);
-      }
       setOpen(false);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Không gửi được đánh giá");
@@ -141,23 +127,10 @@ export function FeedbackPrompt({
         type="button"
         onClick={handleOpen}
         className="inline-flex items-center gap-2 rounded-full border border-gold/50 bg-card/90 px-3.5 py-2 text-xs font-medium text-gold shadow-lg backdrop-blur transition hover:bg-gold/10 focus:outline-none focus:ring-2 focus:ring-gold/50"
-        aria-label={
-          alreadySubmitted
-            ? "Xem và chỉnh sửa đánh giá của bạn"
-            : "Gửi đánh giá & góp ý"
-        }
+        aria-label="Gửi đánh giá & góp ý"
       >
-        {alreadySubmitted ? (
-          <>
-            <Edit3 className="h-4 w-4 text-gold" aria-hidden />
-            <span>Đánh giá của bạn</span>
-          </>
-        ) : (
-          <>
-            <MessageSquareHeart className="h-4 w-4 text-gold" aria-hidden />
-            <span>Góp ý</span>
-          </>
-        )}
+        <MessageSquareHeart className="h-4 w-4 text-gold" aria-hidden />
+        <span>Góp ý</span>
       </button>
 
       {open && (
@@ -176,13 +149,11 @@ export function FeedbackPrompt({
                     id="feedback-dialog-title"
                     className="font-display text-xl text-foreground"
                   >
-                    {alreadySubmitted
-                      ? "Chỉnh sửa đánh giá của bạn"
-                      : "Đánh giá trải nghiệm ASTROTAROT"}
+                    Đánh giá trải nghiệm ASTROTAROT
                   </h2>
                   <p className="mt-1 text-xs text-muted-foreground">
                     {alreadySubmitted
-                      ? "Cập nhật đánh giá sẽ lưu lại ý kiến mới nhất của bạn."
+                      ? "Cảm ơn bạn đã góp ý trước đó — lần này bạn thấy thế nào?"
                       : "Chia sẻ cảm nhận giúp chúng tôi nâng cao chất lượng dịch vụ."}
                   </p>
                 </div>
