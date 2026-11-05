@@ -313,13 +313,16 @@ export function FeedbackPrompt({
                     onClick={() => void handleSend()}
                     className="inline-flex items-center gap-1.5 rounded-full bg-gold px-5 py-2 text-xs font-semibold text-background shadow-sm transition hover:bg-gold/90 disabled:cursor-not-allowed disabled:opacity-45"
                   >
+                    {/*
+                      Nhãn KHÔNG đổi theo `alreadySubmitted`. Bấm nút này luôn
+                      là gửi một góp ý mới — chữ "Cập nhật" nói rằng bản cũ
+                      sắp bị thay, mà đó đúng là điều không còn xảy ra nữa.
+                    */}
                     {busy ? (
                       <>
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        <span>Đang lưu…</span>
+                        <span>Đang gửi…</span>
                       </>
-                    ) : alreadySubmitted ? (
-                      "Cập nhật góp ý"
                     ) : (
                       "Gửi đánh giá"
                     )}
