@@ -384,10 +384,8 @@ export function AdminOverview() {
  * phải con số. "Giao dịch" với "người trả phí" nghe như nhau mà lệch nhau vài
  * lần, vì một người nạp ví ba lần vẫn là một người.
  *
- * Số lớn là tổng, gồm cả dữ liệu gieo sẵn để demo. Dòng nhỏ bên dưới tách
- * riêng phần không phải seed, để lúc nào cần biết thì có sẵn — không bắt phải
- * dùng số nào. Máy chủ tách hai phần theo khuôn khoá chính của dữ liệu seed,
- * xem `DuLieuThat` bên backend.
+ * Số liệu gồm cả dữ liệu gieo sẵn để demo. Máy chủ vẫn tách hai phần theo
+ * khuôn khoá chính của dữ liệu seed, xem `DuLieuThat` bên backend.
  *
  * Hai ô cuối từng bị gộp làm một dưới chữ "Đánh giá". Sao khách chấm cho
  * Reader sau buổi xem, với phiếu góp ý về sản phẩm, là hai việc khác hẳn: một
@@ -403,32 +401,27 @@ function BonSoLieuChinh({
     {
       nhan: "Doanh thu",
       tong: tien(t.doanhThu),
-      that: tien(t.doanhThuThat),
       giaiThich: "Tiền khách đã trả, chỉ tính giao dịch trạng thái SUCCESS.",
     },
     {
       nhan: "Số lượng giao dịch",
       tong: so(t.soGiaoDich),
-      that: so(t.soGiaoDichThat),
       giaiThich: "Số LẦN trả tiền thành công, không phải số người.",
     },
     {
       nhan: "Người dùng trả phí",
       tong: so(t.nguoiTraPhi),
-      that: so(t.nguoiTraPhiThat),
       giaiThich:
         "Số NGƯỜI đã trả ít nhất một lần. Nạp ví ba lần vẫn là một người.",
     },
     {
       nhan: "Đánh giá Reader",
       tong: so(t.danhGiaReader),
-      that: so(t.danhGiaReaderThat),
       giaiThich: "Sao khách chấm cho Reader sau buổi xem.",
     },
     {
       nhan: "Góp ý sản phẩm",
       tong: so(t.gopYKhaoSat),
-      that: so(t.gopYKhaoSatThat),
       giaiThich: "Phiếu góp ý về hệ thống — việc khác với đánh giá Reader.",
     },
   ];
@@ -437,10 +430,7 @@ function BonSoLieuChinh({
     <section className="glass rounded-2xl border border-gold/30 p-5">
       <div className="flex items-center gap-1.5">
         <h2 className="font-display text-lg">Số liệu chính</h2>
-        <ChuThich>
-          Số lớn là tổng, gồm cả dữ liệu gieo sẵn để demo. Dòng nhỏ bên dưới
-          tách riêng phần không phải seed.
-        </ChuThich>
+        <ChuThich>Số liệu gồm cả dữ liệu gieo sẵn để demo.</ChuThich>
       </div>
 
       <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
@@ -455,9 +445,6 @@ function BonSoLieuChinh({
             </div>
             <div className="mt-1.5 font-display text-2xl leading-none text-gold">
               {it.tong}
-            </div>
-            <div className="mt-1 text-2xs text-muted-foreground/60">
-              {it.that} không tính seed
             </div>
           </div>
         ))}
